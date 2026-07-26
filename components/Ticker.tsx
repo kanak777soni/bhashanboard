@@ -1,27 +1,26 @@
 import Link from "next/link";
-import { IN_PLACEMENT } from "@/lib/data";
-import { tierByKey } from "@/lib/tiers";
-import { PLACEMENT_DUELS } from "@/lib/elo";
+import { REJECTED, STATS } from "@/lib/data";
 
+/**
+ * The running head. Reports the true state of the record rather than
+ * inventing activity: what is indexed, what is still missing, what was
+ * refused. An archive that overstates its own completeness is worth less
+ * than one that doesn't.
+ */
 export default function Ticker() {
-  const items = IN_PLACEMENT.map((s) => ({
-    href: `/statement/${s.slug}`,
-    text: `Entry No. ${String(s.id).padStart(5, "0")} · placement ${s.placement} of ${PLACEMENT_DUELS} · projected ${
-      tierByKey(s.projected ?? "gold").name
-    }`,
-  }));
-
-  items.push({
-    href: "/ledger",
-    text: "The Committee has conferred one Kohinoor Class in the past 24 hours",
-  });
+  const items = [
+    { href: "/ledger", text: `${STATS.indexed} entries indexed · ${STATS.onLadder} placed on the ladder · ${STATS.heldParity} held for parity` },
+    { href: "/ledger", text: `${STATS.withVerbatimQuote} of ${STATS.indexed} entries carry an established verbatim quote — the rest await one` },
+    { href: "/rejected", text: `${REJECTED.length} proposed statements refused under the Rules, each recorded with the rule that killed it` },
+    { href: "/ledger", text: "No entry is verified for publication. Every one awaits a Tier A or B clip, a timestamp and a transcript." },
+  ];
 
   // Duplicated so the -50% translate loops seamlessly.
   const loop = [...items, ...items];
 
   return (
     <div className="ticker">
-      <span className="ticker-tag">In placement</span>
+      <span className="ticker-tag">State of the record</span>
       <div className="ticker-viewport">
         <div className="ticker-track">
           {loop.map((it, i) => (

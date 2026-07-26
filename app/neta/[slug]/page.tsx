@@ -4,11 +4,11 @@ import { notFound } from "next/navigation";
 import SiteFrame from "@/components/SiteFrame";
 import Medal from "@/components/Medal";
 import StandingsTable from "@/components/StandingsTable";
-import { NETAS, netaBySlug, partyByCode, rankOf, statementsByNeta } from "@/lib/data";
+import { netaBySlug, netasWithEntries, partyByCode, rankOf, statementsByNeta } from "@/lib/data";
 import { TIERS, tierOf } from "@/lib/tiers";
 
 export function generateStaticParams() {
-  return NETAS.map((n) => ({ slug: n.slug }));
+  return netasWithEntries().map((n) => ({ slug: n.slug }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {

@@ -18,6 +18,7 @@ export default function DuelPage() {
       state: neta?.state ?? "—",
       gp: s.gp,
       duels: s.duels,
+      hasQuote: s.hasVerbatimQuote,
     };
   });
 

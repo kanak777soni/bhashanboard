@@ -579,3 +579,37 @@ footer.site p { margin: 0 0 8px; font-size: 13.5px; color: var(--ink-70); max-wi
   border: 1px solid var(--rule-hard); width: 26px; height: 26px;
   display: flex; align-items: center; justify-content: center;
 }
+
+/* ── corpus honesty affordances ──────────────────────────────────
+   The corpus contains entries whose exact wording was never
+   established. These styles exist so the UI can never quietly present
+   a paraphrase as a quotation. */
+.unquoted { font-family: var(--font-util); font-size: 10px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-45); white-space: nowrap; }
+.entry-quote .unquoted, .hall-quote .unquoted { display: inline-block; margin-left: 6px; vertical-align: 2px; }
+
+.provisional { border: 1px solid var(--seal); border-left-width: 3px; padding: 13px 16px; margin: 18px 0 22px; background: var(--ground); }
+.provisional > .lbl { color: var(--seal); }
+.provisional p { margin: 6px 0 0; font-size: 15px; }
+.needs { margin: 10px 0 0; padding-left: 18px; font-size: 14px; color: var(--ink-70); }
+.needs li { margin-bottom: 4px; }
+
+.quote-note { font-size: 13.5px; color: var(--ink-45); font-style: italic; margin: 0 0 14px; max-width: 74ch; }
+
+.claim-block { border-top: 1px solid var(--rule-hard); border-bottom: 1px solid var(--rule); padding: 13px 0; margin: 22px 0; }
+.claim-block p { margin: 6px 0 0; font-family: var(--font-display); font-size: 18px; line-height: 1.42; }
+
+.counterpoint { border-left: 3px solid var(--rise); padding: 2px 0 2px 15px; margin: 22px 0; }
+.counterpoint > .lbl { color: var(--rise); }
+.counterpoint p { margin: 5px 0 0; font-size: 15.5px; }
+
+.record-state { margin: 0; display: grid; gap: 0; }
+.record-state > div { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--rule); }
+.record-state > div:last-child { border-bottom: 0; }
+.record-state dt { margin: 0; }
+.record-state dd { margin: 0; font-size: 14px; }
+
+.rules-key { border: 1px solid var(--rule-hard); padding: 14px 16px; margin-top: 22px; background: var(--ground-2); }
+.rules-key dl { margin: 8px 0 0; display: grid; gap: 7px; }
+.rules-key dl > div { display: grid; grid-template-columns: 34px 1fr; gap: 12px; align-items: baseline; }
+.rules-key dt { margin: 0; }
+.rules-key dd { margin: 0; font-size: 14.5px; }

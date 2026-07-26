@@ -65,8 +65,14 @@ export default function StandingsTable({
                 <td className="c-medal"><Medal gp={s.gp} /></td>
                 <td>
                   <Link className="entry-quote" href={`/statement/${s.slug}`}>
-                    &ldquo;<Highlight text={s.quote} term={term} />&rdquo;
-                    {s.daysAgo < 20 && <span className="tag-new">New</span>}
+                    {s.hasVerbatimQuote ? (
+                      <>&ldquo;<Highlight text={s.quote} term={term} />&rdquo;</>
+                    ) : (
+                      <>
+                        <Highlight text={s.quote} term={term} />
+                        <span className="unquoted"> &mdash; wording not established</span>
+                      </>
+                    )}
                   </Link>
                   <div className="entry-sub">
                     <span className="only-narrow">

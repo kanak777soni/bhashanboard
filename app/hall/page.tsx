@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import SiteFrame from "@/components/SiteFrame";
 import Medal from "@/components/Medal";
+import EntryTitle from "@/components/EntryTitle";
 import { netaBySlug, rankedStatements } from "@/lib/data";
 
 export const metadata: Metadata = {
@@ -43,7 +44,7 @@ export default function HallPage() {
               </div>
               <div>
                 <Link href={`/statement/${s.slug}`} className="hall-quote">
-                  &ldquo;{s.quote}&rdquo;
+                  <EntryTitle statement={s} />
                 </Link>
                 {s.citation && (
                   <div style={{ fontStyle: "italic", color: "var(--foil)", fontSize: 14, marginTop: 2 }}>

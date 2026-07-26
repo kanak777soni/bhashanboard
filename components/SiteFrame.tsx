@@ -36,8 +36,10 @@ export default function SiteFrame({ children }: { children: React.ReactNode }) {
           </div>
         </div>
         <p>
-          <strong>This is a development build.</strong> Every entry, representative and party shown is
-          invented. No real person is quoted anywhere on this site.
+          <strong>This is a pre-launch build.</strong> Entries concern real, named representatives and
+          are drawn from reputable reporting, but none has been verified to publication standard. Where
+          the exact wording of a remark could not be established, no quotation is shown &mdash; a neutral
+          subject line stands in its place until the words themselves are sourced.
         </p>
         <p>
           Type is currently rendering in system fallbacks. Production self-hosts Libre Caslon Display,

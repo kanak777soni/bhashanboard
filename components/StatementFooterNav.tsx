@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Medal from "./Medal";
+import EntryTitle from "./EntryTitle";
 import { netaBySlug, rankedStatements, statementsByNeta } from "@/lib/data";
 
 /**
@@ -17,7 +18,7 @@ export default function StatementFooterNav({ slug }: { slug: string }) {
   const siblings = neta ? statementsByNeta(neta.slug).filter((s) => s.slug !== slug).slice(0, 4) : [];
 
   const citation = current && neta
-    ? `${neta.name}, ${neta.office}. "${current.quote}" ${current.venue}. ` +
+    ? `${neta.name}, ${neta.office}. ${current.hasVerbatimQuote ? `"${current.quote}"` : `[${current.neutralTitle}] — exact wording not established.`} ${current.venue}. ` +
       `The Bhashan Board, Entry No. ${String(current.id).padStart(5, "0")}, ranked #${i + 1}.`
     : "";
 
@@ -27,7 +28,7 @@ export default function StatementFooterNav({ slug }: { slug: string }) {
         {above ? (
           <Link href={`/statement/${above.slug}`} className="adjacent-item">
             <span className="lbl">Ranked above &middot; #{i}</span>
-            <span className="adjacent-quote">&ldquo;{above.quote}&rdquo;</span>
+            <EntryTitle statement={above} className="adjacent-quote" />
           </Link>
         ) : (
           <span className="adjacent-item empty-slot">
@@ -38,7 +39,7 @@ export default function StatementFooterNav({ slug }: { slug: string }) {
         {below ? (
           <Link href={`/statement/${below.slug}`} className="adjacent-item align-end">
             <span className="lbl">Ranked below &middot; #{i + 2}</span>
-            <span className="adjacent-quote">&ldquo;{below.quote}&rdquo;</span>
+            <EntryTitle statement={below} className="adjacent-quote" />
           </Link>
         ) : (
           <span className="adjacent-item align-end empty-slot">
@@ -57,7 +58,7 @@ export default function StatementFooterNav({ slug }: { slug: string }) {
             {siblings.map((s) => (
               <li key={s.slug}>
                 <Medal gp={s.gp} size={17} title={false} />
-                <Link href={`/statement/${s.slug}`}>&ldquo;{s.quote}&rdquo;</Link>
+                <Link href={`/statement/${s.slug}`}><EntryTitle statement={s} /></Link>
                 <span className="num">{s.gp.toLocaleString("en-IN")}</span>
               </li>
             ))}

@@ -3,10 +3,9 @@ import SiteFrame from "@/components/SiteFrame";
 import QueryForm from "@/components/QueryForm";
 import StandingsTable from "@/components/StandingsTable";
 import TierLegend from "@/components/TierLegend";
-import { CATEGORIES, IN_PLACEMENT, PARTIES, STATEMENTS, languages, states } from "@/lib/data";
+import EntryTitle from "@/components/EntryTitle";
+import { CATEGORIES, IN_PLACEMENT, PARTIES, STATEMENTS, STATS, languages, states } from "@/lib/data";
 import { parseQuery, runQuery } from "@/lib/query";
-import { PLACEMENT_DUELS } from "@/lib/elo";
-import { tierByKey } from "@/lib/tiers";
 
 export default async function StandingsPage({
   searchParams,
@@ -60,48 +59,51 @@ export default async function StandingsPage({
           <TierLegend compact />
 
           <section className="rail-block">
-            <h2>Now in placement</h2>
-            {IN_PLACEMENT.map((s) => (
+            <h2>Held, not placed</h2>
+            <p className="rail-note" style={{ marginBottom: 10 }}>
+              <span className="num">{IN_PLACEMENT.length}</span> entries are indexed but kept off the
+              ladder — held so no party exceeds its share, or referred for review. They are not hidden.
+              They are simply not ranked.
+            </p>
+            {IN_PLACEMENT.slice(0, 3).map((s) => (
               <div className="placement" key={s.slug}>
                 <p>
-                  <Link href={`/statement/${s.slug}`}>&ldquo;{s.quote}&rdquo;</Link>
+                  <Link href={`/statement/${s.slug}`}>
+                    <EntryTitle statement={s} />
+                  </Link>
                 </p>
-                <div className="meter">
-                  <i style={{ width: `${((s.placement ?? 0) / PLACEMENT_DUELS) * 100}%` }} />
-                </div>
                 <span className="lbl">
-                  Placement <span className="num">{s.placement}</span>/{PLACEMENT_DUELS} &middot; projected{" "}
-                  {tierByKey(s.projected ?? "gold").name}
+                  Held for {s.held === "review" ? "Committee review" : "parity"}
                 </span>
               </div>
             ))}
           </section>
 
           <section className="rail-block">
-            <h2>The public disagrees</h2>
-            <p className="rail-note" style={{ marginBottom: 10 }}>
-              Entries where the advisory ballot departs from the Committee&rsquo;s ruling. The ballot does
-              not yet carry weight.
-            </p>
-            <div className="divergence">
-              <span>Potato factory</span>
-              <span className="lbl">Committee Diamond &middot; Public Kohinoor</span>
-            </div>
-            <div className="divergence">
-              <span>Gravity in winter</span>
-              <span className="lbl">Committee Gold &middot; Public Diamond</span>
-            </div>
-            <div className="divergence">
-              <span>History began 1976</span>
-              <span className="lbl">Committee Gold &middot; Public Silver</span>
-            </div>
-          </section>
-
-          <section className="rail-block">
-            <h2>From the ledger</h2>
-            <p className="rail-note">
-              Three entries withdrawn this month following review. Two translations corrected. One right of
-              reply received and pinned. <Link href="/ledger">We keep score of ourselves.</Link>
+            <h2>State of the record</h2>
+            <dl className="record-state">
+              <div>
+                <dt className="lbl">Indexed</dt>
+                <dd className="num">{STATS.indexed}</dd>
+              </div>
+              <div>
+                <dt className="lbl">On the ladder</dt>
+                <dd className="num">{STATS.onLadder}</dd>
+              </div>
+              <div>
+                <dt className="lbl">Verbatim quote established</dt>
+                <dd className="num">
+                  {STATS.withVerbatimQuote} / {STATS.indexed}
+                </dd>
+              </div>
+              <div>
+                <dt className="lbl">Representatives</dt>
+                <dd className="num">{STATS.representatives}</dd>
+              </div>
+            </dl>
+            <p className="rail-note" style={{ marginTop: 10 }}>
+              Every entry is text-sourced and none is verified for publication.{" "}
+              <Link href="/ledger">The ledger explains what is missing.</Link>
             </p>
           </section>
         </aside>

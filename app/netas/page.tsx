@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import SiteFrame from "@/components/SiteFrame";
 import Medal from "@/components/Medal";
-import { NETAS, partyByCode, statementsByNeta } from "@/lib/data";
+import { netasWithEntries, partyByCode, statementsByNeta } from "@/lib/data";
 
 export const metadata: Metadata = {
   title: "Netas",
@@ -10,7 +10,8 @@ export const metadata: Metadata = {
 };
 
 export default function NetasPage() {
-  const rows = NETAS.map((n) => {
+  const roster = netasWithEntries();
+  const rows = roster.map((n) => {
     const entries = statementsByNeta(n.slug);
     return {
       neta: n,
@@ -24,7 +25,7 @@ export default function NetasPage() {
     <SiteFrame>
       <div className="sec-head" style={{ marginTop: 26 }}>
         <h1>Netas</h1>
-        <span className="lbl">{NETAS.length} on record</span>
+        <span className="lbl">{roster.length} on record</span>
       </div>
 
       <div className="tablewrap">

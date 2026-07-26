@@ -12,6 +12,7 @@ export interface DuelEntry {
   state: string;
   gp: number;
   duels: number;
+  hasQuote: boolean;
 }
 
 interface Pair {
@@ -95,7 +96,7 @@ export default function DuelStage({ entries }: { entries: DuelEntry[] }) {
 
   const panel = (side: "a" | "b", entry: DuelEntry, key: string) => (
     <button type="button" className="duel-panel" onClick={() => choose(side)}>
-      <p className="duel-quote">&ldquo;{entry.quote}&rdquo;</p>
+      <p className="duel-quote">{entry.hasQuote ? `\u201C${entry.quote}\u201D` : entry.quote}</p>
       <div className="duel-meta">
         {entry.neta} &middot; {entry.party} &middot; {entry.state}
       </div>

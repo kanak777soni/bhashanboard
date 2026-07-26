@@ -1,6 +1,6 @@
 import { netaBySlug, rankedStatements, rankOf } from "./data";
 import { tierOf } from "./tiers";
-import type { Statement } from "./types";
+import type { CorpusStatement } from "./corpus";
 
 /**
  * Filters live in the URL, not in component state. Every query is
@@ -64,7 +64,7 @@ export function toSearchParams(query: Query): string {
 }
 
 export interface Row {
-  statement: Statement;
+  statement: CorpusStatement;
   rank: number;
   delta: number;
 }

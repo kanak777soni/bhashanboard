@@ -9,6 +9,7 @@ const LINKS = [
   { href: "/netas", label: "Netas" },
   { href: "/hall", label: "Hall of Fame" },
   { href: "/ledger", label: "Ledger" },
+  { href: "/rejected", label: "Refused" },
   { href: "/rules", label: "Rules" },
   { href: "/submit", label: "Submit" },
 ];

@@ -33,7 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <Glyphs />
         <div className="specimen">
-          Specimen &middot; all entries, representatives and parties are fictional &middot; development build
+          Pre-launch &middot; entries are text-sourced and not yet verified for publication &middot; nothing here is live
         </div>
         {children}
       </body>
