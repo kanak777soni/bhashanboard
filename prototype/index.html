@@ -159,14 +159,18 @@ body::before{
 .ticker{
   display:flex; align-items:center; gap:12px;
   border-bottom:1px solid var(--rule);
-  padding:8px 0; overflow:hidden; white-space:nowrap;
+  padding:8px 0; white-space:nowrap;
 }
 .ticker-tag{
   font-family:var(--font-util); font-size:10px; font-weight:700;
   letter-spacing:.16em; text-transform:uppercase;
-  color:var(--seal); border:1px solid var(--seal); padding:2px 7px; flex:none;
+  color:var(--seal); border:1px solid var(--seal); padding:2px 7px;
+  flex:none; position:relative; z-index:1; background:var(--ground);
 }
-.ticker-track{ display:flex; gap:44px; animation:slide 46s linear infinite; }
+/* the track must clip against its own viewport, not the row — otherwise
+   it translates left across the tag */
+.ticker-viewport{ flex:1 1 auto; min-width:0; overflow:hidden; }
+.ticker-track{ display:flex; gap:44px; width:max-content; animation:slide 46s linear infinite; }
 .ticker-track span{ font-size:14px; color:var(--ink-70); }
 @keyframes slide{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
 @media (prefers-reduced-motion: reduce){ .ticker-track{ animation:none; } }
@@ -426,7 +430,7 @@ footer p{ margin:0 0 8px; font-size:13.5px; color:var(--ink-70); max-width:74ch;
 
   <div class="ticker">
     <span class="ticker-tag">In placement</span>
-    <div class="ticker-track" id="ticker"></div>
+    <div class="ticker-viewport"><div class="ticker-track" id="ticker"></div></div>
   </div>
 
   <!-- ══════════════════ VIEW: STANDINGS ══════════════════ -->
