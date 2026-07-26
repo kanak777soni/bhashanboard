@@ -28,6 +28,8 @@ This isn't just taste. In March 2026 the Indian government blocked dozens of par
 ### 2. Deadpan Prestige
 The site should look like the Nobel Committee's website, not a meme page. Serif type, gold foil, zero exclamation marks. **The gap between the gravity of the presentation and the content of the clip is the entire comedic engine.** → `docs/01-concept.md`
 
+Design thesis: **Wisden Almanack redesigned by a central bank.** Dense, typographic, ruled, tabular — guilloché borders, wax seals and foil applied to nonsense with a completely straight face. No hero section, no cards-with-shadows, no gradients, no icon library. → `docs/07-design-language.md`
+
 ### 3. Neutrality is engineering, not sentiment
 A **Party Parity Meter** on the homepage, queue balancing enforced in code (no party > 40% of the last 100 clips), cross-party duel pairing, and a public monthly audit. Without this the site is branded partisan within 48 hours and is dead. → `docs/01-concept.md` §1.5
 
@@ -63,6 +65,8 @@ NEW STATEMENT → 🟡 PROVISIONAL (1500 GP) → 20 placement duels → ✅ RANK
 | [`docs/04-legal-and-safety.md`](docs/04-legal-and-safety.md) | **Can we use real names/images?** (yes), BNS §356, publisher-vs-intermediary trap, IT Rules 2026, MCC mode, risk register |
 | [`docs/05-growth-and-money.md`](docs/05-growth-and-money.md) | Share-card growth loop, The Weekly Gyan, The Standing Ovations, monetisation, global sequencing |
 | [`docs/06-roadmap.md`](docs/06-roadmap.md) | Phases, architecture sketch, metrics, what could kill this, **decisions needed from you** |
+| [`docs/07-design-language.md`](docs/07-design-language.md) | **What "AI-generated" actually looks like and how to avoid it**, the visual thesis, type, colour, materials, layout laws, motion doctrine |
+| [`docs/08-information-architecture.md`](docs/08-information-architecture.md) | **Multi-page vs single-page**, routes, page-by-page design, mobile, performance budget, build order |
 
 ## Answering your specific questions
 
