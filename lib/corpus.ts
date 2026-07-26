@@ -31,7 +31,7 @@ interface RawVerification {
 
 interface RawStatement {
   id: string;
-  status: "published" | "held_parity" | "held_review";
+  status: "published" | "held_parity" | "held_review" | "withdrawn";
   speaker_id: string;
   party_at_time: string;
   office_at_time: string;
@@ -48,6 +48,7 @@ interface RawStatement {
   context?: string;
   counterpoint?: string;
   policy_note?: string;
+  hall_of_fame?: boolean;
   axes: Record<string, number>;
   verification: RawVerification;
 }
@@ -65,6 +66,7 @@ const RAW_PARTIES = ((partiesFile as unknown as { parties?: RawParty[] }).partie
 
 /** Only entries on the ladder are ranked. Held entries are indexed but not placed. */
 const LADDER = RAW.filter((r) => r.status === "published");
+const VISIBLE = RAW.filter((r) => r.status !== "withdrawn");
 
 // ── ranking ──────────────────────────────────────────────────────────
 // Mirrors tools/seed-rank.mjs: weighted axes → order → GP interpolated
@@ -163,6 +165,7 @@ export interface CorpusStatement extends Statement {
   bestSourceTier: string;
   needs: string[];
   held?: "parity" | "review";
+  hallOfFame: boolean;
   office: string;
 }
 
@@ -201,11 +204,12 @@ function shape(r: RawStatement): CorpusStatement {
     bestSourceTier: r.verification.best_source_tier,
     needs: r.verification.needs ?? [],
     held: r.status === "held_parity" ? "parity" : r.status === "held_review" ? "review" : undefined,
+    hallOfFame: r.hall_of_fame === true,
     office: r.office_at_time,
   };
 }
 
-export const CORPUS: CorpusStatement[] = RAW.map(shape);
+export const CORPUS: CorpusStatement[] = VISIBLE.map(shape);
 export const ON_LADDER: CorpusStatement[] = CORPUS.filter((s) => !s.held).sort((a, b) => b.gp - a.gp);
 export const HELD: CorpusStatement[] = CORPUS.filter((s) => s.held);
 

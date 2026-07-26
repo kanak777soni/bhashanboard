@@ -11,9 +11,10 @@ export const metadata: Metadata = {
 };
 
 export default function HallPage() {
-  // Until the first annual induction, the gallery previews the standing
-  // candidates: everything currently at Kohinoor Class.
-  const candidates = rankedStatements().filter((s) => s.gp >= 1875);
+  // Inducted entries are chosen by the Committee in the admin. Until the
+  // first induction the gallery previews the standing candidates.
+  const inducted = rankedStatements().filter((s) => s.hallOfFame);
+  const candidates = inducted.length ? inducted : rankedStatements().filter((s) => s.gp >= 1875);
 
   return (
     <SiteFrame>
@@ -28,7 +29,7 @@ export default function HallPage() {
         ladder forever — and creates an annual ceremony.
       </p>
       <p className="prose">
-        The first induction has not yet taken place. Standing candidates are shown below.
+{inducted.length ? "Inducted below." : "The first induction has not yet taken place. Standing candidates are shown below."}
       </p>
 
       <div style={{ marginTop: 24, borderTop: "2px solid var(--ink)" }}>

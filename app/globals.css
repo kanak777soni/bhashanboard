@@ -617,3 +617,44 @@ footer.site p { margin: 0 0 8px; font-size: 13.5px; color: var(--ink-70); max-wi
 .coverage { border-top-color: var(--seal); }
 .coverage h2 { color: var(--seal); }
 .coverage strong { font-weight: 400; border-bottom: 2px solid var(--seal); }
+
+/* ── the committee room (admin) ──────────────────────────────────
+   Same materials as the public site, but stripped of ceremony. This is
+   a working surface: denser, plainer, no guilloché. */
+.admin { padding-bottom: 40px; }
+.admin-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: wrap; padding: 26px 0 14px; border-bottom: 2px solid var(--ink); }
+.admin-title { font-family: var(--font-display); font-size: clamp(26px, 4vw, 40px); font-weight: 400; margin: 0 0 4px; letter-spacing: -.015em; }
+.admin-nav { display: flex; flex-wrap: wrap; border-bottom: 1px solid var(--rule); margin-bottom: 22px; }
+.admin-nav a { font-family: var(--font-util); font-size: 11px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-45); padding: 11px 14px 10px; text-decoration: none; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.admin-nav a:hover { color: var(--ink); border-bottom-color: var(--rule-hard); }
+
+.admin-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); border: 1px solid var(--rule-hard); border-left: 0; margin-bottom: 26px; }
+.admin-card { border-left: 1px solid var(--rule-hard); padding: 11px 14px; min-width: 0; }
+.admin-card b { display: block; font-size: 24px; font-weight: 400; margin-top: 3px; }
+
+.admin-section { margin-bottom: 38px; }
+.admin-section > h2 { font-family: var(--font-display); font-size: 22px; font-weight: 400; margin: 0 0 10px; border-bottom: 1px solid var(--ink); padding-bottom: 6px; }
+.admin-section-head { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; flex-wrap: wrap; border-bottom: 1px solid var(--ink); padding-bottom: 6px; margin-bottom: 12px; }
+.admin-section-head h2 { font-family: var(--font-display); font-size: 22px; font-weight: 400; margin: 0; }
+
+.admin-filters { display: grid; grid-template-columns: 2fr 1fr auto; gap: 14px; align-items: end; }
+@media (max-width: 700px) { .admin-filters { grid-template-columns: 1fr; } }
+.admin-filters > * { min-width: 0; }
+
+.admin-table td { vertical-align: top; }
+.admin-actions { display: flex; flex-direction: column; gap: 3px; align-items: flex-start; }
+.linkbtn { appearance: none; background: none; border: 0; padding: 0; cursor: pointer; color: var(--ink); font-family: var(--font-util); font-size: 10px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; text-decoration: underline; text-underline-offset: 3px; }
+.linkbtn:hover { color: var(--seal); }
+.linkbtn.danger { color: var(--seal); }
+
+.admin-form fieldset { border: 1px solid var(--rule-hard); padding: 16px 18px 20px; margin: 0 0 20px; }
+.admin-form legend { font-family: var(--font-util); font-size: 10px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; padding: 0 8px; color: var(--seal); }
+.admin-form .field { margin-bottom: 14px; }
+.admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0 18px; }
+.admin-grid > * { min-width: 0; }
+.axis-editor { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0 18px; margin-top: 12px; }
+.axis-editor > * { min-width: 0; }
+.source-row { border-top: 1px solid var(--rule); padding-top: 12px; margin-top: 4px; }
+.field.checkbox { flex-direction: row; align-items: center; gap: 9px; margin-top: 22px; }
+.field.checkbox input { width: auto; }
+.admin-submit { position: sticky; bottom: 0; background: var(--ground); border-top: 1px solid var(--rule-hard); padding: 14px 0; }
