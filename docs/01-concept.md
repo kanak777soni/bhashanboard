@@ -109,32 +109,91 @@ Safe, funny, **genuinely neutral** Hindi vocabulary:
 
 ## 1.6 Name
 
-You need a name that (a) is deadpan not jokey, (b) is party-neutral, (c) has a path to global.
+The name has to do two jobs at once: **sound like an awards body** (deadpan prestige), and **be the thing people actually type**. Four filters:
 
-**Recommended architecture: a globally-portable brand + locally-flavoured award names.**
+1. **Deadpan, not jokey.** If the name is already the punchline, the joke is spent before anyone sees a clip. The name should sound *sincere*; the content supplies the irony.
+2. **Party-neutral.** No *jumla / feku / pappu / godi / vishwaguru*. See §1.5.
+3. **Pronounceable and spellable** by both Hindi and English speakers, first time, over the phone.
+4. **Trademark-clear in media classes** (NICE class 38 telecom / 41 entertainment) and domain-obtainable.
 
-The site brand travels. The trophies localise. India's top tier is **Kohinoor Class**; the UK edition's might be **The Crown**; the US edition's, **The Eagle**. This gives you a single brand with infinite local texture.
+**Architecture: one globally-portable brand + locally-flavoured trophy names.** The brand travels; the trophies localise. India's top tier is **Kohinoor Class**; a UK edition's might be **The Crown**; a US edition's, **The Eagle**. One brand, infinite local texture.
 
-### Brand candidates
+### Tier 1 — the strongest candidates
 
-| Name | Read | Global? | Notes |
-|---|---|---|---|
-| **Ovation** | Deadpan, prestigious, ironic | ✅ Excellent | *"ovation.tv"* / *"getovation.com"*. Strong recommendation. |
-| **The Podium** | Institutional, neutral | ✅ Excellent | Slightly generic |
-| **Standing Ovation** | Same joke, longer | ✅ Good | Great for the annual awards show |
-| **Bhashan Board** | Sounds like a statutory body — perfect deadpan | ❌ India-only | Excellent India sub-brand |
-| **The Gyan Index** | Institutional + Indian | ⚠️ Partial | Great as the *rating* name |
-| **Neta-flix** | Funny | ❌ | **Trademark lawsuit magnet — do not** |
-| **Gyanpeeth** | Parodies the Jnanpith Award | ❌ | Trademark risk against a real award — avoid |
+| Name | Why it works | Watch out for |
+|---|---|---|
+| **Pedestal** ⭐ | *"We put them on a pedestal."* The metaphor **is** the product — and a pedestal is literally a ranked platform, so the gold/silver/bronze podium steps are your logo, your leaderboard and your tier system in one image. Institutional, global, sincere-sounding, instantly explainable. | `pedestal.com` likely taken; `pedestal.tv` / `thepedestal.com` / `pedestal.in` |
+| **Laureate** ⭐ | Pure Nobel register — exactly the deadpan-prestige tone. *"Laureate: the annual index of public wisdom."* Confers a title on a statement, which is the whole conceit. | Laureate Education (US) holds marks in education classes — check 38/41 specifically |
+| **Hot Mic** ⭐ | The most shareable of the three. Means "caught on record, unguarded" — which is precisely the archive. Short, punchy, meme-native, works as a verb. | Several podcasts use it; weaker prestige register — better if you want funny-first over institutional |
 
-**My recommendation:**
-- **Brand:** *Ovation*
-- **India edition:** *Ovation India — The Bhashan Board*
-- **Rating unit:** *Gyan Points (GP)*
-- **Duel mechanic:** *Aamne-Saamne* ("face to face")
-- **Annual event:** *The Standing Ovations*
+### Tier 2 — strong alternates by register
 
-Register the .com and the .in together. Use a registrar and host outside India (see `04-legal-and-safety.md` — this is about resilience, not evasion; you still comply fully).
+**Awards / institution**
+| Name | Note |
+|---|---|
+| **Plinth** | The block a statue stands on. Rare word = very ownable. Superb deadpan. Slightly hard to spell for some Indian users. |
+| **The Podium** | Global, Olympics-familiar in India, neutral. A touch generic. |
+| **Accolade** | Formal, elegant, ironic. Slightly cold. |
+| **The Citation** | **Double meaning** — an award citation *and* a source citation. Perfect for a site built on sourcing. |
+| **Rostrum** | A speaker's platform. Obscure enough to own, institutional, on-theme. |
+| **The Honours List** | Full British-honours pomposity. Great for the annual event even if not the brand. |
+| **Curtain Call** | Theatrical, ties to the applause theme. |
+
+**Record / archive** *(these encode the Verbatim Doctrine into the brand)*
+| Name | Note |
+|---|---|
+| **On Record** | *"It's on record."* The doctrine as a name. Credible, journalist-friendly. Slightly flat. |
+| **Verbatim** | On the nose in the best way. Signals exactly what you do. Common word — TM crowded. |
+| **Soundbite** | Descriptive, familiar, mildly generic. |
+| **Attributed** | Cold, precise, quietly funny. |
+
+**India-first**
+| Name | Note |
+|---|---|
+| **Bhashan Board** ⭐ | Sounds exactly like a real statutory body (Censor Board, Waqf Board, Khadi Board). *"The Bhashan Board has elevated this statement to Kohinoor Class."* Genuinely funny to an Indian ear, completely neutral, perfectly deadpan. **Best India name on this list.** Doesn't travel. |
+| **Gyan Sabha** | Echoes Lok Sabha / Rajya Sabha. Institutional and neutral. Small risk of reading as an actual body. |
+| **The Gyan Index** | Institutional + Indian. Excellent as the *rating* name even if not the brand. |
+| **Golden Gyan** | Alliterative, ties gold/medals to the Indian word. Warmer, less institutional. |
+| **Bakwaas Board** | Funnier, blunter, less prestigious. Good if you go funny-first. |
+
+### ⛔ Names to avoid (and why)
+
+| Name | Problem |
+|---|---|
+| **Ovation** | **Ovation LLC** runs a US arts TV network under this mark since 1996 — a live trademark in exactly your media class. Do not use for a video product. |
+| **Neta-flix** | Netflix. Obviously. |
+| **Gyanpeeth / Gyan Ratna** | Parodies the Jnanpith and Bharat Ratna — real awards, real marks, real sensitivity. |
+| **Kohinoor** *(as the brand)* | Major Indian consumer brands already own it. Keep it as the scarce top **tier** — it's worth more there anyway. |
+| **Bravo / Encore / Vox** | NBCUniversal, and Vox Media. Crowded. |
+| **Darbar** | Sarcastically apt, but Sikh religious association (Darbar Sahib) + a major film title. Skip. |
+| **Sansad / Lok Sabha** derivatives | Impersonating an actual institution. Never. |
+
+### Recommendation
+
+| Slot | Pick |
+|---|---|
+| **Brand** | **Pedestal** — the metaphor doubles as the logo and the ranking system |
+| **India edition** | *Pedestal India — The Bhashan Board* |
+| **Rating unit** | **Gyan Points (GP)** |
+| **The jury** | **The Committee** |
+| **Duel mechanic** | ***Aamne-Saamne*** ("face to face") |
+| **Annual event** | **The Honours List** |
+| **Fallback brand** | **Laureate**, then **Hot Mic** |
+
+### The decision test
+
+Before committing, say each finalist out loud in these three sentences. The right name survives all three:
+
+1. *"It's ranked #4 on **____**."* — does it sound like a real ranking authority?
+2. *"**____** has awarded this statement Kohinoor Class."* — does the deadpan land?
+3. Spell it over the phone to someone who has never heard of it. Do they get it first try?
+
+### Before you buy anything
+
+- **Trademark:** search [tmrsearch.ipindia.gov.in](https://tmrsearch.ipindia.gov.in/tmrpublicsearch/tmsearch.aspx) (free, no login) — wordmark *and* phonetic search, **classes 38 and 41**. Then check USPTO and EUIPO if you're serious about global.
+- **Domains:** buy `.com` and `.in` together, plus `.tv` if the `.com` is gone.
+- **Handles:** grab X, Instagram, YouTube and Reddit the same day. A name with no available handles is not available.
+- **Registrar and host outside India** — resilience, not evasion (see `04-legal-and-safety.md` §4.4). You still comply fully with lawful orders.
 
 ## 1.7 What the site actually is, in one diagram
 

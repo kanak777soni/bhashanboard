@@ -2,6 +2,72 @@
 
 This is the core product. Everything else is packaging.
 
+## 2.0 Who does the rating — the three-phase rollout
+
+**Decision taken: ratings are internal at launch. Public accounts and public voting come later.**
+
+This is the right call, for four reasons:
+
+1. **You cannot crowd-rank with zero users.** Cold start is unavoidable — someone has to rate the first 500 clips, and that someone is you.
+2. **The first 500 clips set the tone forever.** Editorial control over the seed corpus is worth more than early crowd input.
+3. **It cuts launch scope by roughly 40%.** No accounts, no auth, no vote weighting, no brigade detection, no abuse queue. All of that moves to Phase B.
+4. **It is more on-brand, not less.** An anonymous, po-faced jury handing down medals is *more* Nobel-like than crowd voting. **"Ratified by the Committee"** is funnier than "4.7 stars from 8,201 users."
+
+### The one thing you must get right
+
+> **Use pairwise duels internally too — not 1-to-10 scores.**
+
+This is the whole trick. If internal raters assign numbers, you get scale drift (one rater's 8 is another's 6), agonising over each score, and a schema you have to throw away when the public arrives. If they duel, you get:
+
+- **No inter-rater calibration problem.** "Which of these two?" is universal in a way "how bad is this, 1–10?" never is.
+- **Speed.** A duel takes 5 seconds. A considered 1–10 score takes a minute.
+- **Zero migration later.** Public voting is the *same table*, same Elo engine, with `voter_type = 'public'` instead of `'committee'`. Phase B is a config change, not a rewrite.
+
+**Throughput check:** 30 new clips/week × 20 placement duels = 600 duels/week, split across 4 raters = 150 each ≈ **20 minutes per person per week.** Entirely manageable. Even at 100 clips/week it's about an hour each.
+
+### The three phases
+
+**Phase A — The Committee** *(launch → ~month 3)*
+- 3–7 internal raters. Admin-only duel screen. Nothing public-facing but the results.
+- Every clip carries the seal: *"Ratified by the Committee."*
+- Publish a **rating rubric** so the judgment is transparent and criteria-based, not arbitrary. This matters legally — see `04-legal-and-safety.md` §4.2.
+
+**Phase B — The Advisory Ballot** *(~month 3–5)*
+- Accounts open. Users duel. **Their votes do not move the rating yet.**
+- Both results shown side by side:
+  ```
+  COMMITTEE RULING   💎 Diamond Gyan · 1,812 GP
+  PUBLIC BALLOT      👑 Kohinoor Class · 61% of 4,209 ballots
+  ```
+
+This phase is disproportionately valuable and almost nobody does it:
+
+  1. **Zero risk.** You cannot be brigaded into a corrupt leaderboard, because the ballots don't count yet.
+  2. **You collect adversarial data before it matters.** Brigading attempts arrive, you measure them, and you tune weighting and detection against *real* attack traffic — with nothing at stake.
+  3. **The divergence is content.** *"The Public disagrees with the Committee on 34 entries"* is a whole leaderboard, and it's funny: *"The Committee has noted the public's opinion and thanks them for it."*
+  4. **Full engagement immediately.** Users don't know or care that their ballot is advisory. The duel loop — your retention engine — works from day one of Phase B.
+  5. **It tells you when to promote.** Track the correlation between Committee Elo and public Elo. When they track closely and abuse detection is holding, the public pool has earned weight.
+
+**Phase C — Blended, then public-led** *(~month 6+)*
+- `rating = w_c × committee + w_p × public`. Start `w_p = 0.2`, raise as integrity holds.
+- The Committee keeps a veto and retains moderation authority; the public increasingly drives the number.
+- **This is also your legal de-risking path, not just a growth feature** — the more the ranking is a published function of public votes, the weaker the "you are the publisher of this judgment" argument. Move through it deliberately.
+
+### What this changes in the build
+
+| | Phase A (launch) | Phase B/C |
+|---|---|---|
+| Accounts / auth | ❌ not needed | ✅ |
+| Vote weighting | ❌ | ✅ |
+| Brigade detection (§2.6) | ❌ | ✅ **build during Phase B, on live attack data** |
+| Duel screen | ✅ admin-only, can be crude | ✅ public, polished |
+| Elo engine | ✅ identical | ✅ identical |
+| Schema | ✅ **include `voter_type` and `weight` from day one** | no migration |
+
+That last row is the only thing you must not forget. Adding two columns now costs nothing; retrofitting them onto a live ratings table is painful.
+
+---
+
 ## 2.1 The problem with star ratings
 
 Your plan said: *"whenever any politician gives a new foolish speech we rank that speech and place it on the right spot."*

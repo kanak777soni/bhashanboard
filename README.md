@@ -1,4 +1,4 @@
-# Ovation *(working title)*
+# Pedestal *(working title)*
 
 > **A permanent, sourced, ranked archive of the things politicians actually said — presented with the total institutional seriousness of an international awards committee.**
 
@@ -51,6 +51,8 @@ NEW STATEMENT → 🟡 PROVISIONAL (1500 GP) → 20 placement duels → ✅ RANK
 
 **Why duels instead of stars:** star ratings bunch at 4.7, are trivially brigadable by party IT cells, and are boring. Duels produce a clean total order, can't be targeted (you don't choose your matchups), and are genuinely addictive — the duel feed is your retention engine, your discovery feed, and your labelling pipeline in one screen. → `docs/02-ranking-system.md`
 
+**Who rates:** internal at launch — **The Committee** — with public accounts and voting phased in later. Internal raters use the *same* pairwise duels, so opening the ballot is a config change, not a rewrite. Phase B shows public ballots *alongside* Committee rulings without weighting them, which collects real brigading data with nothing at stake. → `docs/02-ranking-system.md` §2.0
+
 ## Docs
 
 | File | Contents |
@@ -75,7 +77,9 @@ Yes, and made rigorous — fixed rating bands with calibrated rarity, so Kohinoo
 
 ## Before writing code
 
-Six decisions are in `docs/06-roadmap.md` §6.5 — name, duels vs stars, verbatim-only, community timing, anonymity, and legal budget. Answer those and the build order in §6.1 is ready to go.
+**Settled:** duels + Elo over stars; internal rating first, public voting phased in.
+
+**Open** (`docs/06-roadmap.md` §6.5): the name, verbatim-only confirmation, when submissions open, anonymity, and legal budget. Answer those and the build order in §6.1 is ready to go.
 
 ---
 

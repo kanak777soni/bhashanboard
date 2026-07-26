@@ -22,17 +22,18 @@ The ordering principle: **the duel loop is the product.** Everything before it e
 | 🔴 | **Seed corpus: 300–500 clips**, Tier A/B sourced, ≥8 parties, ≥6 languages, ≥10 states |
 | 🔴 | **Embed-only player** with `start`/`end` clipping |
 | 🔴 | Transcript + English subtitles on every clip |
-| 🔴 | **Duel screen (*Aamne-Saamne*)** — the single most important screen on the site |
-| 🔴 | Elo engine + nightly recompute from immutable vote log |
+| 🔴 | **Admin duel screen** — internal raters only. Can be crude; it's the Committee's tool, not a public surface. |
+| 🔴 | Elo engine + nightly recompute from immutable vote log. **Schema carries `voter_type` and `weight` from day one** so Phase B needs no migration. |
+| 🔴 | **Public rating rubric** page — makes the Committee's judgment criteria-based, not arbitrary (see `04-legal-and-safety.md` §4.2) |
 | 🔴 | Tier system + medals + promotion ceremony |
 | 🔴 | Leaderboards: Global, India, This Week, By Party |
 | 🔴 | **Party Parity Meter** on the homepage |
 | 🔴 | 20 politician profile cards, fully populated |
 | 🔴 | **Auto-generated OG share cards** (WhatsApp is the distribution layer) |
 | 🔴 | Submission form + moderation queue + human gate checklist |
-| 🟡 | Accounts, vote weighting, basic brigade detection |
 | 🟡 | Vertical video export pipeline |
 | 🟡 | Right of Reply form |
+| ⬜ | ~~Accounts, vote weighting, brigade detection~~ → **deferred to Phase 2b.** Internal-first rating removes roughly 40% of Phase 1 engineering. |
 
 ### Phase 2 — Depth (Months 2–3, still India)
 
@@ -50,6 +51,20 @@ The ordering principle: **the duel loop is the product.** Everything before it e
 | 🟡 | Vote Integrity Report + Neutrality Audit, automated |
 | 🟢 | Diamond Membership |
 | 🟢 | Quote merch |
+
+### Phase 2b — Opening the ballot (Months 4–6)
+
+Everything deferred out of Phase 1 by the internal-first decision, plus the advisory-ballot mechanic. See `02-ranking-system.md` §2.0.
+
+| | Item |
+|---|---|
+| 🔴 | Accounts + auth |
+| 🔴 | **Public duel screen** — the polished version of the admin tool |
+| 🔴 | **Advisory Ballot** — public votes recorded and displayed, but not yet weighted |
+| 🔴 | `COMMITTEE RULING vs PUBLIC BALLOT` display + the "Public Disagrees" leaderboard |
+| 🔴 | Vote weighting + brigade detection — **built against real attack traffic collected during the advisory period, with nothing at stake** |
+| 🟡 | Committee-vs-public correlation tracking → the signal for when to start blending |
+| 🟡 | Phase C blend: `w_public` from 0.2, raised as integrity holds |
 
 ### Phase 3 — Expansion (Months 4+)
 
@@ -114,21 +129,27 @@ Ignore pageviews. Watch these:
 
 6. **Founder legal/personal exposure.** *Mitigation: incorporate, entity on the masthead, lawyer on retainer, never your face on the site.*
 
-## 6.5 Decisions I need from you
+## 6.5 Decisions
 
-These change the build, so I'd like your call before writing code:
+### ✅ Settled
 
-1. **Name.** My recommendation: **Ovation** (global brand) + *"The Bhashan Board"* (India edition) + **Gyan Points (GP)** as the rating unit + ***Aamne-Saamne*** as the duel. Yes / pick another / propose your own?
+| | Decision |
+|---|---|
+| **Rating authority** | **Internal at launch** (The Committee), public accounts and voting later. Three-phase rollout in `02-ranking-system.md` §2.0. Internal raters still use **pairwise duels**, not 1–10 scores — same schema, no migration when the public arrives. |
+| **Rating mechanic** | Pairwise duels + Elo, not stars. |
 
-2. **Duels vs stars.** I strongly recommend pairwise duels + Elo over star ratings, for the reasons in `02-ranking-system.md`. It's more work up front and much better on every dimension that matters. Confirm?
+### ⬜ Still open
 
-3. **Verbatim-only, no parody/impersonation.** This is the biggest constraint on your original idea. It removes AI edits, dubs, and re-enactments entirely — but it is what makes the site legally survivable in India right now. Confirm?
+1. **Name.** Recommendation: **Pedestal** (brand) + *The Bhashan Board* (India edition) + **Gyan Points (GP)** + **The Committee** (jury) + ***Aamne-Saamne*** (duel) + **The Honours List** (annual). Fallbacks: *Laureate*, *Hot Mic*. Full shortlist, trademark flags and the decision test in `01-concept.md` §1.6.
+   *(Note: **Ovation** was withdrawn — Ovation LLC has run a US arts TV network under that mark since 1996, a live conflict in your exact media class.)*
 
-4. **Community-submitted from day one, or in-house first?** Community is the only thing that scales, but it needs moderation infrastructure early. My recommendation: in-house for the seed corpus, submissions open at Week 2.
+2. **Verbatim-only, no parody/impersonation.** The biggest constraint on the original idea — no AI edits, dubs, or re-enactments — and what makes the site survivable in India right now. Confirm?
 
-5. **Anonymity.** Do you want to be publicly associated with this? My strong recommendation is **no** — incorporate, put the entity on the masthead, keep your name off it. Given the March 2026 crackdown this is ordinary hygiene, not paranoia.
+3. **When do submissions open?** Community is the only thing that scales, but it needs moderation infrastructure. Recommendation: in-house for the seed corpus, public submissions from Week 2 (submissions can open well before *voting* does — they're separate systems).
 
-6. **Budget for a lawyer.** Roughly ₹50k–1.5L for an initial media/tech review in India. I'd treat this as Phase 0, not Phase 3. Is that feasible?
+4. **Anonymity.** Recommendation: **incorporate, entity on the masthead, your name off the site.** Given the March 2026 crackdown this is ordinary hygiene, not paranoia.
+
+5. **Lawyer budget.** ~₹50k–1.5L for an initial Indian media/tech review. **Internal-first rating moves this earlier** — you're the publisher of every judgment during Phase A (`04-legal-and-safety.md` §4.2). Phase 0, not Phase 3. Feasible?
 
 ## 6.6 My honest assessment
 

@@ -67,6 +67,21 @@ Restructure so that the judgment is demonstrably the community's, not yours:
 
 You will not be a pure intermediary — you're curating a topic — but this materially strengthens the position, and it happens to make the product genuinely better anyway. Get a lawyer to pressure-test the specific structure.
 
+### ⚠️ Consequence of internal-first rating
+
+The plan is to rate internally at launch and open public voting later (`02-ranking-system.md` §2.0). That's the right product call — but be clear-eyed about what it costs you here:
+
+> **During Phase A you are unambiguously the publisher of the judgment.** There is no "the crowd said it" available to you. Every tier, every medal, every ranking is your editorial act.
+
+This doesn't make it unworkable — plenty of publications rank things — but it does mean **the Verbatim Doctrine is now your only structural defence**, and it has to be airtight. Four mitigations, all cheap:
+
+1. **Publish the rating rubric.** A written, public set of criteria converts *"we decided this was foolish"* into *"this scored high on Logic Damage under published criteria."* Transparent criteria are enormously more defensible than undisclosed editorial taste — and it costs you one page.
+2. **The tier attaches to the statement, never the person.** Enforce this in copy review, not just policy. *"This statement is Kohinoor Class"* — never *"this politician is Kohinoor Class."*
+3. **Lawyer before launch, not after.** Internal rating raises the stakes on day one. Move the legal review earlier in the roadmap.
+4. **Treat Phase B/C as risk transfer, not just growth.** Every point of weight that moves from the Committee to the public ballot weakens the "you authored this judgment" argument. Don't let Phase A drift on for a year because it's comfortable.
+
+Phase B's advisory ballot is useful here too: once public ballots are displayed alongside Committee rulings, you are visibly reporting an independent public judgment even before it carries weight.
+
 ### Corollary: never auto-publish
 
 Automated LLM triage that publishes without a human gate is the worst of both worlds — you get publisher liability *and* you can't explain your own decisions. The human gate stays. Non-negotiable.
