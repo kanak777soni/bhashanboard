@@ -2031,6 +2031,104 @@
           }
         ]
       }
+    },
+    {
+      "id": "IN-0043",
+      "status": "published",
+      "speaker_id": "rahul-gandhi",
+      "party_at_time": "INC",
+      "office_at_time": "Member of Parliament, Amethi",
+      "state": "Punjab",
+      "date": "2012-02",
+      "date_precision": "month",
+      "venue": "Assembly election campaign, Punjab",
+      "language": "Hindi",
+      "category": "Science & Reason",
+      "neutral_title": "On the proportion of Punjab's young people using drugs",
+      "quote": null,
+      "quote_note": "Reported in indirect speech across outlets. The exact sentence has not been established from a recording; see `needs`.",
+      "claim": "That seven in ten of Punjab's young people were drug addicts.",
+      "context": "Made during the 2012 Punjab assembly campaign and repeated when challenged. The state government disputed it; Gandhi did not withdraw it.",
+      "counterpoint": "The figure inverts the statistic it came from. The 2009 state affidavit rested on a 2006 Guru Nanak Dev University study finding that roughly 70-73.5% of identified drug addicts were young — not that 70% of young people were addicts. Reading 'most addicts are youth' as 'most youth are addicts' reverses the base rate. No empirical study has established true prevalence in Punjab.",
+      "axes": {
+        "logic_damage": 4,
+        "straight_face": 5,
+        "rewatch_value": 3,
+        "crowd_complicity": 3,
+        "consequence": 5
+      },
+      "verification": {
+        "stage": "text_sourced",
+        "best_source_tier": "B",
+        "needs": [
+          "Tier A/B footage of the rally with start/end timestamps",
+          "The exact sentence in Hindi — currently only indirect speech is sourced",
+          "Surrounding 60s captured"
+        ],
+        "sources": [
+          {
+            "tier": "B",
+            "publisher": "The Tribune",
+            "title": "Rahul Gandhi sticks to claim on state's young drug addicts",
+            "url": "https://www.tribuneindia.com/news/punjab/rahul-gandhi-sticks-to-claim-on-state-s-young-drug-addicts/210778.html"
+          },
+          {
+            "tier": "B",
+            "publisher": "Deccan Herald",
+            "title": "Congress defends Rahul's remark on drugs",
+            "url": "https://www.deccanherald.com/india/congress-defends-rahuls-remark-drug-2366546"
+          }
+        ]
+      }
+    },
+    {
+      "id": "IN-0044",
+      "status": "published",
+      "speaker_id": "rahul-gandhi",
+      "party_at_time": "INC",
+      "office_at_time": "President, Indian National Congress",
+      "state": "Delhi",
+      "date": "2018-07-20",
+      "date_precision": "day",
+      "venue": "Lok Sabha, no-confidence motion debate",
+      "language": "Hindi",
+      "category": "Economics",
+      "neutral_title": "On the daily rate of job creation in China and India",
+      "quote": null,
+      "quote_note": "Reported in indirect speech. The exact sentence has not been established from the House recording; see `needs`.",
+      "claim": "That China creates 50,000 jobs a day while India creates 450.",
+      "context": "Argued during the no-confidence debate as evidence that employment policy had failed. The comparison was repeated in later speeches with the Indian figure given variously as 450 or 400.",
+      "counterpoint": "BOOM's review found the direction defensible but both ends overstated: China's addition is closer to 37,000 a day on available data, and the Indian figure of 450 rests on reading EPFO enrolment as total job creation, which it is not. The gap is real; the numbers are not the ones cited.",
+      "axes": {
+        "logic_damage": 2,
+        "straight_face": 4,
+        "rewatch_value": 2,
+        "crowd_complicity": 3,
+        "consequence": 5
+      },
+      "verification": {
+        "stage": "text_sourced",
+        "best_source_tier": "B",
+        "needs": [
+          "Lok Sabha TV footage with start/end timestamps — a Tier A source exists for this and should be attached",
+          "Exact wording from the House record",
+          "Which Indian figure was used on which date (450 vs 400)"
+        ],
+        "sources": [
+          {
+            "tier": "B",
+            "publisher": "BOOM",
+            "title": "China's 50,000 Jobs Per Day Vs India's 450: Factchecking Rahul Gandhi's Claim",
+            "url": "https://www.boomlive.in/chinas-50000-jobs-per-day-vs-indias-450-factchecking-rahul-gandhis-claim"
+          },
+          {
+            "tier": "C",
+            "publisher": "Swarajya",
+            "title": "Where Rahul Gandhi Misleads In Job Creation Figures",
+            "url": "https://swarajyamag.com/politics/50000-chinese-jobs-vs-indias-450-where-rahul-gandhi-misleads-in-job-creation-figures"
+          }
+        ]
+      }
     }
   ]
 }
