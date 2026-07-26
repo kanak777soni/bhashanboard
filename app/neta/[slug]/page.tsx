@@ -112,46 +112,45 @@ export default async function NetaPage({ params }: { params: Promise<{ slug: str
             </div>
           </div>
 
-          <div style={{ borderTop: "1px solid var(--rule)", paddingTop: 10, marginBottom: 14 }}>
-            <span className="lbl">Form &middot; last five</span>
-            <div className="formguide">
-              {entries.slice(0, 5).map((s) => (
-                <Medal key={s.slug} gp={s.gp} size={18} />
-              ))}
-            </div>
-          </div>
-
-          <div style={{ borderTop: "1px solid var(--rule)", paddingTop: 10, marginBottom: 14 }}>
-            <span className="lbl">Consistency</span>
-            <p style={{ margin: "4px 0 0" }}>{consistency}</p>
-          </div>
-
-          <div style={{ borderTop: "1px solid var(--rule)", paddingTop: 10, marginBottom: 14 }}>
-            <span className="lbl">Trophy cabinet</span>
-            <div className="cabinet">
-              {cabinet.map((c) => (
-                <div key={c.tier.key}>
-                  <Medal tier={c.tier.key} size={18} />
-                  &times;{c.count}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div style={{ borderTop: "1px solid var(--rule)", paddingTop: 10, marginBottom: 14 }}>
-            <span className="lbl">Honorifics conferred by the Committee</span>
+          <div className="statblocks">
             <div>
+              <span className="lbl">Form &middot; last five</span>
+              <div className="formguide">
+                {entries.slice(0, 5).map((s) => (
+                  <Medal key={s.slug} gp={s.gp} size={18} />
+                ))}
+              </div>
+            </div>
+            <div>
+              <span className="lbl">Trophy cabinet</span>
+              <div className="cabinet">
+                {cabinet.map((c) => (
+                  <div key={c.tier.key}>
+                    <Medal tier={c.tier.key} size={18} />
+                    &times;{c.count}
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div>
+              <span className="lbl">Consistency</span>
+              <div style={{ fontSize: 15 }}>{consistency}</div>
+            </div>
+          </div>
+
+          <div className="statblocks">
+            <div>
+              <span className="lbl">Honorifics conferred</span>
               {honorifics(entries).map((h) => (
                 <div key={h} className="honorific">
                   {h}
                 </div>
               ))}
             </div>
-          </div>
-
-          <div style={{ borderTop: "1px solid var(--rule)", paddingTop: 10 }}>
-            <span className="lbl">Career arc</span>
-            <Arc points={neta.arc} />
+            <div>
+              <span className="lbl">Career arc &middot; {neta.arc.length} rulings</span>
+              <Arc points={neta.arc} />
+            </div>
           </div>
         </div>
       </div>
@@ -169,7 +168,7 @@ export default async function NetaPage({ params }: { params: Promise<{ slug: str
         <h2>Entries on record</h2>
         <span className="lbl">{entries.length} indexed</span>
       </div>
-      <StandingsTable rows={rows} />
+      <StandingsTable rows={rows} hideNeta />
 
       <p style={{ marginTop: 18 }}>
         <Link className="btn ghost" href="/netas">

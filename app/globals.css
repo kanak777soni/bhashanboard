@@ -492,6 +492,82 @@ table.ledger tbody tr:nth-child(even) { background: var(--ground-2); }
 footer.site { border-top: 2px solid var(--ink); margin-top: 52px; padding: 20px 0 46px; }
 footer.site p { margin: 0 0 8px; font-size: 13.5px; color: var(--ink-70); max-width: 74ch; }
 
+/* ── motto ───────────────────────────────────────────────────── */
+.motto { font-family: var(--font-display); font-style: italic; font-size: 13.5px; color: var(--foil); margin: 5px 0 0; letter-spacing: .01em; }
+
+/* ── query form: primary row + disclosure ────────────────────── */
+.query-primary { display: grid; grid-template-columns: minmax(200px, 2.2fr) repeat(3, minmax(120px, 1fr)) auto; gap: 14px 20px; align-items: end; }
+@media (max-width: 860px) { .query-primary { grid-template-columns: 1fr 1fr; } .query-primary .field-search { grid-column: 1 / -1; } }
+.query-primary > * { min-width: 0; }
+.disclose {
+  appearance: none; background: none; border: 0; border-bottom: 1px solid var(--rule-hard);
+  cursor: pointer; color: var(--seal); padding: 4px 0 6px; white-space: nowrap;
+  font-family: var(--font-util); font-size: 10px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+}
+.disclose:hover { border-bottom-color: var(--seal); }
+.filters { margin-top: 15px; }
+
+/* ── the summons (duel call-to-action in the rail) ───────────── */
+.summons { border-top-color: var(--seal); }
+.summons h2 { color: var(--seal); }
+.summons-btn { display: block; text-align: center; margin: 12px 0 8px; }
+.summons-foot { display: block; }
+
+/* ── tier legend ─────────────────────────────────────────────── */
+.legend { border-top: 2px solid var(--ink); padding-top: 9px; }
+.legend-head { display: block; font-weight: 700; letter-spacing: .16em; color: var(--ink); margin-bottom: 8px; }
+.legend-table { width: 100%; border-collapse: collapse; }
+.legend-table td { padding: 5px 0; border-bottom: 1px solid var(--rule); vertical-align: middle; font-size: 14px; }
+.legend-table tr:last-child td { border-bottom: 0; }
+.legend-medal { width: 26px; }
+.legend-name { font-family: var(--font-display); }
+.legend-band { text-align: right; font-size: 11.5px; color: var(--ink-45); white-space: nowrap; padding-left: 8px; }
+.legend-count { text-align: right; width: 40px; font-size: 11.5px; color: var(--ink-45); }
+.legend-foot { font-size: 12.5px; color: var(--ink-45); margin: 9px 0 0; }
+
+/* ── certificate additions ───────────────────────────────────── */
+.citation { font-family: var(--font-display); font-style: italic; font-size: 17px; color: var(--foil); margin: 0 0 12px; }
+.committee-note { border-left: 3px solid var(--rule-hard); padding: 2px 0 2px 15px; margin: 22px 0; }
+.committee-note p { margin: 5px 0 0; font-size: 15.5px; font-style: italic; color: var(--ink-70); }
+
+/* ── adjacent / also / cite ──────────────────────────────────── */
+.adjacent { display: grid; grid-template-columns: 1fr 1fr; gap: 0 26px; margin-top: 34px; border-top: 2px solid var(--ink); border-bottom: 1px solid var(--rule); }
+@media (max-width: 640px) { .adjacent { grid-template-columns: 1fr; } }
+.adjacent-item { display: block; padding: 14px 0; text-decoration: none; }
+.adjacent-item + .adjacent-item { border-left: 1px solid var(--rule); padding-left: 26px; }
+@media (max-width: 640px) { .adjacent-item + .adjacent-item { border-left: 0; padding-left: 0; border-top: 1px solid var(--rule); } }
+.adjacent-item.align-end { text-align: right; }
+@media (max-width: 640px) { .adjacent-item.align-end { text-align: left; } }
+.adjacent-quote { display: block; font-family: var(--font-display); font-size: 17px; margin-top: 4px; }
+.empty-slot .adjacent-quote { color: var(--ink-45); font-style: italic; }
+
+.also { margin-top: 30px; border-top: 1px solid var(--rule-hard); padding-top: 10px; }
+.also h2 { margin: 0 0 8px; }
+.also-list { list-style: none; margin: 0; padding: 0; }
+.also-list li { display: grid; grid-template-columns: 24px 1fr auto; gap: 10px; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--rule); }
+.also-list li:last-child { border-bottom: 0; }
+.also-list a { font-family: var(--font-display); font-size: 16px; text-decoration: none; }
+.also-list .num { font-size: 13px; color: var(--ink-45); }
+
+.cite { margin-top: 30px; border-top: 1px solid var(--rule-hard); padding-top: 10px; }
+.cite-text { font-family: var(--font-data); font-size: 12.5px; line-height: 1.75; background: var(--ground-2); border: 1px solid var(--rule); padding: 12px 14px; margin: 8px 0 0; user-select: all; }
+
+/* ── footer colophon ─────────────────────────────────────────── */
+.colophon-block { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 22px 34px; padding-bottom: 20px; margin-bottom: 18px; border-bottom: 1px solid var(--rule); }
+.colophon-note { font-size: 13.5px; color: var(--ink-70); margin: 5px 0 0; max-width: 42ch; }
+
+/* ── stat sheet density ──────────────────────────────────────── */
+.statblocks { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0; border: 1px solid var(--rule-hard); border-left: 0; margin-top: 14px; }
+.statblocks > div { border-left: 1px solid var(--rule-hard); padding: 11px 14px; }
+.statblocks .lbl { display: block; margin-bottom: 5px; }
+
+/* ── hall of fame density ────────────────────────────────────── */
+.hall-entry { display: grid; grid-template-columns: 54px 1fr auto; gap: 18px; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--rule); }
+@media (max-width: 560px) { .hall-entry { grid-template-columns: 40px 1fr; } .hall-entry .hall-gp { grid-column: 2; text-align: left; } }
+.hall-rank { text-align: center; }
+.hall-quote { font-family: var(--font-display); font-size: 20px; text-decoration: none; display: block; }
+.hall-gp { font-family: var(--font-data); font-variant-numeric: tabular-nums; text-align: right; font-size: 15px; }
+
 /* ── document pages (rules, submit, about) ───────────────────── */
 .document { max-width: 70ch; margin: 0 auto; padding: 8px 0 0; }
 .document h2 { font-family: var(--font-display); font-size: 25px; font-weight: 400; margin: 34px 0 10px; }

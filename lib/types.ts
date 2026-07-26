@@ -62,6 +62,11 @@ export interface Statement {
   sources: Source[];
   axes: Axes;
   reply?: string;
+  /** Formal award citation, conferred on Diamond and above. The joke is
+   *  that it is written exactly as a real honours citation would be. */
+  citation?: string;
+  /** The Committee's Note — one sentence of straight-faced assessment. */
+  note?: string;
   /** Provisional entries are still in placement and are not ranked yet. */
   placement?: number;
   projected?: TierKey;

@@ -26,6 +26,14 @@ export default function QueryForm({
   const router = useRouter();
   const [term, setTerm] = useState(query.q);
   const first = useRef(true);
+  // Open by default when a secondary filter is already applied, so an
+  // arriving link shows why it is filtered.
+  const [open, setOpen] = useState(
+    query.state !== DEFAULTS.state ||
+      query.category !== DEFAULTS.category ||
+      query.language !== DEFAULTS.language ||
+      query.period !== DEFAULTS.period
+  );
 
   // Keep the field in step when the URL changes from a token being removed.
   useEffect(() => setTerm(query.q), [query.q]);
@@ -90,9 +98,11 @@ export default function QueryForm({
         </span>
       </div>
 
-      <div className="searchline">
-        <label className="field">
-          <span className="lbl">Search transcripts, representatives, venues &mdash; press /</span>
+      {/* Primary row only. The standings are the point of the page and
+          must not sit below 260px of controls. */}
+      <div className="query-primary">
+        <label className="field field-search">
+          <span className="lbl">Search the record &mdash; press /</span>
           <input
             id="q"
             type="search"
@@ -102,39 +112,13 @@ export default function QueryForm({
             autoComplete="off"
           />
         </label>
-      </div>
-
-      <div className="filters">
-        {select("country", "Country", [
-          { value: "India", label: "India" },
-          { value: "United States", label: "United States (soon)", disabled: true },
-          { value: "United Kingdom", label: "United Kingdom (soon)", disabled: true },
-        ])}
         {select("party", "Party", [
           { value: "all", label: "All parties" },
           ...parties.map((p) => ({ value: p.code, label: `${p.code} — ${p.name}` })),
         ])}
-        {select("state", "State", [
-          { value: "all", label: "All states" },
-          ...states.map((s) => ({ value: s, label: s })),
-        ])}
         {select("tier", "Tier", [
           { value: "all", label: "All tiers" },
           ...TIERS.map((t) => ({ value: t.key, label: t.name })),
-        ])}
-        {select("category", "Category", [
-          { value: "all", label: "All categories" },
-          ...categories.map((c) => ({ value: c, label: c })),
-        ])}
-        {select("language", "Language", [
-          { value: "all", label: "All languages" },
-          ...languages.map((l) => ({ value: l, label: l })),
-        ])}
-        {select("period", "Period", [
-          { value: "all", label: "All time" },
-          { value: "365", label: "This year" },
-          { value: "90", label: "Last 90 days" },
-          { value: "30", label: "This month" },
         ])}
         {select("sort", "Sort by", [
           { value: "gp", label: "Rating (GP)" },
@@ -142,7 +126,44 @@ export default function QueryForm({
           { value: "climb", label: "Biggest climber" },
           { value: "duels", label: "Most duels" },
         ])}
+        <button
+          type="button"
+          className="disclose"
+          onClick={() => setOpen((o) => !o)}
+          aria-expanded={open}
+          aria-controls="more-filters"
+        >
+          {open ? "Fewer filters" : "More filters"}
+        </button>
       </div>
+
+      {open && (
+        <div className="filters" id="more-filters">
+          {select("country", "Country", [
+            { value: "India", label: "India" },
+            { value: "United States", label: "United States (soon)", disabled: true },
+            { value: "United Kingdom", label: "United Kingdom (soon)", disabled: true },
+          ])}
+          {select("state", "State", [
+            { value: "all", label: "All states" },
+            ...states.map((s) => ({ value: s, label: s })),
+          ])}
+          {select("category", "Category", [
+            { value: "all", label: "All categories" },
+            ...categories.map((c) => ({ value: c, label: c })),
+          ])}
+          {select("language", "Language", [
+            { value: "all", label: "All languages" },
+            ...languages.map((l) => ({ value: l, label: l })),
+          ])}
+          {select("period", "Period", [
+            { value: "all", label: "All time" },
+            { value: "365", label: "This year" },
+            { value: "90", label: "Last 90 days" },
+            { value: "30", label: "This month" },
+          ])}
+        </div>
+      )}
 
       <div className="tokens">
         {tokens.length === 0 ? (

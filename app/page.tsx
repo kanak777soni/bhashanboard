@@ -2,6 +2,7 @@ import Link from "next/link";
 import SiteFrame from "@/components/SiteFrame";
 import QueryForm from "@/components/QueryForm";
 import StandingsTable from "@/components/StandingsTable";
+import TierLegend from "@/components/TierLegend";
 import { CATEGORIES, IN_PLACEMENT, PARTIES, STATEMENTS, languages, states } from "@/lib/data";
 import { parseQuery, runQuery } from "@/lib/query";
 import { PLACEMENT_DUELS } from "@/lib/elo";
@@ -34,14 +35,30 @@ export default async function StandingsPage({
             <span className="lbl">Ratified by the Committee</span>
           </div>
           <StandingsTable rows={rows} term={query.q} />
-          <p style={{ marginTop: 18 }}>
-            <Link className="btn" href="/duel">
-              Enter the duel
-            </Link>
+          <p style={{ marginTop: 18 }} className="lbl">
+            Ratings are recomputed nightly from the duel record.
           </p>
         </div>
 
         <aside className="rail">
+          {/* The duel is the retention engine. It was a small button below
+              a sixteen-row table; it belongs at the top of the rail. */}
+          <section className="rail-block summons">
+            <h2>The Committee is sitting</h2>
+            <p className="rail-note">
+              Two entries are placed before you. You decide which is more magnificent. Ratings move
+              accordingly.
+            </p>
+            <Link className="btn seal summons-btn" href="/duel">
+              Take your seat
+            </Link>
+            <p className="lbl summons-foot">
+              Aamne-Saamne &middot; <span className="num">{STATEMENTS.length}</span> entries in the pool
+            </p>
+          </section>
+
+          <TierLegend compact />
+
           <section className="rail-block">
             <h2>Now in placement</h2>
             {IN_PLACEMENT.map((s) => (

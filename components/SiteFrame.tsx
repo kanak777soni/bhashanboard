@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Masthead from "./Masthead";
 import SiteNav from "./SiteNav";
 import Ticker from "./Ticker";
@@ -11,6 +12,29 @@ export default function SiteFrame({ children }: { children: React.ReactNode }) {
       <Ticker />
       {children}
       <footer className="site">
+        <div className="colophon-block">
+          <div>
+            <span className="lbl">The Committee</span>
+            <p className="colophon-note">
+              Established 2026. Sits weekly. Rules on statements, never on persons. Declines to
+              comment on anything else.
+            </p>
+          </div>
+          <div>
+            <span className="lbl">Correspondence</span>
+            <p className="colophon-note">
+              To the Registrar. Offices wishing to exercise the right of reply are answered in order
+              of receipt, and always answered.
+            </p>
+          </div>
+          <div>
+            <span className="lbl">Standing orders</span>
+            <p className="colophon-note">
+              <Link href="/rules">The Rules</Link> &middot; <Link href="/ledger">The Ledger</Link>{" "}
+              &middot; <Link href="/submit">Submissions</Link>
+            </p>
+          </div>
+        </div>
         <p>
           <strong>This is a development build.</strong> Every entry, representative and party shown is
           invented. No real person is quoted anywhere on this site.

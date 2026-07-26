@@ -30,39 +30,32 @@ export default function HallPage() {
         The first induction has not yet taken place. Standing candidates are shown below.
       </p>
 
-      <div style={{ display: "grid", gap: 0, marginTop: 26, borderTop: "2px solid var(--ink)" }}>
+      <div style={{ marginTop: 24, borderTop: "2px solid var(--ink)" }}>
         {candidates.map((s, i) => {
           const neta = netaBySlug(s.neta);
           return (
-            <article
-              key={s.slug}
-              style={{
-                display: "flex",
-                gap: 20,
-                alignItems: "flex-start",
-                padding: "20px 0",
-                borderBottom: "1px solid var(--rule)",
-              }}
-            >
-              <div style={{ textAlign: "center", flex: "none", width: 60 }}>
-                <Medal gp={s.gp} size={34} />
-                <div className="num" style={{ fontSize: 12, color: "var(--ink-45)", marginTop: 4 }}>
+            <article className="hall-entry" key={s.slug}>
+              <div className="hall-rank">
+                <Medal gp={s.gp} size={28} />
+                <div className="num" style={{ fontSize: 11, color: "var(--ink-45)", marginTop: 2 }}>
                   {String(i + 1).padStart(2, "0")}
                 </div>
               </div>
               <div>
-                <Link
-                  href={`/statement/${s.slug}`}
-                  style={{ fontFamily: "var(--font-display)", fontSize: 22, textDecoration: "none" }}
-                >
+                <Link href={`/statement/${s.slug}`} className="hall-quote">
                   &ldquo;{s.quote}&rdquo;
                 </Link>
-                <div className="entry-sub" style={{ marginTop: 6 }}>
+                {s.citation && (
+                  <div style={{ fontStyle: "italic", color: "var(--foil)", fontSize: 14, marginTop: 2 }}>
+                    {s.citation}
+                  </div>
+                )}
+                <div className="entry-sub" style={{ marginTop: 4 }}>
                   {neta?.name} &middot; {neta?.party} &middot; {neta?.state} &middot;{" "}
-                  <span className="num">{s.gp.toLocaleString("en-IN")}</span> GP &middot;{" "}
                   <span className="num">{s.duels.toLocaleString("en-IN")}</span> duels
                 </div>
               </div>
+              <div className="hall-gp">{s.gp.toLocaleString("en-IN")}</div>
             </article>
           );
         })}

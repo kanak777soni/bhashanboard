@@ -23,7 +23,16 @@ function Movement({ delta }: { delta: number }) {
   return <span className="mv flat">&mdash;</span>;
 }
 
-export default function StandingsTable({ rows, term = "" }: { rows: Row[]; term?: string }) {
+export default function StandingsTable({
+  rows,
+  term = "",
+  hideNeta = false,
+}: {
+  rows: Row[];
+  term?: string;
+  /** On a representative's own page the column just repeats the heading. */
+  hideNeta?: boolean;
+}) {
   return (
     <div className="tablewrap">
       <table className="standings">
@@ -33,14 +42,14 @@ export default function StandingsTable({ rows, term = "" }: { rows: Row[]; term?
             <th className="c-move">&plusmn;</th>
             <th className="c-medal"><span className="lbl" style={{ position: "absolute", left: -9999 }}>Tier</span></th>
             <th>Entry</th>
-            <th className="c-meta">Representative</th>
+            {!hideNeta && <th className="c-meta">Representative</th>}
             <th className="c-gp">GP</th>
           </tr>
         </thead>
         <tbody>
           {rows.length === 0 && (
             <tr>
-              <td colSpan={6} className="empty">
+              <td colSpan={hideNeta ? 5 : 6} className="empty">
                 No entries match this query. Rare, but it happens.
               </td>
             </tr>
@@ -66,19 +75,21 @@ export default function StandingsTable({ rows, term = "" }: { rows: Row[]; term?
                     {s.category} &middot; {s.language} &middot; {s.duels.toLocaleString("en-IN")} duels
                   </div>
                 </td>
-                <td className="c-meta">
-                  {neta ? (
-                    <Link href={`/neta/${neta.slug}`} style={{ textDecoration: "none" }}>
-                      <Highlight text={neta.name} term={term} />
-                    </Link>
-                  ) : (
-                    "—"
-                  )}
-                  <div className="entry-sub">
-                    <i className="swatch" style={{ background: party?.ink ?? "transparent" }} />
-                    {neta?.party} &middot; {neta?.state}
-                  </div>
-                </td>
+                {!hideNeta && (
+                  <td className="c-meta">
+                    {neta ? (
+                      <Link href={`/neta/${neta.slug}`} style={{ textDecoration: "none" }}>
+                        <Highlight text={neta.name} term={term} />
+                      </Link>
+                    ) : (
+                      "—"
+                    )}
+                    <div className="entry-sub">
+                      <i className="swatch" style={{ background: party?.ink ?? "transparent" }} />
+                      {neta?.party} &middot; {neta?.state}
+                    </div>
+                  </td>
+                )}
                 <td className="c-gp">{s.gp.toLocaleString("en-IN")}</td>
               </tr>
             );

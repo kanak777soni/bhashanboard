@@ -16,6 +16,8 @@ export default function Masthead() {
               <Link href="/">The Bhashan Board</Link>
             </h1>
             <p className="tagline">An archive of public wisdom. Independently ranked.</p>
+            {/* Institutions have mottoes. The joke is that ours is sincere. */}
+            <p className="motto">&ldquo;Dicta manent&rdquo; &mdash; what was said, remains</p>
           </div>
           <div className="colophon">
             <div className="lbl">Edition {EDITION.number}</div>

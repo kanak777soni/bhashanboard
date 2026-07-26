@@ -5,6 +5,7 @@ import SiteFrame from "@/components/SiteFrame";
 import Guilloche from "@/components/Guilloche";
 import ClipFacade from "@/components/ClipFacade";
 import Medal from "@/components/Medal";
+import StatementFooterNav from "@/components/StatementFooterNav";
 import {
   IN_PLACEMENT,
   STATEMENTS,
@@ -77,6 +78,11 @@ export default async function StatementPage({ params }: { params: Promise<{ slug
           </div>
 
           <h1 className="cert-title">&ldquo;{s.quote}&rdquo;</h1>
+          {/* Citations are conferred only at Diamond and above. Scarcity is
+              what makes the upper grades mean anything. */}
+          {s.citation && (tier.key === "diamond" || tier.key === "kohinoor") && (
+            <p className="citation">{s.citation}</p>
+          )}
           <p className="cert-attrib">
             {neta ? <Link href={`/neta/${neta.slug}`}>{neta.name}</Link> : "Unknown"}
             {neta && ` · ${neta.office} · ${neta.state}`} · {s.venue}
@@ -109,6 +115,13 @@ export default async function StatementPage({ params }: { params: Promise<{ slug
               </div>
             </div>
           </div>
+
+          {s.note && (
+            <div className="committee-note">
+              <span className="lbl">The Committee&rsquo;s note</span>
+              <p>{s.note}</p>
+            </div>
+          )}
 
           {s.reply && (
             <div className="erratum">
@@ -186,6 +199,8 @@ export default async function StatementPage({ params }: { params: Promise<{ slug
           )}
         </div>
       </div>
+
+      {!provisional && <StatementFooterNav slug={s.slug} />}
     </SiteFrame>
   );
 }
