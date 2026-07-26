@@ -1,0 +1,943 @@
+<title>The Bhashan Board — Specimen</title>
+
+<style>
+/* ─────────────────────────────────────────────────────────────
+   THE BHASHAN BOARD — visual specimen
+   Palette derived from security printing: safety paper, intaglio
+   ink, engraved gold, wax-seal oxblood. Not a framework theme.
+   ───────────────────────────────────────────────────────────── */
+
+:root{
+  --ground:      #E4E9DD;   /* safety paper */
+  --ground-2:    #D9E0D0;   /* ledger alternate */
+  --ground-3:    #EDF0E8;   /* raised panel */
+  --ink:         #141D18;   /* intaglio green-black */
+  --ink-70:      rgba(20,29,24,.72);
+  --ink-45:      rgba(20,29,24,.46);
+  --ink-25:      rgba(20,29,24,.25);
+  --rule:        rgba(20,29,24,.18);
+  --rule-hard:   rgba(20,29,24,.42);
+  --foil:        #A9853A;   /* engraved gold */
+  --foil-soft:   rgba(169,133,58,.16);
+  --seal:        #8E2230;   /* wax-seal oxblood — the one accent */
+  --rise:        #2C6B4E;   /* upward movement */
+  --shade-cool:  #7C8A86;
+
+  --font-display: "Hoefler Text","Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+  --font-body:    Georgia,"Times New Roman",Times,serif;
+  --font-util:    "Avenir Next Condensed","Arial Narrow","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --font-data:    ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Consolas,"Liberation Mono",monospace;
+
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+  --grain-strength: .055;
+}
+
+@media (prefers-color-scheme: dark){
+  :root{
+    --ground:    #0E1512;
+    --ground-2:  #141C18;
+    --ground-3:  #18211C;
+    --ink:       #DCE3D4;
+    --ink-70:    rgba(220,227,212,.70);
+    --ink-45:    rgba(220,227,212,.44);
+    --ink-25:    rgba(220,227,212,.22);
+    --rule:      rgba(220,227,212,.16);
+    --rule-hard: rgba(220,227,212,.34);
+    --foil:      #C9A657;
+    --foil-soft: rgba(201,166,87,.14);
+    --seal:      #C95765;
+    --rise:      #5AA983;
+    --shade-cool:#8B9994;
+    --grain-strength: .08;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:    #0E1512;
+  --ground-2:  #141C18;
+  --ground-3:  #18211C;
+  --ink:       #DCE3D4;
+  --ink-70:    rgba(220,227,212,.70);
+  --ink-45:    rgba(220,227,212,.44);
+  --ink-25:    rgba(220,227,212,.22);
+  --rule:      rgba(220,227,212,.16);
+  --rule-hard: rgba(220,227,212,.34);
+  --foil:      #C9A657;
+  --foil-soft: rgba(201,166,87,.14);
+  --seal:      #C95765;
+  --rise:      #5AA983;
+  --shade-cool:#8B9994;
+  --grain-strength: .08;
+}
+:root[data-theme="light"]{
+  --ground:    #E4E9DD;
+  --ground-2:  #D9E0D0;
+  --ground-3:  #EDF0E8;
+  --ink:       #141D18;
+  --ink-70:    rgba(20,29,24,.72);
+  --ink-45:    rgba(20,29,24,.46);
+  --ink-25:    rgba(20,29,24,.25);
+  --rule:      rgba(20,29,24,.18);
+  --rule-hard: rgba(20,29,24,.42);
+  --foil:      #A9853A;
+  --foil-soft: rgba(169,133,58,.16);
+  --seal:      #8E2230;
+  --rise:      #2C6B4E;
+  --shade-cool:#7C8A86;
+  --grain-strength: .055;
+}
+
+*{ box-sizing:border-box; }
+
+body{
+  margin:0;
+  background:var(--ground);
+  color:var(--ink);
+  font-family:var(--font-body);
+  font-size:16px;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+body::before{
+  content:"";
+  position:fixed; inset:0;
+  background-image:var(--grain);
+  opacity:var(--grain-strength);
+  pointer-events:none; z-index:9999;
+  mix-blend-mode:multiply;
+}
+@media (prefers-color-scheme: dark){ body::before{ mix-blend-mode:screen; } }
+:root[data-theme="dark"] body::before{ mix-blend-mode:screen; }
+
+.wrap{ max-width:1220px; margin:0 auto; padding:0 22px; }
+
+:focus-visible{ outline:2px solid var(--seal); outline-offset:2px; }
+
+/* ── utility type ─────────────────────────────────────────── */
+.lbl{
+  font-family:var(--font-util);
+  font-size:10.5px; font-weight:600;
+  letter-spacing:.15em; text-transform:uppercase;
+  color:var(--ink-45);
+}
+.num{ font-family:var(--font-data); font-variant-numeric:tabular-nums; }
+
+/* ── masthead ─────────────────────────────────────────────── */
+.masthead{ position:relative; padding:30px 0 16px; border-bottom:2px solid var(--ink); overflow:hidden; }
+#mast-guilloche{ position:absolute; inset:0; width:100%; height:100%; opacity:.5; pointer-events:none; }
+.mast-inner{ position:relative; display:flex; align-items:flex-end; justify-content:space-between; gap:24px; flex-wrap:wrap; }
+.nameplate{
+  font-family:var(--font-display);
+  font-size:clamp(34px,6.2vw,62px);
+  line-height:.94; margin:0; font-weight:400;
+  letter-spacing:-.015em; text-wrap:balance;
+  text-shadow:0 1px 0 rgba(255,255,255,.35);
+}
+:root[data-theme="dark"] .nameplate{ text-shadow:0 1px 0 rgba(0,0,0,.5); }
+.tagline{ font-style:italic; color:var(--ink-70); margin:8px 0 0; font-size:15px; }
+.colophon{ text-align:right; line-height:1.9; }
+
+/* ── parity rule ──────────────────────────────────────────── */
+.parity{ display:flex; align-items:center; gap:16px; padding:9px 0; border-bottom:1px solid var(--rule); flex-wrap:wrap; }
+.parity-bar{ display:flex; height:7px; flex:1; min-width:170px; border:1px solid var(--rule-hard); }
+.parity-bar span{ display:block; }
+.parity-legend{ display:flex; gap:14px; flex-wrap:wrap; }
+.parity-legend b{ font-weight:400; }
+.swatch{ display:inline-block; width:8px; height:8px; margin-right:5px; border:1px solid var(--rule-hard); vertical-align:baseline; }
+
+/* ── nav ──────────────────────────────────────────────────── */
+.nav{ display:flex; gap:0; border-bottom:1px solid var(--rule); flex-wrap:wrap; }
+.nav button{
+  appearance:none; background:none; border:0; cursor:pointer;
+  font-family:var(--font-util); font-size:11px; font-weight:600;
+  letter-spacing:.15em; text-transform:uppercase; color:var(--ink-45);
+  padding:11px 15px 10px; border-bottom:2px solid transparent; margin-bottom:-1px;
+}
+.nav button:hover{ color:var(--ink); }
+.nav button[aria-current="true"]{ color:var(--ink); border-bottom-color:var(--seal); }
+
+/* ── ticker ───────────────────────────────────────────────── */
+.ticker{
+  display:flex; align-items:center; gap:12px;
+  border-bottom:1px solid var(--rule);
+  padding:8px 0; overflow:hidden; white-space:nowrap;
+}
+.ticker-tag{
+  font-family:var(--font-util); font-size:10px; font-weight:700;
+  letter-spacing:.16em; text-transform:uppercase;
+  color:var(--seal); border:1px solid var(--seal); padding:2px 7px; flex:none;
+}
+.ticker-track{ display:flex; gap:44px; animation:slide 46s linear infinite; }
+.ticker-track span{ font-size:14px; color:var(--ink-70); }
+@keyframes slide{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
+@media (prefers-reduced-motion: reduce){ .ticker-track{ animation:none; } }
+
+/* ── query form (filters + search) ────────────────────────── */
+.query{ border-bottom:2px solid var(--ink); padding:16px 0 14px; }
+.query-head{ display:flex; justify-content:space-between; align-items:baseline; gap:16px; margin-bottom:12px; flex-wrap:wrap; }
+.query-title{ font-family:var(--font-util); font-size:11px; font-weight:700; letter-spacing:.2em; text-transform:uppercase; }
+
+.searchline{ display:flex; align-items:flex-end; gap:10px; margin-bottom:15px; }
+.searchline .field{ flex:1; }
+.field{ display:flex; flex-direction:column; gap:4px; min-width:0; }
+.field > .lbl{ font-size:9.5px; }
+.field input, .field select{
+  appearance:none; background:transparent; color:var(--ink);
+  border:0; border-bottom:1px solid var(--rule-hard); border-radius:0;
+  font-family:var(--font-body); font-size:15px;
+  padding:4px 18px 5px 0; width:100%; cursor:pointer;
+}
+.field input{ font-family:var(--font-body); cursor:text; }
+.field input::placeholder{ color:var(--ink-25); font-style:italic; }
+.field select{
+  background-image:linear-gradient(45deg,transparent 50%,var(--ink-45) 50%),linear-gradient(135deg,var(--ink-45) 50%,transparent 50%);
+  background-position:calc(100% - 9px) 12px,calc(100% - 5px) 12px;
+  background-size:4px 4px,4px 4px; background-repeat:no-repeat;
+}
+.field select:focus, .field input:focus{ border-bottom-color:var(--seal); outline:none; }
+
+.filters{ display:grid; grid-template-columns:repeat(auto-fit,minmax(126px,1fr)); gap:14px 20px; }
+
+.btn{
+  appearance:none; cursor:pointer; background:var(--ink); color:var(--ground);
+  border:1px solid var(--ink); border-radius:0; padding:8px 16px;
+  font-family:var(--font-util); font-size:10.5px; font-weight:700;
+  letter-spacing:.15em; text-transform:uppercase; flex:none;
+}
+.btn.ghost{ background:transparent; color:var(--ink); }
+.btn.seal{ background:var(--seal); border-color:var(--seal); color:#F6EFE4; }
+
+.tokens{ display:flex; gap:8px; flex-wrap:wrap; margin-top:13px; align-items:center; min-height:24px; }
+.token{
+  font-family:var(--font-util); font-size:10px; font-weight:600;
+  letter-spacing:.12em; text-transform:uppercase;
+  border:1px solid var(--rule-hard); padding:3px 6px 3px 8px;
+  display:inline-flex; align-items:center; gap:7px;
+  background:var(--foil-soft);
+}
+.token button{ appearance:none; background:none; border:0; cursor:pointer; color:var(--ink-45); font-size:13px; line-height:1; padding:0; }
+.token button:hover{ color:var(--seal); }
+.token-reset{ font-family:var(--font-util); font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--seal); background:none; border:0; cursor:pointer; text-decoration:underline; text-underline-offset:3px; }
+
+/* ── layout: table + rail ─────────────────────────────────── */
+.columns{ display:grid; grid-template-columns:1fr 268px; gap:0 34px; align-items:start; padding-top:20px; }
+@media (max-width:900px){ .columns{ grid-template-columns:1fr; } }
+
+.sec-head{ display:flex; align-items:baseline; justify-content:space-between; gap:14px; border-bottom:1px solid var(--ink); padding-bottom:6px; margin-bottom:0; }
+.sec-head h2{ font-family:var(--font-display); font-size:23px; font-weight:400; margin:0; letter-spacing:-.01em; }
+
+/* ── standings table ──────────────────────────────────────── */
+.tablewrap{ overflow-x:auto; }
+table.standings{ width:100%; border-collapse:collapse; font-size:15px; }
+table.standings th{
+  font-family:var(--font-util); font-size:9.5px; font-weight:700;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--ink-45);
+  text-align:left; padding:8px 9px; border-bottom:1px solid var(--rule-hard); white-space:nowrap;
+}
+table.standings td{ padding:9px; border-bottom:1px solid var(--rule); line-height:1.28; vertical-align:middle; }
+table.standings tbody tr:nth-child(even){ background:var(--ground-2); }
+table.standings tbody tr:hover{ background:var(--foil-soft); }
+.c-rank{ width:38px; font-family:var(--font-data); font-variant-numeric:tabular-nums; font-size:15px; color:var(--ink-70); }
+.c-move{ width:44px; }
+.c-medal{ width:30px; }
+.c-gp{ width:74px; text-align:right; font-family:var(--font-data); font-variant-numeric:tabular-nums; }
+.c-meta{ width:180px; }
+.entry-quote{ font-family:var(--font-display); font-size:16.5px; cursor:pointer; display:block; }
+.entry-quote:hover{ color:var(--seal); }
+.entry-sub{ font-family:var(--font-util); font-size:10px; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-45); margin-top:3px; }
+.mv{ font-family:var(--font-data); font-size:12px; }
+.mv.up{ color:var(--rise); }
+.mv.down{ color:var(--seal); }
+.mv.flat{ color:var(--ink-25); }
+.medal{ width:21px; height:21px; display:block; }
+.tag-new{ font-family:var(--font-util); font-size:8.5px; font-weight:700; letter-spacing:.12em; color:var(--seal); border:1px solid var(--seal); padding:0 3px; margin-left:6px; vertical-align:1px; }
+.empty{ padding:44px 10px; text-align:center; color:var(--ink-45); font-style:italic; }
+
+/* ── rail ─────────────────────────────────────────────────── */
+.rail{ display:flex; flex-direction:column; gap:26px; }
+@media (max-width:900px){ .rail{ margin-top:34px; } }
+.rail-block{ border-top:2px solid var(--ink); padding-top:9px; }
+.rail-block h3{ font-family:var(--font-util); font-size:10px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; margin:0 0 10px; }
+.placement{ border-bottom:1px solid var(--rule); padding-bottom:10px; margin-bottom:10px; }
+.placement:last-child{ border-bottom:0; margin-bottom:0; }
+.placement p{ margin:0 0 6px; font-family:var(--font-display); font-size:15px; line-height:1.3; }
+.meter{ height:5px; border:1px solid var(--rule-hard); display:flex; margin:6px 0 4px; }
+.meter i{ display:block; background:var(--foil); }
+.rail-note{ font-size:13.5px; color:var(--ink-70); margin:0; }
+.divergence{ display:flex; justify-content:space-between; gap:10px; padding:6px 0; border-bottom:1px solid var(--rule); font-size:13.5px; }
+.divergence:last-child{ border-bottom:0; }
+
+/* ── certificate view ─────────────────────────────────────── */
+.certificate{ position:relative; background:var(--ground-3); border:1px solid var(--rule-hard); padding:30px; margin-top:26px; }
+#cert-guilloche{ position:absolute; inset:0; width:100%; height:100%; pointer-events:none; opacity:.62; }
+.cert-inner{ position:relative; }
+.cert-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:20px; border-bottom:1px solid var(--rule); padding-bottom:14px; flex-wrap:wrap; }
+.cert-serial{ font-family:var(--font-data); font-size:11px; letter-spacing:.08em; color:var(--ink-45); }
+.cert-title{ font-family:var(--font-display); font-size:clamp(24px,3.4vw,38px); line-height:1.14; margin:20px 0 6px; font-weight:400; text-wrap:balance; }
+.cert-attrib{ font-style:italic; color:var(--ink-70); margin:0 0 20px; }
+
+.player{ position:relative; aspect-ratio:16/9; background:var(--ink); display:flex; align-items:center; justify-content:center; cursor:pointer; border:1px solid var(--rule-hard); overflow:hidden; }
+.player::after{
+  content:"FACADE — IFRAME LOADS ON CLICK";
+  position:absolute; bottom:9px; right:11px;
+  font-family:var(--font-util); font-size:8.5px; letter-spacing:.13em; color:rgba(220,227,212,.4);
+}
+.play-glyph{ width:62px; height:62px; }
+.player:hover .play-glyph circle{ stroke:var(--foil); }
+
+.verdict{ display:grid; grid-template-columns:repeat(auto-fit,minmax(112px,1fr)); border:1px solid var(--rule-hard); border-left:0; margin:22px 0; }
+.verdict div{ border-left:1px solid var(--rule-hard); padding:11px 13px; }
+.verdict b{ display:block; font-family:var(--font-data); font-variant-numeric:tabular-nums; font-size:21px; font-weight:400; margin-top:3px; }
+.tier-line{ display:flex; align-items:center; gap:8px; margin-top:3px; }
+.tier-line span{ font-family:var(--font-display); font-size:18px; }
+
+.scrubber{ margin:22px 0; }
+.scrub-track{ height:26px; border:1px solid var(--rule-hard); display:flex; align-items:stretch; }
+.scrub-track i{ display:block; }
+.scrub-track i.pre, .scrub-track i.post{ flex:1; background:repeating-linear-gradient(90deg,transparent 0 4px,var(--rule) 4px 5px); }
+.scrub-track i.mid{ flex:1.1; background:var(--seal); opacity:.82; }
+.scrub-legend{ display:flex; justify-content:space-between; margin-top:5px; }
+
+.parallel{ display:grid; grid-template-columns:1fr 1fr; gap:0 26px; border-top:1px solid var(--rule-hard); padding-top:16px; margin-top:24px; }
+@media (max-width:720px){ .parallel{ grid-template-columns:1fr; gap:22px; } }
+.parallel .col + .col{ border-left:1px solid var(--rule); padding-left:26px; }
+@media (max-width:720px){ .parallel .col + .col{ border-left:0; padding-left:0; border-top:1px solid var(--rule); padding-top:18px; } }
+.transcript{ counter-reset:ln; margin:10px 0 0; padding:0; list-style:none; }
+.transcript li{ counter-increment:ln; position:relative; padding-left:30px; margin-bottom:7px; font-size:15.5px; }
+.transcript li::before{ content:counter(ln); position:absolute; left:0; top:2px; font-family:var(--font-data); font-size:10px; color:var(--ink-25); }
+.transcript.deva li{ line-height:1.85; }
+
+.stamps{ display:flex; gap:14px; flex-wrap:wrap; margin:24px 0 0; }
+.stamp{
+  font-family:var(--font-util); font-size:9.5px; font-weight:700;
+  letter-spacing:.16em; text-transform:uppercase; color:var(--seal);
+  border:2px solid var(--seal); padding:5px 9px; opacity:.85;
+  transform:rotate(-3.2deg);
+}
+.stamp.green{ color:var(--rise); border-color:var(--rise); transform:rotate(2.1deg); }
+.stamp.foil{ color:var(--foil); border-color:var(--foil); transform:rotate(-1.4deg); }
+
+.erratum{ border:1px solid var(--rule-hard); border-left:3px solid var(--foil); padding:14px 17px; margin:24px 0; background:var(--ground); }
+.erratum p{ margin:7px 0 0; font-size:15px; }
+
+.axes{ margin-top:24px; border-top:1px solid var(--rule-hard); padding-top:14px; }
+.axis{ display:grid; grid-template-columns:154px 1fr 40px; gap:12px; align-items:center; padding:6px 0; border-bottom:1px solid var(--rule); }
+.axis:last-child{ border-bottom:0; }
+.axis .bar{ height:6px; border:1px solid var(--rule-hard); }
+.axis .bar i{ display:block; height:100%; background:var(--ink); opacity:.62; }
+.axis .val{ font-family:var(--font-data); font-variant-numeric:tabular-nums; font-size:12px; text-align:right; color:var(--ink-70); }
+
+/* ── specimen banner + footer ─────────────────────────────── */
+.specimen{
+  background:var(--seal); color:#F6EFE4;
+  font-family:var(--font-util); font-size:10px; font-weight:700;
+  letter-spacing:.2em; text-transform:uppercase;
+  text-align:center; padding:6px 12px;
+}
+footer{ border-top:2px solid var(--ink); margin-top:52px; padding:20px 0 46px; }
+footer p{ margin:0 0 8px; font-size:13.5px; color:var(--ink-70); max-width:74ch; }
+.theme-toggle{
+  appearance:none; background:none; border:1px solid var(--rule-hard); cursor:pointer;
+  color:var(--ink); padding:5px 10px; border-radius:0;
+  font-family:var(--font-util); font-size:9.5px; font-weight:600; letter-spacing:.14em; text-transform:uppercase;
+}
+.hidden{ display:none !important; }
+</style>
+
+<!-- engraved glyph set — 8 hand-drawn marks, no icon library -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="m-part" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="2 2.4"/>
+    </symbol>
+    <symbol id="m-bronze" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.2"/>
+      <circle cx="12" cy="12" r="5" fill="none" stroke="currentColor" stroke-width=".8"/>
+    </symbol>
+    <symbol id="m-silver" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.2"/>
+      <circle cx="12" cy="12" r="5" fill="none" stroke="currentColor" stroke-width=".8"/>
+      <path d="M8.6 13.4 12 9.9l3.4 3.5" fill="none" stroke="currentColor" stroke-width="1.1"/>
+    </symbol>
+    <symbol id="m-gold" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.3"/>
+      <circle cx="12" cy="12" r="5.6" fill="none" stroke="currentColor" stroke-width=".7"/>
+      <path d="M4.6 12a7.6 7.6 0 0 0 3.2 6.4M19.4 12a7.6 7.6 0 0 1-3.2 6.4" fill="none" stroke="currentColor" stroke-width="1"/>
+      <path d="M12 9.2l1.1 2.2 2.4.35-1.75 1.7.42 2.4L12 14.72l-2.17 1.14.42-2.4-1.75-1.7 2.4-.35z" fill="currentColor"/>
+    </symbol>
+    <symbol id="m-diamond" viewBox="0 0 24 24">
+      <path d="M12 3.2 20 12l-8 8.8L4 12z" fill="none" stroke="currentColor" stroke-width="1.25"/>
+      <path d="M12 3.2 8.4 12 12 20.8 15.6 12z" fill="none" stroke="currentColor" stroke-width=".7"/>
+      <path d="M4 12h16" fill="none" stroke="currentColor" stroke-width=".7"/>
+    </symbol>
+    <symbol id="m-kohinoor" viewBox="0 0 24 24">
+      <path d="M12 2.4 20.4 12 12 21.6 3.6 12z" fill="none" stroke="currentColor" stroke-width="1.35"/>
+      <path d="M12 2.4 8 12l4 9.6L16 12z" fill="none" stroke="currentColor" stroke-width=".7"/>
+      <path d="M3.6 12h16.8M6.6 6.9l10.8 10.2M17.4 6.9 6.6 17.1" fill="none" stroke="currentColor" stroke-width=".55" opacity=".75"/>
+      <circle cx="12" cy="12" r="2.1" fill="currentColor"/>
+    </symbol>
+    <symbol id="seal" viewBox="0 0 64 64">
+      <path d="M32 3.5 38 8l7.4-1.6 3.9 6.4 7.3 1.9-.6 7.5 5.4 5.3-4.2 6.3 2.6 7.1-6.3 4.2-.7 7.5-7.4 1.3-4.4 6.2-7-2.7-6.3 4.2-5.3-5.4-7.5.5-2-7.3-6.4-3.9L11 40l-4.6-6 4.6-6-1.6-7.4 6.4-3.9 2-7.3 7.5.5 5.3-5.4z"
+            fill="none" stroke="currentColor" stroke-width="1.4"/>
+      <circle cx="32" cy="32" r="17" fill="none" stroke="currentColor" stroke-width=".9"/>
+      <circle cx="32" cy="32" r="13.6" fill="none" stroke="currentColor" stroke-width="2.4"/>
+    </symbol>
+    <symbol id="play" viewBox="0 0 64 64">
+      <circle cx="32" cy="32" r="27" fill="none" stroke="rgba(220,227,212,.6)" stroke-width="1.2"/>
+      <path d="M26 21.5 44 32 26 42.5z" fill="none" stroke="rgba(220,227,212,.8)" stroke-width="1.6"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="specimen">Specimen · all entries, representatives and parties below are fictional · design prototype only</div>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <canvas id="mast-guilloche" aria-hidden="true"></canvas>
+    <div class="mast-inner">
+      <div>
+        <h1 class="nameplate">The Bhashan Board</h1>
+        <p class="tagline">An archive of public wisdom. Independently ranked.</p>
+      </div>
+      <div class="colophon">
+        <div class="lbl">Edition CDXVII</div>
+        <div class="lbl">26 July 2026</div>
+        <div class="lbl"><span class="num" id="entry-count">1,847</span> entries on record</div>
+        <button class="theme-toggle" id="theme-btn" type="button">Night Edition</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="parity">
+    <span class="lbl">Parity</span>
+    <div class="parity-bar" id="parity-bar" role="img" aria-label="Party distribution of the last 100 published entries"></div>
+    <div class="parity-legend lbl" id="parity-legend"></div>
+  </div>
+
+  <nav class="nav" aria-label="Sections">
+    <button type="button" data-view="standings" aria-current="true">The Standings</button>
+    <button type="button" data-view="statement">A Statement</button>
+    <button type="button" data-view="standings">Duel</button>
+    <button type="button" data-view="standings">Netas</button>
+    <button type="button" data-view="standings">Hall of Fame</button>
+    <button type="button" data-view="standings">Ledger</button>
+    <button type="button" data-view="standings">Rules</button>
+  </nav>
+
+  <div class="ticker">
+    <span class="ticker-tag">In placement</span>
+    <div class="ticker-track" id="ticker"></div>
+  </div>
+
+  <!-- ══════════════════ VIEW: STANDINGS ══════════════════ -->
+  <section id="view-standings">
+
+    <form class="query" id="query" onsubmit="return false">
+      <div class="query-head">
+        <span class="query-title">Query the record</span>
+        <span class="lbl" id="result-count"></span>
+      </div>
+
+      <div class="searchline">
+        <label class="field">
+          <span class="lbl">Search transcripts, representatives, venues</span>
+          <input type="search" id="q" placeholder="Try “monsoon”, “radar”, or a name…" autocomplete="off">
+        </label>
+        <button class="btn seal" type="button" id="btn-search">Search</button>
+      </div>
+
+      <div class="filters">
+        <label class="field"><span class="lbl">Country</span>
+          <select id="f-country"><option>All</option><option selected>India</option><option disabled>United States (soon)</option><option disabled>United Kingdom (soon)</option></select>
+        </label>
+        <label class="field"><span class="lbl">Party</span><select id="f-party"></select></label>
+        <label class="field"><span class="lbl">State</span><select id="f-state"></select></label>
+        <label class="field"><span class="lbl">Tier</span><select id="f-tier"></select></label>
+        <label class="field"><span class="lbl">Category</span><select id="f-category"></select></label>
+        <label class="field"><span class="lbl">Language</span><select id="f-lang"></select></label>
+        <label class="field"><span class="lbl">Period</span>
+          <select id="f-period"><option value="all">All time</option><option value="365">This year</option><option value="90">Last 90 days</option><option value="30">This month</option></select>
+        </label>
+        <label class="field"><span class="lbl">Sort by</span>
+          <select id="f-sort"><option value="gp">Rating (GP)</option><option value="new">Newest</option><option value="climb">Biggest climber</option><option value="duels">Most duels</option></select>
+        </label>
+      </div>
+
+      <div class="tokens" id="tokens"></div>
+    </form>
+
+    <div class="columns">
+      <div>
+        <div class="sec-head">
+          <h2>The Standings</h2>
+          <span class="lbl">Ratified by the Committee</span>
+        </div>
+        <div class="tablewrap">
+          <table class="standings">
+            <thead>
+              <tr>
+                <th class="c-rank">#</th>
+                <th class="c-move">±</th>
+                <th class="c-medal"></th>
+                <th>Entry</th>
+                <th class="c-meta">Representative</th>
+                <th class="c-gp">GP</th>
+              </tr>
+            </thead>
+            <tbody id="rows"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <aside class="rail">
+        <div class="rail-block">
+          <h3>Now in placement</h3>
+          <div id="placements"></div>
+        </div>
+        <div class="rail-block">
+          <h3>The public disagrees</h3>
+          <p class="rail-note" style="margin-bottom:10px">Entries where the advisory ballot departs from the Committee&rsquo;s ruling.</p>
+          <div id="divergences"></div>
+        </div>
+        <div class="rail-block">
+          <h3>From the ledger</h3>
+          <p class="rail-note">Three entries withdrawn this month following review. Two translations corrected. One right of reply received and pinned. We keep score of ourselves.</p>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ══════════════════ VIEW: STATEMENT ══════════════════ -->
+  <section id="view-statement" class="hidden">
+    <div class="certificate">
+      <canvas id="cert-guilloche" aria-hidden="true"></canvas>
+      <div class="cert-inner">
+
+        <div class="cert-top">
+          <div>
+            <div class="cert-serial">Entry No. 00417</div>
+            <div class="lbl" style="margin-top:3px">Ratified by the Committee · 12 March 2026</div>
+          </div>
+          <div style="color:var(--foil);text-align:center">
+            <svg class="medal" style="width:54px;height:54px;margin:0 auto"><use href="#seal"/></svg>
+            <div class="lbl" style="color:var(--foil);margin-top:3px">Kohinoor</div>
+          </div>
+        </div>
+
+        <h2 class="cert-title">&ldquo;The monsoon has been instructed to arrive on Thursday.&rdquo;</h2>
+        <p class="cert-attrib">Shri R. Venkataraman (fictional) · Minister for Seasonal Affairs · Uttar Pradesh · 12 March 2026 · District Convention Hall, Meerut</p>
+
+        <div class="player" id="player" role="button" tabindex="0" aria-label="Play clip">
+          <svg class="play-glyph"><use href="#play"/></svg>
+        </div>
+
+        <div class="verdict">
+          <div><span class="lbl">Rating</span><b>1,947</b></div>
+          <div><span class="lbl">Global rank</span><b>#1</b></div>
+          <div><span class="lbl">Movement</span><b class="mv flat">—</b></div>
+          <div><span class="lbl">Duels</span><b>8,412</b></div>
+          <div><span class="lbl">Tier</span>
+            <div class="tier-line" style="color:var(--foil)"><svg class="medal"><use href="#m-kohinoor"/></svg><span>Kohinoor</span></div>
+          </div>
+        </div>
+
+        <div class="scrubber">
+          <div class="lbl">Context · 60 seconds either side</div>
+          <div class="scrub-track"><i class="pre"></i><i class="mid"></i><i class="post"></i></div>
+          <div class="scrub-legend lbl"><span>−60s</span><span style="color:var(--seal)">Indexed portion · 00:41–01:03</span><span>+60s</span></div>
+          <p style="font-size:14px;color:var(--ink-70);margin:9px 0 0"><em>The context does not help.</em></p>
+        </div>
+
+        <div class="parallel">
+          <div class="col">
+            <div class="lbl">Original · हिन्दी</div>
+            <ol class="transcript deva">
+              <li>देखिए, मैंने विभाग से स्पष्ट कह दिया है।</li>
+              <li>मानसून को गुरुवार आने के निर्देश दे दिए गए हैं।</li>
+              <li>अब यह उनकी जिम्मेदारी है, हमारी नहीं।</li>
+            </ol>
+          </div>
+          <div class="col">
+            <div class="lbl">Translation · English</div>
+            <ol class="transcript">
+              <li>Look, I have made it clear to the department.</li>
+              <li>The monsoon has been instructed to arrive on Thursday.</li>
+              <li>It is now their responsibility, not ours.</li>
+            </ol>
+            <p style="font-size:12.5px;color:var(--ink-45);margin-top:12px">Translation contributed by a reader · <a href="#" style="color:var(--seal)">suggest a correction</a></p>
+          </div>
+        </div>
+
+        <div class="stamps">
+          <span class="stamp green">Tier A · State Assembly Feed</span>
+          <span class="stamp">Verbatim · Unedited</span>
+          <span class="stamp foil">Certified Organic Gyan · No AI</span>
+        </div>
+
+        <div class="erratum">
+          <span class="lbl">Right of reply · pinned</span>
+          <p>The Hon&rsquo;ble Member&rsquo;s office states that the remark was intended in a lighter spirit and that no directive was issued to the monsoon. We have pinned this response above the ruling, unedited, because we are aggressively fair. The rating is unchanged, because so is the video.</p>
+        </div>
+
+        <div class="axes">
+          <div class="lbl" style="margin-bottom:8px">Judgment axes · advisory ballot, 8,412 duels</div>
+          <div class="axis"><span>Logic damage</span><div class="bar"><i style="width:94%"></i></div><span class="val">94</span></div>
+          <div class="axis"><span>Straight face</span><div class="bar"><i style="width:99%"></i></div><span class="val">99</span></div>
+          <div class="axis"><span>Rewatch value</span><div class="bar"><i style="width:81%"></i></div><span class="val">81</span></div>
+          <div class="axis"><span>Crowd complicity</span><div class="bar"><i style="width:88%"></i></div><span class="val">88</span></div>
+          <div class="axis"><span>Consequence</span><div class="bar"><i style="width:4%"></i></div><span class="val">04</span></div>
+          <p style="font-size:13.5px;color:var(--ink-70);margin:12px 0 0">Consequence: 04. The Member was promoted in April.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p><strong>This is a design specimen.</strong> Every entry, representative and party shown is invented for the purpose of demonstrating layout and typography. No real person is quoted here.</p>
+    <p>Type shown in system fallbacks (Hoefler Text / Palatino, Georgia, Avenir Next Condensed, SF Mono). Production would self-host Libre Caslon Display, Source Serif 4, Archivo and Tiro Devanagari Hindi via <code>next/font</code>.</p>
+    <p>Guilloché engraving rendered live on canvas from hypotrochoid curves — no image assets. Medals and seal are eight hand-drawn SVG marks; no icon library is used anywhere.</p>
+  </footer>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ── data ─────────────────────────────────────────────────────
+   Entirely fictional. Invented representatives, invented party
+   abbreviations, invented statements. Nothing here is a real quote. */
+var PARTIES = ["UPM","NSD","JLP","RKD","VSM"];
+var PARTY_INK = { UPM:"#3E6B8A", NSD:"#8E2230", JLP:"#2C6B4E", RKD:"#A9853A", VSM:"#6B5B8A" };
+
+var TIERS = [
+  { key:"kohinoor",   name:"Kohinoor",      glyph:"m-kohinoor", min:1875, colour:"var(--foil)" },
+  { key:"diamond",    name:"Diamond Gyan",  glyph:"m-diamond",  min:1750, colour:"#7FA6B5" },
+  { key:"gold",       name:"Gold Standard", glyph:"m-gold",     min:1600, colour:"var(--foil)" },
+  { key:"silver",     name:"Silver Tongue", glyph:"m-silver",   min:1450, colour:"var(--shade-cool)" },
+  { key:"bronze",     name:"Bronze Bhashan",glyph:"m-bronze",   min:1300, colour:"#8C6239" },
+  { key:"participation", name:"Participation", glyph:"m-part",  min:0,    colour:"var(--ink-25)" }
+];
+function tierOf(gp){ for(var i=0;i<TIERS.length;i++){ if(gp>=TIERS[i].min) return TIERS[i]; } return TIERS[TIERS.length-1]; }
+
+var DATA = [
+  { q:"The monsoon has been instructed to arrive on Thursday.", neta:"R. Venkataraman", party:"UPM", state:"Uttar Pradesh", lang:"Hindi",     cat:"Science & Reason", gp:1947, prev:1,  days:136, duels:8412 },
+  { q:"Our ancestors had broadband. It simply went unrecorded.", neta:"S. Mahapatra",   party:"NSD", state:"Odisha",        lang:"Odia",      cat:"History",          gp:1921, prev:4,  days:88,  duels:7106 },
+  { q:"A potato entered the factory and a diamond came out.",    neta:"K. Bhattacharya",party:"JLP", state:"West Bengal",   lang:"Bengali",   cat:"Economics",        gp:1918, prev:2,  days:410, duels:9330 },
+  { q:"Inflation is merely prices behaving confidently.",        neta:"D. Iyer",        party:"RKD", state:"Tamil Nadu",    lang:"Tamil",     cat:"Economics",        gp:1890, prev:11, days:19,  duels:2044 },
+  { q:"Why discuss unemployment when the previous government also existed?", neta:"P. Chauhan", party:"VSM", state:"Rajasthan", lang:"Hindi", cat:"Whataboutery", gp:1871, prev:5, days:62, duels:5510 },
+  { q:"The river was consulted and raised no objection.",        neta:"A. Deshmukh",    party:"UPM", state:"Maharashtra",   lang:"Marathi",   cat:"Science & Reason", gp:1802, prev:6,  days:203, duels:4188 },
+  { q:"Statistics are a matter of personal interpretation.",     neta:"M. Reddy",       party:"NSD", state:"Telangana",     lang:"Telugu",    cat:"Economics",        gp:1774, prev:7,  days:47,  duels:3902 },
+  { q:"Gravity applies chiefly in the winter months.",           neta:"H. Gill",        party:"JLP", state:"Punjab",        lang:"Punjabi",   cat:"Science & Reason", gp:1751, prev:13, days:12,  duels:1180 },
+  { q:"The report is confidential, which is why I have not read it.", neta:"T. Nair",   party:"RKD", state:"Kerala",        lang:"Malayalam", cat:"Standing Ovation", gp:1698, prev:9,  days:154, duels:3311 },
+  { q:"We have doubled the target and therefore also the achievement.", neta:"B. Solanki", party:"VSM", state:"Gujarat",   lang:"Gujarati",  cat:"Economics",        gp:1655, prev:8,  days:96,  duels:2870 },
+  { q:"History began, broadly speaking, in 1976.",               neta:"L. Kaul",        party:"UPM", state:"Delhi",         lang:"English",   cat:"History",          gp:1612, prev:10, days:271, duels:4025 },
+  { q:"The committee has been formed to decide on forming a committee.", neta:"V. Rao",  party:"NSD", state:"Karnataka",    lang:"Kannada",   cat:"Standing Ovation", gp:1548, prev:12, days:33,  duels:1904 },
+  { q:"Electricity is available at all times, subject to availability.", neta:"J. Yadav", party:"JLP", state:"Bihar",       lang:"Hindi",     cat:"Economics",        gp:1502, prev:14, days:71,  duels:2211 },
+  { q:"I did not say it. I only said it aloud.",                 neta:"N. Bose",        party:"RKD", state:"West Bengal",   lang:"Bengali",   cat:"Whataboutery",     gp:1441, prev:15, days:8,   duels:702  },
+  { q:"The road exists on paper, which is where roads begin.",   neta:"G. Thakur",      party:"VSM", state:"Madhya Pradesh",lang:"Hindi",     cat:"Economics",        gp:1388, prev:16, days:188, duels:1655 },
+  { q:"Rainfall was above average, allowing for the drought.",    neta:"S. Mehra",       party:"UPM", state:"Haryana",       lang:"Hindi",     cat:"Science & Reason", gp:1274, prev:17, days:229, duels:1120 }
+];
+
+var CATEGORIES = ["Science & Reason","History","Economics","Whataboutery","Standing Ovation"];
+var STATES = DATA.map(function(d){ return d.state; }).filter(function(v,i,a){ return a.indexOf(v)===i; }).sort();
+var LANGS  = DATA.map(function(d){ return d.lang;  }).filter(function(v,i,a){ return a.indexOf(v)===i; }).sort();
+
+/* ── populate selects ─────────────────────────────────────── */
+function fill(id, values, allLabel){
+  var el = document.getElementById(id);
+  el.innerHTML = "";
+  var o = document.createElement("option"); o.value = "all"; o.textContent = allLabel; el.appendChild(o);
+  values.forEach(function(v){ var x=document.createElement("option"); x.value=v; x.textContent=v; el.appendChild(x); });
+}
+fill("f-party", PARTIES, "All parties");
+fill("f-state", STATES, "All states");
+fill("f-category", CATEGORIES, "All categories");
+fill("f-lang", LANGS, "All languages");
+fill("f-tier", TIERS.map(function(t){ return t.name; }), "All tiers");
+
+/* ── parity meter ─────────────────────────────────────────── */
+(function(){
+  var counts = {}; PARTIES.forEach(function(p){ counts[p]=0; });
+  DATA.forEach(function(d){ counts[d.party]++; });
+  var total = DATA.length;
+  var bar = document.getElementById("parity-bar");
+  var leg = document.getElementById("parity-legend");
+  PARTIES.forEach(function(p){
+    var pct = Math.round(counts[p]/total*100);
+    var s = document.createElement("span");
+    s.style.width = pct+"%"; s.style.background = PARTY_INK[p];
+    bar.appendChild(s);
+    var l = document.createElement("span");
+    l.innerHTML = '<i class="swatch" style="background:'+PARTY_INK[p]+'"></i>'+p+' <b class="num">'+pct+'%</b>';
+    leg.appendChild(l);
+  });
+})();
+
+/* ── ticker ───────────────────────────────────────────────── */
+(function(){
+  var items = [
+    "Entry No. 01849 · placement 12 of 20 · projected Diamond Gyan",
+    "Entry No. 01850 · placement 4 of 20 · projected Gold Standard",
+    "Entry No. 01851 · placement 18 of 20 · projected Kohinoor Class",
+    "The Committee has conferred one Kohinoor Class in the past 24 hours"
+  ];
+  var track = document.getElementById("ticker");
+  var html = items.map(function(t){ return "<span>"+t+"</span>"; }).join("");
+  track.innerHTML = html + html;
+})();
+
+/* ── placements + divergences ─────────────────────────────── */
+(function(){
+  var p = document.getElementById("placements");
+  [{ q:"Rainfall was above average, allowing for the drought.", n:12, proj:"Diamond Gyan" },
+   { q:"The file has been moved to a safer file.",              n:4,  proj:"Gold Standard" }].forEach(function(x){
+    var d = document.createElement("div"); d.className = "placement";
+    d.innerHTML = '<p>&ldquo;'+x.q+'&rdquo;</p>'+
+      '<div class="meter"><i style="width:'+(x.n/20*100)+'%"></i></div>'+
+      '<span class="lbl">Placement <span class="num">'+x.n+'</span>/20 · projected '+x.proj+'</span>';
+    p.appendChild(d);
+  });
+
+  var dv = document.getElementById("divergences");
+  [["Potato factory","Committee 💎 · Public 👑"],
+   ["Gravity in winter","Committee 🥇 · Public 💎"],
+   ["History began 1976","Committee 🥇 · Public 🥈"]].forEach(function(x){
+    var e = document.createElement("div"); e.className = "divergence";
+    e.innerHTML = "<span>"+x[0]+"</span><span class='lbl'>"+x[1]+"</span>";
+    dv.appendChild(e);
+  });
+})();
+
+/* ── filtering + search ───────────────────────────────────── */
+var state = { q:"", country:"India", party:"all", stateF:"all", tier:"all", cat:"all", lang:"all", period:"all", sort:"gp" };
+
+function matches(d){
+  if(state.party !== "all" && d.party !== state.party) return false;
+  if(state.stateF !== "all" && d.state !== state.stateF) return false;
+  if(state.cat !== "all" && d.cat !== state.cat) return false;
+  if(state.lang !== "all" && d.lang !== state.lang) return false;
+  if(state.tier !== "all" && tierOf(d.gp).name !== state.tier) return false;
+  if(state.period !== "all" && d.days > parseInt(state.period,10)) return false;
+  if(state.q){
+    var hay = (d.q+" "+d.neta+" "+d.state+" "+d.party+" "+d.cat+" "+d.lang).toLowerCase();
+    if(hay.indexOf(state.q.toLowerCase()) === -1) return false;
+  }
+  return true;
+}
+
+function sortFn(a,b){
+  if(state.sort === "new")   return a.days - b.days;
+  if(state.sort === "duels") return b.duels - a.duels;
+  if(state.sort === "climb") return (b.prev - rankOf(b)) - (a.prev - rankOf(a));
+  return b.gp - a.gp;
+}
+function rankOf(d){ return DATA.slice().sort(function(x,y){ return y.gp-x.gp; }).indexOf(d)+1; }
+
+function highlight(text){
+  if(!state.q) return escapeHtml(text);
+  var i = text.toLowerCase().indexOf(state.q.toLowerCase());
+  if(i === -1) return escapeHtml(text);
+  return escapeHtml(text.slice(0,i)) +
+    '<mark style="background:var(--foil-soft);color:inherit;padding:0 1px">'+escapeHtml(text.slice(i,i+state.q.length))+'</mark>' +
+    escapeHtml(text.slice(i+state.q.length));
+}
+function escapeHtml(s){ return s.replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+
+function render(){
+  var rows = DATA.filter(matches).sort(sortFn);
+  var tbody = document.getElementById("rows");
+  tbody.innerHTML = "";
+
+  document.getElementById("result-count").textContent =
+    rows.length + (rows.length === 1 ? " entry" : " entries") + " of " + DATA.length;
+
+  if(!rows.length){
+    tbody.innerHTML = '<tr><td colspan="6" class="empty">No entries match this query. Rare, but it happens.</td></tr>';
+  }
+
+  rows.forEach(function(d){
+    var r = rankOf(d), t = tierOf(d.gp), delta = d.prev - r;
+    var mv = delta > 0 ? '<span class="mv up">&#9650;'+delta+'</span>'
+           : delta < 0 ? '<span class="mv down">&#9660;'+Math.abs(delta)+'</span>'
+           : '<span class="mv flat">&mdash;</span>';
+    var tr = document.createElement("tr");
+    tr.innerHTML =
+      '<td class="c-rank">'+r+'</td>'+
+      '<td class="c-move">'+mv+'</td>'+
+      '<td class="c-medal"><svg class="medal" style="color:'+t.colour+'"><title>'+t.name+'</title><use href="#'+t.glyph+'"/></svg></td>'+
+      '<td><span class="entry-quote" role="link" tabindex="0">&ldquo;'+highlight(d.q)+'&rdquo;'+(d.days<20?'<span class="tag-new">New</span>':'')+'</span>'+
+        '<div class="entry-sub">'+escapeHtml(d.cat)+' · '+escapeHtml(d.lang)+' · '+d.duels.toLocaleString()+' duels</div></td>'+
+      '<td class="c-meta">'+highlight(d.neta)+
+        '<div class="entry-sub"><i class="swatch" style="background:'+PARTY_INK[d.party]+'"></i>'+d.party+' · '+escapeHtml(d.state)+'</div></td>'+
+      '<td class="c-gp">'+d.gp.toLocaleString()+'</td>';
+    tbody.appendChild(tr);
+  });
+
+  renderTokens();
+}
+
+function renderTokens(){
+  var box = document.getElementById("tokens");
+  box.innerHTML = "";
+  var active = [
+    ["country", state.country !== "India" ? state.country : null, "Country"],
+    ["party",   state.party  !== "all" ? state.party  : null, "Party"],
+    ["stateF",  state.stateF !== "all" ? state.stateF : null, "State"],
+    ["tier",    state.tier   !== "all" ? state.tier   : null, "Tier"],
+    ["cat",     state.cat    !== "all" ? state.cat    : null, "Category"],
+    ["lang",    state.lang   !== "all" ? state.lang   : null, "Language"],
+    ["period",  state.period !== "all" ? state.period+" days" : null, "Period"],
+    ["q",       state.q || null, "Search"]
+  ].filter(function(x){ return x[1]; });
+
+  if(!active.length){
+    box.innerHTML = '<span class="lbl">No filters applied · showing the full record</span>';
+    return;
+  }
+  active.forEach(function(x){
+    var el = document.createElement("span");
+    el.className = "token";
+    el.innerHTML = x[2]+": "+escapeHtml(String(x[1]))+' <button type="button" aria-label="Remove filter">&times;</button>';
+    el.querySelector("button").addEventListener("click", function(){ clearOne(x[0]); });
+    box.appendChild(el);
+  });
+  var reset = document.createElement("button");
+  reset.type = "button"; reset.className = "token-reset"; reset.textContent = "Reset all";
+  reset.addEventListener("click", resetAll);
+  box.appendChild(reset);
+}
+
+function clearOne(key){
+  if(key === "q"){ state.q = ""; document.getElementById("q").value = ""; }
+  else if(key === "country"){ state.country = "India"; document.getElementById("f-country").value = "India"; }
+  else {
+    state[key] = "all";
+    var map = { party:"f-party", stateF:"f-state", tier:"f-tier", cat:"f-category", lang:"f-lang", period:"f-period" };
+    document.getElementById(map[key]).value = "all";
+  }
+  render();
+}
+function resetAll(){
+  state = { q:"", country:"India", party:"all", stateF:"all", tier:"all", cat:"all", lang:"all", period:"all", sort:state.sort };
+  document.getElementById("q").value = "";
+  ["f-party","f-state","f-tier","f-category","f-lang"].forEach(function(id){ document.getElementById(id).value = "all"; });
+  document.getElementById("f-period").value = "all";
+  document.getElementById("f-country").value = "India";
+  render();
+}
+
+document.getElementById("q").addEventListener("input", function(e){ state.q = e.target.value.trim(); render(); });
+document.getElementById("btn-search").addEventListener("click", render);
+var binds = { "f-party":"party", "f-state":"stateF", "f-tier":"tier", "f-category":"cat", "f-lang":"lang", "f-period":"period", "f-sort":"sort" };
+Object.keys(binds).forEach(function(id){
+  document.getElementById(id).addEventListener("change", function(e){ state[binds[id]] = e.target.value; render(); });
+});
+document.getElementById("f-country").addEventListener("change", function(e){ state.country = e.target.value; render(); });
+
+document.addEventListener("keydown", function(e){
+  if(e.key === "/" && document.activeElement.tagName !== "INPUT"){ e.preventDefault(); document.getElementById("q").focus(); }
+});
+
+/* ── view switching ───────────────────────────────────────── */
+var navButtons = Array.prototype.slice.call(document.querySelectorAll(".nav button"));
+function show(view, activeBtn){
+  document.getElementById("view-standings").classList.toggle("hidden", view !== "standings");
+  document.getElementById("view-statement").classList.toggle("hidden", view !== "statement");
+  var target = activeBtn || navButtons[view === "statement" ? 1 : 0];
+  navButtons.forEach(function(b){ b.setAttribute("aria-current", b === target ? "true" : "false"); });
+  window.scrollTo(0, 0);
+  if(view === "statement") requestAnimationFrame(drawCert);
+}
+navButtons.forEach(function(b){
+  b.addEventListener("click", function(){ show(b.dataset.view, b); });
+});
+document.getElementById("rows").addEventListener("click", function(e){
+  if(e.target.closest(".entry-quote")) show("statement");
+});
+document.getElementById("rows").addEventListener("keydown", function(e){
+  if(e.key === "Enter" && e.target.closest(".entry-quote")) show("statement");
+});
+
+/* ── theme ────────────────────────────────────────────────── */
+var btn = document.getElementById("theme-btn");
+function currentDark(){
+  var attr = document.documentElement.getAttribute("data-theme");
+  if(attr) return attr === "dark";
+  return window.matchMedia("(prefers-color-scheme: dark)").matches;
+}
+function syncBtn(){ btn.textContent = currentDark() ? "Day Edition" : "Night Edition"; }
+btn.addEventListener("click", function(){
+  document.documentElement.setAttribute("data-theme", currentDark() ? "light" : "dark");
+  syncBtn(); drawMast(); drawCert();
+});
+syncBtn();
+
+/* ── guilloché engraving (canvas, hypotrochoid) ───────────── */
+function foilColour(){
+  return getComputedStyle(document.documentElement).getPropertyValue("--foil").trim() || "#A9853A";
+}
+function rosette(ctx, cx, cy, R, r, d, turns, steps){
+  var k = (R - r) / r;
+  ctx.beginPath();
+  for(var i = 0; i <= steps; i++){
+    var t = i / steps * Math.PI * 2 * turns;
+    var x = cx + (R - r) * Math.cos(t) + d * Math.cos(k * t);
+    var y = cy + (R - r) * Math.sin(t) - d * Math.sin(k * t);
+    i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+  }
+  ctx.stroke();
+}
+function prep(canvas){
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  var w = canvas.clientWidth, h = canvas.clientHeight;
+  if(!w || !h) return null;
+  canvas.width = w * dpr; canvas.height = h * dpr;
+  var ctx = canvas.getContext("2d");
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, w, h);
+  ctx.lineWidth = 0.45;
+  ctx.strokeStyle = foilColour();
+  return { ctx:ctx, w:w, h:h };
+}
+function drawMast(){
+  var c = document.getElementById("mast-guilloche"); if(!c) return;
+  var s = prep(c); if(!s) return;
+  s.ctx.globalAlpha = 0.42;
+  var step = 108, R = 46, r = 9, d = 21;
+  for(var x = -20; x < s.w + 60; x += step){
+    rosette(s.ctx, x, s.h * 0.5, R, r, d, 9, 620);
+    rosette(s.ctx, x + step/2, s.h * 0.5, R * 0.62, 7, 15, 7, 460);
+  }
+}
+function drawCert(){
+  var c = document.getElementById("cert-guilloche"); if(!c) return;
+  var s = prep(c); if(!s) return;
+  var ctx = s.ctx;
+  ctx.globalAlpha = 0.5;
+  var step = 74, R = 30, r = 7, d = 14, turns = 7, steps = 460;
+  for(var x = 0; x <= s.w; x += step){
+    rosette(ctx, x, 14, R, r, d, turns, steps);
+    rosette(ctx, x, s.h - 14, R, r, d, turns, steps);
+  }
+  for(var y = 0; y <= s.h; y += step){
+    rosette(ctx, 14, y, R, r, d, turns, steps);
+    rosette(ctx, s.w - 14, y, R, r, d, turns, steps);
+  }
+  ctx.globalAlpha = 0.16;
+  rosette(ctx, s.w / 2, s.h / 2, Math.min(s.w, s.h) * 0.34, 11, 62, 11, 2200);
+}
+function redraw(){ drawMast(); if(!document.getElementById("view-statement").classList.contains("hidden")) drawCert(); }
+window.addEventListener("resize", function(){ clearTimeout(window.__rz); window.__rz = setTimeout(redraw, 160); });
+
+/* ── clip facade ──────────────────────────────────────────── */
+document.getElementById("player").addEventListener("click", function(){
+  this.innerHTML = '<div style="color:rgba(220,227,212,.55);font-family:var(--font-util);font-size:11px;letter-spacing:.14em;text-transform:uppercase">Iframe would load here</div>';
+});
+
+/* ── go ───────────────────────────────────────────────────── */
+render();
+requestAnimationFrame(redraw);
+
+})();
+</script>
