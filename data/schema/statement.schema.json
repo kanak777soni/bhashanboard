@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bhashanboard.example/schema/statement.schema.json",
+  "title": "Bhashan Board — statement corpus",
+  "type": "object",
+  "required": ["corpus", "version", "statements"],
+  "properties": {
+    "corpus": { "type": "string" },
+    "version": { "type": "string" },
+    "compiled": { "type": "string" },
+    "$comment": { "type": "string" },
+    "$schema": { "type": "string" },
+    "statements": { "type": "array", "items": { "$ref": "#/$defs/statement" } }
+  },
+  "$defs": {
+    "statement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id", "status", "speaker_id", "party_at_time", "office_at_time", "state",
+        "date", "date_precision", "venue", "language", "category",
+        "neutral_title", "quote", "claim", "context", "axes", "verification"
+      ],
+      "properties": {
+        "id": { "type": "string", "pattern": "^IN-[0-9]{4}$" },
+
+        "status": {
+          "enum": ["published", "held_parity", "held_review"],
+          "description": "published — cleared for the ladder subject to Stage 3. held_parity — verified but queued, because publishing now would push its party past the 30% cap (docs/03-content-pipeline.md §3.4). held_review — a Committee question is open; see policy_note."
+        },
+
+        "speaker_id": { "type": "string", "description": "FK to politicians.json" },
+        "party_at_time": { "type": "string", "description": "FK to parties.json. The party held ON THE DATE OF THE STATEMENT, not today. Defections make this load-bearing; the parity meter counts this field." },
+        "office_at_time": { "type": "string" },
+        "state": { "type": "string" },
+
+        "date": { "type": "string", "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$" },
+        "date_precision": { "enum": ["day", "month", "year"] },
+        "venue": { "type": "string" },
+        "language": { "type": "string" },
+
+        "category": { "enum": ["Science & Reason", "History", "Economics", "Whataboutery", "Standing Ovation"] },
+
+        "neutral_title": {
+          "type": "string",
+          "description": "States what was CLAIMED. Never a verdict about the person. 'On radar and cloud cover', never 'MP thinks clouds block radar'. Enforced in review, not just policy (docs/03-content-pipeline.md §3.3)."
+        },
+
+        "quote": {
+          "type": ["string", "null"],
+          "description": "VERBATIM ONLY. Null if the exact wording has not been established from a source. Never paraphrase into this field, never reconstruct it from reported speech, never tidy the grammar. A null quote is a research task; an invented quote is the end of the project."
+        },
+        "quote_note": { "type": "string", "description": "Required whenever `quote` is null, or is an English rendering rather than the original-language words." },
+        "quote_translation": { "type": "string" },
+
+        "claim": { "type": "string", "description": "Neutral one-line summary of what was asserted. This is what search and the duel card render when `quote` is null." },
+        "context": { "type": "string", "description": "What surrounds the statement. Stage 3 requires the surrounding 60s be watched; this field records what that showed." },
+        "counterpoint": { "type": "string", "description": "The factual position, where the statement makes a checkable claim. Kept separate from the sarcasm layer." },
+
+        "policy_note": { "type": "string", "description": "Required for any entry that engages a Rule in docs/04-legal-and-safety.md §4.8 without being rejected by it. Must record the ruling and the reasoning, not just the flag." },
+
+        "axes": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["logic_damage", "straight_face", "rewatch_value", "crowd_complicity", "consequence"],
+          "properties": {
+            "logic_damage":     { "$ref": "#/$defs/axisScore" },
+            "straight_face":    { "$ref": "#/$defs/axisScore" },
+            "rewatch_value":    { "$ref": "#/$defs/axisScore" },
+            "crowd_complicity": { "$ref": "#/$defs/axisScore" },
+            "consequence":      { "$ref": "#/$defs/axisScore" }
+          },
+          "description": "Seed scores only. These exist to bootstrap a ladder before any duels have been fought, and every one of them is replaced by Elo the moment real duels arrive. See docs/09-seed-corpus.md for the rubric each number is scored against."
+        },
+
+        "verification": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["stage", "best_source_tier", "sources"],
+          "properties": {
+            "stage": {
+              "enum": ["lead", "text_sourced", "av_verified", "committee_passed"],
+              "description": "lead — a claim seen somewhere, nothing checked. text_sourced — attributed to a named person by at least one reputable outlet; NOT publishable. av_verified — Tier A/B clip located, timestamped, surrounding context watched. committee_passed — the full Stage 3 checklist signed off. Nothing publishes below committee_passed."
+            },
+            "best_source_tier": { "enum": ["A", "B", "C", "D"] },
+            "needs": { "type": "array", "items": { "type": "string" }, "description": "The specific outstanding work. This is the research queue; treat it as the to-do list, not as documentation." },
+            "embed": {
+              "type": ["object", "null"],
+              "description": "Embed target. EMBED, NEVER HOST (docs/03-content-pipeline.md §3.1). Storing a file path here is a bug.",
+              "properties": {
+                "platform": { "type": "string" },
+                "id": { "type": "string" },
+                "start_s": { "type": "number" },
+                "end_s": { "type": "number" }
+              }
+            },
+            "sources": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": ["tier", "publisher", "title", "url"],
+                "properties": {
+                  "tier": { "enum": ["A", "B", "C", "D"] },
+                  "publisher": { "type": "string" },
+                  "title": { "type": "string" },
+                  "url": { "type": "string", "format": "uri" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "axisScore": { "type": "integer", "minimum": 0, "maximum": 5 }
+  }
+}

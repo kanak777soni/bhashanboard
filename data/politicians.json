@@ -1,0 +1,41 @@
+{
+  "$comment": "Representative register. `party` is CURRENT/most-recent affiliation for the player card; the party a statement is attributed to on the ladder is the party held AT THE TIME, stored per-statement in `party_at_time`. Defections make this distinction load-bearing — see data/README.md §Party attribution. No `photo` field: images are embedded from official sources at render time, never stored (docs/04-legal-and-safety.md §4.1).",
+  "politicians": [
+    { "id": "narendra-modi",        "name": "Narendra Modi",           "party": "BJP",    "state": "Gujarat",        "notes": "Prime Minister of India since May 2014" },
+    { "id": "amit-shah",            "name": "Amit Shah",               "party": "BJP",    "state": "Gujarat" },
+    { "id": "nirmala-sitharaman",   "name": "Nirmala Sitharaman",      "party": "BJP",    "state": "Karnataka" },
+    { "id": "piyush-goyal",         "name": "Piyush Goyal",            "party": "BJP",    "state": "Maharashtra" },
+    { "id": "harsh-vardhan",        "name": "Harsh Vardhan",           "party": "BJP",    "state": "Delhi" },
+    { "id": "satyapal-singh",       "name": "Satyapal Singh",          "party": "BJP",    "state": "Uttar Pradesh" },
+    { "id": "ramesh-pokhriyal",     "name": "Ramesh Pokhriyal Nishank","party": "BJP",    "state": "Uttarakhand" },
+    { "id": "trivendra-singh-rawat","name": "Trivendra Singh Rawat",   "party": "BJP",    "state": "Uttarakhand" },
+    { "id": "biplab-kumar-deb",     "name": "Biplab Kumar Deb",        "party": "BJP",    "state": "Tripura" },
+    { "id": "dinesh-sharma",        "name": "Dinesh Sharma",           "party": "BJP",    "state": "Uttar Pradesh" },
+    { "id": "vasudev-devnani",      "name": "Vasudev Devnani",         "party": "BJP",    "state": "Rajasthan" },
+    { "id": "dilip-ghosh",          "name": "Dilip Ghosh",             "party": "BJP",    "state": "West Bengal" },
+    { "id": "babul-supriyo",        "name": "Babul Supriyo",           "party": "TMC",    "state": "West Bengal", "notes": "BJP and a Union Minister at the time of the entry indexed here; joined TMC in 2021" },
+    { "id": "suman-haripriya",      "name": "Suman Haripriya",         "party": "BJP",    "state": "Assam" },
+    { "id": "ganesh-singh",         "name": "Ganesh Singh",            "party": "BJP",    "state": "Madhya Pradesh" },
+    { "id": "shripad-naik",         "name": "Shripad Yesso Naik",      "party": "BJP",    "state": "Goa" },
+    { "id": "bs-yediyurappa",       "name": "B. S. Yediyurappa",       "party": "BJP",    "state": "Karnataka" },
+    { "id": "avdhut-wagh",          "name": "Avdhut Wagh",             "party": "BJP",    "state": "Maharashtra" },
+
+    { "id": "rahul-gandhi",         "name": "Rahul Gandhi",            "party": "INC",    "state": "Kerala" },
+    { "id": "p-chidambaram",        "name": "P. Chidambaram",          "party": "INC",    "state": "Tamil Nadu" },
+    { "id": "digvijaya-singh",      "name": "Digvijaya Singh",         "party": "INC",    "state": "Madhya Pradesh" },
+    { "id": "beni-prasad-verma",    "name": "Beni Prasad Verma",       "party": "INC",    "state": "Uttar Pradesh", "notes": "Died 2020" },
+    { "id": "mb-patil",             "name": "M. B. Patil",             "party": "INC",    "state": "Karnataka" },
+    { "id": "shivanand-patil",      "name": "Shivanand Patil",         "party": "INC",    "state": "Karnataka" },
+    { "id": "kr-ramesh-kumar",      "name": "K. R. Ramesh Kumar",      "party": "INC",    "state": "Karnataka" },
+
+    { "id": "akhilesh-yadav",       "name": "Akhilesh Yadav",          "party": "SP",     "state": "Uttar Pradesh" },
+    { "id": "ajit-pawar",           "name": "Ajit Pawar",              "party": "NCP",    "state": "Maharashtra" },
+    { "id": "arvind-kejriwal",      "name": "Arvind Kejriwal",         "party": "AAP",    "state": "Delhi" },
+    { "id": "k-chandrashekar-rao",  "name": "K. Chandrashekar Rao",    "party": "BRS",    "state": "Telangana" },
+    { "id": "saji-cheriyan",        "name": "Saji Cheriyan",           "party": "CPIM",   "state": "Kerala" },
+    { "id": "nirmal-maji",          "name": "Nirmal Maji",             "party": "TMC",    "state": "West Bengal" },
+    { "id": "sobhandeb-chattopadhyay","name": "Sobhandeb Chattopadhyay","party": "TMC",   "state": "West Bengal" },
+    { "id": "n-chandrababu-naidu",  "name": "N. Chandrababu Naidu",    "party": "TDP",    "state": "Andhra Pradesh" },
+    { "id": "sanjay-raut",          "name": "Sanjay Raut",             "party": "SHSUBT", "state": "Maharashtra" }
+  ]
+}

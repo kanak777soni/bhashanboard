@@ -4,7 +4,7 @@
 
 India first. Then the world.
 
-**Status:** planning. No code yet — see `docs/` and the decisions in `docs/06-roadmap.md` §6.5.
+**Status:** planning, plus a first real corpus. The plan is in `docs/`; the open decisions are in `docs/06-roadmap.md` §6.5. The India seed corpus — 41 sourced entries, 14 documented rejections, a working parity engine and a provisional ladder — is in `data/`, explained in `docs/09-seed-corpus.md`.
 
 ---
 
@@ -67,6 +67,8 @@ NEW STATEMENT → 🟡 PROVISIONAL (1500 GP) → 20 placement duels → ✅ RANK
 | [`docs/06-roadmap.md`](docs/06-roadmap.md) | Phases, architecture sketch, metrics, what could kill this, **decisions needed from you** |
 | [`docs/07-design-language.md`](docs/07-design-language.md) | **What "AI-generated" actually looks like and how to avoid it**, the visual thesis, type, colour, materials, layout laws, motion doctrine |
 | [`docs/08-information-architecture.md`](docs/08-information-architecture.md) | **Multi-page vs single-page**, routes, page-by-page design, mobile, performance budget, build order |
+| [`docs/09-seed-corpus.md`](docs/09-seed-corpus.md) | **The India corpus** — what's in it, the four gates every entry passed, the seeding rubric, **the parity problem**, what's missing, and the research backlog |
+| [`data/README.md`](data/README.md) | How to add an entry without breaking the two rules that matter |
 
 ## Answering your specific questions
 
