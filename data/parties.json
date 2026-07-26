@@ -1,0 +1,27 @@
+{
+  "$comment": "Party register. `ink` is a plate colour for the parity meter and party ladders — deliberately desaturated so no party is rendered more flatteringly than another. Do NOT use official party colours; see docs/07-design-language.md.",
+  "parties": [
+    { "id": "BJP",    "name": "Bharatiya Janata Party",              "scope": "national", "ink": "#8E6B3A" },
+    { "id": "INC",    "name": "Indian National Congress",            "scope": "national", "ink": "#3E6B8A" },
+    { "id": "AAP",    "name": "Aam Aadmi Party",                     "scope": "national", "ink": "#5F7F6B" },
+    { "id": "CPIM",   "name": "Communist Party of India (Marxist)",  "scope": "national", "ink": "#8E2230" },
+    { "id": "SP",     "name": "Samajwadi Party",                     "scope": "state",    "ink": "#6B5B8A" },
+    { "id": "BSP",    "name": "Bahujan Samaj Party",                 "scope": "state",    "ink": "#4A5A7A" },
+    { "id": "RJD",    "name": "Rashtriya Janata Dal",                "scope": "state",    "ink": "#7A6A4A" },
+    { "id": "JDU",    "name": "Janata Dal (United)",                 "scope": "state",    "ink": "#5A7A6A" },
+    { "id": "TMC",    "name": "All India Trinamool Congress",        "scope": "state",    "ink": "#2C6B4E" },
+    { "id": "NCP",    "name": "Nationalist Congress Party",          "scope": "state",    "ink": "#7C8A86" },
+    { "id": "SHS",    "name": "Shiv Sena",                           "scope": "state",    "ink": "#A9853A" },
+    { "id": "SHSUBT", "name": "Shiv Sena (Uddhav Balasaheb Thackeray)", "scope": "state", "ink": "#8A7A4A" },
+    { "id": "BRS",    "name": "Bharat Rashtra Samithi",              "scope": "state",    "ink": "#6B7A8A", "aka": ["TRS", "Telangana Rashtra Samithi"] },
+    { "id": "TDP",    "name": "Telugu Desam Party",                  "scope": "state",    "ink": "#8A6B7A" },
+    { "id": "YSRCP",  "name": "YSR Congress Party",                  "scope": "state",    "ink": "#5A6B8A" },
+    { "id": "DMK",    "name": "Dravida Munnetra Kazhagam",           "scope": "state",    "ink": "#8A5A5A" },
+    { "id": "AIADMK", "name": "All India Anna Dravida Munnetra Kazhagam", "scope": "state", "ink": "#7A8A5A" },
+    { "id": "BJD",    "name": "Biju Janata Dal",                     "scope": "state",    "ink": "#5A8A7A" },
+    { "id": "JMM",    "name": "Jharkhand Mukti Morcha",              "scope": "state",    "ink": "#6A7A5A" },
+    { "id": "JKNC",   "name": "Jammu & Kashmir National Conference", "scope": "state",    "ink": "#7A7A8A" },
+    { "id": "PDP",    "name": "Jammu & Kashmir Peoples Democratic Party", "scope": "state", "ink": "#8A7A7A" },
+    { "id": "IND",    "name": "Independent",                         "scope": "other",    "ink": "#7C8A86" }
+  ]
+}

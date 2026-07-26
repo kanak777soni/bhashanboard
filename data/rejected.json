@@ -1,0 +1,159 @@
+{
+  "$comment": "THE REJECTION LEDGER. Every statement considered for the seed corpus and turned down, with the rule that killed it. This file exists for three reasons: (1) it stops the same well-known clip being re-proposed every week; (2) it is the evidence that the Rules of the Committee are enforced rather than decorative, which is the difference between a moderation policy and a marketing claim; (3) docs/04-legal-and-safety.md §4.5 requires a public correction ledger — this is its sibling and should ship public alongside it. Rule numbers refer to docs/04-legal-and-safety.md §4.8.",
+
+  "rules": {
+    "1": "Religion, caste, community, ethnicity, region-as-identity",
+    "2": "Family, children, health, disability, appearance, personal life",
+    "3": "Accent, pronunciation, English fluency, stammer, slip of the tongue",
+    "4": "Anything synthetic — AI, dub, re-enactment, impersonation, speed/pitch edit",
+    "5": "Non-public figures, private citizens, minors",
+    "6": "Anything that could read as incitement, threat, or a call to action against a person or group",
+    "7": "Sub-judice matters and anything touching an ongoing criminal proceeding",
+    "8": "Statements made in a private capacity, off-record, or secretly recorded",
+    "S": "Sourcing failure — attribution not established at Tier A or B (docs/03-content-pipeline.md §3.2)"
+  },
+
+  "rejected": [
+    {
+      "descriptor": "Claim that the new Rs 2,000 note contained a trackable 'nano GPS chip'",
+      "attributed_to": "Widely attributed in circulation to various named politicians",
+      "date": "2016-11",
+      "rule": "S",
+      "ruling": "REJECTED — attribution unverified. This is one of the most-cited items in every 'foolish statements' listicle, and no Tier A or B source could be found attributing it to any named politician. It circulated as a WhatsApp forward and was denied by the RBI. The Committee does not index a claim it cannot attach to a person on the record. Do not re-propose without a primary clip.",
+      "sources": [
+        { "publisher": "Scroll.in", "url": "https://scroll.in/article/821078/no-the-new-rs-2000-note-will-not-have-a-nano-gps-chip-that-can-track-it-anywhere" },
+        { "publisher": "The News Minute", "url": "https://www.thenewsminute.com/article/rbi-rubbishes-rumours-gps-tracking-chip-rs-2000-note-52652" }
+      ]
+    },
+    {
+      "descriptor": "Remark at a Kolkata event on the minimum weight of a newborn",
+      "attributed_to": "Mamata Banerjee (TMC), Chief Minister of West Bengal",
+      "date": "2017-02",
+      "rule": "3",
+      "ruling": "REJECTED — slip of the tongue. The reported figure is off by a factor of a thousand from any plausible intended figure, which is the signature of a misspoken unit, not of a claim. The archive ranks arguments, not mouths. This is the single most common category of proposal and it is a standing no.",
+      "sources": [
+        { "publisher": "Deccan Herald", "url": "https://www.deccanherald.com/india/bengal-politicians-affair-with-foot-in-mouth-remarks-774401.html" }
+      ]
+    },
+    {
+      "descriptor": "Misspelling of the state's name on stage at an AI summit",
+      "attributed_to": "P. K. Kunhalikutty (IUML), Minister, Kerala",
+      "date": "2026",
+      "rule": "3",
+      "ruling": "REJECTED — spelling slip. Same rule as above. A typo is not an argument.",
+      "sources": [
+        { "publisher": "Asianet Newsable", "url": "https://newsable.asianetnews.com/kerala-news/kerala-minister-pk-kunhalikutty-misspells-state-name-in-viral-video-kaaralam-spelling-slip-at-ai-summit-gets-trolled-articleshow-w8rm85s" }
+      ]
+    },
+    {
+      "descriptor": "Remark that people in the East look Chinese, the West look Arab, the North look White and the South look African",
+      "attributed_to": "Sam Pitroda (INC), then chairman of the Indian Overseas Congress",
+      "date": "2024",
+      "rule": "1",
+      "ruling": "REJECTED — ethnicity and appearance. One of the most-viewed political remarks of 2024 and therefore one of the most-proposed. It is squarely inside Rule 1 and squarely inside Rule 2. Indexing it would put the archive in the business of ranking statements about how communities look, which is the exact thing that ends the project.",
+      "sources": [
+        { "publisher": "Deccan Herald", "url": "https://www.deccanherald.com/india/foot-in-the-mouth-eccentric-quotes-by-politicians-that-made-headlines-in-2024-3337145" }
+      ]
+    },
+    {
+      "descriptor": "Remarks on Sanatana Dharma",
+      "attributed_to": "Udhayanidhi Stalin (DMK), Minister, Tamil Nadu",
+      "date": "2023-09",
+      "rule": "1",
+      "ruling": "REJECTED — religion. Also engaged Rule 7 at the time, with proceedings pending. Not a close call.",
+      "sources": [
+        { "publisher": "News on AIR", "url": "https://www.newsonair.gov.in/bjp-hits-out-at-tamil-nadu-minister-udhayanidhi-stalins-controversial-remarks-on-sanatana-dharma" }
+      ]
+    },
+    {
+      "descriptor": "Remark that there is no evidence in history that Ram existed",
+      "attributed_to": "S. S. Sivasankar (DMK), Transport Minister, Tamil Nadu",
+      "date": "2024",
+      "rule": "1",
+      "ruling": "REJECTED — religion. The mirror image of a claim the archive would also reject from the other direction. Applying Rule 1 symmetrically is most of what keeps the parity meter honest.",
+      "sources": [
+        { "publisher": "Deccan Herald", "url": "https://www.deccanherald.com/india/tamil-nadu/bjp-asks-dmk-to-reach-consensus-on-lord-ram-after-tamil-nadu-ministers-statement-kicks-up-controversy-3135710" }
+      ]
+    },
+    {
+      "descriptor": "Remark that Communist influence caused women in a named district to give up the hijab",
+      "attributed_to": "K. Anil Kumar (CPI-M), state committee member, Kerala",
+      "date": "2022",
+      "rule": "1",
+      "ruling": "REJECTED — religion and community, with a named district attached.",
+      "sources": [
+        { "publisher": "Deccan Herald", "url": "https://www.deccanherald.com/india/kerala/kerala-cpm-distances-itself-from-party-leaders-hijab-remark-2710906" }
+      ]
+    },
+    {
+      "descriptor": "Remark about a Chief Minister's proposed women's outreach march",
+      "attributed_to": "Lalu Prasad Yadav (RJD)",
+      "date": "2024-12",
+      "rule": "2",
+      "ruling": "REJECTED — sexual innuendo directed at named people. High-traffic, and still a no.",
+      "sources": [
+        { "publisher": "India TV", "url": "https://www.indiatvnews.com/bihar/news-lalu-prasad-takes-vulgar-jibe-at-nitish-kumar-s-women-s-rally-nain-sekhne-jaa-rahe-hain-2024-12-10-965486" }
+      ]
+    },
+    {
+      "descriptor": "Election-rally remark about families having eight or nine children",
+      "attributed_to": "Nitish Kumar (JDU), Chief Minister of Bihar",
+      "date": "2025",
+      "rule": "2",
+      "ruling": "REJECTED — family and children. Also engages Rule 1 in context.",
+      "sources": [
+        { "publisher": "Gulf News", "url": "https://gulfnews.com/world/asia/india/nitish-kumars-8-9-children-remark-triggers-storm-in-bihar-politics-ahead-of-polls-1.74860672" }
+      ]
+    },
+    {
+      "descriptor": "Remark about how well girls now dress",
+      "attributed_to": "Nitish Kumar (JDU), Chief Minister of Bihar",
+      "date": "2024",
+      "rule": "2",
+      "ruling": "REJECTED — appearance and personal life.",
+      "sources": [
+        { "publisher": "Deccan Herald", "url": "https://www.deccanherald.com/india/bihar/tejashwi-yadav-slams-bihar-cm-nitish-kumar-for-remarks-on-womens-dress-3361858" }
+      ]
+    },
+    {
+      "descriptor": "Remark that a student would not have been assaulted had she not gone to college alone",
+      "attributed_to": "Madan Mitra (TMC), MLA",
+      "date": "2025",
+      "rule": "7",
+      "ruling": "REJECTED — sub judice, and Rule 6. Concerns a live criminal proceeding and an identifiable private complainant. Absolute no, regardless of how widely it circulated.",
+      "sources": [
+        { "publisher": "Deccan Herald", "url": "https://www.deccanherald.com/india/west-bengal/kolkata-gang-rape-case-tmc-issues-showcause-notice-to-mla-madan-mitra-over-his-remarks-3607801" }
+      ]
+    },
+    {
+      "descriptor": "Remark about birth rates and load-shedding, made at the same Indapur meeting as IN-0019",
+      "attributed_to": "Ajit Pawar (NCP), Deputy Chief Minister of Maharashtra",
+      "date": "2013-04",
+      "rule": "2",
+      "ruling": "REJECTED — personal life. Note that the dam remark from the same speech is IN-0019 and is IN the corpus. Rejection operates per statement, not per speech; a rejected line does not taint the entry beside it, and an indexed entry does not launder the line beside it.",
+      "sources": [
+        { "publisher": "Free Press Journal", "url": "https://www.freepressjournal.in/mumbai/should-i-urinate-to-fill-up-empty-dams-maha-deputy-cm-ajit-pawars-shocking-statement-in-2013" }
+      ]
+    },
+    {
+      "descriptor": "Claim that cow urine cured the speaker's own cancer",
+      "attributed_to": "Pragya Singh Thakur (BJP), MP",
+      "date": "2019",
+      "rule": "2",
+      "ruling": "REJECTED — health. A genuinely hard call, recorded here because it will be argued again. The claim is a medical claim of exactly the kind the archive exists to index, but it is inseparable from the speaker's own medical history, and Rule 2 does not carry an exception for claims the speaker volunteered. The Committee resolves hard calls against publication. Reconsider only if a version exists in which the medical claim is made in general terms without reference to the speaker's own illness.",
+      "sources": [
+        { "publisher": "The Caravan", "url": "https://caravanmagazine.in/science/false-scientific-claims-modi-first-term" }
+      ]
+    },
+    {
+      "descriptor": "Remarks about the Prophet made on a television debate",
+      "attributed_to": "Nupur Sharma, then BJP spokesperson",
+      "date": "2022-05",
+      "rule": "1",
+      "ruling": "REJECTED — religion, and Rule 7. The archive does not index this category at any tier, in any language, from any party, ever.",
+      "sources": [
+        { "publisher": "Wikipedia", "url": "https://en.wikipedia.org/wiki/2022_Muhammad_remarks_controversy" }
+      ]
+    }
+  ]
+}
