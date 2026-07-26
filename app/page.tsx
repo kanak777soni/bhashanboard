@@ -4,7 +4,8 @@ import QueryForm from "@/components/QueryForm";
 import StandingsTable from "@/components/StandingsTable";
 import TierLegend from "@/components/TierLegend";
 import EntryTitle from "@/components/EntryTitle";
-import { CATEGORIES, IN_PLACEMENT, PARTIES, STATEMENTS, STATS, languages, states } from "@/lib/data";
+import CoverageNote from "@/components/CoverageNote";
+import { CATEGORIES, PARTIES, STATEMENTS, STATS, languages, states } from "@/lib/data";
 import { parseQuery, runQuery } from "@/lib/query";
 
 export default async function StandingsPage({
@@ -56,28 +57,9 @@ export default async function StandingsPage({
             </p>
           </section>
 
-          <TierLegend compact />
+          <CoverageNote />
 
-          <section className="rail-block">
-            <h2>Held, not placed</h2>
-            <p className="rail-note" style={{ marginBottom: 10 }}>
-              <span className="num">{IN_PLACEMENT.length}</span> entries are indexed but kept off the
-              ladder — held so no party exceeds its share, or referred for review. They are not hidden.
-              They are simply not ranked.
-            </p>
-            {IN_PLACEMENT.slice(0, 3).map((s) => (
-              <div className="placement" key={s.slug}>
-                <p>
-                  <Link href={`/statement/${s.slug}`}>
-                    <EntryTitle statement={s} />
-                  </Link>
-                </p>
-                <span className="lbl">
-                  Held for {s.held === "review" ? "Committee review" : "parity"}
-                </span>
-              </div>
-            ))}
-          </section>
+          <TierLegend compact />
 
           <section className="rail-block">
             <h2>State of the record</h2>

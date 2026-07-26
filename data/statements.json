@@ -4,7 +4,6 @@
   "version": "0.1.0",
   "compiled": "2026-07-26",
   "$comment": "SEED CORPUS — India. Read data/README.md before adding an entry. Two rules govern this file and nothing overrides them: (1) every statement is a real, publicly-reported, on-record remark by a public figure acting in a public role, carrying at least one live source link; (2) nothing here is paraphrased into the `quote` field — if the exact wording could not be established from a source, `quote` is null and `claim` carries a neutral summary instead. `stage` is the content-pipeline stage each entry has actually cleared (docs/03-content-pipeline.md §3.3). No entry in this file has cleared Stage 3; none is publishable as-is.",
-
   "statements": [
     {
       "id": "IN-0001",
@@ -24,16 +23,46 @@
       "claim": "That cloud cover would reduce the chance of Indian aircraft being detected by Pakistani radar during the Balakot operation.",
       "context": "Modi described overruling expert hesitation on the night of the strike, calling the reasoning his 'raw wisdom'. The full interview is the context that must be captured before publication; the surrounding minutes are about the decision to proceed in poor weather.",
       "counterpoint": "Radar operates at wavelengths that pass through cloud largely unattenuated; cloud affects visual and some electro-optical targeting, not radar detection.",
-      "axes": { "logic_damage": 5, "straight_face": 5, "rewatch_value": 5, "crowd_complicity": 2, "consequence": 5 },
+      "axes": {
+        "logic_damage": 5,
+        "straight_face": 5,
+        "rewatch_value": 5,
+        "crowd_complicity": 2,
+        "consequence": 5
+      },
       "verification": {
         "stage": "text_sourced",
         "best_source_tier": "C",
-        "needs": ["Tier A/B video of the News Nation interview with start/end timestamps", "Hindi transcript of the exact sentence", "surrounding 60s captured"],
+        "needs": [
+          "Tier A/B video of the News Nation interview with start/end timestamps",
+          "Hindi transcript of the exact sentence",
+          "surrounding 60s captured"
+        ],
         "sources": [
-          { "tier": "C", "publisher": "FactChecker.in", "title": "PM Twice Wrong: Clouds Do Not Hinder Radar, May Hinder Weapons", "url": "https://www.factchecker.in/pm-twice-wrong-clouds-do-not-hinder-radar-may-hinder-weapons" },
-          { "tier": "C", "publisher": "ThePrint", "title": "PM shows ignorance of radar tech, gives out crucial details of Balakot raid in interview", "url": "https://theprint.in/defence/pm-shows-ignorance-of-radar-tech-gives-out-crucial-details-of-balakot-raid-in-interview/234485/" },
-          { "tier": "C", "publisher": "The Quint", "title": "PM Modi Faces Ridicule on Social Media for Unusual Cloud Logic on Balakot Air Strikes", "url": "https://www.thequint.com/news/india/balakot-air-strikes-cloud-radar-pm-narendra-modi-interview" },
-          { "tier": "C", "publisher": "Deccan Herald", "title": "Modi's cloud cover revelation draws opposition sneer", "url": "https://www.deccanherald.com/elections/modis-cloud-cover-revelation-draws-opposition-sneer-733502.html" }
+          {
+            "tier": "C",
+            "publisher": "FactChecker.in",
+            "title": "PM Twice Wrong: Clouds Do Not Hinder Radar, May Hinder Weapons",
+            "url": "https://www.factchecker.in/pm-twice-wrong-clouds-do-not-hinder-radar-may-hinder-weapons"
+          },
+          {
+            "tier": "C",
+            "publisher": "ThePrint",
+            "title": "PM shows ignorance of radar tech, gives out crucial details of Balakot raid in interview",
+            "url": "https://theprint.in/defence/pm-shows-ignorance-of-radar-tech-gives-out-crucial-details-of-balakot-raid-in-interview/234485/"
+          },
+          {
+            "tier": "C",
+            "publisher": "The Quint",
+            "title": "PM Modi Faces Ridicule on Social Media for Unusual Cloud Logic on Balakot Air Strikes",
+            "url": "https://www.thequint.com/news/india/balakot-air-strikes-cloud-radar-pm-narendra-modi-interview"
+          },
+          {
+            "tier": "C",
+            "publisher": "Deccan Herald",
+            "title": "Modi's cloud cover revelation draws opposition sneer",
+            "url": "https://www.deccanherald.com/elections/modis-cloud-cover-revelation-draws-opposition-sneer-733502.html"
+          }
         ]
       }
     },
@@ -54,15 +83,39 @@
       "claim": "That reproductive genetics and plastic surgery were practised in ancient India, evidenced by episodes in the Mahabharata and by the iconography of Ganesha.",
       "context": "Said to an audience of doctors and medical scientists while opening a hospital.",
       "policy_note": "Borderline under Rule 1 (religion). Committee ruling: IN SCOPE. The claim under review is a claim about the history of medicine, made to doctors, in a hospital. The archive takes no position on the epics or on anyone's faith, and the entry must never be titled or captioned in a way that implies otherwise.",
-      "axes": { "logic_damage": 5, "straight_face": 5, "rewatch_value": 4, "crowd_complicity": 4, "consequence": 5 },
+      "axes": {
+        "logic_damage": 5,
+        "straight_face": 5,
+        "rewatch_value": 4,
+        "crowd_complicity": 4,
+        "consequence": 5
+      },
       "verification": {
         "stage": "text_sourced",
         "best_source_tier": "C",
-        "needs": ["Tier A source — the event was covered by PIB/DD; locate official footage", "verify whether the audience reaction is on the record (drives the Crowd Complicity axis)"],
+        "needs": [
+          "Tier A source — the event was covered by PIB/DD; locate official footage",
+          "verify whether the audience reaction is on the record (drives the Crowd Complicity axis)"
+        ],
         "sources": [
-          { "tier": "C", "publisher": "ThePrint", "title": "Vedic plastic surgery to test-tube Karna — non-science claims flowed from Modi downwards", "url": "https://theprint.in/science/vedic-plastic-surgery-to-test-tube-karna-non-science-claims-flowed-from-modi-downwards/174757/" },
-          { "tier": "C", "publisher": "Quartz India", "title": "Modi was half-right: World's first plastic surgeon may well have been Indian", "url": "https://qz.com/india/288867/modi-was-half-right-worlds-first-plastic-surgeon-may-well-have-been-indian-but-he-wasnt-shiva" },
-          { "tier": "C", "publisher": "Alt News", "title": "BJP and Science: From Ganesha's plastic surgery to 'Yoga can cure cancer'", "url": "https://www.altnews.in/bjp-science-ganeshas-plastic-surgery-yoga-can-cure-cancer/" }
+          {
+            "tier": "C",
+            "publisher": "ThePrint",
+            "title": "Vedic plastic surgery to test-tube Karna — non-science claims flowed from Modi downwards",
+            "url": "https://theprint.in/science/vedic-plastic-surgery-to-test-tube-karna-non-science-claims-flowed-from-modi-downwards/174757/"
+          },
+          {
+            "tier": "C",
+            "publisher": "Quartz India",
+            "title": "Modi was half-right: World's first plastic surgeon may well have been Indian",
+            "url": "https://qz.com/india/288867/modi-was-half-right-worlds-first-plastic-surgeon-may-well-have-been-indian-but-he-wasnt-shiva"
+          },
+          {
+            "tier": "C",
+            "publisher": "Alt News",
+            "title": "BJP and Science: From Ganesha's plastic surgery to 'Yoga can cure cancer'",
+            "url": "https://www.altnews.in/bjp-science-ganeshas-plastic-surgery-yoga-can-cure-cancer/"
+          }
         ]
       }
     },
@@ -83,15 +136,40 @@
       "claim": "That the theory of evolution is scientifically wrong and should be removed from school and university curricula, because no eyewitness account exists of an ape becoming a man.",
       "context": "Singh, a former Mumbai Police Commissioner, was then a junior minister for education. He repeated the position several times over the following weeks and challenged scientists to a debate.",
       "counterpoint": "Over 2,000 scientists from Indian research institutions signed a joint statement rejecting the remarks. Singh's senior colleague Prakash Javadekar publicly asked him not to dilute science.",
-      "axes": { "logic_damage": 5, "straight_face": 5, "rewatch_value": 4, "crowd_complicity": 3, "consequence": 4 },
+      "axes": {
+        "logic_damage": 5,
+        "straight_face": 5,
+        "rewatch_value": 4,
+        "crowd_complicity": 3,
+        "consequence": 4
+      },
       "verification": {
         "stage": "text_sourced",
         "best_source_tier": "B",
-        "needs": ["exact date", "Tier A/B footage from the Aurangabad event", "Hindi original wording"],
+        "needs": [
+          "exact date",
+          "Tier A/B footage from the Aurangabad event",
+          "Hindi original wording"
+        ],
         "sources": [
-          { "tier": "C", "publisher": "Scroll.in", "title": "'Nobody saw ape turning into man, Charles Darwin's theory of evolution is wrong': Union minister", "url": "https://scroll.in/latest/865803/nobody-saw-ape-turning-into-man-charles-darwins-theory-of-evolution-is-wrong-union-minister" },
-          { "tier": "B", "publisher": "The Tribune", "title": "Darwin's theory scientifically wrong: Union Min Satyapal Singh", "url": "https://www.tribuneindia.com/news/archive/nation/darwin-s-theory-scientifically-wrong-union-min-satyapal-singh-531585" },
-          { "tier": "C", "publisher": "Study International", "title": "Darwin theory wrong because nobody 'saw an ape turning into man' — Indian minister", "url": "https://studyinternational.com/news/darwin-theory-wrong-nobody-saw-ape-turning-man-indian-minister/" }
+          {
+            "tier": "C",
+            "publisher": "Scroll.in",
+            "title": "'Nobody saw ape turning into man, Charles Darwin's theory of evolution is wrong': Union minister",
+            "url": "https://scroll.in/latest/865803/nobody-saw-ape-turning-into-man-charles-darwins-theory-of-evolution-is-wrong-union-minister"
+          },
+          {
+            "tier": "B",
+            "publisher": "The Tribune",
+            "title": "Darwin's theory scientifically wrong: Union Min Satyapal Singh",
+            "url": "https://www.tribuneindia.com/news/archive/nation/darwin-s-theory-scientifically-wrong-union-min-satyapal-singh-531585"
+          },
+          {
+            "tier": "C",
+            "publisher": "Study International",
+            "title": "Darwin theory wrong because nobody 'saw an ape turning into man' — Indian minister",
+            "url": "https://studyinternational.com/news/darwin-theory-wrong-nobody-saw-ape-turning-man-indian-minister/"
+          }
         ]
       }
     },
@@ -112,15 +190,40 @@
       "claim": "That Stephen Hawking had said the Vedas contain a theory superior to Einstein's E=mc².",
       "quote_note": "`quote` is null: reports render the remark in reported speech and the verbatim sentence could not be established from the sources below. Do not invent one. Resolve before publication.",
       "context": "Said while opening the Science Congress, to an audience of working scientists. Asked afterwards for his source, Vardhan told reporters to find it themselves. No such statement by Hawking has ever been produced; the claim traces to a Vedic-research website, not to Hawking.",
-      "axes": { "logic_damage": 5, "straight_face": 5, "rewatch_value": 5, "crowd_complicity": 3, "consequence": 5 },
+      "axes": {
+        "logic_damage": 5,
+        "straight_face": 5,
+        "rewatch_value": 5,
+        "crowd_complicity": 3,
+        "consequence": 5
+      },
       "verification": {
         "stage": "text_sourced",
         "best_source_tier": "B",
-        "needs": ["VERBATIM WORDING — blocking", "Tier A footage of the ISC inaugural session", "the follow-up 'you find the source' exchange, which is arguably the stronger entry"],
+        "needs": [
+          "VERBATIM WORDING — blocking",
+          "Tier A footage of the ISC inaugural session",
+          "the follow-up 'you find the source' exchange, which is arguably the stronger entry"
+        ],
         "sources": [
-          { "tier": "B", "publisher": "The Tribune", "title": "Stephen Hawking said Vedic theory superior to Einstein's: Science Minister Vardhan", "url": "https://www.tribuneindia.com/news/archive/nation/stephen-hawking-said-vedic-theory-superior-to-einstein-s-science-minister-vardhan-558705" },
-          { "tier": "C", "publisher": "ThePrint", "title": "Meet the man who got Harsh Vardhan to believe Stephen Hawking endorsed the Vedas", "url": "https://theprint.in/politics/meet-the-man-who-got-harsh-vardhan-to-believe-stephen-hawking-endorsed-the-vedas/42667/" },
-          { "tier": "B", "publisher": "DNA India", "title": "A brief incorrect history of time: Vardhan mistakenly claims Hawking said Vedas had theory greater than Einstein's", "url": "https://www.dnaindia.com/india/report-every-ritual-of-hinduism-is-steeped-in-science-harsh-vardhan-s-hawking-einstein-vedas-hypothesis-sparks-outrage-2594660" }
+          {
+            "tier": "B",
+            "publisher": "The Tribune",
+            "title": "Stephen Hawking said Vedic theory superior to Einstein's: Science Minister Vardhan",
+            "url": "https://www.tribuneindia.com/news/archive/nation/stephen-hawking-said-vedic-theory-superior-to-einstein-s-science-minister-vardhan-558705"
+          },
+          {
+            "tier": "C",
+            "publisher": "ThePrint",
+            "title": "Meet the man who got Harsh Vardhan to believe Stephen Hawking endorsed the Vedas",
+            "url": "https://theprint.in/politics/meet-the-man-who-got-harsh-vardhan-to-believe-stephen-hawking-endorsed-the-vedas/42667/"
+          },
+          {
+            "tier": "B",
+            "publisher": "DNA India",
+            "title": "A brief incorrect history of time: Vardhan mistakenly claims Hawking said Vedas had theory greater than Einstein's",
+            "url": "https://www.dnaindia.com/india/report-every-ritual-of-hinduism-is-steeped-in-science-harsh-vardhan-s-hawking-einstein-vedas-hypothesis-sparks-outrage-2594660"
+          }
         ]
       }
     },
@@ -141,15 +244,40 @@
       "claim": "That the internet and satellite technology existed at the time of the Mahabharata, because Sanjaya was able to give the blind king Dhritarashtra a live account of the battle at Kurukshetra.",
       "quote_note": "`quote` is null pending a verbatim Bengali transcript. The English renderings in circulation differ from one another.",
       "context": "Said at a state government workshop on computerisation, days after Deb took office as Chief Minister. He declined to retract, and Uttar Pradesh Deputy Chief Minister Dinesh Sharma publicly agreed (see IN-0036).",
-      "axes": { "logic_damage": 5, "straight_face": 5, "rewatch_value": 5, "crowd_complicity": 3, "consequence": 4 },
+      "axes": {
+        "logic_damage": 5,
+        "straight_face": 5,
+        "rewatch_value": 5,
+        "crowd_complicity": 3,
+        "consequence": 4
+      },
       "verification": {
         "stage": "text_sourced",
         "best_source_tier": "B",
-        "needs": ["VERBATIM WORDING — blocking", "Bengali transcript + English subtitles", "Tier A: Tripura government or party channel upload of the workshop"],
+        "needs": [
+          "VERBATIM WORDING — blocking",
+          "Bengali transcript + English subtitles",
+          "Tier A: Tripura government or party channel upload of the workshop"
+        ],
         "sources": [
-          { "tier": "B", "publisher": "BBC News", "title": "Minister ridiculed for saying ancient India invented internet", "url": "https://www.bbc.com/news/world-asia-india-43806078" },
-          { "tier": "B", "publisher": "The Irish Times", "title": "Politicians insist India had the internet thousands of years ago", "url": "https://www.irishtimes.com/news/world/asia-pacific/politicians-insist-india-had-the-internet-thousands-of-years-ago-1.3467467" },
-          { "tier": "B", "publisher": "SBS News", "title": "Minister mocked for claiming ancient India invented the internet", "url": "https://www.sbs.com.au/news/article/minister-mocked-for-claiming-ancient-india-invented-the-internet/t17ef5hdd" }
+          {
+            "tier": "B",
+            "publisher": "BBC News",
+            "title": "Minister ridiculed for saying ancient India invented internet",
+            "url": "https://www.bbc.com/news/world-asia-india-43806078"
+          },
+          {
+            "tier": "B",
+            "publisher": "The Irish Times",
+            "title": "Politicians insist India had the internet thousands of years ago",
+            "url": "https://www.irishtimes.com/news/world/asia-pacific/politicians-insist-india-had-the-internet-thousands-of-years-ago-1.3467467"
+          },
+          {
+            "tier": "B",
+            "publisher": "SBS News",
+            "title": "Minister mocked for claiming ancient India invented the internet",
+            "url": "https://www.sbs.com.au/news/article/minister-mocked-for-claiming-ancient-india-invented-the-internet/t17ef5hdd"
+          }
         ]
       }
     },
@@ -171,15 +299,40 @@
       "claim": "That the cow is the only animal that both inhales and exhales oxygen, and that proximity to a cow cures colds and coughs.",
       "context": "Said at a cow shelter by the minister responsible for the state's school curriculum. Challenged afterwards, Devnani stood by the claim and cited 'research websites' and a magazine as his sources.",
       "counterpoint": "Cows, like all mammals, exhale carbon dioxide.",
-      "axes": { "logic_damage": 5, "straight_face": 5, "rewatch_value": 4, "crowd_complicity": 3, "consequence": 5 },
+      "axes": {
+        "logic_damage": 5,
+        "straight_face": 5,
+        "rewatch_value": 4,
+        "crowd_complicity": 3,
+        "consequence": 5
+      },
       "verification": {
         "stage": "text_sourced",
         "best_source_tier": "B",
-        "needs": ["exact date", "Tier A/B footage", "the follow-up 'I read it on research websites' defence — a strong companion entry"],
+        "needs": [
+          "exact date",
+          "Tier A/B footage",
+          "the follow-up 'I read it on research websites' defence — a strong companion entry"
+        ],
         "sources": [
-          { "tier": "B", "publisher": "Business Standard", "title": "Cow only animal that inhales, exhales oxygen: Rajasthan education minister", "url": "https://www.business-standard.com/article/current-affairs/cow-only-animal-that-inhales-exhales-oxygen-rajasthan-education-minister-117011600484_1.html" },
-          { "tier": "B", "publisher": "Outlook India", "title": "Rajasthan's Education Minister Says Cows Inhale And Exhale Oxygen", "url": "https://www.outlookindia.com/society/rajasthans-education-minister-says-cows-inhale-and-exhale-oxygen-but-twitter-isn-news-297676" },
-          { "tier": "B", "publisher": "India TV", "title": "Rajasthan minister defies science, says 'cow only animal that inhales and exhales oxygen'", "url": "https://www.indiatvnews.com/politics/national-rajasthan-minister-defies-science-says-cow-only-animal-that-inhales-and-exhales-oxygen-365164" }
+          {
+            "tier": "B",
+            "publisher": "Business Standard",
+            "title": "Cow only animal that inhales, exhales oxygen: Rajasthan education minister",
+            "url": "https://www.business-standard.com/article/current-affairs/cow-only-animal-that-inhales-exhales-oxygen-rajasthan-education-minister-117011600484_1.html"
+          },
+          {
+            "tier": "B",
+            "publisher": "Outlook India",
+            "title": "Rajasthan's Education Minister Says Cows Inhale And Exhale Oxygen",
+            "url": "https://www.outlookindia.com/society/rajasthans-education-minister-says-cows-inhale-and-exhale-oxygen-but-twitter-isn-news-297676"
+          },
+          {
+            "tier": "B",
+            "publisher": "India TV",
+            "title": "Rajasthan minister defies science, says 'cow only animal that inhales and exhales oxygen'",
+            "url": "https://www.indiatvnews.com/politics/national-rajasthan-minister-defies-science-says-cow-only-animal-that-inhales-and-exhales-oxygen-365164"
+          }
         ]
       }
     },
@@ -200,15 +353,39 @@
       "claim": "That excessive attention to arithmetic obstructs ambition, illustrated by a claim that Einstein discovered gravity without mathematics.",
       "context": "Said while defending a $1-trillion export target against questions about the underlying numbers. Goyal later said the remark had been taken out of context and that his point was about aspiration over precedent.",
       "counterpoint": "Newton described gravitation; Einstein's general relativity is among the most mathematically demanding theories in physics.",
-      "axes": { "logic_damage": 4, "straight_face": 4, "rewatch_value": 5, "crowd_complicity": 2, "consequence": 5 },
+      "axes": {
+        "logic_damage": 4,
+        "straight_face": 4,
+        "rewatch_value": 5,
+        "crowd_complicity": 2,
+        "consequence": 5
+      },
       "verification": {
         "stage": "text_sourced",
         "best_source_tier": "B",
-        "needs": ["Tier A/B video with timestamp — the delivery is most of the entry", "Goyal's clarification, which must be linked alongside under the Right of Reply policy"],
+        "needs": [
+          "Tier A/B video with timestamp — the delivery is most of the entry",
+          "Goyal's clarification, which must be linked alongside under the Right of Reply policy"
+        ],
         "sources": [
-          { "tier": "B", "publisher": "The Tribune", "title": "'Maths never helped Einstein discover gravity': Piyush Goyal on economy", "url": "https://www.tribuneindia.com/news/archive/nation/maths-never-helped-einstein-discover-gravity-piyush-goyal-on-economy-831585/" },
-          { "tier": "B", "publisher": "Outlook India", "title": "'Maths Didn't Help Einstein Discover Gravity', Says Piyush Goyal. Twitter Gives A Fact Check", "url": "https://www.outlookindia.com/website/story/india-news-maths-didnt-help-einstein-discover-gravity-says-piyush-goyal-twitter-gives-a-fact-check/338460" },
-          { "tier": "C", "publisher": "The News Minute", "title": "Maths didn't help Einstein discover gravity: Piyush Goyal's remark goes viral", "url": "https://www.thenewsminute.com/article/maths-didn-t-help-einstein-discover-gravity-piyush-goyal-s-remark-goes-viral-108802" }
+          {
+            "tier": "B",
+            "publisher": "The Tribune",
+            "title": "'Maths never helped Einstein discover gravity': Piyush Goyal on economy",
+            "url": "https://www.tribuneindia.com/news/archive/nation/maths-never-helped-einstein-discover-gravity-piyush-goyal-on-economy-831585/"
+          },
+          {
+            "tier": "B",
+            "publisher": "Outlook India",
+            "title": "'Maths Didn't Help Einstein Discover Gravity', Says Piyush Goyal. Twitter Gives A Fact Check",
+            "url": "https://www.outlookindia.com/website/story/india-news-maths-didnt-help-einstein-discover-gravity-says-piyush-goyal-twitter-gives-a-fact-check/338460"
+          },
+          {
+            "tier": "C",
+            "publisher": "The News Minute",
+            "title": "Maths didn't help Einstein discover gravity: Piyush Goyal's remark goes viral",
+            "url": "https://www.thenewsminute.com/article/maths-didn-t-help-einstein-discover-gravity-piyush-goyal-s-remark-goes-viral-108802"
+          }
         ]
       }
     },
@@ -230,19 +407,42 @@
       "quote_note": "`quote` is null: the widely-quoted sentence appears in slightly different forms across outlets. Establish the verbatim wording from footage before publication.",
       "context": "Passenger vehicle sales had fallen 31.6% year-on-year in August 2019, the sector's worst month on record, with large-scale job losses under way.",
       "counterpoint": "Contemporaneous analyses noted that ride-hailing had been growing for years without a comparable sales collapse, and that the fall coincided with a credit squeeze following the NBFC crisis.",
-      "axes": { "logic_damage": 3, "straight_face": 4, "rewatch_value": 5, "crowd_complicity": 2, "consequence": 5 },
+      "axes": {
+        "logic_damage": 3,
+        "straight_face": 4,
+        "rewatch_value": 5,
+        "crowd_complicity": 2,
+        "consequence": 5
+      },
       "verification": {
         "stage": "text_sourced",
         "best_source_tier": "B",
-        "needs": ["VERBATIM WORDING — blocking", "Tier A: PIB video of the press conference"],
+        "needs": [
+          "VERBATIM WORDING — blocking",
+          "Tier A: PIB video of the press conference"
+        ],
         "sources": [
-          { "tier": "B", "publisher": "Business Today", "title": "Auto Slowdown: Facts, numbers, economics belie FM Sitharaman's Ola Uber argument", "url": "https://www.businesstoday.in/latest/slowdown-blues/story/auto-slowdown-facts-numbers-economics-belie-finance-minister-nirmala-sitharaman-ola-uber-argument-229328-2019-09-11" },
-          { "tier": "C", "publisher": "The Wire", "title": "#SayItLikeNirmalaTai: Minister Blaming Auto Slowdown on Millennials Prompts Witty Replies", "url": "https://thewire.in/media/nirmala-sitharaman-auto-slowdown-millennial-ola-uber" },
-          { "tier": "C", "publisher": "Quartz India", "title": "No, finance minister. Indian millennials are not to blame for the automobile slowdown", "url": "https://qz.com/india/1706788/nirmala-sitharaman-cant-blame-ola-uber-for-indias-auto-slump" }
+          {
+            "tier": "B",
+            "publisher": "Business Today",
+            "title": "Auto Slowdown: Facts, numbers, economics belie FM Sitharaman's Ola Uber argument",
+            "url": "https://www.businesstoday.in/latest/slowdown-blues/story/auto-slowdown-facts-numbers-economics-belie-finance-minister-nirmala-sitharaman-ola-uber-argument-229328-2019-09-11"
+          },
+          {
+            "tier": "C",
+            "publisher": "The Wire",
+            "title": "#SayItLikeNirmalaTai: Minister Blaming Auto Slowdown on Millennials Prompts Witty Replies",
+            "url": "https://thewire.in/media/nirmala-sitharaman-auto-slowdown-millennial-ola-uber"
+          },
+          {
+            "tier": "C",
+            "publisher": "Quartz India",
+            "title": "No, finance minister. Indian millennials are not to blame for the automobile slowdown",
+            "url": "https://qz.com/india/1706788/nirmala-sitharaman-cant-blame-ola-uber-for-indias-auto-slump"
+          }
         ]
       }
     },
-
     {
       "id": "IN-0009",
       "status": "published",
@@ -260,14 +460,34 @@
       "claim": "An extended analogy between planetary escape velocity and the difficulty of upward mobility for Dalits.",
       "context": "The analogy was the substance of the speech, not an aside. It became a defining clip of Gandhi's early public speaking and is still cited more than a decade later.",
       "policy_note": "Rule 1 (caste) applies to statements ABOUT caste identity as a target. This entry is indexed for the physics analogy, not for its subject matter, and the neutral title and any Committee commentary must stay on the analogy. If that line cannot be held in the copy, drop the entry.",
-      "axes": { "logic_damage": 3, "straight_face": 5, "rewatch_value": 5, "crowd_complicity": 3, "consequence": 4 },
+      "axes": {
+        "logic_damage": 3,
+        "straight_face": 5,
+        "rewatch_value": 5,
+        "crowd_complicity": 3,
+        "consequence": 4
+      },
       "verification": {
         "stage": "text_sourced",
         "best_source_tier": "B",
-        "needs": ["exact date", "Tier A: Congress or DD footage of the Vigyan Bhavan address", "Hindi original wording — the quote above is an English rendering"],
+        "needs": [
+          "exact date",
+          "Tier A: Congress or DD footage of the Vigyan Bhavan address",
+          "Hindi original wording — the quote above is an English rendering"
+        ],
         "sources": [
-          { "tier": "B", "publisher": "Gulf News", "title": "Rahul Gandhi 'escape velocity' speech sets social media ablaze", "url": "https://gulfnews.com/world/asia/india/rahul-gandhi-escape-velocity-speech-sets-social-media-ablaze-1.1241458" },
-          { "tier": "C", "publisher": "Vivek Kaul", "title": "What media missed out on in Rahul Gandhi's 'escape-velocity' speech", "url": "https://vivekkaul.com/2013/10/11/what-media-missed-out-in-rahul-gandhis-escape-velocity-speech/" }
+          {
+            "tier": "B",
+            "publisher": "Gulf News",
+            "title": "Rahul Gandhi 'escape velocity' speech sets social media ablaze",
+            "url": "https://gulfnews.com/world/asia/india/rahul-gandhi-escape-velocity-speech-sets-social-media-ablaze-1.1241458"
+          },
+          {
+            "tier": "C",
+            "publisher": "Vivek Kaul",
+            "title": "What media missed out on in Rahul Gandhi's 'escape-velocity' speech",
+            "url": "https://vivekkaul.com/2013/10/11/what-media-missed-out-in-rahul-gandhis-escape-velocity-speech/"
+          }
         ]
       }
     },
@@ -287,14 +507,34 @@
       "quote": "Poverty is just a state of mind.",
       "claim": "That poverty is a state of mind rather than a shortage of food, money or material things, and can be overcome with self-confidence.",
       "context": "Made shortly before the 2014 general election, in which the Congress recorded its worst-ever Lok Sabha result. Defenders argued the point was about the psychological trap of poverty rather than a denial of material deprivation; that reading should be linked from the entry.",
-      "axes": { "logic_damage": 3, "straight_face": 4, "rewatch_value": 4, "crowd_complicity": 2, "consequence": 4 },
+      "axes": {
+        "logic_damage": 3,
+        "straight_face": 4,
+        "rewatch_value": 4,
+        "crowd_complicity": 2,
+        "consequence": 4
+      },
       "verification": {
         "stage": "text_sourced",
         "best_source_tier": "B",
-        "needs": ["exact date and venue", "Tier A/B footage", "Hindi original wording"],
+        "needs": [
+          "exact date and venue",
+          "Tier A/B footage",
+          "Hindi original wording"
+        ],
         "sources": [
-          { "tier": "C", "publisher": "OneIndia", "title": "Poverty is a state of mind: Rahul Gandhi made economics irrelevant", "url": "https://www.oneindia.com/2013/08/06/poverty-a-state-of-mind-rahul-gandhi-made-economics-irrelevant-1276836.html" },
-          { "tier": "B", "publisher": "Gulf News", "title": "Rahul Gandhi wants poor to dream big", "url": "https://gulfnews.com/world/asia/india/rahul-gandhi-wants-poor-to-dream-big-1.1232305" }
+          {
+            "tier": "C",
+            "publisher": "OneIndia",
+            "title": "Poverty is a state of mind: Rahul Gandhi made economics irrelevant",
+            "url": "https://www.oneindia.com/2013/08/06/poverty-a-state-of-mind-rahul-gandhi-made-economics-irrelevant-1276836.html"
+          },
+          {
+            "tier": "B",
+            "publisher": "Gulf News",
+            "title": "Rahul Gandhi wants poor to dream big",
+            "url": "https://gulfnews.com/world/asia/india/rahul-gandhi-wants-poor-to-dream-big-1.1232305"
+          }
         ]
       }
     },
@@ -315,14 +555,34 @@
       "quote_translation": "I am happy that the farmers are being benefited.",
       "claim": "That the rise in commodity prices was a welcome development because it benefited farmers.",
       "context": "Said by the Union Steel Minister at the height of a national row over food inflation. The remark drew protests across the opposition and was disowned by his own party.",
-      "axes": { "logic_damage": 3, "straight_face": 4, "rewatch_value": 3, "crowd_complicity": 3, "consequence": 3 },
+      "axes": {
+        "logic_damage": 3,
+        "straight_face": 4,
+        "rewatch_value": 3,
+        "crowd_complicity": 3,
+        "consequence": 3
+      },
       "verification": {
         "stage": "text_sourced",
         "best_source_tier": "B",
-        "needs": ["exact date — blocking for the timeline", "Tier A/B footage", "note: Verma died in 2020; Right of Reply is not available, and the entry must say so"],
+        "needs": [
+          "exact date — blocking for the timeline",
+          "Tier A/B footage",
+          "note: Verma died in 2020; Right of Reply is not available, and the entry must say so"
+        ],
         "sources": [
-          { "tier": "B", "publisher": "Deccan Herald", "title": "Minister faces flak for hailing price rise", "url": "https://www.deccanherald.com/india/minister-faces-flak-hailing-price-2355183" },
-          { "tier": "B", "publisher": "Deccan Herald", "title": "Outspoken leaders land Congress in trouble", "url": "https://www.deccanherald.com/india/outspoken-leaders-land-cong-trouble-2274568" }
+          {
+            "tier": "B",
+            "publisher": "Deccan Herald",
+            "title": "Minister faces flak for hailing price rise",
+            "url": "https://www.deccanherald.com/india/minister-faces-flak-hailing-price-2355183"
+          },
+          {
+            "tier": "B",
+            "publisher": "Deccan Herald",
+            "title": "Outspoken leaders land Congress in trouble",
+            "url": "https://www.deccanherald.com/india/outspoken-leaders-land-cong-trouble-2274568"
+          }
         ]
       }
     },
@@ -344,15 +604,40 @@
       "quote_note": "`quote` is null pending a verbatim Kannada transcript.",
       "context": "The ritual was performed by a serving minister of a government that was simultaneously pushing an anti-superstition bill — the contradiction, not the ritual, is what the entry indexes. Opposition BJP leader Jagadish Shettar attacked it on exactly that ground.",
       "policy_note": "Borderline under Rule 1. Committee ruling: IN SCOPE, narrowly — the indexed claim is the ISRO comparison offered as a public justification for a public act of government, not the ritual or the belief behind it.",
-      "axes": { "logic_damage": 4, "straight_face": 5, "rewatch_value": 3, "crowd_complicity": 3, "consequence": 4 },
+      "axes": {
+        "logic_damage": 4,
+        "straight_face": 5,
+        "rewatch_value": 3,
+        "crowd_complicity": 3,
+        "consequence": 4
+      },
       "verification": {
         "stage": "text_sourced",
         "best_source_tier": "B",
-        "needs": ["VERBATIM WORDING — blocking", "exact date", "Tier A/B footage"],
+        "needs": [
+          "VERBATIM WORDING — blocking",
+          "exact date",
+          "Tier A/B footage"
+        ],
         "sources": [
-          { "tier": "B", "publisher": "DNA India", "title": "Karnataka: Minister performs ritual to propitiate rain god, BJP blames govt of 'double standards'", "url": "https://www.dnaindia.com/india/report-minister-faces-flak-for-ritual-to-propitiate-rain-god-2464496" },
-          { "tier": "B", "publisher": "Deccan Herald", "title": "Minister faces flak for ritual to propitiate rain god", "url": "https://www.deccanherald.com/content/615995/minister-faces-flak-ritual-propitiate.html" },
-          { "tier": "C", "publisher": "InUth", "title": "Karnataka minister defends his 'puja' to please rain God, says even ISRO does it before launching rockets", "url": "https://www.inuth.com/india/karnataka-minister-defends-his-puja-to-please-rain-god-says-even-isro-does-it-before-launching-rockets/" }
+          {
+            "tier": "B",
+            "publisher": "DNA India",
+            "title": "Karnataka: Minister performs ritual to propitiate rain god, BJP blames govt of 'double standards'",
+            "url": "https://www.dnaindia.com/india/report-minister-faces-flak-for-ritual-to-propitiate-rain-god-2464496"
+          },
+          {
+            "tier": "B",
+            "publisher": "Deccan Herald",
+            "title": "Minister faces flak for ritual to propitiate rain god",
+            "url": "https://www.deccanherald.com/content/615995/minister-faces-flak-ritual-propitiate.html"
+          },
+          {
+            "tier": "C",
+            "publisher": "InUth",
+            "title": "Karnataka minister defends his 'puja' to please rain God, says even ISRO does it before launching rockets",
+            "url": "https://www.inuth.com/india/karnataka-minister-defends-his-puja-to-please-rain-god-says-even-isro-does-it-before-launching-rockets/"
+          }
         ]
       }
     },
@@ -373,13 +658,29 @@
       "quote_note": "As rendered in English by the outlet cited; the original Kannada wording is not yet transcribed.",
       "claim": "That farmers would prefer recurring droughts because drought brings loan waivers.",
       "context": "Said during a drought year in Karnataka. The state BJP called the remark irresponsible and demanded an apology.",
-      "axes": { "logic_damage": 3, "straight_face": 4, "rewatch_value": 3, "crowd_complicity": 3, "consequence": 4 },
+      "axes": {
+        "logic_damage": 3,
+        "straight_face": 4,
+        "rewatch_value": 3,
+        "crowd_complicity": 3,
+        "consequence": 4
+      },
       "verification": {
         "stage": "text_sourced",
         "best_source_tier": "B",
-        "needs": ["exact date and venue", "Kannada original", "Tier A/B footage", "corroborating second source"],
+        "needs": [
+          "exact date and venue",
+          "Kannada original",
+          "Tier A/B footage",
+          "corroborating second source"
+        ],
         "sources": [
-          { "tier": "B", "publisher": "Deccan Chronicle", "title": "Karnataka Minister Sparks Outrage with Wishing for Droughts Remark on Farmers", "url": "https://www.deccanchronicle.com/nation/in-other-news/251223/karnataka-ministers-controversial-remark-sparks-outrage-bjp-calls-fo.html" }
+          {
+            "tier": "B",
+            "publisher": "Deccan Chronicle",
+            "title": "Karnataka Minister Sparks Outrage with Wishing for Droughts Remark on Farmers",
+            "url": "https://www.deccanchronicle.com/nation/in-other-news/251223/karnataka-ministers-controversial-remark-sparks-outrage-bjp-calls-fo.html"
+          }
         ]
       }
     },
@@ -400,13 +701,28 @@
       "claim": "That the Prime Minister is a 'Shani' — the malefic planet Saturn in Vedic astrology — that has afflicted the country.",
       "quote_note": "`quote` is null pending verbatim Kannada wording.",
       "context": "Made during campaigning for the 2024 general election by a former Assembly Speaker.",
-      "axes": { "logic_damage": 3, "straight_face": 4, "rewatch_value": 3, "crowd_complicity": 3, "consequence": 4 },
+      "axes": {
+        "logic_damage": 3,
+        "straight_face": 4,
+        "rewatch_value": 3,
+        "crowd_complicity": 3,
+        "consequence": 4
+      },
       "verification": {
         "stage": "text_sourced",
         "best_source_tier": "B",
-        "needs": ["VERBATIM WORDING — blocking", "exact date and venue", "corroborating second source"],
+        "needs": [
+          "VERBATIM WORDING — blocking",
+          "exact date and venue",
+          "corroborating second source"
+        ],
         "sources": [
-          { "tier": "B", "publisher": "Deccan Herald", "title": "Lok Sabha polls 2024: Narendra Modi 'Shani' afflicting India, says former Karnataka Speaker Ramesh Kumar", "url": "https://www.deccanherald.com/elections/india/lok-sabha-polls-2024-narendra-modi-shani-afflicting-india-former-karnataka-speaker-ramesh-kumar-2988833" }
+          {
+            "tier": "B",
+            "publisher": "Deccan Herald",
+            "title": "Lok Sabha polls 2024: Narendra Modi 'Shani' afflicting India, says former Karnataka Speaker Ramesh Kumar",
+            "url": "https://www.deccanherald.com/elections/india/lok-sabha-polls-2024-narendra-modi-shani-afflicting-india-former-karnataka-speaker-ramesh-kumar-2988833"
+          }
         ]
       }
     },
@@ -427,15 +743,40 @@
       "quote_note": "As rendered in English by the outlets cited; Hindi original not yet transcribed.",
       "claim": "That the 2016 cross-border strikes were a claim without proof.",
       "context": "Said at his own party's flagship march. The Congress publicly distanced itself the same day, stating the views were his own.",
-      "axes": { "logic_damage": 2, "straight_face": 4, "rewatch_value": 3, "crowd_complicity": 3, "consequence": 3 },
+      "axes": {
+        "logic_damage": 2,
+        "straight_face": 4,
+        "rewatch_value": 3,
+        "crowd_complicity": 3,
+        "consequence": 3
+      },
       "verification": {
         "stage": "text_sourced",
         "best_source_tier": "B",
-        "needs": ["Tier A/B footage with timestamp", "Hindi original", "Singh's own follow-up clarification must be linked under Right of Reply"],
+        "needs": [
+          "Tier A/B footage with timestamp",
+          "Hindi original",
+          "Singh's own follow-up clarification must be linked under Right of Reply"
+        ],
         "sources": [
-          { "tier": "C", "publisher": "ThePrint", "title": "Digvijaya demands 'proof' of surgical strikes. BJP on offensive, Congress says 'views personal'", "url": "https://theprint.in/india/digvijaya-demands-proof-of-surgical-strikes-bjp-on-offensive-congress-says-views-personal/1330616/" },
-          { "tier": "B", "publisher": "India TV", "title": "'There is no proof': Congress' Digvijaya Singh raises questions over surgical strike against Pakistan", "url": "https://www.indiatvnews.com/news/india/congress-digvijay-singh-raises-questions-over-surgical-strike-against-pakistan-and-pulwama-attacks-targets-pm-modi-in-jammu-kashmir-2023-01-23-841500" },
-          { "tier": "B", "publisher": "Deccan Herald", "title": "Digvijaya Singh questions surgical strikes, BJP accuses Congress of insulting armed forces", "url": "https://www.deccanherald.com/india/digvijaya-singh-questions-surgical-strikes-bjp-accuses-congress-of-insulting-armed-forces-in-hate-for-modi-1183830.html" }
+          {
+            "tier": "C",
+            "publisher": "ThePrint",
+            "title": "Digvijaya demands 'proof' of surgical strikes. BJP on offensive, Congress says 'views personal'",
+            "url": "https://theprint.in/india/digvijaya-demands-proof-of-surgical-strikes-bjp-on-offensive-congress-says-views-personal/1330616/"
+          },
+          {
+            "tier": "B",
+            "publisher": "India TV",
+            "title": "'There is no proof': Congress' Digvijaya Singh raises questions over surgical strike against Pakistan",
+            "url": "https://www.indiatvnews.com/news/india/congress-digvijay-singh-raises-questions-over-surgical-strike-against-pakistan-and-pulwama-attacks-targets-pm-modi-in-jammu-kashmir-2023-01-23-841500"
+          },
+          {
+            "tier": "B",
+            "publisher": "Deccan Herald",
+            "title": "Digvijaya Singh questions surgical strikes, BJP accuses Congress of insulting armed forces",
+            "url": "https://www.deccanherald.com/india/digvijaya-singh-questions-surgical-strikes-bjp-accuses-congress-of-insulting-armed-forces-in-hate-for-modi-1183830.html"
+          }
         ]
       }
     },
@@ -456,17 +797,31 @@
       "claim": "That if selling pakodas counts as a job, then so does begging.",
       "quote_note": "`quote` is null pending retrieval of the original post text. The remark is universally reported in this form but the archive does not publish reconstructed wording.",
       "context": "A response to the Prime Minister's pakoda remark (IN-0021, held). The two entries are a matched pair and should be cross-linked on the site; the Aamne-Saamne pairing writes itself.",
-      "axes": { "logic_damage": 1, "straight_face": 3, "rewatch_value": 3, "crowd_complicity": 1, "consequence": 4 },
+      "axes": {
+        "logic_damage": 1,
+        "straight_face": 3,
+        "rewatch_value": 3,
+        "crowd_complicity": 1,
+        "consequence": 4
+      },
       "verification": {
         "stage": "text_sourced",
         "best_source_tier": "C",
-        "needs": ["VERBATIM WORDING — blocking", "the original post, archived", "exact date"],
+        "needs": [
+          "VERBATIM WORDING — blocking",
+          "the original post, archived",
+          "exact date"
+        ],
         "sources": [
-          { "tier": "C", "publisher": "Scroll.in", "title": "'If selling pakodas is a job, so is begging': P Chidambaram's jibe sparks Twitter war with BJP", "url": "https://scroll.in/latest/866754/if-selling-pakodas-is-a-job-so-is-begging-p-chidambarams-jibe-sparks-twitter-war-with-bjp" }
+          {
+            "tier": "C",
+            "publisher": "Scroll.in",
+            "title": "'If selling pakodas is a job, so is begging': P Chidambaram's jibe sparks Twitter war with BJP",
+            "url": "https://scroll.in/latest/866754/if-selling-pakodas-is-a-job-so-is-begging-p-chidambarams-jibe-sparks-twitter-war-with-bjp"
+          }
         ]
       }
     },
-
     {
       "id": "IN-0017",
       "status": "published",
@@ -484,15 +839,40 @@
       "quote_note": "As rendered in English by the outlets cited; Hindi original not yet transcribed.",
       "claim": "That the COVID-19 vaccine about to be rolled out was 'the BJP's vaccine' and therefore not to be trusted.",
       "context": "Said days before India's national vaccination drive began. Later in 2021 Yadav said he would take the shot once the Prime Minister's photograph was removed from the vaccination certificate.",
-      "axes": { "logic_damage": 4, "straight_face": 4, "rewatch_value": 4, "crowd_complicity": 2, "consequence": 4 },
+      "axes": {
+        "logic_damage": 4,
+        "straight_face": 4,
+        "rewatch_value": 4,
+        "crowd_complicity": 2,
+        "consequence": 4
+      },
       "verification": {
         "stage": "text_sourced",
         "best_source_tier": "B",
-        "needs": ["Tier A/B footage with timestamp", "Hindi original", "the later clarification, linked under Right of Reply"],
+        "needs": [
+          "Tier A/B footage with timestamp",
+          "Hindi original",
+          "the later clarification, linked under Right of Reply"
+        ],
         "sources": [
-          { "tier": "C", "publisher": "ThePrint", "title": "'How can I trust BJP's vaccine?' — Akhilesh Yadav says won't take Covid shot", "url": "https://theprint.in/india/how-can-i-trust-bjps-vaccine-akhilesh-yadav-says-wont-take-covid-shot/578277/" },
-          { "tier": "B", "publisher": "Business Standard", "title": "Will not take BJP's Covid-19 vaccine, says SP chief Akhilesh Yadav", "url": "https://www.business-standard.com/article/current-affairs/will-not-take-bjp-s-covid-19-vaccine-says-sp-chief-akhilesh-yadav-121010200516_1.html" },
-          { "tier": "B", "publisher": "Deccan Herald", "title": "'It's BJP's vaccine', not taking the shot, says SP chief Akhilesh Yadav", "url": "https://www.deccanherald.com/india/its-bjps-vaccine-not-taking-the-shot-says-sp-chief-akhilesh-yadav-934374.html" }
+          {
+            "tier": "C",
+            "publisher": "ThePrint",
+            "title": "'How can I trust BJP's vaccine?' — Akhilesh Yadav says won't take Covid shot",
+            "url": "https://theprint.in/india/how-can-i-trust-bjps-vaccine-akhilesh-yadav-says-wont-take-covid-shot/578277/"
+          },
+          {
+            "tier": "B",
+            "publisher": "Business Standard",
+            "title": "Will not take BJP's Covid-19 vaccine, says SP chief Akhilesh Yadav",
+            "url": "https://www.business-standard.com/article/current-affairs/will-not-take-bjp-s-covid-19-vaccine-says-sp-chief-akhilesh-yadav-121010200516_1.html"
+          },
+          {
+            "tier": "B",
+            "publisher": "Deccan Herald",
+            "title": "'It's BJP's vaccine', not taking the shot, says SP chief Akhilesh Yadav",
+            "url": "https://www.deccanherald.com/india/its-bjps-vaccine-not-taking-the-shot-says-sp-chief-akhilesh-yadav-934374.html"
+          }
         ]
       }
     },
@@ -513,13 +893,29 @@
       "claim": "That the pandemic was not in evidence, offered as demonstrated by the speaker's own unmasked presence.",
       "quote_note": "`quote` is null pending verbatim Hindi wording.",
       "context": "Said in January 2021, between India's two pandemic waves and three months before the Delta wave.",
-      "axes": { "logic_damage": 4, "straight_face": 4, "rewatch_value": 3, "crowd_complicity": 3, "consequence": 4 },
+      "axes": {
+        "logic_damage": 4,
+        "straight_face": 4,
+        "rewatch_value": 3,
+        "crowd_complicity": 3,
+        "consequence": 4
+      },
       "verification": {
         "stage": "text_sourced",
         "best_source_tier": "B",
-        "needs": ["VERBATIM WORDING — blocking", "exact date", "Tier A/B footage", "corroborating second source"],
+        "needs": [
+          "VERBATIM WORDING — blocking",
+          "exact date",
+          "Tier A/B footage",
+          "corroborating second source"
+        ],
         "sources": [
-          { "tier": "B", "publisher": "Deccan Herald", "title": "'Where is the pandemic? I am here without a mask': Akhilesh Yadav", "url": "https://www.deccanherald.com/india/where-is-the-pandemic-i-am-here-without-a-mask-akhilesh-yadav-934454.html" }
+          {
+            "tier": "B",
+            "publisher": "Deccan Herald",
+            "title": "'Where is the pandemic? I am here without a mask': Akhilesh Yadav",
+            "url": "https://www.deccanherald.com/india/where-is-the-pandemic-i-am-here-without-a-mask-akhilesh-yadav-934454.html"
+          }
         ]
       }
     },
@@ -540,15 +936,41 @@
       "quote_note": "As rendered in English by the outlets cited; Marathi original not yet transcribed.",
       "claim": "Responding to a drought-affected farmer's hunger strike, that water cannot be released from a dam that has none.",
       "context": "Said during one of Maharashtra's worst droughts in decades, in reference to a farmer then on hunger strike at Azad Maidan, Mumbai. Pawar apologised in a statement and in the Legislative Council; party chief Sharad Pawar apologised separately. Pawar has since held the Deputy Chief Minister's office again.",
-      "axes": { "logic_damage": 2, "straight_face": 4, "rewatch_value": 4, "crowd_complicity": 4, "consequence": 5 },
+      "axes": {
+        "logic_damage": 2,
+        "straight_face": 4,
+        "rewatch_value": 4,
+        "crowd_complicity": 4,
+        "consequence": 5
+      },
       "verification": {
         "stage": "text_sourced",
         "best_source_tier": "B",
-        "needs": ["exact date", "Marathi original", "Tier A/B footage", "the audience reaction is central to the Crowd Complicity axis and must be verified from footage, not from reports"],
+        "needs": [
+          "exact date",
+          "Marathi original",
+          "Tier A/B footage",
+          "the audience reaction is central to the Crowd Complicity axis and must be verified from footage, not from reports"
+        ],
         "sources": [
-          { "tier": "B", "publisher": "Free Press Journal", "title": "'Should I urinate to fill up empty dams': Ajit Pawar's statement in 2013", "url": "https://www.freepressjournal.in/mumbai/should-i-urinate-to-fill-up-empty-dams-maha-deputy-cm-ajit-pawars-shocking-statement-in-2013" },
-          { "tier": "B", "publisher": "Deccan Herald", "title": "Should we urinate to fill dams?", "url": "https://www.deccanherald.com/india/should-we-urinate-dams-fill-2253987" },
-          { "tier": "B", "publisher": "Gulf News", "title": "India: Sharad Pawar apologises for nephew's remarks", "url": "https://gulfnews.com/world/asia/india/india-sharad-pawar-apologises-for-nephews-remarks-1.1167992" }
+          {
+            "tier": "B",
+            "publisher": "Free Press Journal",
+            "title": "'Should I urinate to fill up empty dams': Ajit Pawar's statement in 2013",
+            "url": "https://www.freepressjournal.in/mumbai/should-i-urinate-to-fill-up-empty-dams-maha-deputy-cm-ajit-pawars-shocking-statement-in-2013"
+          },
+          {
+            "tier": "B",
+            "publisher": "Deccan Herald",
+            "title": "Should we urinate to fill dams?",
+            "url": "https://www.deccanherald.com/india/should-we-urinate-dams-fill-2253987"
+          },
+          {
+            "tier": "B",
+            "publisher": "Gulf News",
+            "title": "India: Sharad Pawar apologises for nephew's remarks",
+            "url": "https://gulfnews.com/world/asia/india/india-sharad-pawar-apologises-for-nephews-remarks-1.1167992"
+          }
         ]
       }
     },
@@ -569,14 +991,34 @@
       "quote_note": "As rendered in English by the outlets cited; Telugu original not yet transcribed.",
       "claim": "That Telangana could be free of COVID-19 by 7 April 2020.",
       "context": "Reported as being followed within twenty-four hours by a sharp rise in cases in the state. The conditional in the sentence is real and the entry must carry it — the archive does not improve a quote by trimming its qualifiers.",
-      "axes": { "logic_damage": 4, "straight_face": 5, "rewatch_value": 3, "crowd_complicity": 2, "consequence": 4 },
+      "axes": {
+        "logic_damage": 4,
+        "straight_face": 5,
+        "rewatch_value": 3,
+        "crowd_complicity": 2,
+        "consequence": 4
+      },
       "verification": {
         "stage": "text_sourced",
         "best_source_tier": "B",
-        "needs": ["exact date", "Telugu original", "Tier A: Telangana government feed of the press conference"],
+        "needs": [
+          "exact date",
+          "Telugu original",
+          "Tier A: Telangana government feed of the press conference"
+        ],
         "sources": [
-          { "tier": "B", "publisher": "Deccan Herald", "title": "Covid-19: Telangana's hope turns into despair in 24 hours", "url": "https://www.deccanherald.com/national/south/covid-19-telangana-s-hope-turns-into-despair-in-24-hours-820108.html" },
-          { "tier": "C", "publisher": "ThePrint", "title": "How coronavirus is exposing the 'autocratic' leadership of 'missing' CM KCR", "url": "https://theprint.in/statedraft/how-coronavirus-is-exposing-the-autocratic-leadership-of-missing-cm-kcr/458322/" }
+          {
+            "tier": "B",
+            "publisher": "Deccan Herald",
+            "title": "Covid-19: Telangana's hope turns into despair in 24 hours",
+            "url": "https://www.deccanherald.com/national/south/covid-19-telangana-s-hope-turns-into-despair-in-24-hours-820108.html"
+          },
+          {
+            "tier": "C",
+            "publisher": "ThePrint",
+            "title": "How coronavirus is exposing the 'autocratic' leadership of 'missing' CM KCR",
+            "url": "https://theprint.in/statedraft/how-coronavirus-is-exposing-the-autocratic-leadership-of-missing-cm-kcr/458322/"
+          }
         ]
       }
     },
@@ -598,14 +1040,33 @@
       "quote_note": "`quote` is null: this entry is currently sourced from reporting of the decision rather than from a verbatim statement by the Chief Minister. It cannot publish until a direct quote is obtained — a reported decision is not a statement.",
       "context": "Part of a documented pattern: KCR appointed a Vastu adviser to the government and has held large-scale yagnas for the state's prosperity.",
       "policy_note": "Borderline under Rule 1. Committee ruling: IN SCOPE only if a verbatim quote is obtained in which the Chief Minister ties an act of government to the ritual. Absent that, this is reporting about a person's religious practice, which the archive does not index. Default is REJECT.",
-      "axes": { "logic_damage": 3, "straight_face": 5, "rewatch_value": 3, "crowd_complicity": 2, "consequence": 4 },
+      "axes": {
+        "logic_damage": 3,
+        "straight_face": 5,
+        "rewatch_value": 3,
+        "crowd_complicity": 2,
+        "consequence": 4
+      },
       "verification": {
         "stage": "text_sourced",
         "best_source_tier": "B",
-        "needs": ["VERBATIM QUOTE — blocking, and the entry is rejected without one", "exact date"],
+        "needs": [
+          "VERBATIM QUOTE — blocking, and the entry is rejected without one",
+          "exact date"
+        ],
         "sources": [
-          { "tier": "B", "publisher": "Deccan Herald", "title": "KCR's cabinet expansion only after Sahasra Chandi Homa", "url": "https://www.deccanherald.com/india/kcr-s-cabinet-expansion-only-after-sahasra-chandi-homa-713996.html" },
-          { "tier": "B", "publisher": "Gulf News", "title": "Telangana chief minister KCR wants Vastu adviser", "url": "https://gulfnews.com/world/asia/india/telangana-chief-minister-kcr-wants-vastu-adviser-1.1444778" }
+          {
+            "tier": "B",
+            "publisher": "Deccan Herald",
+            "title": "KCR's cabinet expansion only after Sahasra Chandi Homa",
+            "url": "https://www.deccanherald.com/india/kcr-s-cabinet-expansion-only-after-sahasra-chandi-homa-713996.html"
+          },
+          {
+            "tier": "B",
+            "publisher": "Gulf News",
+            "title": "Telangana chief minister KCR wants Vastu adviser",
+            "url": "https://gulfnews.com/world/asia/india/telangana-chief-minister-kcr-wants-vastu-adviser-1.1444778"
+          }
         ]
       }
     },
@@ -626,13 +1087,27 @@
       "claim": "That the Congress is 'the gravest corona that was inflicted upon the nation'.",
       "quote_note": "`quote` is null pending the Assembly record. Assembly proceedings are reproducible under §52(1)(q) of the Copyright Act — this transcript is obtainable and should be.",
       "context": "Said during an Assembly debate in the opening weeks of the pandemic in India. The construction was widely copied across parties that month, which is what makes it a category rather than an incident.",
-      "axes": { "logic_damage": 1, "straight_face": 3, "rewatch_value": 2, "crowd_complicity": 4, "consequence": 4 },
+      "axes": {
+        "logic_damage": 1,
+        "straight_face": 3,
+        "rewatch_value": 2,
+        "crowd_complicity": 4,
+        "consequence": 4
+      },
       "verification": {
         "stage": "text_sourced",
         "best_source_tier": "B",
-        "needs": ["VERBATIM WORDING from the Assembly record — blocking", "exact date"],
+        "needs": [
+          "VERBATIM WORDING from the Assembly record — blocking",
+          "exact date"
+        ],
         "sources": [
-          { "tier": "B", "publisher": "Deccan Herald", "title": "Coronavirus becoming popular expression for political attacks", "url": "https://www.deccanherald.com/india/coronavirus-becoming-popular-expression-for-political-attacks-815043.html" }
+          {
+            "tier": "B",
+            "publisher": "Deccan Herald",
+            "title": "Coronavirus becoming popular expression for political attacks",
+            "url": "https://www.deccanherald.com/india/coronavirus-becoming-popular-expression-for-political-attacks-815043.html"
+          }
         ]
       }
     },
@@ -653,15 +1128,39 @@
       "claim": "That the 24-metre structure inaugurated at Connaught Place was India's first smog tower.",
       "quote_note": "`quote` is null pending verbatim wording from the inauguration.",
       "context": "FactChecker.in established it was the country's third. Separately, the tower's own effectiveness was later disputed by the Delhi Pollution Control Committee.",
-      "axes": { "logic_damage": 2, "straight_face": 4, "rewatch_value": 2, "crowd_complicity": 3, "consequence": 4 },
+      "axes": {
+        "logic_damage": 2,
+        "straight_face": 4,
+        "rewatch_value": 2,
+        "crowd_complicity": 3,
+        "consequence": 4
+      },
       "verification": {
         "stage": "text_sourced",
         "best_source_tier": "B",
-        "needs": ["VERBATIM WORDING — blocking", "Tier A: Delhi government footage of the inauguration"],
+        "needs": [
+          "VERBATIM WORDING — blocking",
+          "Tier A: Delhi government footage of the inauguration"
+        ],
         "sources": [
-          { "tier": "C", "publisher": "FactChecker.in", "title": "Delhi's Smog Tower Country's Third, Not First as Kejriwal Claimed", "url": "https://www.factchecker.in/fact-check/delhi-pollution-smog-tower-india-first-kejriwal-claim-770089" },
-          { "tier": "B", "publisher": "Gulf News", "title": "Arvind Kejriwal inaugurates India's first smog tower in Delhi", "url": "https://gulfnews.com/world/asia/india/arvind-kejriwal-inaugurates-indias-first-smog-tower-in-delhi-1.81755829" },
-          { "tier": "B", "publisher": "Outlook India", "title": "BJP targets Kejriwal over first smog tower claims", "url": "https://www.outlookindia.com/newsscroll/bjp-targets-kejriwal-over-first-smog-tower-claims-says-gautam-gambhir-installed-it-last-year/2146624" }
+          {
+            "tier": "C",
+            "publisher": "FactChecker.in",
+            "title": "Delhi's Smog Tower Country's Third, Not First as Kejriwal Claimed",
+            "url": "https://www.factchecker.in/fact-check/delhi-pollution-smog-tower-india-first-kejriwal-claim-770089"
+          },
+          {
+            "tier": "B",
+            "publisher": "Gulf News",
+            "title": "Arvind Kejriwal inaugurates India's first smog tower in Delhi",
+            "url": "https://gulfnews.com/world/asia/india/arvind-kejriwal-inaugurates-indias-first-smog-tower-in-delhi-1.81755829"
+          },
+          {
+            "tier": "B",
+            "publisher": "Outlook India",
+            "title": "BJP targets Kejriwal over first smog tower claims",
+            "url": "https://www.outlookindia.com/newsscroll/bjp-targets-kejriwal-over-first-smog-tower-claims-says-gautam-gambhir-installed-it-last-year/2146624"
+          }
         ]
       }
     },
@@ -682,15 +1181,40 @@
       "claim": "That India wrote a beautiful Constitution that can be used to loot and exploit the people of the country.",
       "quote_note": "`quote` is null pending a verbatim Malayalam transcript. The English renderings in circulation differ materially, which for a statement of this seriousness is disqualifying.",
       "context": "Cheriyan resigned as minister within days amid criticism from across the political spectrum; an FIR was subsequently registered on a court's direction.",
-      "axes": { "logic_damage": 3, "straight_face": 4, "rewatch_value": 3, "crowd_complicity": 4, "consequence": 2 },
+      "axes": {
+        "logic_damage": 3,
+        "straight_face": 4,
+        "rewatch_value": 3,
+        "crowd_complicity": 4,
+        "consequence": 2
+      },
       "verification": {
         "stage": "text_sourced",
         "best_source_tier": "B",
-        "needs": ["VERBATIM MALAYALAM WORDING — blocking", "English subtitles verified by a Malayalam speaker", "REVIEW under Rule 7 (sub judice) before publication — proceedings arising from this statement may still be live"],
+        "needs": [
+          "VERBATIM MALAYALAM WORDING — blocking",
+          "English subtitles verified by a Malayalam speaker",
+          "REVIEW under Rule 7 (sub judice) before publication — proceedings arising from this statement may still be live"
+        ],
         "sources": [
-          { "tier": "C", "publisher": "The Wire", "title": "Kerala: Facing Backlash for Remarks on Constitution, Saji Cheriyan Resigns as Minister", "url": "https://thewire.in/government/kerala-saji-cheriyan-minister-resign-constitution" },
-          { "tier": "B", "publisher": "The Tribune", "title": "Kerala minister Saji Cheriyan resigns after row over his remarks against Constitution", "url": "https://www.tribuneindia.com/news/nation/kerala-minister-saji-cheriyan-resigns-after-row-over-his-remarks-against-constitution-410054" },
-          { "tier": "C", "publisher": "The South First", "title": "Under fire for demeaning Constitution, Kerala minister Saji Cheriyan resigns", "url": "https://thesouthfirst.com/news/under-fire-for-demeaning-constitution-kerala-minister-saji-cheriyan-resigns/" }
+          {
+            "tier": "C",
+            "publisher": "The Wire",
+            "title": "Kerala: Facing Backlash for Remarks on Constitution, Saji Cheriyan Resigns as Minister",
+            "url": "https://thewire.in/government/kerala-saji-cheriyan-minister-resign-constitution"
+          },
+          {
+            "tier": "B",
+            "publisher": "The Tribune",
+            "title": "Kerala minister Saji Cheriyan resigns after row over his remarks against Constitution",
+            "url": "https://www.tribuneindia.com/news/nation/kerala-minister-saji-cheriyan-resigns-after-row-over-his-remarks-against-constitution-410054"
+          },
+          {
+            "tier": "C",
+            "publisher": "The South First",
+            "title": "Under fire for demeaning Constitution, Kerala minister Saji Cheriyan resigns",
+            "url": "https://thesouthfirst.com/news/under-fire-for-demeaning-constitution-kerala-minister-saji-cheriyan-resigns/"
+          }
         ]
       }
     },
@@ -712,13 +1236,28 @@
       "quote_note": "`quote` is null pending a verbatim Bengali transcript.",
       "context": "Maji is a doctor by training and was at the time associated with the West Bengal Medical Council.",
       "policy_note": "Borderline under Rule 1. Committee ruling: IN SCOPE, narrowly — the indexed claim is the numerological reasoning offered in public about a serving head of government, not any religious figure or community. If the entry cannot be titled and captioned without commentary on the religious figure, drop it.",
-      "axes": { "logic_damage": 3, "straight_face": 5, "rewatch_value": 3, "crowd_complicity": 3, "consequence": 3 },
+      "axes": {
+        "logic_damage": 3,
+        "straight_face": 5,
+        "rewatch_value": 3,
+        "crowd_complicity": 3,
+        "consequence": 3
+      },
       "verification": {
         "stage": "text_sourced",
         "best_source_tier": "C",
-        "needs": ["VERBATIM WORDING — blocking", "exact date and venue", "corroborating second source at Tier A or B — currently single-sourced and therefore not publishable"],
+        "needs": [
+          "VERBATIM WORDING — blocking",
+          "exact date and venue",
+          "corroborating second source at Tier A or B — currently single-sourced and therefore not publishable"
+        ],
         "sources": [
-          { "tier": "C", "publisher": "Zee News", "title": "'Mamata Banerjee is incarnation of Maa Sarada' — TMC leader's numerological theory", "url": "https://zeenews.india.com/india/mamata-banerjee-is-incarnation-of-maa-sarada-heres-tmc-leaders-numerological-theory-supporting-his-remarks-2478977.html" }
+          {
+            "tier": "C",
+            "publisher": "Zee News",
+            "title": "'Mamata Banerjee is incarnation of Maa Sarada' — TMC leader's numerological theory",
+            "url": "https://zeenews.india.com/india/mamata-banerjee-is-incarnation-of-maa-sarada-heres-tmc-leaders-numerological-theory-supporting-his-remarks-2478977.html"
+          }
         ]
       }
     },
@@ -739,13 +1278,28 @@
       "claim": "That the Chief Minister can do no wrong, as she is like a god.",
       "quote_note": "`quote` is null pending a verbatim Bengali transcript.",
       "context": "Said by a serving cabinet minister about the head of his own government.",
-      "axes": { "logic_damage": 2, "straight_face": 4, "rewatch_value": 2, "crowd_complicity": 3, "consequence": 4 },
+      "axes": {
+        "logic_damage": 2,
+        "straight_face": 4,
+        "rewatch_value": 2,
+        "crowd_complicity": 3,
+        "consequence": 4
+      },
       "verification": {
         "stage": "text_sourced",
         "best_source_tier": "B",
-        "needs": ["VERBATIM WORDING — blocking", "exact date and venue", "corroborating second source"],
+        "needs": [
+          "VERBATIM WORDING — blocking",
+          "exact date and venue",
+          "corroborating second source"
+        ],
         "sources": [
-          { "tier": "B", "publisher": "Deccan Herald", "title": "Mamata Banerjee is like god, can do no wrong: West Bengal minister", "url": "https://www.deccanherald.com/national/east-and-northeast/mamata-banerjee-is-like-god-can-do-no-wrong-west-bengal-minister-1203772.html" }
+          {
+            "tier": "B",
+            "publisher": "Deccan Herald",
+            "title": "Mamata Banerjee is like god, can do no wrong: West Bengal minister",
+            "url": "https://www.deccanherald.com/national/east-and-northeast/mamata-banerjee-is-like-god-can-do-no-wrong-west-bengal-minister-1203772.html"
+          }
         ]
       }
     },
@@ -766,13 +1320,27 @@
       "claim": "That coronavirus is devastating China but is surpassed in Andhra Pradesh by 'the YSRCP virus'.",
       "quote_note": "`quote` is null pending retrieval of the original post.",
       "context": "One of a cluster of near-identical constructions used across parties in March 2020 (see IN-0022). The archive indexes the construction, not any one party's use of it — that symmetry is the point.",
-      "axes": { "logic_damage": 1, "straight_face": 3, "rewatch_value": 2, "crowd_complicity": 2, "consequence": 4 },
+      "axes": {
+        "logic_damage": 1,
+        "straight_face": 3,
+        "rewatch_value": 2,
+        "crowd_complicity": 2,
+        "consequence": 4
+      },
       "verification": {
         "stage": "text_sourced",
         "best_source_tier": "B",
-        "needs": ["the original post, archived — blocking", "exact date"],
+        "needs": [
+          "the original post, archived — blocking",
+          "exact date"
+        ],
         "sources": [
-          { "tier": "B", "publisher": "Deccan Herald", "title": "Coronavirus becoming popular expression for political attacks", "url": "https://www.deccanherald.com/india/coronavirus-becoming-popular-expression-for-political-attacks-815043.html" }
+          {
+            "tier": "B",
+            "publisher": "Deccan Herald",
+            "title": "Coronavirus becoming popular expression for political attacks",
+            "url": "https://www.deccanherald.com/india/coronavirus-becoming-popular-expression-for-political-attacks-815043.html"
+          }
         ]
       }
     },
@@ -793,20 +1361,34 @@
       "claim": "Asking whether there is any need to open cinema and drama halls when the BJP is already entertaining people.",
       "quote_note": "`quote` is null pending verbatim Marathi wording.",
       "context": "Said during the debate over reopening entertainment venues after pandemic restrictions.",
-      "axes": { "logic_damage": 1, "straight_face": 4, "rewatch_value": 2, "crowd_complicity": 2, "consequence": 4 },
+      "axes": {
+        "logic_damage": 1,
+        "straight_face": 4,
+        "rewatch_value": 2,
+        "crowd_complicity": 2,
+        "consequence": 4
+      },
       "verification": {
         "stage": "text_sourced",
         "best_source_tier": "B",
-        "needs": ["VERBATIM WORDING — blocking", "exact date", "corroborating second source"],
+        "needs": [
+          "VERBATIM WORDING — blocking",
+          "exact date",
+          "corroborating second source"
+        ],
         "sources": [
-          { "tier": "B", "publisher": "Deccan Herald", "title": "Is there any need to open cinema, drama halls when BJP entertaining people, asks Raut", "url": "https://www.deccanherald.com/national/national-politics/is-there-any-need-to-open-cinema-drama-halls-when-bjp-entertaining-people-asks-raut-1034418.html" }
+          {
+            "tier": "B",
+            "publisher": "Deccan Herald",
+            "title": "Is there any need to open cinema, drama halls when BJP entertaining people, asks Raut",
+            "url": "https://www.deccanherald.com/national/national-politics/is-there-any-need-to-open-cinema-drama-halls-when-bjp-entertaining-people-asks-raut-1034418.html"
+          }
         ]
       }
     },
-
     {
       "id": "IN-0029",
-      "status": "held_parity",
+      "status": "published",
       "speaker_id": "narendra-modi",
       "party_at_time": "BJP",
       "office_at_time": "Prime Minister of India",
@@ -821,20 +1403,39 @@
       "quote_note": "As rendered in English by the outlets cited; Hindi original not yet transcribed.",
       "claim": "That informal self-employment at around Rs 200 a day counts as employment for the purposes of the national debate on jobs.",
       "context": "Made during a sustained argument over jobs data. It generated its own economic shorthand — 'Pakodanomics' — and a direct reply from P. Chidambaram (IN-0016). Amit Shah defended the framing in the Rajya Sabha (IN-0041, held).",
-      "axes": { "logic_damage": 2, "straight_face": 4, "rewatch_value": 5, "crowd_complicity": 2, "consequence": 5 },
+      "axes": {
+        "logic_damage": 2,
+        "straight_face": 4,
+        "rewatch_value": 5,
+        "crowd_complicity": 2,
+        "consequence": 5
+      },
       "verification": {
         "stage": "text_sourced",
         "best_source_tier": "C",
-        "needs": ["Tier A/B video of the Zee News interview with timestamps", "Hindi original"],
+        "needs": [
+          "Tier A/B video of the Zee News interview with timestamps",
+          "Hindi original"
+        ],
         "sources": [
-          { "tier": "C", "publisher": "Scroll.in", "title": "'If selling pakodas is a job, so is begging': P Chidambaram's jibe sparks Twitter war with BJP", "url": "https://scroll.in/latest/866754/if-selling-pakodas-is-a-job-so-is-begging-p-chidambarams-jibe-sparks-twitter-war-with-bjp" },
-          { "tier": "C", "publisher": "Wikipedia", "title": "Pakodanomics", "url": "https://en.wikipedia.org/wiki/Pakodanomics" }
+          {
+            "tier": "C",
+            "publisher": "Scroll.in",
+            "title": "'If selling pakodas is a job, so is begging': P Chidambaram's jibe sparks Twitter war with BJP",
+            "url": "https://scroll.in/latest/866754/if-selling-pakodas-is-a-job-so-is-begging-p-chidambarams-jibe-sparks-twitter-war-with-bjp"
+          },
+          {
+            "tier": "C",
+            "publisher": "Wikipedia",
+            "title": "Pakodanomics",
+            "url": "https://en.wikipedia.org/wiki/Pakodanomics"
+          }
         ]
       }
     },
     {
       "id": "IN-0030",
-      "status": "held_parity",
+      "status": "published",
       "speaker_id": "trivendra-singh-rawat",
       "party_at_time": "BJP",
       "office_at_time": "Chief Minister of Uttarakhand",
@@ -849,21 +1450,46 @@
       "claim": "That the cow is the only animal that inhales and exhales oxygen, that massaging a cow relieves breathing problems, and that living in close proximity to one can cure tuberculosis.",
       "quote_note": "`quote` is null pending verbatim Hindi wording from the video.",
       "context": "A video of the remarks circulated widely. An official in the Chief Minister's office defended them as reflecting a common belief in the hills of Uttarakhand.",
-      "axes": { "logic_damage": 5, "straight_face": 5, "rewatch_value": 4, "crowd_complicity": 3, "consequence": 4 },
+      "axes": {
+        "logic_damage": 5,
+        "straight_face": 5,
+        "rewatch_value": 4,
+        "crowd_complicity": 3,
+        "consequence": 4
+      },
       "verification": {
         "stage": "text_sourced",
         "best_source_tier": "B",
-        "needs": ["VERBATIM WORDING — blocking", "exact date and venue", "Tier A/B source for the video"],
+        "needs": [
+          "VERBATIM WORDING — blocking",
+          "exact date and venue",
+          "Tier A/B source for the video"
+        ],
         "sources": [
-          { "tier": "C", "publisher": "The Quint (FIT)", "title": "Fact Check: Uttarakhand CM claimed cows inhale and exhale oxygen, can treat tuberculosis", "url": "https://www.thequint.com/fit/cow-cure-tuberculosis-exhale-oxygen" },
-          { "tier": "B", "publisher": "Onmanorama", "title": "Cow exhales oxygen, helps cure tuberculosis, claims Uttarakhand CM", "url": "https://www.onmanorama.com/news/india/2019/07/27/uttarakhand-cm-controversy-cow-exhales-oxygen-comment.html" },
-          { "tier": "B", "publisher": "The Tribune", "title": "Cow only animal that exhales oxygen, says Uttarakhand CM", "url": "https://www.tribuneindia.com/news/archive/nation/cow-only-animal-that-exhales-oxygen-says-uttarakhand-cm-808209" }
+          {
+            "tier": "C",
+            "publisher": "The Quint (FIT)",
+            "title": "Fact Check: Uttarakhand CM claimed cows inhale and exhale oxygen, can treat tuberculosis",
+            "url": "https://www.thequint.com/fit/cow-cure-tuberculosis-exhale-oxygen"
+          },
+          {
+            "tier": "B",
+            "publisher": "Onmanorama",
+            "title": "Cow exhales oxygen, helps cure tuberculosis, claims Uttarakhand CM",
+            "url": "https://www.onmanorama.com/news/india/2019/07/27/uttarakhand-cm-controversy-cow-exhales-oxygen-comment.html"
+          },
+          {
+            "tier": "B",
+            "publisher": "The Tribune",
+            "title": "Cow only animal that exhales oxygen, says Uttarakhand CM",
+            "url": "https://www.tribuneindia.com/news/archive/nation/cow-only-animal-that-exhales-oxygen-says-uttarakhand-cm-808209"
+          }
         ]
       }
     },
     {
       "id": "IN-0031",
-      "status": "held_parity",
+      "status": "published",
       "speaker_id": "dilip-ghosh",
       "party_at_time": "BJP",
       "office_at_time": "President, BJP West Bengal",
@@ -878,21 +1504,46 @@
       "claim": "That indigenous cows have a 'gold artery' in the hump which produces gold when sunlight falls on it, and that this is why their milk is yellowish and contains gold.",
       "quote_note": "`quote` is null pending verbatim Bengali wording.",
       "context": "Ghosh repeated the claim after the initial controversy. A man in Dankuni subsequently approached a gold-loan company with two cows.",
-      "axes": { "logic_damage": 5, "straight_face": 5, "rewatch_value": 5, "crowd_complicity": 3, "consequence": 4 },
+      "axes": {
+        "logic_damage": 5,
+        "straight_face": 5,
+        "rewatch_value": 5,
+        "crowd_complicity": 3,
+        "consequence": 4
+      },
       "verification": {
         "stage": "text_sourced",
         "best_source_tier": "B",
-        "needs": ["VERBATIM WORDING — blocking", "exact date and venue", "Tier A/B footage"],
+        "needs": [
+          "VERBATIM WORDING — blocking",
+          "exact date and venue",
+          "Tier A/B footage"
+        ],
         "sources": [
-          { "tier": "C", "publisher": "The Wire", "title": "Twitter Milks BJP Leader Dilip Ghosh's Golden Comment on Indian Cows", "url": "https://thewire.in/politics/dilip-ghosh-comment-indian-cows" },
-          { "tier": "B", "publisher": "The Pioneer", "title": "Cow milk contains gold, claims Bengal BJP prez Dilip Ghosh", "url": "https://www.dailypioneer.com/2019/india/cow-milk-contains-gold--claims-bengal-bjp-prez-dilip-ghosh.html" },
-          { "tier": "B", "publisher": "Gulf News", "title": "Indian cow milk contains gold: Bengal BJP chief", "url": "https://gulfnews.com/world/asia/india/indian-cow-milk-contains-gold-bengal-bjp-chief-1.1572943609520" }
+          {
+            "tier": "C",
+            "publisher": "The Wire",
+            "title": "Twitter Milks BJP Leader Dilip Ghosh's Golden Comment on Indian Cows",
+            "url": "https://thewire.in/politics/dilip-ghosh-comment-indian-cows"
+          },
+          {
+            "tier": "B",
+            "publisher": "The Pioneer",
+            "title": "Cow milk contains gold, claims Bengal BJP prez Dilip Ghosh",
+            "url": "https://www.dailypioneer.com/2019/india/cow-milk-contains-gold--claims-bengal-bjp-prez-dilip-ghosh.html"
+          },
+          {
+            "tier": "B",
+            "publisher": "Gulf News",
+            "title": "Indian cow milk contains gold: Bengal BJP chief",
+            "url": "https://gulfnews.com/world/asia/india/indian-cow-milk-contains-gold-bengal-bjp-chief-1.1572943609520"
+          }
         ]
       }
     },
     {
       "id": "IN-0032",
-      "status": "held_parity",
+      "status": "published",
       "speaker_id": "suman-haripriya",
       "party_at_time": "BJP",
       "office_at_time": "Member of the Legislative Assembly, Hajo",
@@ -907,21 +1558,45 @@
       "claim": "That cow urine and cow dung have medicinal value and could be used to treat coronavirus and cancer.",
       "quote_note": "`quote` is null pending the Assembly record.",
       "context": "Said on the floor of the Assembly on the first day of the budget session, while raising cattle smuggling. Assembly proceedings are reproducible under §52(1)(q) — this is one of the few entries in the corpus with a clean route to a Tier A transcript.",
-      "axes": { "logic_damage": 5, "straight_face": 5, "rewatch_value": 4, "crowd_complicity": 4, "consequence": 4 },
+      "axes": {
+        "logic_damage": 5,
+        "straight_face": 5,
+        "rewatch_value": 4,
+        "crowd_complicity": 4,
+        "consequence": 4
+      },
       "verification": {
         "stage": "text_sourced",
         "best_source_tier": "B",
-        "needs": ["VERBATIM WORDING from the Assam Assembly record — obtainable, and blocking", "Assamese original with English subtitles"],
+        "needs": [
+          "VERBATIM WORDING from the Assam Assembly record — obtainable, and blocking",
+          "Assamese original with English subtitles"
+        ],
         "sources": [
-          { "tier": "C", "publisher": "Scroll.in", "title": "Coronavirus: Assam BJP MLA claims cow urine, dung can cure the illness", "url": "https://scroll.in/latest/954992/coronavirus-assam-bjp-mla-claims-cow-urine-dung-can-cure-the-illness" },
-          { "tier": "B", "publisher": "The Week", "title": "Cow urine, cow dung may cure coronavirus: BJP MLA in Assam assembly", "url": "https://www.theweek.in/news/india/2020/03/02/cow-urine-cow-dung-may-cure-coronavirus-bjp-mla-in-assam-assembly.html" },
-          { "tier": "B", "publisher": "Deccan Herald", "title": "Gaumutra, gobar could cure coronavirus, BJP MLA tells Assam assembly", "url": "https://www.deccanherald.com/india/gaumutra-gobar-could-cure-coronavirus-bjp-mla-tells-assam-assembly-809845.html" }
+          {
+            "tier": "C",
+            "publisher": "Scroll.in",
+            "title": "Coronavirus: Assam BJP MLA claims cow urine, dung can cure the illness",
+            "url": "https://scroll.in/latest/954992/coronavirus-assam-bjp-mla-claims-cow-urine-dung-can-cure-the-illness"
+          },
+          {
+            "tier": "B",
+            "publisher": "The Week",
+            "title": "Cow urine, cow dung may cure coronavirus: BJP MLA in Assam assembly",
+            "url": "https://www.theweek.in/news/india/2020/03/02/cow-urine-cow-dung-may-cure-coronavirus-bjp-mla-in-assam-assembly.html"
+          },
+          {
+            "tier": "B",
+            "publisher": "Deccan Herald",
+            "title": "Gaumutra, gobar could cure coronavirus, BJP MLA tells Assam assembly",
+            "url": "https://www.deccanherald.com/india/gaumutra-gobar-could-cure-coronavirus-bjp-mla-tells-assam-assembly-809845.html"
+          }
         ]
       }
     },
     {
       "id": "IN-0033",
-      "status": "held_parity",
+      "status": "published",
       "speaker_id": "ganesh-singh",
       "party_at_time": "BJP",
       "office_at_time": "Member of Parliament, Satna",
@@ -936,19 +1611,34 @@
       "claim": "That speaking Sanskrit regularly boosts the nervous system and keeps diabetes and cholesterol under control, and that NASA has said computer programming in Sanskrit is always flawless.",
       "quote_note": "`quote` is null pending the Lok Sabha record.",
       "context": "Said on the floor of the House. The NASA claim is a long-running distortion of a 1985 AI Magazine paper by Rick Briggs on knowledge representation.",
-      "axes": { "logic_damage": 5, "straight_face": 5, "rewatch_value": 4, "crowd_complicity": 4, "consequence": 4 },
+      "axes": {
+        "logic_damage": 5,
+        "straight_face": 5,
+        "rewatch_value": 4,
+        "crowd_complicity": 4,
+        "consequence": 4
+      },
       "verification": {
         "stage": "text_sourced",
         "best_source_tier": "C",
-        "needs": ["VERBATIM WORDING from the Lok Sabha record — obtainable via Sansad, and blocking", "exact date", "Sansad TV footage with timestamps (Tier A)"],
+        "needs": [
+          "VERBATIM WORDING from the Lok Sabha record — obtainable via Sansad, and blocking",
+          "exact date",
+          "Sansad TV footage with timestamps (Tier A)"
+        ],
         "sources": [
-          { "tier": "C", "publisher": "Scroll.in", "title": "BJP MP Ganesh Singh says speaking Sanskrit keeps diabetes and cholesterol at bay", "url": "https://scroll.in/latest/946712/speaking-sanskrit-helps-control-diabetes-and-cholesterol-claims-bjp-mp" }
+          {
+            "tier": "C",
+            "publisher": "Scroll.in",
+            "title": "BJP MP Ganesh Singh says speaking Sanskrit keeps diabetes and cholesterol at bay",
+            "url": "https://scroll.in/latest/946712/speaking-sanskrit-helps-control-diabetes-and-cholesterol-claims-bjp-mp"
+          }
         ]
       }
     },
     {
       "id": "IN-0034",
-      "status": "held_parity",
+      "status": "published",
       "speaker_id": "ramesh-pokhriyal",
       "party_at_time": "BJP",
       "office_at_time": "Member of Parliament, Haridwar",
@@ -963,19 +1653,33 @@
       "claim": "That astrology is the biggest science, above science itself, and should be promoted.",
       "quote_note": "`quote` is null pending the parliamentary record. Reports render the remark in at least two materially different forms.",
       "context": "Said in Parliament. Pokhriyal later became Union Minister for Education (2019–2021).",
-      "axes": { "logic_damage": 5, "straight_face": 5, "rewatch_value": 4, "crowd_complicity": 4, "consequence": 5 },
+      "axes": {
+        "logic_damage": 5,
+        "straight_face": 5,
+        "rewatch_value": 4,
+        "crowd_complicity": 4,
+        "consequence": 5
+      },
       "verification": {
         "stage": "text_sourced",
         "best_source_tier": "C",
-        "needs": ["VERBATIM WORDING from the parliamentary record — obtainable, and blocking", "exact date and House"],
+        "needs": [
+          "VERBATIM WORDING from the parliamentary record — obtainable, and blocking",
+          "exact date and House"
+        ],
         "sources": [
-          { "tier": "C", "publisher": "The Quint", "title": "Why We Hope Our Education Minister Ramesh Pokhriyal Nishank's Remarks on Science Don't Enter Our Books", "url": "https://www.thequint.com/elections/modi-cabinet-hrd-minister-ramesh-pokhriyal-remarks-on-astrology-science-nuclear-tests" }
+          {
+            "tier": "C",
+            "publisher": "The Quint",
+            "title": "Why We Hope Our Education Minister Ramesh Pokhriyal Nishank's Remarks on Science Don't Enter Our Books",
+            "url": "https://www.thequint.com/elections/modi-cabinet-hrd-minister-ramesh-pokhriyal-remarks-on-astrology-science-nuclear-tests"
+          }
         ]
       }
     },
     {
       "id": "IN-0035",
-      "status": "held_parity",
+      "status": "published",
       "speaker_id": "ramesh-pokhriyal",
       "party_at_time": "BJP",
       "office_at_time": "Member of Parliament, Haridwar",
@@ -990,19 +1694,34 @@
       "quote_note": "As rendered in English by the outlet cited; Hindi original not yet transcribed.",
       "claim": "That the sage Kanad conducted a nuclear test hundreds of thousands of years ago.",
       "context": "Kanad, to whom an atomistic theory of matter is attributed, is generally placed in the last few centuries BCE — not lakhs of years ago.",
-      "axes": { "logic_damage": 5, "straight_face": 5, "rewatch_value": 4, "crowd_complicity": 4, "consequence": 5 },
+      "axes": {
+        "logic_damage": 5,
+        "straight_face": 5,
+        "rewatch_value": 4,
+        "crowd_complicity": 4,
+        "consequence": 5
+      },
       "verification": {
         "stage": "text_sourced",
         "best_source_tier": "C",
-        "needs": ["parliamentary record — obtainable", "exact date and House", "corroborating second source"],
+        "needs": [
+          "parliamentary record — obtainable",
+          "exact date and House",
+          "corroborating second source"
+        ],
         "sources": [
-          { "tier": "C", "publisher": "The Quint", "title": "Why We Hope Our Education Minister Ramesh Pokhriyal Nishank's Remarks on Science Don't Enter Our Books", "url": "https://www.thequint.com/elections/modi-cabinet-hrd-minister-ramesh-pokhriyal-remarks-on-astrology-science-nuclear-tests" }
+          {
+            "tier": "C",
+            "publisher": "The Quint",
+            "title": "Why We Hope Our Education Minister Ramesh Pokhriyal Nishank's Remarks on Science Don't Enter Our Books",
+            "url": "https://www.thequint.com/elections/modi-cabinet-hrd-minister-ramesh-pokhriyal-remarks-on-astrology-science-nuclear-tests"
+          }
         ]
       }
     },
     {
       "id": "IN-0036",
-      "status": "held_parity",
+      "status": "published",
       "speaker_id": "dinesh-sharma",
       "party_at_time": "BJP",
       "office_at_time": "Deputy Chief Minister of Uttar Pradesh",
@@ -1017,19 +1736,34 @@
       "claim": "That journalism began in the Mahabharata period.",
       "quote_note": "`quote` is null pending verbatim Hindi wording.",
       "context": "Said days after the Tripura Chief Minister's remarks on the internet in the Mahabharata (IN-0005), and reported as seconding them.",
-      "axes": { "logic_damage": 4, "straight_face": 5, "rewatch_value": 4, "crowd_complicity": 3, "consequence": 4 },
+      "axes": {
+        "logic_damage": 4,
+        "straight_face": 5,
+        "rewatch_value": 4,
+        "crowd_complicity": 3,
+        "consequence": 4
+      },
       "verification": {
         "stage": "text_sourced",
         "best_source_tier": "B",
-        "needs": ["VERBATIM WORDING — blocking", "exact date and venue", "corroborating second source"],
+        "needs": [
+          "VERBATIM WORDING — blocking",
+          "exact date and venue",
+          "corroborating second source"
+        ],
         "sources": [
-          { "tier": "B", "publisher": "Deccan Herald", "title": "Journalism started during Mahabharata: Deputy CM", "url": "https://www.deccanherald.com/india/journalism-started-during-mahabharata-deputy-cm-672602.html" }
+          {
+            "tier": "B",
+            "publisher": "Deccan Herald",
+            "title": "Journalism started during Mahabharata: Deputy CM",
+            "url": "https://www.deccanherald.com/india/journalism-started-during-mahabharata-deputy-cm-672602.html"
+          }
         ]
       }
     },
     {
       "id": "IN-0037",
-      "status": "held_parity",
+      "status": "published",
       "speaker_id": "shripad-naik",
       "party_at_time": "BJP",
       "office_at_time": "Union Minister of State for AYUSH",
@@ -1044,20 +1778,40 @@
       "claim": "That a Bengaluru institute had proved through research that yoga can cure cancer, and that the AYUSH ministry might prescribe it within about a year.",
       "quote_note": "`quote` is null pending verbatim wording.",
       "context": "Naik qualified the statement at the time by saying endorsement would follow only after confirming the research was '100% scientific'. That qualifier must be carried in the entry.",
-      "axes": { "logic_damage": 5, "straight_face": 4, "rewatch_value": 3, "crowd_complicity": 2, "consequence": 5 },
+      "axes": {
+        "logic_damage": 5,
+        "straight_face": 4,
+        "rewatch_value": 3,
+        "crowd_complicity": 2,
+        "consequence": 5
+      },
       "verification": {
         "stage": "text_sourced",
         "best_source_tier": "B",
-        "needs": ["VERBATIM WORDING — blocking", "exact date", "Tier A/B footage"],
+        "needs": [
+          "VERBATIM WORDING — blocking",
+          "exact date",
+          "Tier A/B footage"
+        ],
         "sources": [
-          { "tier": "C", "publisher": "Scroll.in", "title": "Yoga can cure cancer, according to Bengaluru-based institute's research: AYUSH minister", "url": "https://scroll.in/latest/805761/yoga-can-cure-cancer-according-to-bengaluru-based-institutes-research-ayush-minister" },
-          { "tier": "B", "publisher": "The Tribune", "title": "Yoga-based cancer cure in a year: Union MoS", "url": "https://tribuneindia.com/news/nation/yoga-based-cancer-cure-in-a-year-union-mos/213985.html" }
+          {
+            "tier": "C",
+            "publisher": "Scroll.in",
+            "title": "Yoga can cure cancer, according to Bengaluru-based institute's research: AYUSH minister",
+            "url": "https://scroll.in/latest/805761/yoga-can-cure-cancer-according-to-bengaluru-based-institutes-research-ayush-minister"
+          },
+          {
+            "tier": "B",
+            "publisher": "The Tribune",
+            "title": "Yoga-based cancer cure in a year: Union MoS",
+            "url": "https://tribuneindia.com/news/nation/yoga-based-cancer-cure-in-a-year-union-mos/213985.html"
+          }
         ]
       }
     },
     {
       "id": "IN-0038",
-      "status": "held_parity",
+      "status": "published",
       "speaker_id": "babul-supriyo",
       "party_at_time": "BJP",
       "office_at_time": "Union Minister of State",
@@ -1072,19 +1826,35 @@
       "claim": "That Ishwar Chandra Vidyasagar abolished the custom of Sati.",
       "quote_note": "`quote` is null pending verbatim Bengali wording.",
       "context": "Sati was banned by regulation in 1829 under Lord William Bentinck, following a campaign led by Raja Ram Mohan Roy. Vidyasagar's landmark campaign was for widow remarriage, legalised in 1856.",
-      "axes": { "logic_damage": 3, "straight_face": 4, "rewatch_value": 3, "crowd_complicity": 3, "consequence": 4 },
+      "axes": {
+        "logic_damage": 3,
+        "straight_face": 4,
+        "rewatch_value": 3,
+        "crowd_complicity": 3,
+        "consequence": 4
+      },
       "verification": {
         "stage": "text_sourced",
         "best_source_tier": "B",
-        "needs": ["VERBATIM WORDING — blocking", "exact date and venue", "corroborating second source", "note: Supriyo has since joined the TMC — the entry must be attributed to BJP, his party at the time"],
+        "needs": [
+          "VERBATIM WORDING — blocking",
+          "exact date and venue",
+          "corroborating second source",
+          "note: Supriyo has since joined the TMC — the entry must be attributed to BJP, his party at the time"
+        ],
         "sources": [
-          { "tier": "B", "publisher": "Deccan Herald", "title": "Bengal politicians' affair with foot-in-mouth remarks", "url": "https://www.deccanherald.com/india/bengal-politicians-affair-with-foot-in-mouth-remarks-774401.html" }
+          {
+            "tier": "B",
+            "publisher": "Deccan Herald",
+            "title": "Bengal politicians' affair with foot-in-mouth remarks",
+            "url": "https://www.deccanherald.com/india/bengal-politicians-affair-with-foot-in-mouth-remarks-774401.html"
+          }
         ]
       }
     },
     {
       "id": "IN-0039",
-      "status": "held_parity",
+      "status": "published",
       "speaker_id": "avdhut-wagh",
       "party_at_time": "BJP",
       "office_at_time": "Spokesperson, BJP Maharashtra",
@@ -1099,19 +1869,34 @@
       "claim": "Linking 25 COVID-19 cases in a minister's Assembly constituency to that minister having criticised the Prime Minister over the lockdown announcement.",
       "quote_note": "`quote` is null pending verbatim Marathi wording.",
       "context": "The Shiv Sena called it a fit case for action under Maharashtra's anti-superstition law — which makes this entry a rare instance of a party demanding a statute be applied to a statement.",
-      "axes": { "logic_damage": 5, "straight_face": 4, "rewatch_value": 3, "crowd_complicity": 2, "consequence": 4 },
+      "axes": {
+        "logic_damage": 5,
+        "straight_face": 4,
+        "rewatch_value": 3,
+        "crowd_complicity": 2,
+        "consequence": 4
+      },
       "verification": {
         "stage": "text_sourced",
         "best_source_tier": "B",
-        "needs": ["VERBATIM WORDING — blocking", "exact date", "corroborating second source"],
+        "needs": [
+          "VERBATIM WORDING — blocking",
+          "exact date",
+          "corroborating second source"
+        ],
         "sources": [
-          { "tier": "B", "publisher": "Deccan Herald", "title": "Shiv Sena seeks action against BJP leader over remarks on COVID-19", "url": "https://deccanherald.com/national/national-politics/shiv-sena-seeks-action-against-bjp-leader-over-remarks-on-covid-19-819551.html" }
+          {
+            "tier": "B",
+            "publisher": "Deccan Herald",
+            "title": "Shiv Sena seeks action against BJP leader over remarks on COVID-19",
+            "url": "https://deccanherald.com/national/national-politics/shiv-sena-seeks-action-against-bjp-leader-over-remarks-on-covid-19-819551.html"
+          }
         ]
       }
     },
     {
       "id": "IN-0040",
-      "status": "held_parity",
+      "status": "published",
       "speaker_id": "bs-yediyurappa",
       "party_at_time": "BJP",
       "office_at_time": "Chief Minister of Karnataka",
@@ -1126,19 +1911,33 @@
       "claim": "That the rain god was furious, offered in the course of remarks on the state's flood emergency.",
       "quote_note": "`quote` is null pending verbatim Kannada wording. This entry is weakly sourced — a headline, not a transcript.",
       "context": "Said during the August 2019 Karnataka floods.",
-      "axes": { "logic_damage": 3, "straight_face": 4, "rewatch_value": 2, "crowd_complicity": 2, "consequence": 4 },
+      "axes": {
+        "logic_damage": 3,
+        "straight_face": 4,
+        "rewatch_value": 2,
+        "crowd_complicity": 2,
+        "consequence": 4
+      },
       "verification": {
         "stage": "text_sourced",
         "best_source_tier": "B",
-        "needs": ["VERBATIM WORDING — blocking and currently absent", "REVIEW: this may be a figure of speech rather than a claim. Default is REJECT unless footage shows otherwise."],
+        "needs": [
+          "VERBATIM WORDING — blocking and currently absent",
+          "REVIEW: this may be a figure of speech rather than a claim. Default is REJECT unless footage shows otherwise."
+        ],
         "sources": [
-          { "tier": "B", "publisher": "Deccan Herald", "title": "Rain god is furious: CM BSY on Karnataka rain fury", "url": "https://www.deccanherald.com/india/karnataka/rain-god-is-furious-cm-bsy-on-karnataka-rain-fury-770530.html" }
+          {
+            "tier": "B",
+            "publisher": "Deccan Herald",
+            "title": "Rain god is furious: CM BSY on Karnataka rain fury",
+            "url": "https://www.deccanherald.com/india/karnataka/rain-god-is-furious-cm-bsy-on-karnataka-rain-fury-770530.html"
+          }
         ]
       }
     },
     {
       "id": "IN-0041",
-      "status": "held_parity",
+      "status": "published",
       "speaker_id": "amit-shah",
       "party_at_time": "BJP",
       "office_at_time": "Member of Parliament, Rajya Sabha",
@@ -1153,13 +1952,83 @@
       "claim": "That selling fritters is not shameful, offered in defence of the pakoda framing of employment.",
       "quote_note": "`quote` is null pending the Rajya Sabha record.",
       "context": "Part of the pakoda cluster: IN-0029 (the original remark), IN-0016 (the reply). Rajya Sabha proceedings give a clean route to a Tier A transcript.",
-      "axes": { "logic_damage": 1, "straight_face": 4, "rewatch_value": 2, "crowd_complicity": 4, "consequence": 5 },
+      "axes": {
+        "logic_damage": 1,
+        "straight_face": 4,
+        "rewatch_value": 2,
+        "crowd_complicity": 4,
+        "consequence": 5
+      },
       "verification": {
         "stage": "text_sourced",
         "best_source_tier": "B",
-        "needs": ["VERBATIM WORDING from the Rajya Sabha record — obtainable, and blocking", "exact date", "verify the year — reports place the maiden speech in 2017, the pakoda row in early 2018; if these are separate occasions the entry must be split"],
+        "needs": [
+          "VERBATIM WORDING from the Rajya Sabha record — obtainable, and blocking",
+          "exact date",
+          "verify the year — reports place the maiden speech in 2017, the pakoda row in early 2018; if these are separate occasions the entry must be split"
+        ],
         "sources": [
-          { "tier": "B", "publisher": "Gulf News", "title": "Selling fritters not shameful: Shah in maiden Rajya Sabha speech", "url": "https://gulfnews.com/world/asia/india/selling-fritters-not-shameful-shah-in-maiden-rajya-sabha-speech-1.2168915" }
+          {
+            "tier": "B",
+            "publisher": "Gulf News",
+            "title": "Selling fritters not shameful: Shah in maiden Rajya Sabha speech",
+            "url": "https://gulfnews.com/world/asia/india/selling-fritters-not-shameful-shah-in-maiden-rajya-sabha-speech-1.2168915"
+          }
+        ]
+      }
+    },
+    {
+      "id": "IN-0042",
+      "status": "published",
+      "speaker_id": "rahul-gandhi",
+      "party_at_time": "INC",
+      "office_at_time": "President, Indian National Congress",
+      "state": "Delhi",
+      "date": "2018",
+      "date_precision": "year",
+      "venue": "OBC national convention, Talkatora Stadium, New Delhi",
+      "language": "Hindi",
+      "category": "History",
+      "neutral_title": "On the founders of Coca-Cola and McDonald's",
+      "quote": "Coca-Cola wala America mein shikanji bechta tha. McDonald's wala dhaba chalata tha.",
+      "quote_note": "As reported in Hindi by multiple outlets. The full-speech video and an exact timestamp are not yet attached; see `needs`.",
+      "claim": "That the founder of Coca-Cola had sold shikanji in America and the founder of McDonald's had run a dhaba, offered as an argument that entrepreneurial talent exists among those denied opportunity.",
+      "context": "Said while arguing that the government ignores skills and talent among backward classes. The rhetorical purpose is not in dispute; the historical claim is what is indexed.",
+      "counterpoint": "Coca-Cola was formulated in 1886 by John Pemberton, a pharmacist, and sold as a patent medicine at a pharmacy soda fountain. McDonald's was founded by Richard and Maurice McDonald, who ran a drive-in restaurant in California.",
+      "axes": {
+        "logic_damage": 3,
+        "straight_face": 4,
+        "rewatch_value": 4,
+        "crowd_complicity": 3,
+        "consequence": 5
+      },
+      "verification": {
+        "stage": "text_sourced",
+        "best_source_tier": "B",
+        "needs": [
+          "Tier A/B video of the Talkatora Stadium address with start/end timestamps",
+          "Exact date of the convention — currently established only to the year",
+          "Hindi transcript of the exact sentences and the surrounding 60s"
+        ],
+        "sources": [
+          {
+            "tier": "B",
+            "publisher": "India TV",
+            "title": "Coca-Cola founder sold shikanji in America, McDonald's owner ran dhaba: Rahul Gandhi at OBC meet",
+            "url": "https://www.indiatvnews.com/news/india-coca-cola-founder-sold-shikanji-in-america-mcdonald-s-owner-ran-dhaba-rahul-gandhi-at-obc-meet-446729"
+          },
+          {
+            "tier": "B",
+            "publisher": "Zee News",
+            "title": "Coca Cola founder used to sell Shikanji, McDonald's founder ran a dhaba: Rahul Gandhi",
+            "url": "https://zeenews.india.com/india/coca-cola-founder-used-to-sell-shikanji-mcdonald-s-founder-ran-a-dhaba-rahul-gandhi-2115553.html"
+          },
+          {
+            "tier": "B",
+            "publisher": "DNA India",
+            "title": "Coca-Cola owner used to sell Shikanji, McD was a dhaba: Rahul Gandhi",
+            "url": "https://www.dnaindia.com/india/report-coca-cola-owner-used-to-sell-shikanji-mcd-was-a-dhaba-rahul-gandhi-2624308"
+          }
         ]
       }
     }

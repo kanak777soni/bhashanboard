@@ -133,7 +133,12 @@ const pubParty = tally(published.map((r) => r.s));
 for (const [party, n] of pubParty) {
   const share = n / N;
   if (share > PARTY_CAP + 1e-9) {
-    err("PARITY", `${party} is ${(share * 100).toFixed(1)}% of the published seed — the cap is ${PARTY_CAP * 100}%. Hold entries (status: held_parity) or source more from other parties.`);
+    /* Policy change: an over-represented party is a COVERAGE finding, not a
+       blocking error. Holding entries back to force a balanced-looking board
+       misrepresents what the research found — it edits the display instead of
+       the sampling. Parity now governs how hard we search, not what we show.
+       The imbalance is reported loudly and published on the site instead. */
+    warn("COVERAGE", `${party} is ${(share * 100).toFixed(1)}% of the seed, against a ${PARTY_CAP * 100}% target. This measures where the research looked, not what the parties said. Close it by sourcing more from other parties — never by holding entries back or adjusting ratings.`);
   }
 }
 

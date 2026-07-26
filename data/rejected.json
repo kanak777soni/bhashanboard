@@ -1,6 +1,5 @@
 {
   "$comment": "THE REJECTION LEDGER. Every statement considered for the seed corpus and turned down, with the rule that killed it. This file exists for three reasons: (1) it stops the same well-known clip being re-proposed every week; (2) it is the evidence that the Rules of the Committee are enforced rather than decorative, which is the difference between a moderation policy and a marketing claim; (3) docs/04-legal-and-safety.md §4.5 requires a public correction ledger — this is its sibling and should ship public alongside it. Rule numbers refer to docs/04-legal-and-safety.md §4.8.",
-
   "rules": {
     "1": "Religion, caste, community, ethnicity, region-as-identity",
     "2": "Family, children, health, disability, appearance, personal life",
@@ -12,7 +11,6 @@
     "8": "Statements made in a private capacity, off-record, or secretly recorded",
     "S": "Sourcing failure — attribution not established at Tier A or B (docs/03-content-pipeline.md §3.2)"
   },
-
   "rejected": [
     {
       "descriptor": "Claim that the new Rs 2,000 note contained a trackable 'nano GPS chip'",
@@ -21,8 +19,14 @@
       "rule": "S",
       "ruling": "REJECTED — attribution unverified. This is one of the most-cited items in every 'foolish statements' listicle, and no Tier A or B source could be found attributing it to any named politician. It circulated as a WhatsApp forward and was denied by the RBI. The Committee does not index a claim it cannot attach to a person on the record. Do not re-propose without a primary clip.",
       "sources": [
-        { "publisher": "Scroll.in", "url": "https://scroll.in/article/821078/no-the-new-rs-2000-note-will-not-have-a-nano-gps-chip-that-can-track-it-anywhere" },
-        { "publisher": "The News Minute", "url": "https://www.thenewsminute.com/article/rbi-rubbishes-rumours-gps-tracking-chip-rs-2000-note-52652" }
+        {
+          "publisher": "Scroll.in",
+          "url": "https://scroll.in/article/821078/no-the-new-rs-2000-note-will-not-have-a-nano-gps-chip-that-can-track-it-anywhere"
+        },
+        {
+          "publisher": "The News Minute",
+          "url": "https://www.thenewsminute.com/article/rbi-rubbishes-rumours-gps-tracking-chip-rs-2000-note-52652"
+        }
       ]
     },
     {
@@ -32,7 +36,10 @@
       "rule": "3",
       "ruling": "REJECTED — slip of the tongue. The reported figure is off by a factor of a thousand from any plausible intended figure, which is the signature of a misspoken unit, not of a claim. The archive ranks arguments, not mouths. This is the single most common category of proposal and it is a standing no.",
       "sources": [
-        { "publisher": "Deccan Herald", "url": "https://www.deccanherald.com/india/bengal-politicians-affair-with-foot-in-mouth-remarks-774401.html" }
+        {
+          "publisher": "Deccan Herald",
+          "url": "https://www.deccanherald.com/india/bengal-politicians-affair-with-foot-in-mouth-remarks-774401.html"
+        }
       ]
     },
     {
@@ -42,7 +49,10 @@
       "rule": "3",
       "ruling": "REJECTED — spelling slip. Same rule as above. A typo is not an argument.",
       "sources": [
-        { "publisher": "Asianet Newsable", "url": "https://newsable.asianetnews.com/kerala-news/kerala-minister-pk-kunhalikutty-misspells-state-name-in-viral-video-kaaralam-spelling-slip-at-ai-summit-gets-trolled-articleshow-w8rm85s" }
+        {
+          "publisher": "Asianet Newsable",
+          "url": "https://newsable.asianetnews.com/kerala-news/kerala-minister-pk-kunhalikutty-misspells-state-name-in-viral-video-kaaralam-spelling-slip-at-ai-summit-gets-trolled-articleshow-w8rm85s"
+        }
       ]
     },
     {
@@ -52,7 +62,10 @@
       "rule": "1",
       "ruling": "REJECTED — ethnicity and appearance. One of the most-viewed political remarks of 2024 and therefore one of the most-proposed. It is squarely inside Rule 1 and squarely inside Rule 2. Indexing it would put the archive in the business of ranking statements about how communities look, which is the exact thing that ends the project.",
       "sources": [
-        { "publisher": "Deccan Herald", "url": "https://www.deccanherald.com/india/foot-in-the-mouth-eccentric-quotes-by-politicians-that-made-headlines-in-2024-3337145" }
+        {
+          "publisher": "Deccan Herald",
+          "url": "https://www.deccanherald.com/india/foot-in-the-mouth-eccentric-quotes-by-politicians-that-made-headlines-in-2024-3337145"
+        }
       ]
     },
     {
@@ -62,7 +75,10 @@
       "rule": "1",
       "ruling": "REJECTED — religion. Also engaged Rule 7 at the time, with proceedings pending. Not a close call.",
       "sources": [
-        { "publisher": "News on AIR", "url": "https://www.newsonair.gov.in/bjp-hits-out-at-tamil-nadu-minister-udhayanidhi-stalins-controversial-remarks-on-sanatana-dharma" }
+        {
+          "publisher": "News on AIR",
+          "url": "https://www.newsonair.gov.in/bjp-hits-out-at-tamil-nadu-minister-udhayanidhi-stalins-controversial-remarks-on-sanatana-dharma"
+        }
       ]
     },
     {
@@ -72,7 +88,10 @@
       "rule": "1",
       "ruling": "REJECTED — religion. The mirror image of a claim the archive would also reject from the other direction. Applying Rule 1 symmetrically is most of what keeps the parity meter honest.",
       "sources": [
-        { "publisher": "Deccan Herald", "url": "https://www.deccanherald.com/india/tamil-nadu/bjp-asks-dmk-to-reach-consensus-on-lord-ram-after-tamil-nadu-ministers-statement-kicks-up-controversy-3135710" }
+        {
+          "publisher": "Deccan Herald",
+          "url": "https://www.deccanherald.com/india/tamil-nadu/bjp-asks-dmk-to-reach-consensus-on-lord-ram-after-tamil-nadu-ministers-statement-kicks-up-controversy-3135710"
+        }
       ]
     },
     {
@@ -82,7 +101,10 @@
       "rule": "1",
       "ruling": "REJECTED — religion and community, with a named district attached.",
       "sources": [
-        { "publisher": "Deccan Herald", "url": "https://www.deccanherald.com/india/kerala/kerala-cpm-distances-itself-from-party-leaders-hijab-remark-2710906" }
+        {
+          "publisher": "Deccan Herald",
+          "url": "https://www.deccanherald.com/india/kerala/kerala-cpm-distances-itself-from-party-leaders-hijab-remark-2710906"
+        }
       ]
     },
     {
@@ -92,7 +114,10 @@
       "rule": "2",
       "ruling": "REJECTED — sexual innuendo directed at named people. High-traffic, and still a no.",
       "sources": [
-        { "publisher": "India TV", "url": "https://www.indiatvnews.com/bihar/news-lalu-prasad-takes-vulgar-jibe-at-nitish-kumar-s-women-s-rally-nain-sekhne-jaa-rahe-hain-2024-12-10-965486" }
+        {
+          "publisher": "India TV",
+          "url": "https://www.indiatvnews.com/bihar/news-lalu-prasad-takes-vulgar-jibe-at-nitish-kumar-s-women-s-rally-nain-sekhne-jaa-rahe-hain-2024-12-10-965486"
+        }
       ]
     },
     {
@@ -102,7 +127,10 @@
       "rule": "2",
       "ruling": "REJECTED — family and children. Also engages Rule 1 in context.",
       "sources": [
-        { "publisher": "Gulf News", "url": "https://gulfnews.com/world/asia/india/nitish-kumars-8-9-children-remark-triggers-storm-in-bihar-politics-ahead-of-polls-1.74860672" }
+        {
+          "publisher": "Gulf News",
+          "url": "https://gulfnews.com/world/asia/india/nitish-kumars-8-9-children-remark-triggers-storm-in-bihar-politics-ahead-of-polls-1.74860672"
+        }
       ]
     },
     {
@@ -112,7 +140,10 @@
       "rule": "2",
       "ruling": "REJECTED — appearance and personal life.",
       "sources": [
-        { "publisher": "Deccan Herald", "url": "https://www.deccanherald.com/india/bihar/tejashwi-yadav-slams-bihar-cm-nitish-kumar-for-remarks-on-womens-dress-3361858" }
+        {
+          "publisher": "Deccan Herald",
+          "url": "https://www.deccanherald.com/india/bihar/tejashwi-yadav-slams-bihar-cm-nitish-kumar-for-remarks-on-womens-dress-3361858"
+        }
       ]
     },
     {
@@ -122,7 +153,10 @@
       "rule": "7",
       "ruling": "REJECTED — sub judice, and Rule 6. Concerns a live criminal proceeding and an identifiable private complainant. Absolute no, regardless of how widely it circulated.",
       "sources": [
-        { "publisher": "Deccan Herald", "url": "https://www.deccanherald.com/india/west-bengal/kolkata-gang-rape-case-tmc-issues-showcause-notice-to-mla-madan-mitra-over-his-remarks-3607801" }
+        {
+          "publisher": "Deccan Herald",
+          "url": "https://www.deccanherald.com/india/west-bengal/kolkata-gang-rape-case-tmc-issues-showcause-notice-to-mla-madan-mitra-over-his-remarks-3607801"
+        }
       ]
     },
     {
@@ -132,7 +166,10 @@
       "rule": "2",
       "ruling": "REJECTED — personal life. Note that the dam remark from the same speech is IN-0019 and is IN the corpus. Rejection operates per statement, not per speech; a rejected line does not taint the entry beside it, and an indexed entry does not launder the line beside it.",
       "sources": [
-        { "publisher": "Free Press Journal", "url": "https://www.freepressjournal.in/mumbai/should-i-urinate-to-fill-up-empty-dams-maha-deputy-cm-ajit-pawars-shocking-statement-in-2013" }
+        {
+          "publisher": "Free Press Journal",
+          "url": "https://www.freepressjournal.in/mumbai/should-i-urinate-to-fill-up-empty-dams-maha-deputy-cm-ajit-pawars-shocking-statement-in-2013"
+        }
       ]
     },
     {
@@ -142,7 +179,10 @@
       "rule": "2",
       "ruling": "REJECTED — health. A genuinely hard call, recorded here because it will be argued again. The claim is a medical claim of exactly the kind the archive exists to index, but it is inseparable from the speaker's own medical history, and Rule 2 does not carry an exception for claims the speaker volunteered. The Committee resolves hard calls against publication. Reconsider only if a version exists in which the medical claim is made in general terms without reference to the speaker's own illness.",
       "sources": [
-        { "publisher": "The Caravan", "url": "https://caravanmagazine.in/science/false-scientific-claims-modi-first-term" }
+        {
+          "publisher": "The Caravan",
+          "url": "https://caravanmagazine.in/science/false-scientific-claims-modi-first-term"
+        }
       ]
     },
     {
@@ -152,8 +192,27 @@
       "rule": "1",
       "ruling": "REJECTED — religion, and Rule 7. The archive does not index this category at any tier, in any language, from any party, ever.",
       "sources": [
-        { "publisher": "Wikipedia", "url": "https://en.wikipedia.org/wiki/2022_Muhammad_remarks_controversy" }
+        {
+          "publisher": "Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/2022_Muhammad_remarks_controversy"
+        }
       ]
+    },
+    {
+      "descriptor": "Claim that Rahul Gandhi promised a machine that turns potatoes into gold",
+      "attributed_to": "Rahul Gandhi (INC), Patan, Gujarat, November 2017",
+      "date": "2017-11",
+      "rule": "S",
+      "ruling": "REJECT",
+      "reasoning": "The viral clip is edited. In the full speech Gandhi attributes the promise to Narendra Modi rather than making it himself; the attribution is cut out. Alt News, Scroll and BOOM all trace the edit. One of the most-circulated political clips in India and it does not survive the sourcing rule. Separately, no record exists of Modi having made the promise either, so the mirror-image version is equally unpublishable."
+    },
+    {
+      "descriptor": "Claim that Rahul Gandhi referred to 'Steve Jobs of Microsoft'",
+      "attributed_to": "Rahul Gandhi (INC), NMIMS, Mumbai, 2016",
+      "date": "2016",
+      "rule": "S",
+      "ruling": "REJECT",
+      "reasoning": "The wording is disputed on the recording. HuffPost's review concludes he said 'the Steve Jobs and the Microsofts and the leaders of the Facebooks', which contains no error. Where a claim turns entirely on whether a speaker said 'and' or 'of', the audio has to settle it, and this audio does not. Rule 3 would in any case bar indexing a slip of the tongue."
     }
   ]
 }

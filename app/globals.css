@@ -613,3 +613,7 @@ footer.site p { margin: 0 0 8px; font-size: 13.5px; color: var(--ink-70); max-wi
 .rules-key dl > div { display: grid; grid-template-columns: 34px 1fr; gap: 12px; align-items: baseline; }
 .rules-key dt { margin: 0; }
 .rules-key dd { margin: 0; font-size: 14.5px; }
+
+.coverage { border-top-color: var(--seal); }
+.coverage h2 { color: var(--seal); }
+.coverage strong { font-weight: 400; border-bottom: 2px solid var(--seal); }
