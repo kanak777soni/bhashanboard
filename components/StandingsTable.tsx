@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Medal from "./Medal";
 import { netaBySlug, partyByCode } from "@/lib/data";
+import { slugify } from "@/lib/corpus";
 import type { Row } from "@/lib/query";
 
 /** Wraps the first case-insensitive hit so a search shows why it matched. */
@@ -78,7 +79,7 @@ export default function StandingsTable({
                     <span className="only-narrow">
                       {neta?.name} &middot; {neta?.party} &middot;{" "}
                     </span>
-                    {s.category} &middot; {s.language} &middot; {s.duels.toLocaleString("en-IN")} duels
+                    <Link href={`/category/${slugify(s.category)}`}>{s.category}</Link> &middot; {s.language}
                   </div>
                 </td>
                 {!hideNeta && (
@@ -92,7 +93,7 @@ export default function StandingsTable({
                     )}
                     <div className="entry-sub">
                       <i className="swatch" style={{ background: party?.ink ?? "transparent" }} />
-                      {neta?.party} &middot; {neta?.state}
+                      <Link href={`/party/${neta?.party}`}>{neta?.party}</Link> &middot; {neta?.state}
                     </div>
                   </td>
                 )}

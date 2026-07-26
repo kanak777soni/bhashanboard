@@ -169,13 +169,29 @@ export default async function StatementPage({ params }: { params: Promise<{ slug
             </div>
           )}
 
+          <div className="sources-block">
+            <span className="lbl">Sources &mdash; go and check</span>
+            <ul className="sources-list">
+              {s.sources.map((src, i) => (
+                <li key={`${src.outlet}-${i}`}>
+                  <span className={`tierpip tier-${src.tier}`}>{src.tier}</span>
+                  {src.url && src.url !== "#" ? (
+                    <a href={src.url} target="_blank" rel="noopener noreferrer">
+                      {src.outlet}
+                    </a>
+                  ) : (
+                    <span>{src.outlet}</span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+
           <div className="stamps">
-            {s.sources.map((src, i) => (
-              <span key={`${src.outlet}-${i}`} className={`stamp${src.tier === "A" ? " green" : ""}`}>
-                Tier {src.tier} &middot; {src.outlet}
-              </span>
-            ))}
             <span className="stamp foil">Certified organic gyan &middot; no AI</span>
+            <span className={`stamp${s.bestSourceTier === "A" ? " green" : ""}`}>
+              Best source &middot; Tier {s.bestSourceTier}
+            </span>
           </div>
 
           {!s.held && (

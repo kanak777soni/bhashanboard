@@ -658,3 +658,44 @@ footer.site p { margin: 0 0 8px; font-size: 13.5px; color: var(--ink-70); max-wi
 .field.checkbox { flex-direction: row; align-items: center; gap: 9px; margin-top: 22px; }
 .field.checkbox input { width: auto; }
 .admin-submit { position: sticky; bottom: 0; background: var(--ground); border-top: 1px solid var(--rule-hard); padding: 14px 0; }
+
+/* ── sources on the certificate ──────────────────────────────────
+   These carry live URLs. An archive that asks you to trust it and then
+   makes its citations unclickable has the relationship backwards. */
+.sources-block { margin-top: 24px; border-top: 1px solid var(--rule-hard); padding-top: 12px; }
+.sources-list { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; }
+.sources-list li { display: grid; grid-template-columns: 24px 1fr; gap: 10px; align-items: baseline; font-size: 15px; }
+.sources-list a { text-decoration: none; border-bottom: 1px solid var(--rule-hard); }
+.tierpip { font-family: var(--font-util); font-size: 10px; font-weight: 700; letter-spacing: .1em; border: 1px solid currentColor; text-align: center; padding: 1px 0; }
+.tierpip.tier-A { color: var(--rise); }
+.tierpip.tier-B { color: var(--foil); }
+.tierpip.tier-C { color: var(--ink-45); }
+
+/* ── compare ─────────────────────────────────────────────────────── */
+.compare-heads { display: grid; grid-template-columns: 1fr 1fr; gap: 0 34px; padding-top: 18px; }
+@media (max-width: 640px) { .compare-heads { grid-template-columns: 1fr; gap: 26px; } }
+.compare-heads > div + div { border-left: 1px solid var(--rule); padding-left: 34px; }
+@media (max-width: 640px) { .compare-heads > div + div { border-left: 0; padding-left: 0; border-top: 1px solid var(--rule); padding-top: 20px; } }
+.compare-name { font-family: var(--font-display); font-size: clamp(22px, 3vw, 32px); font-weight: 400; margin: 0 0 4px; }
+.compare-table { width: 100%; border-collapse: collapse; margin-top: 26px; border-top: 2px solid var(--ink); }
+.compare-table td, .compare-table th { padding: 11px 10px; border-bottom: 1px solid var(--rule); }
+.compare-label { font-family: var(--font-util); font-size: 10px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-45); text-align: center; width: 40%; }
+.compare-val { font-family: var(--font-data); font-variant-numeric: tabular-nums; font-size: 22px; width: 30%; }
+.compare-val.right { text-align: right; }
+.compare-val.lead { color: var(--seal); }
+.compare-val.lead::after { content: " ●"; font-size: 10px; vertical-align: 3px; }
+.compare-invite { margin-top: 28px; border-top: 1px solid var(--rule-hard); padding-top: 12px; }
+.compare-links { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 9px; }
+.compare-links .token { text-decoration: none; }
+
+/* ── admin publish guard ─────────────────────────────────────────── */
+.guard { border: 1px solid var(--seal); border-left-width: 3px; padding: 13px 16px; margin-bottom: 22px; background: var(--ground); }
+.guard.clear { border-color: var(--rise); }
+.guard.clear > .lbl { color: var(--rise); }
+.guard > .lbl { color: var(--seal); }
+.guard p { margin: 6px 0 0; font-size: 15px; }
+.guard ul { list-style: none; margin: 9px 0 0; padding: 0; display: grid; gap: 7px; }
+.guard li { display: grid; grid-template-columns: 52px 1fr; gap: 10px; align-items: baseline; font-size: 14.5px; }
+.guard-pip { font-family: var(--font-util); font-size: 9px; font-weight: 700; letter-spacing: .1em; border: 1px solid currentColor; text-align: center; padding: 1px 0; }
+.guard li.block .guard-pip { color: var(--seal); }
+.guard li.warn .guard-pip { color: var(--foil); }

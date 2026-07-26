@@ -74,6 +74,11 @@ export default async function NetaPage({ params }: { params: Promise<{ slug: str
     : 0;
   const consistency = sd < 120 ? "Remarkably reliable" : sd < 220 ? "Broadly dependable" : "Streaky";
 
+  const rivals = netasWithEntries()
+    .filter((n) => n.slug !== neta.slug)
+    .sort((a, b) => statementsByNeta(b.slug).length - statementsByNeta(a.slug).length)
+    .slice(0, 5);
+
   const cabinet = TIERS.map((t) => ({
     tier: t,
     count: entries.filter((s) => tierOf(s.gp).key === t.key).length,
@@ -170,10 +175,20 @@ export default async function NetaPage({ params }: { params: Promise<{ slug: str
       </div>
       <StandingsTable rows={rows} hideNeta />
 
+      <div className="compare-invite">
+        <span className="lbl">Compare with another representative</span>
+        <div className="compare-links">
+          {rivals.map((r) => (
+            <Link key={r.slug} className="token" href={`/compare/${neta.slug}-vs-${r.slug}`}>
+              vs {r.name}
+            </Link>
+          ))}
+        </div>
+      </div>
+
       <p style={{ marginTop: 18 }}>
-        <Link className="btn ghost" href="/netas">
-          All representatives
-        </Link>
+        <Link className="btn ghost" href="/netas">All representatives</Link>{" "}
+        <Link className="btn ghost" href={`/party/${neta.party}`}>{party?.name}</Link>
       </p>
     </SiteFrame>
   );

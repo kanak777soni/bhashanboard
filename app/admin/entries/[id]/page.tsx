@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import EntryForm from "@/components/admin/EntryForm";
+import PublishGuard from "@/components/admin/PublishGuard";
 import { computeLadder, getParties, getPoliticians, getStatement, getStatements, weightedScore } from "@/lib/store";
 import { updateStatement } from "../../actions";
 
@@ -34,6 +35,7 @@ export default async function EditEntry({ params }: { params: Promise<{ id: stri
       </section>
 
       <section className="admin-section">
+        <PublishGuard entry={entry} />
         <EntryForm entry={entry} people={people} parties={parties} action={updateStatement} submitLabel="Save changes" />
       </section>
     </>
