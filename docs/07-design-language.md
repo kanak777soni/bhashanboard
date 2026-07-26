@@ -70,19 +70,28 @@ Typographic contrast is the cheapest way to look designed rather than generated.
 
 ## 7.4 Colour
 
-Not a framework palette. A specific, slightly uncomfortable one.
+Not a framework palette. Derived from **security printing** — which is both more specific to the subject and a deliberate step away from a trap.
+
+> ⚠️ **The trap:** *warm cream ground + serif display + terracotta accent* has itself become a recognisable generated-design cluster — the "editorial blog" look. An earlier draft of this document specified exactly that (`#F4EFE6` paper, vermilion accent), which would have walked straight into tell #15. Corrected below.
+
+The reference objects aren't cream. Cheques, share certificates and banknotes are printed on **safety paper** — a pale, desaturated green — in **intaglio ink**, which is a very dark green rather than black.
 
 ```
---ink        #12100E   near-black, warm — never #000, never slate
---paper      #F4EFE6   aged cream — never #FFF, never gray-50
---paper-deep #E8E0D2   secondary surfaces
---rule       #12100E @ 15%   hairlines
---foil       #B08D3F   muted gold, not neon
---vermilion  #C4341F   the one aggressive accent — movement, alerts, corrections
---seal       #1F4D3D   committee green, for RATIFIED stamps
+--ground     #E4E9DD   safety paper — the colour of cheques and certificates
+--ground-2   #D9E0D0   ledger alternate rows
+--ground-3   #EDF0E8   raised panel
+--ink        #141D18   intaglio green-black — never #000, never slate
+--rule       #141D18 @ 18%   hairlines
+--foil       #A9853A   engraved gold
+--seal       #8E2230   wax-seal oxblood — the one accent
+--rise       #2C6B4E   upward movement, in the same green world
 ```
 
-**One accent only.** `--vermilion` earns its loudness by being the only loud thing. It reads as Indian print red (sindoor, gazette stamps, exam-paper correction ink) without being nationalist-coded.
+**One accent only.** `--seal` earns its loudness by being the only loud thing on the page. Oxblood is the colour of legal wax and gazette stamps — deeper and considerably more specific than terracotta.
+
+The neutral is the point: a pale green-biased off-white reads as *chosen*. A pure grey or a warm cream reads as inherited.
+
+**Night Edition:** ground `#0E1512`, ink `#DCE3D4`, foil warms to `#C9A657`, seal lifts to `#C95765` so it still carries on a dark ground. Not an inversion — a re-mix.
 
 ### Tier metals
 
