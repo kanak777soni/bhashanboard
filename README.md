@@ -1,4 +1,4 @@
-# Pedestal *(working title)*
+# The Bhashan Board *(working title)*
 
 > **A permanent, sourced, ranked archive of the things politicians actually said — presented with the total institutional seriousness of an international awards committee.**
 

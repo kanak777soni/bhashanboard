@@ -140,8 +140,8 @@ Ignore pageviews. Watch these:
 
 ### ⬜ Still open
 
-1. **Name.** Recommendation: **Pedestal** (brand) + *The Bhashan Board* (India edition) + **Gyan Points (GP)** + **The Committee** (jury) + ***Aamne-Saamne*** (duel) + **The Honours List** (annual). Fallbacks: *Laureate*, *Hot Mic*. Full shortlist, trademark flags and the decision test in `01-concept.md` §1.6.
-   *(Note: **Ovation** was withdrawn — Ovation LLC has run a US arts TV network under that mark since 1996, a live conflict in your exact media class.)*
+1. **Name.** Recommendation: **The Bhashan Board** (`bhashanboard.com` + `bhashan.in`) + **The Committee** (jury) + **Gyan Points (GP)** + ***Aamne-Saamne*** (duel) + **The Honours List** (annual). Global fallbacks: *Hear Hear*, then *Filibuster*. Full shortlist, trademark flags, the decision test and the availability checks in `01-concept.md` §1.6.
+   *Withdrawn along the way:* **Ovation** (Ovation LLC's US arts TV network, live mark in your media class), **Pedestal** (`.com` and `.in` both taken), **Claptrap** (Borderlands mascot). The lesson is in §1.6 — single English dictionary words in `.com` are gone; change the *shape* of the name, and an Indian-language name is both more available and more distinctive.
 
 2. **Verbatim-only, no parody/impersonation.** The biggest constraint on the original idea — no AI edits, dubs, or re-enactments — and what makes the site survivable in India right now. Confirm?
 
