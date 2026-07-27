@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import SiteFrame from "@/components/SiteFrame";
 import StandingsTable from "@/components/StandingsTable";
-import { CATEGORIES, rankOf, rankedStatements } from "@/lib/data";
+import { CATEGORIES, getData } from "@/lib/data";
 import { slugify } from "@/lib/corpus";
 
 const BLURB: Record<string, string> = {
@@ -14,10 +14,6 @@ const BLURB: Record<string, string> = {
   "Standing Ovation": "Entries where the room went along with it. The darkest category, and the point of the exercise.",
 };
 
-export function generateStaticParams() {
-  return CATEGORIES.map((c) => ({ slug: slugify(c) }));
-}
-
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const c = CATEGORIES.find((x) => slugify(x) === slug);
@@ -25,12 +21,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
+  const data = await getData();
   const { slug } = await params;
   const category = CATEGORIES.find((c) => slugify(c) === slug);
   if (!category) notFound();
 
-  const mine = rankedStatements().filter((s) => s.category === category);
-  const rows = mine.map((s) => ({ statement: s, rank: rankOf(s.slug), delta: 0 }));
+  const mine = data.rankedStatements().filter((s) => s.category === category);
+  const rows = mine.map((s) => ({ statement: s, rank: data.rankOf(s.slug), delta: 0 }));
 
   return (
     <SiteFrame>

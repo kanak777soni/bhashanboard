@@ -26,7 +26,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <h1 className="admin-title">The Committee Room</h1>
           <p className="lbl">Everything on the board is editable here. Everything you change is logged.</p>
         </div>
-        <span className="stamp green">Local admin</span>
+        <span className="stamp green">Authenticated admin</span>
       </header>
 
       <nav className="admin-nav">
@@ -41,13 +41,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       <footer className="site">
         <p>
-          <strong>Edits write straight to the corpus files in <code>data/</code>.</strong> That means every
-          change you make here is an ordinary git diff you can read, review and revert before it goes
-          anywhere. Run <code>git diff data/</code> to see what you have changed.
+          <strong>Edits are committed to the corpus database.</strong> Each mutation and its audit event are
+          one transaction: if the record cannot be logged, the record is not changed.
         </p>
         <p>
-          There is no authentication on this dashboard. It is safe on your own machine and must not be
-          deployed to a public URL as it stands.
+          The Committee Room is fail-closed unless <code>ADMIN_PASSWORD</code> is configured. Passwordless
+          local access requires an explicit <code>ALLOW_INSECURE_ADMIN=true</code> opt-in and is never
+          accepted in production.
         </p>
       </footer>
     </div>

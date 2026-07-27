@@ -24,8 +24,8 @@
   --facet:      #5E8494;
   --on-seal:    #F6EFE4;
 
-  --font-display: "Hoefler Text", "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
-  --font-body:    Georgia, "Times New Roman", Times, serif;
+  --font-display: "Hoefler Text", "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, "Noto Serif Devanagari", "Noto Serif Bengali", "Noto Serif Kannada", "Noto Serif Telugu", "Noto Serif Malayalam", "Nirmala UI", serif;
+  --font-body:    Georgia, "Times New Roman", Times, "Noto Serif Devanagari", "Noto Serif Bengali", "Noto Serif Kannada", "Noto Serif Telugu", "Noto Serif Malayalam", "Nirmala UI", serif;
   --font-util:    "Avenir Next Condensed", "Arial Narrow", "Helvetica Neue", Helvetica, Arial, sans-serif;
   --font-data:    ui-monospace, "SF Mono", "Cascadia Mono", "Roboto Mono", Consolas, "Liberation Mono", monospace;
 
@@ -586,6 +586,7 @@ footer.site p { margin: 0 0 8px; font-size: 13.5px; color: var(--ink-70); max-wi
    a paraphrase as a quotation. */
 .unquoted { font-family: var(--font-util); font-size: 10px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-45); white-space: nowrap; }
 .entry-quote .unquoted, .hall-quote .unquoted { display: inline-block; margin-left: 6px; vertical-align: 2px; }
+.original-language { line-height: 1.38; letter-spacing: 0; }
 
 .provisional { border: 1px solid var(--seal); border-left-width: 3px; padding: 13px 16px; margin: 18px 0 22px; background: var(--ground); }
 .provisional > .lbl { color: var(--seal); }
@@ -594,6 +595,8 @@ footer.site p { margin: 0 0 8px; font-size: 13.5px; color: var(--ink-70); max-wi
 .needs li { margin-bottom: 4px; }
 
 .quote-note { font-size: 13.5px; color: var(--ink-45); font-style: italic; margin: 0 0 14px; max-width: 74ch; }
+.quote-translation { border-left: 2px solid var(--foil); color: var(--ink-70); font-size: 16px; line-height: 1.48; margin: 0 0 14px; max-width: 74ch; padding-left: 14px; }
+.quote-translation .lbl { display: block; margin-bottom: 4px; }
 
 .claim-block { border-top: 1px solid var(--rule-hard); border-bottom: 1px solid var(--rule); padding: 13px 0; margin: 22px 0; }
 .claim-block p { margin: 6px 0 0; font-family: var(--font-display); font-size: 18px; line-height: 1.42; }

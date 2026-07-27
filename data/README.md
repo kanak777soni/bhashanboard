@@ -23,10 +23,11 @@ present every entry carries at least one, because nothing has cleared Stage 3.
 
 ## The two rules that are not negotiable
 
-**1. `quote` is verbatim or it is `null`.** Never paraphrase into it, never
-reconstruct it from reported speech, never tidy the grammar, never translate into
-it without saying so in `quote_note`. If you only have "the minister said that
-cows exhale oxygen", that is a `claim`, not a `quote`.
+**1. `quote` is original-language verbatim or it is `null`.** Never paraphrase
+into it, reconstruct it from reported speech, tidy the grammar, or back-translate
+an English report. Put a faithful English rendering in `quote_translation`. If
+you only have "the minister said that cows exhale oxygen", that is a `claim`, not
+a `quote`.
 
 The temptation is real and it arrives every single time: the entry looks so much
 better with a sentence in it. A corpus that has yielded to that once is worthless,

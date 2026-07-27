@@ -1,14 +1,16 @@
 import { ImageResponse } from "next/og";
-import { STATS, parity } from "@/lib/data";
+import { getData } from "@/lib/data";
 
+export const runtime = "edge";
 export const alt = "The Bhashan Board — an archive of public wisdom, independently ranked";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-export default function Image() {
+export default async function Image() {
+  const data = await getData();
   const INK = "#141D18";
   const PAPER = "#E4E9DD";
-  const bands = parity().slice(0, 6);
+  const bands = data.parity().slice(0, 6);
 
   return new ImageResponse(
     (
@@ -25,11 +27,11 @@ export default function Image() {
         <div style={{ display: "flex", gap: 54, borderTop: `2px solid ${INK}`, paddingTop: 20 }}>
           <div style={{ display: "flex", flexDirection: "column" }}>
             <span style={{ fontSize: 15, letterSpacing: 3, color: "#5c6660", textTransform: "uppercase" }}>Indexed</span>
-            <span style={{ fontSize: 46 }}>{STATS.indexed}</span>
+            <span style={{ fontSize: 46 }}>{data.STATS.indexed}</span>
           </div>
           <div style={{ display: "flex", flexDirection: "column" }}>
             <span style={{ fontSize: 15, letterSpacing: 3, color: "#5c6660", textTransform: "uppercase" }}>Representatives</span>
-            <span style={{ fontSize: 46 }}>{STATS.representatives}</span>
+            <span style={{ fontSize: 46 }}>{data.STATS.representatives}</span>
           </div>
           <div style={{ display: "flex", flexDirection: "column" }}>
             <span style={{ fontSize: 15, letterSpacing: 3, color: "#5c6660", textTransform: "uppercase" }}>Parties</span>

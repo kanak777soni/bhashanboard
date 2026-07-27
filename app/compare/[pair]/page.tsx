@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import SiteFrame from "@/components/SiteFrame";
 import Medal from "@/components/Medal";
 import EntryTitle from "@/components/EntryTitle";
-import { netaBySlug, netasWithEntries, partyByCode, rankOf, statementsByNeta } from "@/lib/data";
+import { getData, type PublicData } from "@/lib/data";
 import { TIERS, tierOf } from "@/lib/tiers";
 
 /**
@@ -19,21 +19,11 @@ function split(pair: string): [string, string] | null {
   return [pair.slice(0, i), pair.slice(i + 4)];
 }
 
-export function generateStaticParams() {
-  // Pre-render the pairings people will actually look for: the most-indexed
-  // representatives, crossed with each other.
-  const top = [...netasWithEntries()]
-    .sort((a, b) => statementsByNeta(b.slug).length - statementsByNeta(a.slug).length)
-    .slice(0, 6);
-  const out: { pair: string }[] = [];
-  for (const a of top) for (const b of top) if (a.slug !== b.slug) out.push({ pair: `${a.slug}-vs-${b.slug}` });
-  return out;
-}
-
 export async function generateMetadata({ params }: { params: Promise<{ pair: string }> }): Promise<Metadata> {
+  const data = await getData();
   const parts = split((await params).pair);
-  const a = parts && netaBySlug(parts[0]);
-  const b = parts && netaBySlug(parts[1]);
+  const a = parts && data.netaBySlug(parts[0]);
+  const b = parts && data.netaBySlug(parts[1]);
   if (!a || !b) return { title: "Comparison not found" };
   return {
     title: `${a.name} vs ${b.name}`,
@@ -41,23 +31,24 @@ export async function generateMetadata({ params }: { params: Promise<{ pair: str
   };
 }
 
-function profile(slug: string) {
-  const neta = netaBySlug(slug);
+function profile(data: PublicData, slug: string) {
+  const neta = data.netaBySlug(slug);
   if (!neta) return null;
-  const entries = statementsByNeta(slug);
-  const best = entries.length ? Math.min(...entries.map((e) => rankOf(e.slug))) : null;
+  const entries = data.statementsByNeta(slug);
+  const best = entries.length ? Math.min(...entries.map((e) => data.rankOf(e.slug))) : null;
   const peak = entries.length ? Math.max(...entries.map((e) => e.gp)) : 0;
   const career = entries.reduce((n, e) => n + e.gp, 0);
   const quoted = entries.filter((e) => e.hasVerbatimQuote).length;
   const cabinet = TIERS.map((t) => ({ tier: t, n: entries.filter((e) => tierOf(e.gp).key === t.key).length })).filter((c) => c.n > 0);
-  return { neta, entries, best, peak, career, quoted, cabinet, party: partyByCode(neta.party) };
+  return { neta, entries, best, peak, career, quoted, cabinet, party: data.partyByCode(neta.party) };
 }
 
 export default async function ComparePage({ params }: { params: Promise<{ pair: string }> }) {
+  const data = await getData();
   const parts = split((await params).pair);
   if (!parts) notFound();
-  const A = profile(parts[0]);
-  const B = profile(parts[1]);
+  const A = profile(data, parts[0]);
+  const B = profile(data, parts[1]);
   if (!A || !B) notFound();
 
   /** Bigger wins, except for rank where lower is better. */
@@ -125,7 +116,7 @@ export default async function ComparePage({ params }: { params: Promise<{ pair: 
                 <li key={e.slug}>
                   <Medal gp={e.gp} size={17} title={false} />
                   <Link href={`/statement/${e.slug}`}><EntryTitle statement={e} /></Link>
-                  <span className="num">#{rankOf(e.slug)}</span>
+                  <span className="num">#{data.rankOf(e.slug)}</span>
                 </li>
               ))}
             </ul>

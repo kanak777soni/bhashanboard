@@ -18,6 +18,8 @@ export default function PublishGuard({ entry }: { entry: StoredStatement }) {
     issues.push({ level: "warn", text: "Single-sourced. Corroboration is required below Tier A." });
   if (!entry.quote)
     issues.push({ level: "warn", text: "No verbatim quote established — the page will show a neutral subject line, unquoted." });
+  if (entry.quote && entry.language !== "English" && !entry.quote_translation?.trim())
+    issues.push({ level: "block", text: "Non-English quote has no English translation." });
   if (!entry.video?.id)
     issues.push({ level: "warn", text: "No clip attached. An entry without video cannot reach the verified stage." });
   if (entry.verification.stage === "text_sourced")

@@ -4,15 +4,12 @@ import { notFound } from "next/navigation";
 import SiteFrame from "@/components/SiteFrame";
 import Medal from "@/components/Medal";
 import StandingsTable from "@/components/StandingsTable";
-import { netaBySlug, netasWithEntries, partyByCode, rankOf, statementsByNeta } from "@/lib/data";
+import { getData } from "@/lib/data";
 import { TIERS, tierOf } from "@/lib/tiers";
 
-export function generateStaticParams() {
-  return netasWithEntries().map((n) => ({ slug: n.slug }));
-}
-
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-  const n = netaBySlug((await params).slug);
+  const data = await getData();
+  const n = data.netaBySlug((await params).slug);
   if (!n) return { title: "Representative not found" };
   return { title: n.name, description: `${n.office} · ${n.party} · ${n.state}. Career record on the Bhashan Board.` };
 }
@@ -59,12 +56,17 @@ function Arc({ points }: { points: number[] }) {
 }
 
 export default async function NetaPage({ params }: { params: Promise<{ slug: string }> }) {
-  const neta = netaBySlug((await params).slug);
+  const data = await getData();
+  const neta = data.netaBySlug((await params).slug);
   if (!neta) notFound();
 
-  const party = partyByCode(neta.party);
-  const entries = statementsByNeta(neta.slug);
-  const rows = entries.map((s) => ({ statement: s, rank: rankOf(s.slug), delta: s.previousRank - rankOf(s.slug) }));
+  const party = data.partyByCode(neta.party);
+  const entries = data.statementsByNeta(neta.slug);
+  const rows = entries.map((s) => ({
+    statement: s,
+    rank: data.rankOf(s.slug),
+    delta: s.previousRank - data.rankOf(s.slug),
+  }));
 
   const careerGp = entries.reduce((sum, s) => sum + s.gp, 0);
   const peak = entries.length ? Math.max(...entries.map((s) => s.gp)) : 0;
@@ -74,9 +76,9 @@ export default async function NetaPage({ params }: { params: Promise<{ slug: str
     : 0;
   const consistency = sd < 120 ? "Remarkably reliable" : sd < 220 ? "Broadly dependable" : "Streaky";
 
-  const rivals = netasWithEntries()
+  const rivals = data.netasWithEntries()
     .filter((n) => n.slug !== neta.slug)
-    .sort((a, b) => statementsByNeta(b.slug).length - statementsByNeta(a.slug).length)
+    .sort((a, b) => data.statementsByNeta(b.slug).length - data.statementsByNeta(a.slug).length)
     .slice(0, 5);
 
   const cabinet = TIERS.map((t) => ({
@@ -113,7 +115,7 @@ export default async function NetaPage({ params }: { params: Promise<{ slug: str
             </div>
             <div>
               <span className="lbl">Best rank</span>
-              <b>{entries.length ? `#${Math.min(...entries.map((s) => rankOf(s.slug)))}` : "—"}</b>
+              <b>{entries.length ? `#${Math.min(...entries.map((s) => data.rankOf(s.slug)))}` : "—"}</b>
             </div>
           </div>
 

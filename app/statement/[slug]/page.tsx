@@ -7,23 +7,19 @@ import ClipFacade from "@/components/ClipFacade";
 import Medal from "@/components/Medal";
 import EntryTitle from "@/components/EntryTitle";
 import StatementFooterNav from "@/components/StatementFooterNav";
-import { CORPUS } from "@/lib/corpus";
-import { netaBySlug, partyByCode, rankOf, statementBySlug } from "@/lib/data";
+import { getData } from "@/lib/data";
 import { tierOf } from "@/lib/tiers";
 import type { Axes } from "@/lib/types";
-
-export function generateStaticParams() {
-  return CORPUS.map((s) => ({ slug: s.slug }));
-}
 
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const s = statementBySlug((await params).slug);
+  const data = await getData();
+  const s = data.statementBySlug((await params).slug);
   if (!s) return { title: "Entry not found" };
-  const neta = netaBySlug(s.neta);
+  const neta = data.netaBySlug(s.neta);
   const title = s.hasVerbatimQuote ? `“${s.quote}”` : s.neutralTitle;
   return {
     title,
@@ -41,13 +37,14 @@ const AXIS_LABELS: [keyof Axes, string][] = [
 ];
 
 export default async function StatementPage({ params }: { params: Promise<{ slug: string }> }) {
-  const s = statementBySlug((await params).slug);
+  const data = await getData();
+  const s = data.statementBySlug((await params).slug);
   if (!s) notFound();
 
-  const neta = netaBySlug(s.neta);
-  const party = neta ? partyByCode(neta.party) : undefined;
+  const neta = data.netaBySlug(s.neta);
+  const party = data.partyByCode(s.partyAtTime);
   const tier = tierOf(s.gp);
-  const rank = s.held ? null : rankOf(s.slug);
+  const rank = s.held ? null : data.rankOf(s.slug);
   const verified = s.verificationStage !== "text_sourced";
 
   return (
@@ -99,6 +96,13 @@ export default async function StatementPage({ params }: { params: Promise<{ slug
           <h1 className="cert-title">
             <EntryTitle statement={s} />
           </h1>
+
+          {s.hasVerbatimQuote && s.language !== "English" && s.quoteTranslation && (
+            <p className="quote-translation">
+              <span className="lbl">English translation</span>
+              {s.quoteTranslation}
+            </p>
+          )}
 
           {!s.hasVerbatimQuote && (
             <p className="quote-note">

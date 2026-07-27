@@ -2,17 +2,18 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import SiteFrame from "@/components/SiteFrame";
 import Medal from "@/components/Medal";
-import { netasWithEntries, partyByCode, statementsByNeta } from "@/lib/data";
+import { getData } from "@/lib/data";
 
 export const metadata: Metadata = {
   title: "Netas",
   description: "Every representative on record, with career rating, entries indexed and current form.",
 };
 
-export default function NetasPage() {
-  const roster = netasWithEntries();
+export default async function NetasPage() {
+  const data = await getData();
+  const roster = data.netasWithEntries();
   const rows = roster.map((n) => {
-    const entries = statementsByNeta(n.slug);
+    const entries = data.statementsByNeta(n.slug);
     return {
       neta: n,
       entries,
@@ -42,7 +43,7 @@ export default function NetasPage() {
           </thead>
           <tbody>
             {rows.map((r, i) => {
-              const party = partyByCode(r.neta.party);
+              const party = data.partyByCode(r.neta.party);
               return (
                 <tr key={r.neta.slug}>
                   <td className="c-rank">{i + 1}</td>

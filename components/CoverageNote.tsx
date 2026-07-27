@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { STATEMENTS, netaBySlug, parity } from "@/lib/data";
+import { getData } from "@/lib/data";
 
 /**
  * Publishes the coverage imbalance instead of hiding it.
@@ -9,11 +9,21 @@ import { STATEMENTS, netaBySlug, parity } from "@/lib/data";
  * reader something untrue about the record. The holdback is gone; this
  * block states the resulting skew and what it does and does not mean.
  */
-export default function CoverageNote() {
-  const bands = parity();
+export default async function CoverageNote() {
+  const data = await getData();
+  const bands = data.parity();
   const top = bands[0];
-  const headOfLadder = STATEMENTS.slice(0, 10);
-  const topShare = headOfLadder.filter((s) => netaBySlug(s.neta)?.party === top?.code).length;
+  const headOfLadder = data.STATEMENTS.slice(0, 10);
+  const topShare = headOfLadder.filter((s) => s.partyAtTime === top?.code).length;
+
+  if (!top) {
+    return (
+      <section className="rail-block coverage">
+        <h2>A note on coverage</h2>
+        <p className="rail-note">No entries have been indexed yet.</p>
+      </section>
+    );
+  }
 
   return (
     <section className="rail-block coverage">

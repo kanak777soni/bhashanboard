@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import SiteFrame from "@/components/SiteFrame";
-import { LEDGER } from "@/lib/data";
+import { getData } from "@/lib/data";
 
 export const metadata: Metadata = {
   title: "The Ledger",
@@ -16,7 +16,8 @@ const KIND_LABEL: Record<string, string> = {
   integrity: "Integrity",
 };
 
-export default function LedgerPage() {
+export default async function LedgerPage() {
+  const { LEDGER } = await getData();
   return (
     <SiteFrame>
       <div className="sec-head" style={{ marginTop: 26 }}>

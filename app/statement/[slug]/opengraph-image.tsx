@@ -1,10 +1,21 @@
 import { ImageResponse } from "next/og";
-import { netaBySlug, rankOf, statementBySlug } from "@/lib/data";
+import { getData } from "@/lib/data";
 import { tierOf } from "@/lib/tiers";
 
+export const runtime = "edge";
 export const alt = "The Bhashan Board";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
+
+const CARD_QUOTE_LIMIT = 220;
+
+function cardExcerpt(text: string): string {
+  if (text.length <= CARD_QUOTE_LIMIT) return text;
+  const candidate = text.slice(0, CARD_QUOTE_LIMIT - 1);
+  const lastSpace = candidate.lastIndexOf(" ");
+  const cutAt = lastSpace >= Math.floor(CARD_QUOTE_LIMIT * 0.7) ? lastSpace : candidate.length;
+  return `${candidate.slice(0, cutAt).trimEnd()}…`;
+}
 
 /**
  * The share card.
@@ -20,7 +31,8 @@ export const contentType = "image/png";
  * site and the worst possible place to manufacture a quotation.
  */
 export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
-  const s = statementBySlug((await params).slug);
+  const data = await getData();
+  const s = data.statementBySlug((await params).slug);
 
   const INK = "#141D18";
   const PAPER = "#E4E9DD";
@@ -38,11 +50,15 @@ export default async function Image({ params }: { params: Promise<{ slug: string
     );
   }
 
-  const neta = netaBySlug(s.neta);
+  const neta = data.netaBySlug(s.neta);
   const tier = tierOf(s.gp);
-  const rank = s.held ? null : rankOf(s.slug);
-  const headline = s.hasVerbatimQuote ? `“${s.quote}”` : s.neutralTitle;
-  const long = headline.length > 110;
+  const rank = s.held ? null : data.rankOf(s.slug);
+  const translatedQuote = s.language !== "English" ? s.quoteTranslation : undefined;
+  const shareText = s.quote || s.neutralTitle;
+  const translationExcerpted =
+    Boolean(translatedQuote) && translatedQuote!.length > CARD_QUOTE_LIMIT;
+  const headline = s.hasVerbatimQuote ? `“${cardExcerpt(shareText)}”` : s.neutralTitle;
+  const headlineSize = headline.length > 190 ? 38 : headline.length > 110 ? 46 : 58;
 
   return new ImageResponse(
     (
@@ -61,14 +77,20 @@ export default async function Image({ params }: { params: Promise<{ slug: string
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", flexGrow: 1, justifyContent: "center", paddingTop: 12 }}>
-          <div style={{ fontSize: long ? 46 : 58, lineHeight: 1.18, letterSpacing: -1 }}>{headline}</div>
+          <div style={{ fontSize: headlineSize, lineHeight: 1.18, letterSpacing: -1 }}>{headline}</div>
+          {translatedQuote && (
+            <div style={{ display: "flex", fontSize: 21, lineHeight: 1.25, color: FOIL, marginTop: 16 }}>
+              {translationExcerpted ? "English excerpt: " : "English: "}
+              {cardExcerpt(translatedQuote)}
+            </div>
+          )}
           {!s.hasVerbatimQuote && (
             <div style={{ fontSize: 18, letterSpacing: 2, color: SEAL, marginTop: 16, textTransform: "uppercase" }}>
               Wording not established — neutral subject line, not a quotation
             </div>
           )}
           <div style={{ fontSize: 26, color: "#4a5450", marginTop: 22, fontStyle: "italic" }}>
-            {`${neta?.name ?? "Unknown"} · ${s.office || neta?.party || ""} · ${s.venue}`}
+            {`${neta?.name ?? "Unknown"} · ${s.office || s.partyAtTime} · ${s.venue}`}
           </div>
         </div>
 

@@ -18,8 +18,9 @@
       "language": "Hindi",
       "category": "Science & Reason",
       "neutral_title": "On cloud cover and radar",
-      "quote": "The clouds could actually help our planes escape the radars and provide us much needed cover.",
-      "quote_note": "As rendered in English by the outlets cited. The remark was made in Hindi; the original-language wording is not yet transcribed. See `needs`.",
+      "quote": "लेकिन मैंने कहा कि बादल और बारिश से फायदा भी है। हम रडार से बच सकते हैं।",
+      "quote_translation": "But I said that clouds and rain also have an advantage. We can evade radar.",
+      "quote_note": "Original Hindi as quoted in ThePrint Hindi's report of the News Nation interview. The full interview still needs audiovisual timestamps and surrounding context.",
       "claim": "That cloud cover would reduce the chance of Indian aircraft being detected by Pakistani radar during the Balakot operation.",
       "context": "Modi described overruling expert hesitation on the night of the strike, calling the reasoning his 'raw wisdom'. The full interview is the context that must be captured before publication; the surrounding minutes are about the decision to proceed in poor weather.",
       "counterpoint": "Radar operates at wavelengths that pass through cloud largely unattenuated; cloud affects visual and some electro-optical targeting, not radar detection.",
@@ -35,8 +36,7 @@
         "best_source_tier": "C",
         "needs": [
           "Tier A/B video of the News Nation interview with start/end timestamps",
-          "Hindi transcript of the exact sentence",
-          "surrounding 60s captured"
+          "surrounding 60 seconds transcribed and reviewed"
         ],
         "sources": [
           {
@@ -44,12 +44,6 @@
             "publisher": "FactChecker.in",
             "title": "PM Twice Wrong: Clouds Do Not Hinder Radar, May Hinder Weapons",
             "url": "https://www.factchecker.in/pm-twice-wrong-clouds-do-not-hinder-radar-may-hinder-weapons"
-          },
-          {
-            "tier": "C",
-            "publisher": "ThePrint",
-            "title": "PM shows ignorance of radar tech, gives out crucial details of Balakot raid in interview",
-            "url": "https://theprint.in/defence/pm-shows-ignorance-of-radar-tech-gives-out-crucial-details-of-balakot-raid-in-interview/234485/"
           },
           {
             "tier": "C",
@@ -62,6 +56,12 @@
             "publisher": "Deccan Herald",
             "title": "Modi's cloud cover revelation draws opposition sneer",
             "url": "https://www.deccanherald.com/elections/modis-cloud-cover-revelation-draws-opposition-sneer-733502.html"
+          },
+          {
+            "tier": "C",
+            "publisher": "ThePrint Hindi",
+            "title": "रडार तकनीक पर पीएम ने ज़ाहिर की अपनी अज्ञानता, इंटरव्यू में बालाकोट से जुड़ी अहम जानकारी सार्वजनिक की",
+            "url": "https://hindi.theprint.in/politics/prime-minister-shows-ignorance-of-radar-tech-gives-out-crucial-details-of-balakot-raid-in-interview/61294/"
           }
         ]
       }
@@ -79,7 +79,9 @@
       "language": "Hindi",
       "category": "History",
       "neutral_title": "On Ganesha, Karna and the antiquity of surgery",
-      "quote": "It is said in the Mahabharata that Karna was not born from his mother's womb. This means in the times in which the epic was written genetic science was very much present. We all worship Lord Ganesha; for sure there must have been some plastic surgeon at that time, to fit an elephant's head on the body of a human being.",
+      "quote": "महाभारत का कहना है कि कर्ण मां की गोद से पैदा नहीं हुआ था, इसका मतलब ये हुआ कि उस समय Genetic Science मौजूद था। तभी तो कर्ण, मां की गोद के बिना उसका जन्म हुआ होगा। हम गणेश जी की पूजा करते हैं, कोई तो प्लास्टिक सर्जन होगा उस जमाने में, जिसने मनुष्य के शरीर पर हाथी का सर रख कर के प्लास्टिक सर्जरी का प्रारंभ हुआ होगा।",
+      "quote_translation": "The Mahabharata says that Karna was not born from his mother's womb; this means genetic science existed at that time. That is how Karna could have been born without his mother's womb. We worship Lord Ganesha; there must have been a plastic surgeon in those days who put an elephant's head on a human body and began plastic surgery.",
+      "quote_note": "Original Hindi from the speaker's published transcript. An invisible Unicode joiner in “प्लास्टिक” was normalized; official audiovisual footage and audience reaction remain outstanding.",
       "claim": "That reproductive genetics and plastic surgery were practised in ancient India, evidenced by episodes in the Mahabharata and by the iconography of Ganesha.",
       "context": "Said to an audience of doctors and medical scientists while opening a hospital.",
       "policy_note": "Borderline under Rule 1 (religion). Committee ruling: IN SCOPE. The claim under review is a claim about the history of medicine, made to doctors, in a hospital. The archive takes no position on the epics or on anyone's faith, and the entry must never be titled or captioned in a way that implies otherwise.",
@@ -92,9 +94,9 @@
       },
       "verification": {
         "stage": "text_sourced",
-        "best_source_tier": "C",
+        "best_source_tier": "A",
         "needs": [
-          "Tier A source — the event was covered by PIB/DD; locate official footage",
+          "official audiovisual footage with start/end timestamps and surrounding 60 seconds",
           "verify whether the audience reaction is on the record (drives the Crowd Complicity axis)"
         ],
         "sources": [
@@ -115,6 +117,12 @@
             "publisher": "Alt News",
             "title": "BJP and Science: From Ganesha's plastic surgery to 'Yoga can cure cancer'",
             "url": "https://www.altnews.in/bjp-science-ganeshas-plastic-surgery-yoga-can-cure-cancer/"
+          },
+          {
+            "tier": "A",
+            "publisher": "NarendraModi.in",
+            "title": "Text of the PM's address at the ceremony held to rededicate Sir H. N. Reliance Foundation Hospital and Research Centre",
+            "url": "https://www.narendramodi.in/text-of-the-prime-minister-shri-narendra-modis-address-at-the-ceremony-held-to-rededicate-sir-h-n-reliance-foundation-hospital-and-research-centre-in-mumbai-2-2880"
           }
         ]
       }
@@ -126,13 +134,15 @@
       "party_at_time": "BJP",
       "office_at_time": "Union Minister of State for Human Resource Development",
       "state": "Maharashtra",
-      "date": "2018-01",
-      "date_precision": "month",
-      "venue": "All India Vaishya Sammelan, Aurangabad",
+      "date": "2018-01-19",
+      "date_precision": "day",
+      "venue": "All India Vedic Conference, Aurangabad",
       "language": "Hindi",
       "category": "Science & Reason",
       "neutral_title": "On whether evolution was witnessed",
-      "quote": "Nobody, including our ancestors, in written or oral, said they saw an ape turning into a man.",
+      "quote": "ना तो हमारे पूर्वजों ने और ना ही किसी और ने कभी यह कहा या लिखा कि उन्होंने किसी बंदर को इंसान में परिवर्तित होते देखा।",
+      "quote_translation": "Neither our ancestors nor anyone else ever said or wrote that they had seen an ape turn into a human.",
+      "quote_note": "Original Hindi quoted by Aaj Tak and corroborated by NDTV's contemporaneous video page. A full event recording with surrounding context remains outstanding.",
       "claim": "That the theory of evolution is scientifically wrong and should be removed from school and university curricula, because no eyewitness account exists of an ape becoming a man.",
       "context": "Singh, a former Mumbai Police Commissioner, was then a junior minister for education. He repeated the position several times over the following weeks and challenged scientists to a debate.",
       "counterpoint": "Over 2,000 scientists from Indian research institutions signed a joint statement rejecting the remarks. Singh's senior colleague Prakash Javadekar publicly asked him not to dilute science.",
@@ -147,9 +157,7 @@
         "stage": "text_sourced",
         "best_source_tier": "B",
         "needs": [
-          "exact date",
-          "Tier A/B footage from the Aurangabad event",
-          "Hindi original wording"
+          "full event recording with start/end timestamps and the surrounding 60 seconds"
         ],
         "sources": [
           {
@@ -166,9 +174,15 @@
           },
           {
             "tier": "C",
-            "publisher": "Study International",
-            "title": "Darwin theory wrong because nobody 'saw an ape turning into man' — Indian minister",
-            "url": "https://studyinternational.com/news/darwin-theory-wrong-nobody-saw-ape-turning-man-indian-minister/"
+            "publisher": "Aaj Tak",
+            "title": "डार्विन पर BJP सांसद की थ्योरी हिंदुत्व से ज्यादा इस्लाम के करीब!",
+            "url": "https://www.aajtak.in/religion/story/why-satyapal-singh-trash-darwin-remark-does-not-go-with-hindutva-tpra-530174-2018-01-22"
+          },
+          {
+            "tier": "B",
+            "publisher": "NDTV India",
+            "title": "डार्विन गलत थे, किसी ने बंदर को इंसान बनते नहीं देखा : सत्यपाल सिंह",
+            "url": "https://ndtv.in/videos/darwin-was-wrong-nobody-saw-monkey-being-human-says-satyapal-singh-477113"
           }
         ]
       }
@@ -294,8 +308,9 @@
       "language": "Hindi",
       "category": "Science & Reason",
       "neutral_title": "On respiration in cattle",
-      "quote": "Gai ekmatra prani hai jo oxygen grahan karta hai, aur oxygen hi chodta hai.",
+      "quote": "गाय एकमात्र प्राणी है जो ऑक्सीजन ग्रहण करता है और ऑक्सीजन ही छोड़ता है।",
       "quote_translation": "The cow is the only animal that takes in oxygen and also releases oxygen.",
+      "quote_note": "Devanagari transcription of the contemporaneously sourced Romanized Hindi quote; the wording is otherwise unchanged.",
       "claim": "That the cow is the only animal that both inhales and exhales oxygen, and that proximity to a cow cures colds and coughs.",
       "context": "Said at a cow shelter by the minister responsible for the state's school curriculum. Challenged afterwards, Devnani stood by the claim and cited 'research websites' and a magazine as his sources.",
       "counterpoint": "Cows, like all mammals, exhale carbon dioxide.",
@@ -332,6 +347,12 @@
             "publisher": "India TV",
             "title": "Rajasthan minister defies science, says 'cow only animal that inhales and exhales oxygen'",
             "url": "https://www.indiatvnews.com/politics/national-rajasthan-minister-defies-science-says-cow-only-animal-that-inhales-and-exhales-oxygen-365164"
+          },
+          {
+            "tier": "B",
+            "publisher": "Newslaundry",
+            "title": "Rajasthan Education Minister: Cow is the only animal that inhales and exhales oxygen",
+            "url": "https://www.newslaundry.com/2017/01/16/raj-education-minister-cow-is-the-only-animal-that-inhales-and-exhales-oxygen"
           }
         ]
       }
@@ -450,13 +471,15 @@
       "party_at_time": "INC",
       "office_at_time": "Vice-President, Indian National Congress",
       "state": "Delhi",
-      "date": "2013-10",
-      "date_precision": "month",
+      "date": "2013-10-08",
+      "date_precision": "day",
       "venue": "National Awareness Camp for Scheduled Castes Empowerment, Vigyan Bhavan, New Delhi",
       "language": "Hindi",
       "category": "Science & Reason",
       "neutral_title": "On escape velocity and social mobility",
-      "quote": "The escape velocity for earth is 11.2 km/sec while that of Jupiter is 60 km/sec. In India we have the concept of caste. There is an escape velocity here also. For a Dalit to achieve success the escape velocity required is that of Jupiter.",
+      "quote": "यहां हिंदुस्तान में हमारा जात का कॉन्सेप्ट है। इस में भी एस्केप वेलोसिटी होती है। दलित कम्युनिटी को इस धरती पे जूपिटर की एस्केप वेलोसिटी चाहिए।",
+      "quote_translation": "Here in India, we have the concept of caste. There is escape velocity in this too. The Dalit community needs Jupiter's escape velocity on this earth.",
+      "quote_note": "Devanagari transcription of the contemporaneous Romanized transcript published by The Times of India, corroborated by the Hindustan Times event video page. Full recording timestamps and surrounding context remain outstanding.",
       "claim": "An extended analogy between planetary escape velocity and the difficulty of upward mobility for Dalits.",
       "context": "The analogy was the substance of the speech, not an aside. It became a defining clip of Gandhi's early public speaking and is still cited more than a decade later.",
       "policy_note": "Rule 1 (caste) applies to statements ABOUT caste identity as a target. This entry is indexed for the physics analogy, not for its subject matter, and the neutral title and any Committee commentary must stay on the analogy. If that line cannot be held in the copy, drop the entry.",
@@ -471,9 +494,8 @@
         "stage": "text_sourced",
         "best_source_tier": "B",
         "needs": [
-          "exact date",
-          "Tier A: Congress or DD footage of the Vigyan Bhavan address",
-          "Hindi original wording — the quote above is an English rendering"
+          "full event recording with exact start/end timestamps",
+          "surrounding 60 seconds transcribed and reviewed"
         ],
         "sources": [
           {
@@ -487,6 +509,18 @@
             "publisher": "Vivek Kaul",
             "title": "What media missed out on in Rahul Gandhi's 'escape-velocity' speech",
             "url": "https://vivekkaul.com/2013/10/11/what-media-missed-out-in-rahul-gandhis-escape-velocity-speech/"
+          },
+          {
+            "tier": "B",
+            "publisher": "Hindustan Times",
+            "title": "Upliftment of Dalits needs escape velocity: Rahul",
+            "url": "https://www.hindustantimes.com/videos/india/upliftment-of-dalits-needs-escape-velocity-rahul/video-WCtc0rhXBV2ZG3S54fvk9M.html"
+          },
+          {
+            "tier": "B",
+            "publisher": "The Times of India",
+            "title": "Rahul Gandhi gives a lesson in escape velocity to Dalits",
+            "url": "https://timesofindia.indiatimes.com/india/rahul-gandhi-gives-a-lesson-in-escape-velocity-to-dalits/articleshow/23756795.cms"
           }
         ]
       }
@@ -498,13 +532,14 @@
       "party_at_time": "INC",
       "office_at_time": "Vice-President, Indian National Congress",
       "state": "Uttar Pradesh",
-      "date": "2013-08",
-      "date_precision": "month",
-      "venue": "Address in Allahabad",
+      "date": "2013-08-05",
+      "date_precision": "day",
+      "venue": "Gobind Ballabh Pant Social Science Institute, Jhunsi, Allahabad",
       "language": "Hindi",
       "category": "Economics",
       "neutral_title": "On poverty as a state of mind",
-      "quote": "Poverty is just a state of mind.",
+      "quote": null,
+      "quote_note": "Contemporaneous reports quote or render the remark in English and paraphrase it in Hindi, but the spoken language and exact original words are not established. The quote therefore remains null rather than back-translated.",
       "claim": "That poverty is a state of mind rather than a shortage of food, money or material things, and can be overcome with self-confidence.",
       "context": "Made shortly before the 2014 general election, in which the Congress recorded its worst-ever Lok Sabha result. Defenders argued the point was about the psychological trap of poverty rather than a denial of material deprivation; that reading should be linked from the entry.",
       "axes": {
@@ -518,9 +553,8 @@
         "stage": "text_sourced",
         "best_source_tier": "B",
         "needs": [
-          "exact date and venue",
-          "Tier A/B footage",
-          "Hindi original wording"
+          "audiovisual recording or first-party transcript establishing the spoken language and exact words",
+          "surrounding 60 seconds transcribed and reviewed"
         ],
         "sources": [
           {
@@ -534,6 +568,12 @@
             "publisher": "Gulf News",
             "title": "Rahul Gandhi wants poor to dream big",
             "url": "https://gulfnews.com/world/asia/india/rahul-gandhi-wants-poor-to-dream-big-1.1232305"
+          },
+          {
+            "tier": "B",
+            "publisher": "NDTV India",
+            "title": "गरीबी सिर्फ एक मानसिक अवस्था है : राहुल गांधी",
+            "url": "https://ndtv.in/india/rahul-gandhi-says-poverty-is-just-a-state-of-mind-366807"
           }
         ]
       }
@@ -545,14 +585,15 @@
       "party_at_time": "INC",
       "office_at_time": "Union Minister of Steel",
       "state": "Uttar Pradesh",
-      "date": "2012",
-      "date_precision": "year",
-      "venue": "Public programme, Barabanki",
+      "date": "2012-08-19",
+      "date_precision": "day",
+      "venue": "Press interaction at a public function, Barabanki",
       "language": "Hindi",
       "category": "Economics",
       "neutral_title": "On rising prices",
-      "quote": "Hum to khush hain ki kisano ko fayada pahunch raha hai.",
-      "quote_translation": "I am happy that the farmers are being benefited.",
+      "quote": "हम तो खुश हैं कि किसानों को फायदा पहुंच रहा है।",
+      "quote_translation": "We are happy that farmers are benefiting.",
+      "quote_note": "Devanagari transcription of the sourced Romanized Hindi quote; the wording is otherwise unchanged.",
       "claim": "That the rise in commodity prices was a welcome development because it benefited farmers.",
       "context": "Said by the Union Steel Minister at the height of a national row over food inflation. The remark drew protests across the opposition and was disowned by his own party.",
       "axes": {
@@ -566,8 +607,7 @@
         "stage": "text_sourced",
         "best_source_tier": "B",
         "needs": [
-          "exact date — blocking for the timeline",
-          "Tier A/B footage",
+          "Tier A/B footage with start/end timestamps and surrounding context",
           "note: Verma died in 2020; Right of Reply is not available, and the entry must say so"
         ],
         "sources": [
@@ -648,14 +688,15 @@
       "party_at_time": "INC",
       "office_at_time": "Minister for Textiles and Sugar, Karnataka",
       "state": "Karnataka",
-      "date": "2023-12",
-      "date_precision": "month",
-      "venue": "Public event, Karnataka",
+      "date": "2023-12-24",
+      "date_precision": "day",
+      "venue": "Cooperative society silver-jubilee event, Suttatti village, Athani taluk, Belagavi",
       "language": "Kannada",
       "category": "Economics",
       "neutral_title": "On loan waivers and the incentives of drought",
-      "quote": "Krishna river water is free, current is also free. The Chief Minister also gave seeds and fertilizer. Farmers will only wish that there should be repeated droughts, because their loans will be waived.",
-      "quote_note": "As rendered in English by the outlet cited; the original Kannada wording is not yet transcribed.",
+      "quote": "ಮೇಲಿಂದ ಮೇಲೆ ಬರ ಬರಲಿ ಎಂದು ರೈತರು ಬಯಸುತ್ತಾರೆ. ಬರಗಾಲ ಬಂದರೆ ಸಾಲ ಮನ್ನಾ ಆಗುವ ನಿರೀಕ್ಷೆಯಲ್ಲಿ ಅವರು ಇರುತ್ತಾರೆ.",
+      "quote_translation": "Farmers wish for drought to recur. When drought comes, they expect their loans to be waived.",
+      "quote_note": "Original Kannada from contemporaneous Kannada reporting and a video page. The full event recording still needs exact timestamps and surrounding context.",
       "claim": "That farmers would prefer recurring droughts because drought brings loan waivers.",
       "context": "Said during a drought year in Karnataka. The state BJP called the remark irresponsible and demanded an apology.",
       "axes": {
@@ -669,10 +710,7 @@
         "stage": "text_sourced",
         "best_source_tier": "B",
         "needs": [
-          "exact date and venue",
-          "Kannada original",
-          "Tier A/B footage",
-          "corroborating second source"
+          "full event recording with start/end timestamps and the surrounding 60 seconds"
         ],
         "sources": [
           {
@@ -680,6 +718,18 @@
             "publisher": "Deccan Chronicle",
             "title": "Karnataka Minister Sparks Outrage with Wishing for Droughts Remark on Farmers",
             "url": "https://www.deccanchronicle.com/nation/in-other-news/251223/karnataka-ministers-controversial-remark-sparks-outrage-bjp-calls-fo.html"
+          },
+          {
+            "tier": "B",
+            "publisher": "Asianet Suvarna News",
+            "title": "ಬರಗಾಲ ಬರಲಿ ಅಂತಾ ರೈತರು ಕಾಯ್ತಿದ್ದಾರೆ: ಶಿವಾನಂದ ಪಾಟೀಲ್ ವಿವಾದಾತ್ಮಕ ಹೇಳಿಕೆ",
+            "url": "https://kannada.asianetnews.com/video/state/shivananda-patil-controversial-statement-on-farmers-nbn-s67nji"
+          },
+          {
+            "tier": "B",
+            "publisher": "Asianet Suvarna News",
+            "title": "ನಾನು ರೈತರ ವಿರೋಧವಾಗಿ ಯಾವುದೇ ಹೇಳಿಕೆಯನ್ನೂ ನೀಡಿಲ್ಲ: ಶಿವಾನಂದ ಪಾಟೀಲ",
+            "url": "https://kannada.asianetnews.com/politics/farmers-want-drought-to-come-says-minister-shivanand-patil-gvd-s6c1i7"
           }
         ]
       }
@@ -739,8 +789,9 @@
       "language": "Hindi",
       "category": "Whataboutery",
       "neutral_title": "On evidence for the 2016 surgical strikes",
-      "quote": "They talk about surgical strikes and that they have killed so many of them but there is no proof.",
-      "quote_note": "As rendered in English by the outlets cited; Hindi original not yet transcribed.",
+      "quote": "ये सर्जिकल स्ट्राइक की बात करते हैं कि हमने इतने लोग मार गिराए, लेकिन प्रमाण कुछ नहीं है।",
+      "quote_translation": "They talk about surgical strikes and say that they killed so many people, but there is no evidence.",
+      "quote_note": "Original Hindi as quoted by TV9 Hindi. Full event footage, timestamps, surrounding context and the speaker's later clarification remain outstanding.",
       "claim": "That the 2016 cross-border strikes were a claim without proof.",
       "context": "Said at his own party's flagship march. The Congress publicly distanced itself the same day, stating the views were his own.",
       "axes": {
@@ -754,8 +805,7 @@
         "stage": "text_sourced",
         "best_source_tier": "B",
         "needs": [
-          "Tier A/B footage with timestamp",
-          "Hindi original",
+          "Tier A/B event footage with start/end timestamps and surrounding 60 seconds",
           "Singh's own follow-up clarification must be linked under Right of Reply"
         ],
         "sources": [
@@ -776,6 +826,12 @@
             "publisher": "Deccan Herald",
             "title": "Digvijaya Singh questions surgical strikes, BJP accuses Congress of insulting armed forces",
             "url": "https://www.deccanherald.com/india/digvijaya-singh-questions-surgical-strikes-bjp-accuses-congress-of-insulting-armed-forces-in-hate-for-modi-1183830.html"
+          },
+          {
+            "tier": "B",
+            "publisher": "TV9 Hindi",
+            "title": "सेना घुसकर मारे तो पाकिस्तान के साथ कांग्रेस को भी होता है दर्द, दिग्गी के बयान पर भड़की BJP",
+            "url": "https://www.tv9hindi.com/india/bjp-slams-congress-leader-digvijay-singh-over-his-remark-on-surgical-strike-au89-1677890.html"
           }
         ]
       }
@@ -835,8 +891,9 @@
       "language": "Hindi",
       "category": "Science & Reason",
       "neutral_title": "On the party affiliation of a vaccine",
-      "quote": "How can I trust the vaccine, which will be used for vaccination by the BJP? We cannot get vaccinated by the BJP's vaccine.",
-      "quote_note": "As rendered in English by the outlets cited; Hindi original not yet transcribed.",
+      "quote": "मैं तो नहीं लगवाऊंगा अभी टीका, मैंने अपनी बात कह दी। वह भी भाजपा लगायेगी, उसका भरोसा करूं मैं। अरे जाओ भई, अपनी सरकार आयेगी तो सबको फ्री वैक्सीन लगेगी। हम भाजपा का टीका नहीं लगवा सकते हैं।",
+      "quote_translation": "I will not get vaccinated yet; I have said what I had to say. The BJP will administer it—should I trust that? When our government comes to power, everyone will get the vaccine free. We cannot take the BJP's vaccine.",
+      "quote_note": "Original Hindi as quoted in contemporaneous reporting. Full footage, timestamps, surrounding context and the later clarification remain outstanding.",
       "claim": "That the COVID-19 vaccine about to be rolled out was 'the BJP's vaccine' and therefore not to be trusted.",
       "context": "Said days before India's national vaccination drive began. Later in 2021 Yadav said he would take the shot once the Prime Minister's photograph was removed from the vaccination certificate.",
       "axes": {
@@ -850,8 +907,7 @@
         "stage": "text_sourced",
         "best_source_tier": "B",
         "needs": [
-          "Tier A/B footage with timestamp",
-          "Hindi original",
+          "Tier A/B footage with start/end timestamps and surrounding 60 seconds",
           "the later clarification, linked under Right of Reply"
         ],
         "sources": [
@@ -872,6 +928,12 @@
             "publisher": "Deccan Herald",
             "title": "'It's BJP's vaccine', not taking the shot, says SP chief Akhilesh Yadav",
             "url": "https://www.deccanherald.com/india/its-bjps-vaccine-not-taking-the-shot-says-sp-chief-akhilesh-yadav-934374.html"
+          },
+          {
+            "tier": "B",
+            "publisher": "NDTV India",
+            "title": "'हम भी टीका लगवाएंगे...' कोविड-19 वैक्सीनेशन पर अखिलेश यादव का यू-टर्न",
+            "url": "https://ndtv.in/uttar-pradesh-news/akhilesh-yadav-u-turn-on-covid-19-vaccination-says-we-will-also-get-vaccinated-2458734"
           }
         ]
       }
@@ -926,14 +988,15 @@
       "party_at_time": "NCP",
       "office_at_time": "Deputy Chief Minister of Maharashtra",
       "state": "Maharashtra",
-      "date": "2013-04",
-      "date_precision": "month",
-      "venue": "Public meeting, Indapur",
+      "date": "2013-04-07",
+      "date_precision": "day",
+      "venue": "Public meeting, Nimbodi, Indapur",
       "language": "Marathi",
       "category": "Economics",
       "neutral_title": "On releasing water from an empty dam",
-      "quote": "If there is no water in the dam, how can we release it? Should we urinate into it? If there is no water to drink, even urinating is not possible.",
-      "quote_note": "As rendered in English by the outlets cited; Marathi original not yet transcribed.",
+      "quote": "धरणात पाणीच नाही, तर तेथे लघवी करायची का? लघवी करायलाही पाणी प्यावे लागते.",
+      "quote_translation": "There is no water in the dam, so should one urinate into it? Even to urinate, one has to drink water.",
+      "quote_note": "Original Marathi as quoted by Loksatta. Full footage and the audience reaction still require audiovisual verification.",
       "claim": "Responding to a drought-affected farmer's hunger strike, that water cannot be released from a dam that has none.",
       "context": "Said during one of Maharashtra's worst droughts in decades, in reference to a farmer then on hunger strike at Azad Maidan, Mumbai. Pawar apologised in a statement and in the Legislative Council; party chief Sharad Pawar apologised separately. Pawar has since held the Deputy Chief Minister's office again.",
       "axes": {
@@ -947,9 +1010,7 @@
         "stage": "text_sourced",
         "best_source_tier": "B",
         "needs": [
-          "exact date",
-          "Marathi original",
-          "Tier A/B footage",
+          "Tier A/B footage with start/end timestamps and surrounding 60 seconds",
           "the audience reaction is central to the Crowd Complicity axis and must be verified from footage, not from reports"
         ],
         "sources": [
@@ -970,6 +1031,12 @@
             "publisher": "Gulf News",
             "title": "India: Sharad Pawar apologises for nephew's remarks",
             "url": "https://gulfnews.com/world/asia/india/india-sharad-pawar-apologises-for-nephews-remarks-1.1167992"
+          },
+          {
+            "tier": "B",
+            "publisher": "Loksatta",
+            "title": "नेत्यांचा शिमगा!",
+            "url": "https://www.loksatta.com/mumbai/should-people-urinate-in-dry-dams-to-fill-them-asks-ajit-pawar-95441/"
           }
         ]
       }
@@ -981,14 +1048,14 @@
       "party_at_time": "BRS",
       "office_at_time": "Chief Minister of Telangana",
       "state": "Telangana",
-      "date": "2020-04",
-      "date_precision": "month",
+      "date": "2020-03-29",
+      "date_precision": "day",
       "venue": "Press conference, Hyderabad",
       "language": "Telugu",
       "category": "Science & Reason",
       "neutral_title": "On a date for the end of the outbreak",
-      "quote": "If no new cases are reported from now, there will be no Coronavirus patients in the state by then.",
-      "quote_note": "As rendered in English by the outlets cited; Telugu original not yet transcribed.",
+      "quote": null,
+      "quote_note": "Contemporaneous Telugu reports preserve the condition and date only in indirect speech. Until the press-conference recording is transcribed, no reconstructed sentence is presented as a verbatim quote.",
       "claim": "That Telangana could be free of COVID-19 by 7 April 2020.",
       "context": "Reported as being followed within twenty-four hours by a sharp rise in cases in the state. The conditional in the sentence is real and the entry must carry it — the archive does not improve a quote by trimming its qualifiers.",
       "axes": {
@@ -1002,9 +1069,8 @@
         "stage": "text_sourced",
         "best_source_tier": "B",
         "needs": [
-          "exact date",
-          "Telugu original",
-          "Tier A: Telangana government feed of the press conference"
+          "Telangana government feed of the 29 March press conference",
+          "exact Telugu transcript with start/end timestamps and surrounding 60 seconds"
         ],
         "sources": [
           {
@@ -1018,6 +1084,18 @@
             "publisher": "ThePrint",
             "title": "How coronavirus is exposing the 'autocratic' leadership of 'missing' CM KCR",
             "url": "https://theprint.in/statedraft/how-coronavirus-is-exposing-the-autocratic-leadership-of-missing-cm-kcr/458322/"
+          },
+          {
+            "tier": "B",
+            "publisher": "Asianet News Telugu",
+            "title": "ఏప్రిల్ 7లోగా తెలంగాణ కరోనా ఫ్రీ: గుడ్ న్యూస్ చెప్పిన కేసీఆర్",
+            "url": "https://telugu.asianetnews.com/coronavirus-telangana/telangana-will-be-corona-free-till-april-7-kcr-q7ynwo"
+          },
+          {
+            "tier": "B",
+            "publisher": "LatestLY Telugu",
+            "title": "CM KCR Press Meet: ఏప్రిల్‌ 7 తర్వాత కరోనా సమస్య ఉండదు, కొత్త కేసులు నమోదు కాకుంటే జరిగేది అదే",
+            "url": "https://telugu.latestly.com/state/telangana/covid-19-in-telangana-cm-kcr-addressing-the-media-on-lockdown-situation-in-telangana-12567.html"
           }
         ]
       }
@@ -1399,8 +1477,9 @@
       "language": "Hindi",
       "category": "Economics",
       "neutral_title": "On pakodas and the measurement of employment",
-      "quote": "If a man selling pakodas outside the Zee TV office takes home Rs 200 at the end of the day, is that not employment?",
-      "quote_note": "As rendered in English by the outlets cited; Hindi original not yet transcribed.",
+      "quote": "अगर कोई आदमी आपके टीवी स्टूडियो के सामने पकौड़े बेचता है और शाम को 200 रुपये कमाकर जाता है, तो आप इसे रोजगार मानेंगे कि नहीं मानेंगे?",
+      "quote_translation": "If someone sells pakodas outside your television studio and goes home in the evening after earning 200 rupees, would you consider that employment or not?",
+      "quote_note": "Original Hindi quoted by Prabhat Khabar from the television interview. The full Zee News video still needs exact timestamps and surrounding context.",
       "claim": "That informal self-employment at around Rs 200 a day counts as employment for the purposes of the national debate on jobs.",
       "context": "Made during a sustained argument over jobs data. It generated its own economic shorthand — 'Pakodanomics' — and a direct reply from P. Chidambaram (IN-0016). Amit Shah defended the framing in the Rajya Sabha (IN-0041, held).",
       "axes": {
@@ -1412,10 +1491,9 @@
       },
       "verification": {
         "stage": "text_sourced",
-        "best_source_tier": "C",
+        "best_source_tier": "B",
         "needs": [
-          "Tier A/B video of the Zee News interview with timestamps",
-          "Hindi original"
+          "full Zee News interview with start/end timestamps and surrounding 60 seconds"
         ],
         "sources": [
           {
@@ -1429,6 +1507,12 @@
             "publisher": "Wikipedia",
             "title": "Pakodanomics",
             "url": "https://en.wikipedia.org/wiki/Pakodanomics"
+          },
+          {
+            "tier": "B",
+            "publisher": "Prabhat Khabar",
+            "title": "सोशल: इस बजट में पकौड़े वालों को क्या मिला?",
+            "url": "https://www.prabhatkhabar.com/video/news/1118851"
           }
         ]
       }
@@ -1684,14 +1768,15 @@
       "party_at_time": "BJP",
       "office_at_time": "Member of Parliament, Haridwar",
       "state": "Uttarakhand",
-      "date": "2014",
-      "date_precision": "year",
-      "venue": "Parliament of India",
+      "date": "2014-12-03",
+      "date_precision": "day",
+      "venue": "Lok Sabha, Parliament of India",
       "language": "Hindi",
       "category": "History",
       "neutral_title": "On an ancient nuclear test",
-      "quote": "Today we are talking about nuclear tests. Lakhs of years ago, Sage Kanad had conducted a nuclear test.",
-      "quote_note": "As rendered in English by the outlet cited; Hindi original not yet transcribed.",
+      "quote": "आज ज्योतिष की बात हो रही है। मैं समझता हूं कि अणुबम का परीक्षण लाखों वर्ष पहले कणाद ऋषि ने इसी धरती पर किया था।",
+      "quote_translation": "Today we are talking about astrology. I understand that Sage Kanad conducted an atomic-bomb test on this very land hundreds of thousands of years ago.",
+      "quote_note": "Original Hindi from the official Lok Sabha debate transcript. Audiovisual footage and exact timestamps remain outstanding.",
       "claim": "That the sage Kanad conducted a nuclear test hundreds of thousands of years ago.",
       "context": "Kanad, to whom an atomistic theory of matter is attributed, is generally placed in the last few centuries BCE — not lakhs of years ago.",
       "axes": {
@@ -1703,11 +1788,9 @@
       },
       "verification": {
         "stage": "text_sourced",
-        "best_source_tier": "C",
+        "best_source_tier": "A",
         "needs": [
-          "parliamentary record — obtainable",
-          "exact date and House",
-          "corroborating second source"
+          "audiovisual recording with start/end timestamps and surrounding context"
         ],
         "sources": [
           {
@@ -1715,6 +1798,12 @@
             "publisher": "The Quint",
             "title": "Why We Hope Our Education Minister Ramesh Pokhriyal Nishank's Remarks on Science Don't Enter Our Books",
             "url": "https://www.thequint.com/elections/modi-cabinet-hrd-minister-ramesh-pokhriyal-remarks-on-astrology-science-nuclear-tests"
+          },
+          {
+            "tier": "A",
+            "publisher": "Lok Sabha",
+            "title": "Lok Sabha Debates, 3 December 2014",
+            "url": "https://sansad.in/getFile/debatestextmk/16/III/0312.pdf?source=loksabhadocs"
           }
         ]
       }
@@ -1984,14 +2073,15 @@
       "party_at_time": "INC",
       "office_at_time": "President, Indian National Congress",
       "state": "Delhi",
-      "date": "2018",
-      "date_precision": "year",
+      "date": "2018-06-11",
+      "date_precision": "day",
       "venue": "OBC national convention, Talkatora Stadium, New Delhi",
       "language": "Hindi",
       "category": "History",
       "neutral_title": "On the founders of Coca-Cola and McDonald's",
-      "quote": "Coca-Cola wala America mein shikanji bechta tha. McDonald's wala dhaba chalata tha.",
-      "quote_note": "As reported in Hindi by multiple outlets. The full-speech video and an exact timestamp are not yet attached; see `needs`.",
+      "quote": "कोका-कोला कंपनी को शुरू करने वाला व्यक्ति शिकंजी बेचने वाला था। पानी में चीनी मिलाता था। उसके हुनर को लोगों ने पहचाना, पैसे आए उसने कंपनी शुरू की। इसी तरह से मैकडोनाल्ड कंपनी की शुरुआत एक ढाबा चलाने वाले ने की थी।",
+      "quote_translation": "The person who started the Coca-Cola company used to sell shikanji. He mixed sugar into water. People recognised his skill, money came in, and he started the company. Similarly, the McDonald's company was started by someone who ran a dhaba.",
+      "quote_note": "Original Hindi quoted by contemporaneous Hindi reporting from the address. The full-speech video and an exact timestamp are not yet attached.",
       "claim": "That the founder of Coca-Cola had sold shikanji in America and the founder of McDonald's had run a dhaba, offered as an argument that entrepreneurial talent exists among those denied opportunity.",
       "context": "Said while arguing that the government ignores skills and talent among backward classes. The rhetorical purpose is not in dispute; the historical claim is what is indexed.",
       "counterpoint": "Coca-Cola was formulated in 1886 by John Pemberton, a pharmacist, and sold as a patent medicine at a pharmacy soda fountain. McDonald's was founded by Richard and Maurice McDonald, who ran a drive-in restaurant in California.",
@@ -2006,9 +2096,7 @@
         "stage": "text_sourced",
         "best_source_tier": "B",
         "needs": [
-          "Tier A/B video of the Talkatora Stadium address with start/end timestamps",
-          "Exact date of the convention — currently established only to the year",
-          "Hindi transcript of the exact sentences and the surrounding 60s"
+          "Tier A/B video of the Talkatora Stadium address with start/end timestamps and surrounding 60 seconds"
         ],
         "sources": [
           {
@@ -2028,6 +2116,12 @@
             "publisher": "DNA India",
             "title": "Coca-Cola owner used to sell Shikanji, McD was a dhaba: Rahul Gandhi",
             "url": "https://www.dnaindia.com/india/report-coca-cola-owner-used-to-sell-shikanji-mcd-was-a-dhaba-rahul-gandhi-2624308"
+          },
+          {
+            "tier": "B",
+            "publisher": "Gizbot Hindi",
+            "title": "कोका-कोला कंपनी का मालिक शिकंजी बेचता था बयान पर फिर वायरल हुए राहुल गांधी",
+            "url": "https://hindi.gizbot.com/news/video-rahul-gandhi-saying-coca-cola-founder-used-sell-shikanji-goes-viral-016001.html"
           }
         ]
       }

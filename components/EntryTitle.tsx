@@ -1,4 +1,5 @@
 import type { CorpusStatement } from "@/lib/corpus";
+import { languageTag } from "@/lib/language";
 
 /**
  * Renders an entry's headline, and is the single place that decides
@@ -15,11 +16,19 @@ export default function EntryTitle({
   statement,
   className,
 }: {
-  statement: Pick<CorpusStatement, "quote" | "hasVerbatimQuote">;
+  statement: Pick<CorpusStatement, "quote" | "hasVerbatimQuote" | "language">;
   className?: string;
 }) {
   if (statement.hasVerbatimQuote) {
-    return <span className={className}>&ldquo;{statement.quote}&rdquo;</span>;
+    const quoteClassName =
+      [className, statement.language !== "English" ? "original-language" : ""]
+        .filter(Boolean)
+        .join(" ") || undefined;
+    return (
+      <span className={quoteClassName} lang={languageTag(statement.language)}>
+        &ldquo;{statement.quote}&rdquo;
+      </span>
+    );
   }
   return (
     <span className={className}>

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import SiteFrame from "@/components/SiteFrame";
-import { REJECTED, REJECTION_RULES } from "@/lib/data";
+import { getData } from "@/lib/data";
 
 export const metadata: Metadata = {
   title: "Refused",
@@ -9,7 +9,8 @@ export const metadata: Metadata = {
     "Statements proposed for the archive and refused under the Rules of the Committee, each recorded with the rule that killed it.",
 };
 
-export default function RejectedPage() {
+export default async function RejectedPage() {
+  const { REJECTED, REJECTION_RULES } = await getData();
   return (
     <SiteFrame>
       <div className="sec-head" style={{ marginTop: 26 }}>

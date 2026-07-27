@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { REJECTED, STATS } from "@/lib/data";
+import { getData } from "@/lib/data";
 
 /**
  * The running head. Reports the true state of the record rather than
@@ -7,7 +7,8 @@ import { REJECTED, STATS } from "@/lib/data";
  * refused. An archive that overstates its own completeness is worth less
  * than one that doesn't.
  */
-export default function Ticker() {
+export default async function Ticker() {
+  const { REJECTED, STATS } = await getData();
   const items = [
     { href: "/ledger", text: `${STATS.indexed} entries indexed · ${STATS.onLadder} placed on the ladder · ${STATS.heldParity} held for parity` },
     { href: "/ledger", text: `${STATS.withVerbatimQuote} of ${STATS.indexed} entries carry an established verbatim quote — the rest await one` },

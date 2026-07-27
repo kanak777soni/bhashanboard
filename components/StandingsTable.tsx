@@ -1,7 +1,8 @@
 import Link from "next/link";
 import Medal from "./Medal";
-import { netaBySlug, partyByCode } from "@/lib/data";
+import { getData } from "@/lib/data";
 import { slugify } from "@/lib/corpus";
+import { languageTag } from "@/lib/language";
 import type { Row } from "@/lib/query";
 
 /** Wraps the first case-insensitive hit so a search shows why it matched. */
@@ -24,7 +25,7 @@ function Movement({ delta }: { delta: number }) {
   return <span className="mv flat">&mdash;</span>;
 }
 
-export default function StandingsTable({
+export default async function StandingsTable({
   rows,
   term = "",
   hideNeta = false,
@@ -34,6 +35,8 @@ export default function StandingsTable({
   /** On a representative's own page the column just repeats the heading. */
   hideNeta?: boolean;
 }) {
+  const data = await getData();
+
   return (
     <div className="tablewrap">
       <table className="standings">
@@ -57,8 +60,8 @@ export default function StandingsTable({
           )}
 
           {rows.map(({ statement: s, rank, delta }) => {
-            const neta = netaBySlug(s.neta);
-            const party = neta ? partyByCode(neta.party) : undefined;
+            const neta = data.netaBySlug(s.neta);
+            const party = data.partyByCode(s.partyAtTime);
             return (
               <tr key={s.slug}>
                 <td className="c-rank">{rank}</td>
@@ -67,7 +70,12 @@ export default function StandingsTable({
                 <td>
                   <Link className="entry-quote" href={`/statement/${s.slug}`}>
                     {s.hasVerbatimQuote ? (
-                      <>&ldquo;<Highlight text={s.quote} term={term} />&rdquo;</>
+                      <span
+                        className={s.language !== "English" ? "original-language" : undefined}
+                        lang={languageTag(s.language)}
+                      >
+                        &ldquo;<Highlight text={s.quote} term={term} />&rdquo;
+                      </span>
                     ) : (
                       <>
                         <Highlight text={s.quote} term={term} />
@@ -77,7 +85,7 @@ export default function StandingsTable({
                   </Link>
                   <div className="entry-sub">
                     <span className="only-narrow">
-                      {neta?.name} &middot; {neta?.party} &middot;{" "}
+                      {neta?.name} &middot; {s.partyAtTime} &middot;{" "}
                     </span>
                     <Link href={`/category/${slugify(s.category)}`}>{s.category}</Link> &middot; {s.language}
                   </div>
@@ -93,7 +101,7 @@ export default function StandingsTable({
                     )}
                     <div className="entry-sub">
                       <i className="swatch" style={{ background: party?.ink ?? "transparent" }} />
-                      <Link href={`/party/${neta?.party}`}>{neta?.party}</Link> &middot; {neta?.state}
+                      <Link href={`/party/${s.partyAtTime}`}>{s.partyAtTime}</Link> &middot; {neta?.state}
                     </div>
                   </td>
                 )}

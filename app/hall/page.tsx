@@ -3,18 +3,20 @@ import Link from "next/link";
 import SiteFrame from "@/components/SiteFrame";
 import Medal from "@/components/Medal";
 import EntryTitle from "@/components/EntryTitle";
-import { netaBySlug, rankedStatements } from "@/lib/data";
+import { getData } from "@/lib/data";
 
 export const metadata: Metadata = {
   title: "Hall of Fame",
   description: "Entries retired from active duelling into the permanent gallery.",
 };
 
-export default function HallPage() {
+export default async function HallPage() {
+  const data = await getData();
   // Inducted entries are chosen by the Committee in the admin. Until the
   // first induction the gallery previews the standing candidates.
-  const inducted = rankedStatements().filter((s) => s.hallOfFame);
-  const candidates = inducted.length ? inducted : rankedStatements().filter((s) => s.gp >= 1875);
+  const ranked = data.rankedStatements();
+  const inducted = ranked.filter((s) => s.hallOfFame);
+  const candidates = inducted.length ? inducted : ranked.filter((s) => s.gp >= 1875);
 
   return (
     <SiteFrame>
@@ -34,7 +36,7 @@ export default function HallPage() {
 
       <div style={{ marginTop: 24, borderTop: "2px solid var(--ink)" }}>
         {candidates.map((s, i) => {
-          const neta = netaBySlug(s.neta);
+          const neta = data.netaBySlug(s.neta);
           return (
             <article className="hall-entry" key={s.slug}>
               <div className="hall-rank">
@@ -53,7 +55,7 @@ export default function HallPage() {
                   </div>
                 )}
                 <div className="entry-sub" style={{ marginTop: 4 }}>
-                  {neta?.name} &middot; {neta?.party} &middot; {neta?.state} &middot;{" "}
+                  {neta?.name} &middot; {s.partyAtTime} &middot; {neta?.state} &middot;{" "}
                   <span className="num">{s.duels.toLocaleString("en-IN")}</span> duels
                 </div>
               </div>

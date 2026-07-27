@@ -1,32 +1,55 @@
 import { NextResponse, type NextRequest } from "next/server";
+import {
+  ADMIN_SESSION_COOKIE,
+  adminAuthConfig,
+  adminSessionToken,
+  basicPassword,
+  safePasswordEqual,
+  safeTokenEqual,
+} from "@/lib/admin-session";
 
 /**
- * Gate on /admin.
- *
- * Set ADMIN_PASSWORD in .env.local to enable it. Without it the dashboard
- * is open, which is fine on your own machine and is why the layout says so
- * loudly — but the moment this is deployed anywhere reachable, the
- * variable has to be set. Real accounts arrive with Supabase auth.
+ * Route-level gate for the Committee Room. Server Actions independently call
+ * requireAdmin(), so this is the first layer rather than the only layer.
  */
-export function middleware(req: NextRequest) {
-  const password = process.env.ADMIN_PASSWORD;
-  if (!password) return NextResponse.next();
+export async function middleware(req: NextRequest) {
+  const config = adminAuthConfig();
 
-  if (req.cookies.get("bb-admin")?.value === password) return NextResponse.next();
+  if (config.mode === "insecure-local") {
+    return NextResponse.next();
+  }
 
-  const header = req.headers.get("authorization");
-  if (header?.startsWith("Basic ")) {
-    const [, pass] = atob(header.slice(6)).split(":");
-    if (pass === password) {
-      const res = NextResponse.next();
-      res.cookies.set("bb-admin", password, { httpOnly: true, sameSite: "lax", path: "/admin" });
-      return res;
-    }
+  if (config.mode === "misconfigured") {
+    return new NextResponse("The Committee Room is unavailable: admin authentication is not configured.", {
+      status: 503,
+      headers: { "Cache-Control": "no-store" },
+    });
+  }
+
+  const expectedToken = await adminSessionToken(config.password);
+  if (safeTokenEqual(req.cookies.get(ADMIN_SESSION_COOKIE)?.value, expectedToken)) {
+    return NextResponse.next();
+  }
+
+  const suppliedPassword = basicPassword(req.headers.get("authorization"));
+  if (safePasswordEqual(suppliedPassword, config.password)) {
+    const response = NextResponse.next();
+    response.cookies.set(ADMIN_SESSION_COOKIE, expectedToken, {
+      httpOnly: true,
+      sameSite: "strict",
+      secure: process.env.NODE_ENV === "production",
+      path: "/admin",
+      maxAge: 60 * 60 * 8,
+    });
+    return response;
   }
 
   return new NextResponse("The Committee Room is closed.", {
     status: 401,
-    headers: { "WWW-Authenticate": 'Basic realm="The Committee Room", charset="UTF-8"' },
+    headers: {
+      "Cache-Control": "no-store",
+      "WWW-Authenticate": 'Basic realm="The Committee Room", charset="UTF-8"',
+    },
   });
 }
 

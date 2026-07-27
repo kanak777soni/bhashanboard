@@ -1,21 +1,24 @@
 import Link from "next/link";
 import Medal from "./Medal";
 import EntryTitle from "./EntryTitle";
-import { netaBySlug, rankedStatements, statementsByNeta } from "@/lib/data";
+import { getData } from "@/lib/data";
 
 /**
  * A statement page was a dead end: no way onward, no way to cite it. Both
  * matter — onward navigation is how an archive gets read, and a formal
  * citation is what makes a newsroom willing to reference you.
  */
-export default function StatementFooterNav({ slug }: { slug: string }) {
-  const ranked = rankedStatements();
+export default async function StatementFooterNav({ slug }: { slug: string }) {
+  const data = await getData();
+  const ranked = data.rankedStatements();
   const i = ranked.findIndex((s) => s.slug === slug);
   const current = ranked[i];
   const above = i > 0 ? ranked[i - 1] : null;
   const below = i >= 0 && i < ranked.length - 1 ? ranked[i + 1] : null;
-  const neta = current ? netaBySlug(current.neta) : undefined;
-  const siblings = neta ? statementsByNeta(neta.slug).filter((s) => s.slug !== slug).slice(0, 4) : [];
+  const neta = current ? data.netaBySlug(current.neta) : undefined;
+  const siblings = neta
+    ? data.statementsByNeta(neta.slug).filter((s) => s.slug !== slug).slice(0, 4)
+    : [];
 
   const citation = current && neta
     ? `${neta.name}, ${neta.office}. ${current.hasVerbatimQuote ? `"${current.quote}"` : `[${current.neutralTitle}] — exact wording not established.`} ${current.venue}. ` +

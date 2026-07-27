@@ -16,6 +16,35 @@
     "statement": {
       "type": "object",
       "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "language": { "not": { "const": "English" } },
+              "quote": { "type": "string", "pattern": "\\S" }
+            },
+            "required": ["language", "quote"]
+          },
+          "then": { "required": ["quote_translation"] }
+        },
+        {
+          "if": {
+            "properties": { "quote": { "type": "null" } },
+            "required": ["quote"]
+          },
+          "then": {
+            "required": ["quote_note"],
+            "not": { "required": ["quote_translation"] }
+          }
+        },
+        {
+          "if": {
+            "properties": { "language": { "const": "English" } },
+            "required": ["language"]
+          },
+          "then": { "not": { "required": ["quote_translation"] } }
+        }
+      ],
       "required": [
         "id", "status", "speaker_id", "party_at_time", "office_at_time", "state",
         "date", "date_precision", "venue", "language", "category",
@@ -48,10 +77,11 @@
 
         "quote": {
           "type": ["string", "null"],
-          "description": "VERBATIM ONLY. Null if the exact wording has not been established from a source. Never paraphrase into this field, never reconstruct it from reported speech, never tidy the grammar. A null quote is a research task; an invented quote is the end of the project."
+          "pattern": "\\S",
+          "description": "ORIGINAL-LANGUAGE VERBATIM ONLY. Null if the exact wording has not been established from a source. Never put an English rendering of a non-English remark here, never paraphrase, never reconstruct it from reported speech, and never tidy the grammar. A null quote is a research task; an invented quote is the end of the project."
         },
-        "quote_note": { "type": "string", "description": "Required whenever `quote` is null, or is an English rendering rather than the original-language words." },
-        "quote_translation": { "type": "string" },
+        "quote_note": { "type": "string", "pattern": "\\S", "description": "Required whenever `quote` is null. For sourced quotes, record transcription or normalization decisions and remaining provenance work here." },
+        "quote_translation": { "type": "string", "pattern": "\\S", "description": "Faithful English translation of a non-English verbatim quote. Required whenever a non-English `quote` is present." },
 
         "claim": { "type": "string", "description": "Neutral one-line summary of what was asserted. This is what search and the duel card render when `quote` is null." },
         "context": { "type": "string", "description": "What surrounds the statement. Stage 3 requires the surrounding 60s be watched; this field records what that showed." },
@@ -97,6 +127,7 @@
             "sources": {
               "type": "array",
               "minItems": 1,
+              "maxItems": 4,
               "items": {
                 "type": "object",
                 "required": ["tier", "publisher", "title", "url"],

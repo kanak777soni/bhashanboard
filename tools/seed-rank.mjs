@@ -59,6 +59,20 @@ const errors = [];
 const warnings = [];
 const err = (id, m) => errors.push(`${id}: ${m}`);
 const warn = (id, m) => warnings.push(`${id}: ${m}`);
+const ORIGINAL_SCRIPTS = new Map([
+  ["Assamese", /\p{Script=Bengali}/u],
+  ["Bengali", /\p{Script=Bengali}/u],
+  ["Gujarati", /\p{Script=Gujarati}/u],
+  ["Hindi", /\p{Script=Devanagari}/u],
+  ["Kannada", /\p{Script=Kannada}/u],
+  ["Malayalam", /\p{Script=Malayalam}/u],
+  ["Marathi", /\p{Script=Devanagari}/u],
+  ["Odia", /\p{Script=Oriya}/u],
+  ["Punjabi", /\p{Script=Gurmukhi}/u],
+  ["Tamil", /\p{Script=Tamil}/u],
+  ["Telugu", /\p{Script=Telugu}/u],
+  ["Urdu", /\p{Script=Arabic}/u],
+]);
 
 /* ── validate ─────────────────────────────────────────────────────────────── */
 const seen = new Set();
@@ -74,12 +88,27 @@ for (const s of statements) {
   // The verbatim doctrine, enforced rather than asserted.
   if (s.quote === null && !s.quote_note) err(s.id, "quote is null and quote_note is missing — say why, and say what is needed");
   if (typeof s.quote === "string" && s.quote.trim() === "") err(s.id, 'empty quote string — use null, not ""');
+  if (s.quote === null && s.quote_translation) err(s.id, "quote_translation is present while quote is null");
+  if (s.language === "English" && s.quote_translation)
+    err(s.id, "English quote must not carry quote_translation");
+  if (typeof s.quote === "string" && s.language !== "English") {
+    if (typeof s.quote_translation !== "string" || s.quote_translation.trim() === "")
+      err(s.id, "non-English quote is missing quote_translation");
+    const expectedScript = ORIGINAL_SCRIPTS.get(s.language);
+    if (expectedScript) {
+      const letters = [...s.quote].filter((char) => /\p{Letter}/u.test(char));
+      const expectedLetters = letters.filter((char) => expectedScript.test(char)).length;
+      if (!letters.length || expectedLetters / letters.length < 0.5)
+        err(s.id, `fewer than half of quote letters use the expected ${s.language} script`);
+    }
+  }
 
   // A title that renders a verdict is a defamation problem, not a style problem.
   if (!/^On /.test(s.neutral_title)) warn(s.id, `neutral_title should state what was claimed ("On …"), got "${s.neutral_title}"`);
 
   const v = s.verification;
   if (!v.sources?.length) err(s.id, "no sources");
+  if (v.sources?.length > 4) err(s.id, "more than four sources — the admin editor preserves at most four");
   const best = v.sources.reduce((a, x) => (TIER_RANK[x.tier] > TIER_RANK[a] ? x.tier : a), "D");
   if (best !== v.best_source_tier) err(s.id, `best_source_tier is "${v.best_source_tier}" but the best source listed is "${best}"`);
   if (TIER_RANK[best] < TIER_RANK.B) warn(s.id, `no Tier A or B source — unpublishable under §3.2 until one is found`);

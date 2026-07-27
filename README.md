@@ -4,7 +4,30 @@
 
 India first. Then the world.
 
-**Status:** planning, plus a first real corpus. The plan is in `docs/`; the open decisions are in `docs/06-roadmap.md` §6.5. The India seed corpus — 41 sourced entries, 14 documented rejections, a working parity engine and a provisional ladder — is in `data/`, explained in `docs/09-seed-corpus.md`.
+**Status:** planning, plus a first real corpus. The plan is in `docs/`; the open decisions are in `docs/06-roadmap.md` §6.5. The India seed corpus — 44 sourced entries, 16 documented rejections, a working parity engine and a provisional ladder — is in `data/`, explained in `docs/09-seed-corpus.md`.
+
+---
+
+## Database setup
+
+The live application uses Neon Postgres as its source of truth. Copy
+`.env.example` to `.env`, set the pooled Neon `DATABASE_URL`, and set a long
+`ADMIN_PASSWORD`. Then run:
+
+```bash
+npm run db:setup
+```
+
+That command applies checksum-protected migrations, validates and imports the
+current JSON corpus without deleting remote rows, and verifies document hashes,
+foreign-key-backed records, exact source artifacts, the statement ID sequence,
+and the append-only audit ledger. It is safe to run again: unchanged rows are
+not rewritten. A row edited through the admin is protected from later seed
+imports and must be reconciled manually if its local JSON counterpart changes.
+
+For production, configure `DATABASE_URL`, `ADMIN_PASSWORD`, and
+`NEXT_PUBLIC_SITE_URL` in the hosting environment as well. Never expose
+`DATABASE_URL` through a `NEXT_PUBLIC_` variable.
 
 ---
 

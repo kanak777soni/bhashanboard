@@ -1,10 +1,11 @@
 import Link from "next/link";
 import Guilloche from "./Guilloche";
 import ThemeToggle from "./ThemeToggle";
-import { EDITION, STATEMENTS, parity } from "@/lib/data";
+import { EDITION, getData } from "@/lib/data";
 
-export default function Masthead() {
-  const bands = parity();
+export default async function Masthead() {
+  const data = await getData();
+  const bands = data.parity();
 
   return (
     <>
@@ -23,7 +24,7 @@ export default function Masthead() {
             <div className="lbl">Edition {EDITION.number}</div>
             <div className="lbl">{EDITION.date}</div>
             <div className="lbl">
-              <span className="num">{STATEMENTS.length.toLocaleString("en-IN")}</span> entries on record
+              <span className="num">{data.STATEMENTS.length.toLocaleString("en-IN")}</span> entries on record
             </div>
             <ThemeToggle />
           </div>

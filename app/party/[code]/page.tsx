@@ -4,33 +4,30 @@ import { notFound } from "next/navigation";
 import SiteFrame from "@/components/SiteFrame";
 import StandingsTable from "@/components/StandingsTable";
 import Medal from "@/components/Medal";
-import { PARTIES, netaBySlug, partyByCode, rankOf, rankedStatements } from "@/lib/data";
+import { getData } from "@/lib/data";
 import { TIERS, tierOf } from "@/lib/tiers";
 
-export function generateStaticParams() {
-  const live = new Set(rankedStatements().map((s) => netaBySlug(s.neta)?.party).filter(Boolean));
-  return [...live].map((code) => ({ code: String(code) }));
-}
-
 export async function generateMetadata({ params }: { params: Promise<{ code: string }> }): Promise<Metadata> {
-  const p = partyByCode((await params).code);
+  const data = await getData();
+  const p = data.partyByCode((await params).code);
   return p
     ? { title: p.name, description: `Every indexed statement by representatives of the ${p.name}, ranked.` }
     : { title: "Party not found" };
 }
 
 export default async function PartyPage({ params }: { params: Promise<{ code: string }> }) {
+  const data = await getData();
   const { code } = await params;
-  const party = partyByCode(code);
+  const party = data.partyByCode(code);
   if (!party) notFound();
 
-  const all = rankedStatements();
-  const mine = all.filter((s) => netaBySlug(s.neta)?.party === code);
+  const all = data.rankedStatements();
+  const mine = all.filter((s) => s.partyAtTime === code);
   if (mine.length === 0) notFound();
 
-  const rows = mine.map((s) => ({ statement: s, rank: rankOf(s.slug), delta: 0 }));
+  const rows = mine.map((s) => ({ statement: s, rank: data.rankOf(s.slug), delta: 0 }));
   const share = Math.round((mine.length / all.length) * 100);
-  const best = rankOf(mine[0].slug);
+  const best = data.rankOf(mine[0].slug);
   const people = [...new Set(mine.map((s) => s.neta))];
   const cabinet = TIERS.map((t) => ({ tier: t, n: mine.filter((s) => tierOf(s.gp).key === t.key).length })).filter((c) => c.n > 0);
 
@@ -62,7 +59,7 @@ export default async function PartyPage({ params }: { params: Promise<{ code: st
           <span className="lbl">On the record</span>
           <div style={{ fontSize: 14.5, lineHeight: 1.7 }}>
             {people.map((id, i) => {
-              const n = netaBySlug(id);
+              const n = data.netaBySlug(id);
               return n ? (
                 <span key={id}>
                   {i > 0 && " · "}
@@ -86,7 +83,7 @@ export default async function PartyPage({ params }: { params: Promise<{ code: st
       <StandingsTable rows={rows} />
 
       <p style={{ marginTop: 20, display: "flex", gap: 10, flexWrap: "wrap" }}>
-        {PARTIES.filter((p) => p.code !== code).slice(0, 8).map((p) => (
+        {data.PARTIES.filter((p) => p.code !== code).slice(0, 8).map((p) => (
           <Link key={p.code} className="token" href={`/party/${p.code}`}>{p.code}</Link>
         ))}
       </p>

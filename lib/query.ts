@@ -1,6 +1,6 @@
-import { netaBySlug, rankedStatements, rankOf } from "./data";
 import { tierOf } from "./tiers";
 import type { CorpusStatement } from "./corpus";
+import type { Neta } from "./types";
 
 /**
  * Filters live in the URL, not in component state. Every query is
@@ -69,13 +69,21 @@ export interface Row {
   delta: number;
 }
 
-export function runQuery(query: Query): Row[] {
-  const term = query.q.toLowerCase();
+export interface QueryDataset {
+  statements: CorpusStatement[];
+  netas: Neta[];
+}
 
-  const matched = rankedStatements().filter((s) => {
-    const neta = netaBySlug(s.neta);
+export function runQuery(query: Query, dataset: QueryDataset): Row[] {
+  const term = query.q.toLowerCase();
+  const ranked = [...dataset.statements].sort((a, b) => b.gp - a.gp);
+  const netaMap = new Map(dataset.netas.map((neta) => [neta.slug, neta]));
+  const rankMap = new Map(ranked.map((statement, index) => [statement.slug, index + 1]));
+
+  const matched = ranked.filter((s) => {
+    const neta = netaMap.get(s.neta);
     if (!neta) return false;
-    if (query.party !== "all" && neta.party !== query.party) return false;
+    if (query.party !== "all" && s.partyAtTime !== query.party) return false;
     if (query.state !== "all" && neta.state !== query.state) return false;
     if (query.category !== "all" && s.category !== query.category) return false;
     if (query.language !== "all" && s.language !== query.language) return false;
@@ -89,6 +97,7 @@ export function runQuery(query: Query): Row[] {
         neta.name,
         neta.state,
         neta.party,
+        s.partyAtTime,
         s.category,
         s.language,
         s.venue,
@@ -101,7 +110,7 @@ export function runQuery(query: Query): Row[] {
   });
 
   const rows: Row[] = matched.map((s) => {
-    const rank = rankOf(s.slug);
+    const rank = rankMap.get(s.slug) ?? 0;
     return { statement: s, rank, delta: s.previousRank ? s.previousRank - rank : 0 };
   });
 

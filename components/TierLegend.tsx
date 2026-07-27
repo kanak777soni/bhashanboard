@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Medal from "./Medal";
 import { TIERS } from "@/lib/tiers";
-import { rankedStatements } from "@/lib/data";
+import { getData } from "@/lib/data";
 import { tierOf } from "@/lib/tiers";
 
 /**
@@ -10,8 +10,9 @@ import { tierOf } from "@/lib/tiers";
  * the glyphs meant. Presented as an official scale, because that is the
  * joke: the apparatus is real, the subject is not.
  */
-export default function TierLegend({ compact = false }: { compact?: boolean }) {
-  const all = rankedStatements();
+export default async function TierLegend({ compact = false }: { compact?: boolean }) {
+  const data = await getData();
+  const all = data.rankedStatements();
   const counts = new Map<string, number>();
   all.forEach((s) => {
     const k = tierOf(s.gp).key;

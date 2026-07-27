@@ -26,7 +26,12 @@ export default function EntryForm({
 
   return (
     <form action={action} className="admin-form">
-      {entry && <input type="hidden" name="id" value={entry.id} />}
+      {entry && (
+        <>
+          <input type="hidden" name="id" value={entry.id} />
+          <input type="hidden" name="version" value={entry.version} />
+        </>
+      )}
 
       <fieldset>
         <legend>The statement</legend>
@@ -42,7 +47,16 @@ export default function EntryForm({
         </label>
 
         <label className="field">
-          <span className="lbl">Note on the quote — translation, rendering, what is still missing</span>
+          <span className="lbl">English translation — required for a non-English quote</span>
+          <textarea
+            name="quote_translation"
+            defaultValue={entry?.quote_translation ?? ""}
+            placeholder="Translate the sourced quote faithfully; do not replace the original-language text above."
+          />
+        </label>
+
+        <label className="field">
+          <span className="lbl">Note on the quote — required when quote is empty; otherwise record provenance</span>
           <input name="quote_note" defaultValue={entry?.quote_note ?? ""} />
         </label>
 

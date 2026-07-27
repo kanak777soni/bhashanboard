@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { applyDuel } from "@/lib/elo";
+import { languageTag } from "@/lib/language";
 
 export interface DuelEntry {
   slug: string;
@@ -13,6 +14,7 @@ export interface DuelEntry {
   gp: number;
   duels: number;
   hasQuote: boolean;
+  language: string;
 }
 
 interface Pair {
@@ -96,7 +98,14 @@ export default function DuelStage({ entries }: { entries: DuelEntry[] }) {
 
   const panel = (side: "a" | "b", entry: DuelEntry, key: string) => (
     <button type="button" className="duel-panel" onClick={() => choose(side)}>
-      <p className="duel-quote">{entry.hasQuote ? `\u201C${entry.quote}\u201D` : entry.quote}</p>
+      <p
+        className={`duel-quote${
+          entry.hasQuote && entry.language !== "English" ? " original-language" : ""
+        }`}
+        lang={entry.hasQuote ? languageTag(entry.language) : "en"}
+      >
+        {entry.hasQuote ? `\u201C${entry.quote}\u201D` : entry.quote}
+      </p>
       <div className="duel-meta">
         {entry.neta} &middot; {entry.party} &middot; {entry.state}
       </div>
