@@ -219,6 +219,32 @@ h1, h2, h3 { text-wrap: balance; }
 }
 .nav a:hover { color: var(--ink); }
 .nav a[aria-current="page"] { color: var(--ink); border-bottom-color: var(--seal); }
+.nav-auth {
+  display: flex;
+  flex: none;
+  margin-left: auto;
+  border-left: 1px solid var(--rule);
+}
+.nav-auth .nav-register {
+  color: var(--on-seal);
+  background: var(--seal);
+  border-bottom-color: var(--seal);
+}
+.nav-auth .nav-register:hover,
+.nav-auth .nav-register[aria-current="page"] {
+  color: var(--on-seal);
+  background: var(--seal);
+  filter: brightness(.92);
+}
+@media (max-width: 900px) {
+  .nav-auth {
+    order: -1;
+    width: 100%;
+    justify-content: flex-end;
+    border-left: 0;
+    border-bottom: 1px solid var(--rule);
+  }
+}
 
 /* ── ticker ──────────────────────────────────────────────────── */
 .ticker { display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--rule); padding: 8px 0; white-space: nowrap; }

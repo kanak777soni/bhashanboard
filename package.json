@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit --pretty false",
-    "test": "tsx --test tests/rating.test.ts tests/video.test.ts tests/auth-redirect.test.ts tests/auth-config.test.ts tests/brevo-config.test.ts tests/integrity.test.ts",
+    "test": "tsx --test tests/rating.test.ts tests/video.test.ts tests/auth-redirect.test.ts tests/auth-config.test.ts tests/brevo-config.test.ts tests/integrity.test.ts tests/site-navigation.test.ts",
     "check:overflow": "node scripts/check-overflow.mjs",
     "admin:promote": "node scripts/promote-admin.mjs",
     "db:migrate": "node scripts/db-migrate.mjs",
