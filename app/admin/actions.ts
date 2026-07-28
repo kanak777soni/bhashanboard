@@ -16,9 +16,11 @@ import {
   type StoredStatement,
 } from "@/lib/store";
 import type { StatementVideo } from "@/lib/types";
+import { verifyExistingR2Video, verifyR2AttachmentToken } from "@/lib/r2";
 import {
   assertVideoExcerpt,
   committeePublicationIssues,
+  normalizeStatementVideo,
   normalizeVerificationStage,
   parseVideoTimestamp,
   parseYouTubeVideo,
@@ -64,11 +66,43 @@ function formVersion(fd: FormData): number {
   return version;
 }
 
-function collectVideo(fd: FormData): StatementVideo | undefined {
+async function collectVideo(
+  fd: FormData,
+  fallback: StoredStatement | undefined,
+  actorId: string
+): Promise<{ video?: StatementVideo; r2UploadIntentId?: string }> {
+  const platform = str(fd, "video_platform");
   const input = str(fd, "video");
   const startInput = str(fd, "video_start");
   const endInput = str(fd, "video_end");
-  if (!input && !startInput && !endInput) return undefined;
+  if (platform === "none") return {};
+
+  if (platform === "r2") {
+    if (!input) throw new Error("Upload and verify an MP4 before saving the R2 video.");
+    const attachmentToken = str(fd, "video_attachment_token");
+    if (attachmentToken) {
+      const verified = await verifyR2AttachmentToken({
+        actorId,
+        attachmentToken,
+        playbackAttested: str(fd, "video_playback_attested") === "true",
+      });
+      if (verified.video.id !== input) {
+        throw new Error("The uploaded video does not match this form. Upload it again.");
+      }
+      return { video: verified.video, r2UploadIntentId: verified.intentId };
+    }
+
+    const existing = normalizeStatementVideo(fallback?.video);
+    if (existing?.platform === "r2" && existing.id === input) {
+      return { video: await verifyExistingR2Video(existing) };
+    }
+    throw new Error("The R2 video authorization expired. Upload the MP4 again.");
+  }
+
+  if (platform && platform !== "youtube") {
+    throw new Error(`Invalid video platform "${platform}".`);
+  }
+  if (!input && !startInput && !endInput) return {};
   if (!input) throw new Error("A YouTube video is required when timestamps are supplied.");
 
   const parsed = parseYouTubeVideo(input);
@@ -81,7 +115,7 @@ function collectVideo(fd: FormData): StatementVideo | undefined {
 
   const video: StatementVideo = { ...parsed, start, end };
   assertVideoExcerpt(video);
-  return video;
+  return { video };
 }
 
 function collectAxes(fd: FormData): Record<string, number> {
@@ -221,13 +255,15 @@ function collectVerification(
   };
 }
 
-function statementDocument(
+async function statementDocument(
   fd: FormData,
   quoteFields: ReturnType<typeof collectQuoteFields>,
   status: StatementStatus,
+  actorId: string,
   fallback?: StoredStatement
-): StatementDocument {
-  const video = collectVideo(fd);
+): Promise<{ document: StatementDocument; r2UploadIntentId?: string }> {
+  const collectedVideo = await collectVideo(fd, fallback, actorId);
+  const video = collectedVideo.video;
   const document: StatementDocument = {
     status,
     speaker_id: str(fd, "speaker_id") || fallback?.speaker_id || "",
@@ -260,7 +296,7 @@ function statementDocument(
       );
     }
   }
-  return document;
+  return { document, r2UploadIntentId: collectedVideo.r2UploadIntentId };
 }
 
 // ── statements ──────────────────────────────────────────────────────
@@ -269,7 +305,8 @@ export async function createStatement(fd: FormData) {
   const actor = await requireAdmin();
   const quoteFields = collectQuoteFields(fd);
   const status = statementStatus(fd, "held_review");
-  const entry = statementDocument(fd, quoteFields, status);
+  const collected = await statementDocument(fd, quoteFields, status, actor.id);
+  const entry = collected.document;
 
   const created = await createStatementRecord(entry, {
     actor: actor.label,
@@ -277,7 +314,9 @@ export async function createStatement(fd: FormData) {
     detail: `Added "${entry.neutral_title}" — ${entry.party_at_time}, status ${entry.status}${
       entry.quote ? "" : ", no verbatim quote established"
     }.`,
-  });
+  }, collected.r2UploadIntentId
+    ? { actorId: actor.id, uploadIntentId: collected.r2UploadIntentId }
+    : undefined);
 
   refresh();
   redirect(`/admin/entries/${created.id}`);
@@ -295,7 +334,8 @@ export async function updateStatement(fd: FormData) {
 
   const quoteFields = collectQuoteFields(fd);
   const status = statementStatus(fd, before.status);
-  const entry = statementDocument(fd, quoteFields, status, before);
+  const collected = await statementDocument(fd, quoteFields, status, actor.id, before);
+  const entry = collected.document;
   const axes = entry.axes;
 
   const axesChanged = Object.keys(axes).filter((key) => axes[key] !== before.axes[key]);
@@ -311,12 +351,22 @@ export async function updateStatement(fd: FormData) {
   if (!!before.hall_of_fame !== !!entry.hall_of_fame) {
     notes.push(entry.hall_of_fame ? "inducted into the Hall of Fame" : "removed from the Hall of Fame");
   }
+  const beforeVideo = normalizeStatementVideo(before.video);
+  if (JSON.stringify(beforeVideo) !== JSON.stringify(entry.video)) {
+    notes.push(
+      entry.video
+        ? `video changed to ${entry.video.platform === "r2" ? "hosted MP4" : "YouTube"}`
+        : "video removed"
+    );
+  }
 
   await updateStatementRecord(id, entry, expectedVersion, {
     actor: actor.label,
     action: "update",
     detail: notes.length ? `${notes.join("; ")}.` : `Edited "${entry.neutral_title}".`,
-  });
+  }, collected.r2UploadIntentId
+    ? { actorId: actor.id, uploadIntentId: collected.r2UploadIntentId }
+    : undefined);
   refresh();
 }
 
@@ -341,6 +391,10 @@ export async function setStatus(fd: FormData) {
           `Committee-passed publication requirements are not met: ${issues.join(" ")}`
         );
       }
+    }
+    const storedVideo = normalizeStatementVideo(before.video);
+    if (storedVideo?.platform === "r2") {
+      await verifyExistingR2Video(storedVideo);
     }
   }
   if (status === before.status) return;

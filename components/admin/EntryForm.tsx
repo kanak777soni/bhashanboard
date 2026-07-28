@@ -1,5 +1,10 @@
 import { AXIS_LABELS, AXIS_WEIGHTS, type StoredPolitician, type StoredStatement } from "@/lib/store";
-import { MAX_VIDEO_EXCERPT_SECONDS, normalizeVerificationStage } from "@/lib/video";
+import {
+  MAX_VIDEO_EXCERPT_SECONDS,
+  normalizeStatementVideo,
+  normalizeVerificationStage,
+} from "@/lib/video";
+import R2VideoUploadField from "./R2VideoUploadField";
 
 const CATEGORIES = ["Science & Reason", "History", "Economics", "Whataboutery", "Standing Ovation"];
 const LANGUAGES = ["Hindi", "English", "Bengali", "Tamil", "Telugu", "Marathi", "Kannada", "Malayalam", "Gujarati", "Punjabi", "Odia", "Assamese"];
@@ -25,6 +30,7 @@ export default function EntryForm({
   const v = entry?.verification;
   const sources = v?.sources ?? [];
   const verificationStage = normalizeVerificationStage(v?.stage);
+  const initialVideo = normalizeStatementVideo(entry?.video);
 
   return (
     <form action={action} className="admin-form">
@@ -150,24 +156,13 @@ export default function EntryForm({
       <fieldset>
         <legend>The video</legend>
         <p className="rail-note">
-          Paste a YouTube link or ID. The clip is <strong>embedded, never hosted</strong> — we store the id
-          and the in/out points, and the platform serves the bytes. Both timestamps are required and the
-          excerpt may be at most {MAX_VIDEO_EXCERPT_SECONDS / 60} minutes.
+          Prefer a source-platform embed when it is stable. For rights-cleared evidence, upload a
+          browser-ready MP4 directly to Cloudflare R2. Uploaded files are not transcoded: they must
+          already use H.264 video, AAC audio and fast-start layout, and a trusted administrator must
+          play the promoted clip through once before attaching it. Every excerpt may be at most{" "}
+          {MAX_VIDEO_EXCERPT_SECONDS / 60} minutes.
         </p>
-        <div className="admin-grid">
-          <label className="field" style={{ gridColumn: "1 / -1" }}>
-            <span className="lbl">YouTube URL or ID</span>
-            <input name="video" defaultValue={entry?.video?.id ?? ""} placeholder="https://youtu.be/… or the bare id" />
-          </label>
-          <label className="field">
-            <span className="lbl">Start</span>
-            <input name="video_start" inputMode="numeric" defaultValue={entry?.video?.start ?? ""} placeholder="00:41 or 41" />
-          </label>
-          <label className="field">
-            <span className="lbl">End</span>
-            <input name="video_end" inputMode="numeric" defaultValue={entry?.video?.end ?? ""} placeholder="01:03 or 63" />
-          </label>
-        </div>
+        <R2VideoUploadField initialVideo={initialVideo} />
       </fieldset>
 
       <fieldset>

@@ -281,6 +281,8 @@ h1, h2, h3 { text-wrap: balance; }
   font-size: 15px;
   padding: 4px 18px 5px 0;
   width: 100%;
+  min-width: 0;
+  max-width: 100%;
 }
 .field select { cursor: pointer;
   background-image: linear-gradient(45deg, transparent 50%, var(--ink-45) 50%), linear-gradient(135deg, var(--ink-45) 50%, transparent 50%);
@@ -365,9 +367,17 @@ mark { background: var(--foil-soft); color: inherit; padding: 0 1px; }
 .only-narrow { display: none; }
 @media (max-width: 640px) {
   table.standings .c-move, table.standings .c-meta { display: none; }
+  table.standings .c-mobile-hide { display: none; }
   .only-narrow { display: inline; }
+  .netas-table .netas-wide-label { display: none; }
   .entry-quote { font-size: 15.5px; }
   table.standings td, table.standings th { padding: 9px 7px; }
+}
+
+.submit-timestamps { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.submit-timestamps > * { min-width: 0; }
+@media (max-width: 380px) {
+  .submit-timestamps { grid-template-columns: 1fr; }
 }
 
 /* ── rail ────────────────────────────────────────────────────── */
@@ -688,6 +698,18 @@ footer.site p { margin: 0 0 8px; font-size: 13.5px; color: var(--ink-70); max-wi
 .field.checkbox { flex-direction: row; align-items: center; gap: 9px; margin-top: 22px; }
 .field.checkbox input { width: auto; }
 .admin-submit { position: sticky; bottom: 0; background: var(--ground); border-top: 1px solid var(--rule-hard); padding: 14px 0; }
+.admin-video-field { margin-top: 14px; }
+.r2-upload-panel { border-top: 1px solid var(--rule); margin-top: 8px; padding-top: 14px; }
+.r2-uploaded { border-left: 3px solid var(--rise); padding: 2px 0 2px 12px; }
+.r2-uploaded p { margin: 8px 0 4px; }
+.r2-uploaded code { color: var(--ink-45); font-size: 11px; overflow-wrap: anywhere; }
+.r2-playback-approval { margin-top: 14px; }
+.r2-playback-approval video { background: #000; display: block; max-height: 420px; width: 100%; }
+.r2-playback-attestation { margin-top: 12px; }
+.r2-file-picker { margin-top: 16px; }
+.r2-upload-progress { height: 30px; border: 1px solid var(--rule-hard); position: relative; overflow: hidden; }
+.r2-upload-progress i { background: var(--foil-soft); display: block; height: 100%; transition: width .15s linear; }
+.r2-upload-progress .lbl { left: 9px; position: absolute; top: 7px; }
 
 .danger-zone {
   border: 1px solid var(--seal);

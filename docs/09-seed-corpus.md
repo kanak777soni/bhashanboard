@@ -2,7 +2,7 @@
 
 > **Current scoring note (July 2026).** References in this design document to pairwise duels, Elo, weighted memberships, or internal placement votes are historical. The implemented authority is `/rules`: one equal-strength, immutable ruling per verified account and statement, after qualifying playback, with a published Bayesian seed prior. Aamne-Saamne is a non-scoring exhibition.
 
-> **Historical corpus snapshot.** Counts and parity-holdback decisions below describe the original research pass, not the live database. As of 28 July 2026 the database contains 44 placed entries, 34 representatives, 22 parties, 16 refusals, and 14 established verbatim quotes; all 44 entries remain text-sourced. The database verification report and the public record are authoritative.
+> **Current corpus snapshot (29 July 2026).** The source corpus contains 45 records: 34 published to the provisional ladder, eight held for evidence review, and three withdrawn. It covers 34 representatives and ten parties on the ladder; the party register contains 22 parties, the refusal ledger contains 18 rulings, and 15 records carry established verbatim quotes. Every entry remains text-sourced. The generated leaderboard, database verification report, and public record are authoritative.
 
 > The brief was: research the internet, find every foolish statement by an Indian politician, build a proper database, and rank the speeches. This document is the honest version of what that produced — what is in the corpus, how each entry got there, how the ranking was derived before a single duel has been fought, and the four places where the research does not yet reach.
 
@@ -16,26 +16,27 @@ node tools/seed-rank.mjs --write
 
 Three things about this corpus that are easy to misread and expensive to misread.
 
-**Nothing in it is publishable yet.** Every entry sits at `stage: "text_sourced"` — a named person, a real remark, at least one reputable outlet. Publication needs Stage 3: a Tier A/B clip, a timestamp, the surrounding sixty seconds watched, a transcript, subtitles, and a human sign-off (`03-content-pipeline.md` §3.3). The gap between "I have a news report" and "I have a verified clip" is where this category of site normally dies, so the schema names the gap in a field instead of letting it hide. The validator warns on all 41 entries. That is correct output, not a bug.
+**Nothing in it is vote-eligible yet.** Every entry sits at `stage: "text_sourced"` — a named person, a real remark, at least one reputable outlet. Voting needs Stage 3: a Tier A/B clip, a timestamp, the surrounding sixty seconds watched, a transcript, subtitles, and a human sign-off (`03-content-pipeline.md` §3.3). The gap between "I have a news report" and "I have a verified clip" is where this category of site normally dies, so the schema names the gap in a field instead of letting it hide. The validator warns on all 45 entries. That is correct output, not a bug.
 
-**Twenty-six of the 41 entries have `quote: null`.** Where the exact wording could not be established, the quote field is null and a `claim` — a neutral summary — carries the meaning instead. This is the Verbatim Doctrine doing its job at the one moment it costs something. It would have been trivial to write a plausible sentence into every quote field; a corpus that has done that once is worthless, because no reader can tell which sentence it was. **A null quote is a research task. An invented quote is the end of the project.**
+**Thirty of the 45 entries have `quote: null`.** Where the exact wording could not be established, the quote field is null and a `claim` — a neutral summary — carries the meaning instead. This is the Verbatim Doctrine doing its job at the one moment it costs something. It would have been trivial to write a plausible sentence into every quote field; a corpus that has done that once is worthless, because no reader can tell which sentence it was. **A null quote is a research task. An invented quote is the end of the project.**
 
-**It is 41 entries, not 300.** The cold-start target is 300–500 (`03-content-pipeline.md` §3.4). This is a spine and a method, not a launch corpus. §9.6 has the backlog and the honest estimate of what closing it costs.
+**It is 45 entries, not 300.** The cold-start target is 300–500 (`03-content-pipeline.md` §3.4). This is a spine and a method, not a launch corpus. §9.6 has the backlog and the honest estimate of what closing it costs.
 
 ## 9.1 What the corpus contains
 
 | | |
 |---|---|
-| Entries indexed | **41** |
-| On the ladder (`published`) | **27** |
-| Held for parity | 13 |
-| Held for Committee review | 1 |
-| Rejected under the Rules, with reasons | **14** (`data/rejected.json`) |
+| Entries indexed | **45** |
+| On the provisional ladder (`published`) | **34** |
+| Held for parity | 0 |
+| Held for evidence or Committee review | 8 |
+| Withdrawn after re-review | 3 |
+| Rejected under the Rules, with reasons | **18** (`data/rejected.json`) |
 | Distinct representatives | 34 |
 | Distinct parties | 10 |
-| Distinct states | 17 |
+| Distinct states | 18 |
 | Distinct languages | 8 |
-| Entries carrying a verbatim quote | 15 of 41 |
+| Entries carrying a verbatim quote | 15 of 45 |
 
 Parties represented: BJP, INC, SP, BRS, TMC, NCP, AAP, CPI(M), TDP, Shiv Sena (UBT). Rejected entries additionally cover DMK, JDU, RJD and IUML — the filter reaches parties the corpus does not yet, which is itself a finding.
 
@@ -52,7 +53,7 @@ Four gates, in order. An entry that fails any one of them is in `rejected.json` 
 
 ### The rejection ledger is a feature
 
-`data/rejected.json` holds fourteen statements that did not make it, each with the rule and the reasoning. It should ship public alongside the correction ledger required by §4.5. It stops the same famous clip being re-proposed monthly, and it is the only real evidence that the content policy is enforced rather than advertised.
+`data/rejected.json` holds eighteen statements that did not make it, each with the rule and the reasoning. It should ship public alongside the correction ledger required by §4.5. It stops the same famous clip being re-proposed monthly, and it is the only real evidence that the content policy is enforced rather than advertised.
 
 Some of the rejections cost more than others, and those are the ones that matter:
 
@@ -92,23 +93,23 @@ The output is the spread the docs asked for:
 
 | Tier | Seeded | Target |
 |---|---|---|
-| 👑 Kohinoor Class | 1 (3.7%) | 2.5% |
-| 💎 Diamond Gyan | 2 (7.4%) | 8% |
-| 🥇 Gold Standard | 4 (14.8%) | 16% |
-| 🥈 Silver Tongue | 6 (22.2%) | 21% |
-| 🥉 Bronze Bhashan | 6 (22.2%) | 24% |
-| 🪵 Participation Certificate | 8 (29.6%) | 28% |
+| 👑 Kohinoor Class | 1 (2.9%) | 2.5% |
+| 💎 Diamond Gyan | 3 (8.8%) | 8% |
+| 🥇 Gold Standard | 5 (14.7%) | 16% |
+| 🥈 Silver Tongue | 7 (20.6%) | 21% |
+| 🥉 Bronze Bhashan | 8 (23.5%) | 24% |
+| 🪵 Participation Certificate | 10 (29.4%) | 28% |
 
-**All of it is provisional and all of it is disposable.** `provisional: true` on every row, `duels: 0`, `method: "seed_rubric_v1"`. The instant real ballots exist, Elo overwrites these numbers and `seed-rank.mjs` gets deleted. It is scaffolding — but scaffolding with a published formula, which is worth more than it looks: §4.2 warns that during Phase A the ranking is unambiguously the Committee's editorial act, and a written, reproducible criterion is enormously more defensible than undisclosed taste. Anyone can re-run the script and get the same ladder.
+**All seed positions are provisional, but they are not discarded once voting begins.** `provisional: true` and `duels: 0` identify the cold-start state. The published seed becomes a transparent ten-vote Bayesian prior; each valid equal-strength public ruling progressively outweighs it. This is scaffolding with a published formula, which is worth more than it looks: §4.2 warns that the initial ranking is unambiguously the Committee's editorial act, and a written, reproducible criterion is more defensible than undisclosed taste. Anyone can re-run the script and get the same seed ladder.
 
 ### The current top of the board
 
 ```
-  1  1901  👑  BJP    On an attribution to Stephen Hawking — Harsh Vardhan
-  2  1827  💎  BJP    On Ganesha, Karna and the antiquity of surgery — Narendra Modi
-  3  1770  💎  BJP    On Sanjaya, satellites and the antiquity of the internet — Biplab Kumar Deb
-  4  1727  🥇  BJP    On cloud cover and radar — Narendra Modi
-  5  1692  🥇  BJP    On respiration in cattle — Vasudev Devnani
+  1  1916  👑  INC    On Coca-Cola's founder as a shikanji seller — Rahul Gandhi
+  2  1845  💎  BJP    On an attribution to Stephen Hawking — Harsh Vardhan
+  3  1799  💎  BJP    On an ancient nuclear test — Ramesh Pokhriyal Nishank
+  4  1754  💎  BJP    On Ganesha, Karna and the antiquity of surgery — Narendra Modi
+  5  1724  🥇  BJP    On the composition of cow's milk — Dilip Ghosh
 ```
 
 Which brings us to the problem.
@@ -117,7 +118,20 @@ Which brings us to the problem.
 
 **The single most important result of this research is not any statement in the corpus. It is this: the well-documented Indian corpus is severely skewed towards the governing party, and that skew is a threat to the project.**
 
-`01-concept.md` §1.5 and `03-content-pipeline.md` §3.4 both set a hard cap: no party above 30%. Enforcing it required holding **13 of 21 verified BJP entries off the ladder** (`status: "held_parity"`). They are not deleted — they are verified, sourced, queued, and waiting for headroom that only arrives when non-BJP sourcing catches up. The published set now sits at BJP 29.6%, INC 29.6%, and eight other parties sharing the remainder.
+The first research pass treated a 30% party target as a publication cap and used
+`held_parity` to make the visible count balance. The July 2026 neutrality audit
+rejected that method. If a statement clears the same evidence, context, policy,
+and duplication gates as every other statement, its party cannot be a reason to
+hide it. That would convert an acknowledged sampling problem into undisclosed
+editorial scorekeeping.
+
+The current provisional ladder therefore publishes every record that has cleared
+the corpus gate and reports the imbalance honestly: BJP is 14 of 34 records
+(41.2%) and INC is 10 of 34 (29.4%). Five weak BJP records were moved to
+`held_review` because their evidence, context, date, or duplication status was
+not ready; two were withdrawn because they were an idiom or a duplicate,
+non-broken claim. The same Tier-C-only evidence gate moved one INC and one TMC
+record to review. These are content rulings, not quota adjustments.
 
 Why the skew exists is not mysterious, and the causes point at the fix:
 
@@ -128,26 +142,34 @@ Why the skew exists is not mysterious, and the causes point at the fix:
 
 Cause (3) is the actionable one, and it makes §3.5 look less like an accessibility feature and more like the core sourcing strategy: **regional-language capacity is not a translation problem, it is the parity problem.**
 
-### Headcount parity is not position parity
+### Coverage parity is not score parity
 
-The validator enforces the 30% cap on counts. It also warns about something the cap does not catch:
+The validator reports the 30% research target and also warns about something a
+headcount target does not catch:
 
 ```
-LADDER-HEAD: BJP holds 7 of the top 9 places (78%). Headcount parity is
-satisfied; position parity is not.
+LADDER-HEAD: BJP holds 11 of the top 12 places (92%). Source higher-scoring
+entries from other parties; do not adjust ratings.
 ```
 
-Nobody counts a leaderboard. They look at the podium. A board that is 30/30 by headcount and BJP across the entire top tier will be called partisan on sight, and by §4.9 that is a *critical* risk with *very high* likelihood — it is the row most likely to kill the project.
+Nobody counts only the database. They look at the podium. The current top is a
+real editorial-risk signal, but score parity is not an admissible objective:
+axes must describe the statement, not compensate for party affiliation.
 
-**The fix is more corpus, never a thumb on the ladder.** Weighting the rubric to move a party down the table would be exactly the corruption the Elo design exists to prevent, and it would be indefensible the moment anyone diffed the numbers. The honest options are: find higher-scoring entries from other parties, or launch smaller and more balanced. Both are fine. Adjusting the scores is not.
+**The fix is more corpus, never a thumb on the ladder.** Weighting the rubric to
+move a party down the table would be exactly the corruption the reproducible
+seed and public-vote system exists to prevent. The honest response is to assign
+research toward under-covered parties and languages, keep the parity meter
+visible, and publish every hold, withdrawal, and refusal reason.
 
 ### The recommendation
 
-**Do not launch on this distribution.** Sequencing that fixes it:
+**Do not present this seed as representative of Indian politics.** Sequencing
+that improves it:
 
 1. Close the regional-language gap first (§9.6). Non-BJP entries come disproportionately from Tamil, Telugu, Bengali, Malayalam, Marathi and Odia sources.
-2. Hold the 30% cap without exception, and publish the parity meter from day one — including the fact that entries are being held.
-3. Publish the held queue *as content*. "The Committee is holding 13 verified entries because publishing them would breach the parity cap" is on-brand, disarming, and true. Concealing it and getting found out is the failure mode.
+2. Keep the 30% figure as a research target and publish the parity meter from day one. It decides what the researchers look for next, not which qualified record the audience may see.
+3. Publish the held, withdrawn, and refused queues with their evidence rulings. Concealing either the imbalance or the editorial decisions is the failure mode.
 
 ## 9.5 What is *not* in the corpus, and why
 

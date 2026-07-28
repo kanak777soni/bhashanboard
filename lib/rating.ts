@@ -119,6 +119,10 @@ export interface WatchProgressState {
   creditedWatchMs: number;
   lastPositionMs: number;
   lastHeartbeatAtMs: number;
+  /** Whether playback was active at the preceding server sample. */
+  lastPlaying: boolean;
+  /** Whether the page was visible at the preceding server sample. */
+  lastVisible: boolean;
   reachedEnd: boolean;
 }
 
@@ -215,11 +219,18 @@ export function calculateWatchProgress(
   const startsBeyondCoveredBoundary =
     previousPositionMs > oldContiguousThroughMs + WATCH_SEEK_TOLERANCE_MS;
   const seekDetected = jumpedForward || startsBeyondCoveredBoundary;
+  // A pause/visibility heartbeat describes the state at the end of the
+  // preceding interval. If that interval began while playback was active and
+  // visible, close its final natural advance before recording the paused
+  // baseline. Otherwise the later paused position gets stored ahead of the
+  // contiguous boundary and every heartbeat after resume looks like a seek.
+  const intervalCanEarnCredit =
+    (state.lastPlaying && state.lastVisible) ||
+    (sample.playing && sample.visible);
 
   let contiguousThroughMs = oldContiguousThroughMs;
   if (
-    sample.playing &&
-    sample.visible &&
+    intervalCanEarnCredit &&
     positionAdvanceMs > 0 &&
     !seekDetected
   ) {
@@ -239,16 +250,28 @@ export function calculateWatchProgress(
     contiguousThroughMs - clipStartMs
   );
   const creditedThisHeartbeatMs = creditedWatchMs - oldCreditedWatchMs;
+  // An inactive sample must leave the next comparison at the verified
+  // contiguous boundary. This also covers a user who pauses before the first
+  // periodic "playing" heartbeat: storing the later paused media position
+  // would make every resumed sample appear to start beyond verified coverage.
+  const lastPositionMs =
+    sample.playing && sample.visible ? positionMs : contiguousThroughMs;
+  // A reported position near the end is not proof that playback reached it:
+  // the user may have dragged the scrubber there while paused or hidden. The
+  // monotonic contiguous boundary is the stronger source of truth. Deriving
+  // this flag afresh also repairs unfinished sessions created before this rule.
   const reachedEnd =
-    state.reachedEnd || positionMs >= clipEndMs - WATCH_END_TOLERANCE_MS;
+    contiguousThroughMs >= clipEndMs - WATCH_END_TOLERANCE_MS;
 
   return {
     clipStartMs,
     clipEndMs,
     contiguousThroughMs,
     creditedWatchMs,
-    lastPositionMs: positionMs,
+    lastPositionMs,
     lastHeartbeatAtMs: heartbeatAtMs,
+    lastPlaying: sample.playing,
+    lastVisible: sample.visible,
     reachedEnd,
     creditedThisHeartbeatMs,
     seekDetected,

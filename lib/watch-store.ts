@@ -2,6 +2,7 @@ import "server-only";
 
 import { createHash, randomUUID } from "node:crypto";
 import { db } from "./db";
+import { verifyExistingR2Video } from "./r2";
 import {
   calculateWatchProgress,
   requiredWatchMilliseconds,
@@ -45,13 +46,33 @@ export class WatchStoreError extends Error {
   }
 }
 
-export interface VoteEligibleVideo {
-  platform: "youtube";
+interface VoteEligibleVideoBase {
   id: string;
   startSeconds: number;
   endSeconds: number;
   fingerprint: string;
 }
+
+export type VoteEligibleVideo =
+  | (VoteEligibleVideoBase & { platform: "youtube" })
+  | (VoteEligibleVideoBase & { platform: "r2"; durationMs: number });
+
+export type VideoFingerprintInput =
+  | {
+      platform: "youtube";
+      id: string;
+      startSeconds: number;
+      endSeconds: number;
+    }
+  | {
+      platform: "r2";
+      id: string;
+      sha256: string;
+      startSeconds: number;
+      endSeconds: number;
+      durationMs: number;
+      bytes: number;
+    };
 
 export interface VoteEligibleStatement {
   statementId: string;
@@ -107,6 +128,8 @@ interface WatchSessionRow {
   credited_watch_ms: unknown;
   last_position_ms: unknown;
   last_heartbeat_at: unknown;
+  last_player_state: unknown;
+  last_visible: unknown;
   reached_end: unknown;
   qualified_at: unknown;
   expires_at: unknown;
@@ -173,17 +196,25 @@ export function isUuid(value: unknown): value is string {
   );
 }
 
-export function videoFingerprint({
-  platform,
-  id,
-  startSeconds,
-  endSeconds,
-}: Omit<VoteEligibleVideo, "fingerprint">): string {
+export function videoFingerprint(video: VideoFingerprintInput): string {
   // This is a stable version marker, not a cryptographic authorization token.
   // PostgreSQL has the same built-in md5() function, allowing the vote insert
   // to re-check the current statement document atomically.
+  const parts =
+    video.platform === "youtube"
+      ? ["v1", video.platform, video.id, video.startSeconds, video.endSeconds]
+      : [
+          "v3",
+          video.platform,
+          video.id,
+          video.sha256,
+          video.startSeconds,
+          video.endSeconds,
+          video.durationMs,
+          video.bytes,
+        ];
   return createHash("md5")
-    .update(["v1", platform, id, startSeconds, endSeconds].join("|"))
+    .update(parts.join("|"))
     .digest("hex");
 }
 
@@ -221,23 +252,10 @@ export function parseVoteEligibleStatement(
 
   const normalizedVideo =
     normalizeStatementVideo(document.video) ?? normalizeStatementVideo(verification?.embed);
-  const platform = normalizedVideo?.platform;
-  const id = normalizedVideo?.id ?? "";
-  const startSeconds = normalizedVideo?.start;
-  const endSeconds = normalizedVideo?.end;
-
-  if (
-    platform !== "youtube" ||
-    startSeconds === undefined ||
-    endSeconds === undefined ||
-    startSeconds < 0 ||
-    endSeconds <= startSeconds ||
-    endSeconds - startSeconds < MIN_VOTE_CLIP_SECONDS ||
-    endSeconds - startSeconds > MAX_VOTE_CLIP_SECONDS
-  ) {
+  if (!normalizedVideo) {
     throw new WatchStoreError(
       "VIDEO_NOT_ELIGIBLE",
-      "Voting requires a verified YouTube excerpt with valid start and end times.",
+      "Voting requires a verified source-video excerpt with valid start and end times.",
       409
     );
   }
@@ -250,15 +268,34 @@ export function parseVoteEligibleStatement(
   }
 
   const baseVideo = {
-    platform: "youtube" as const,
-    id,
-    startSeconds,
-    endSeconds,
+    platform: normalizedVideo.platform,
+    id: normalizedVideo.id,
+    startSeconds: normalizedVideo.start,
+    endSeconds: normalizedVideo.end,
   };
+  const fingerprint =
+    normalizedVideo.platform === "youtube"
+      ? videoFingerprint({ ...baseVideo, platform: "youtube" })
+      : videoFingerprint({
+          ...baseVideo,
+          platform: "r2",
+          sha256: normalizedVideo.sha256,
+          durationMs: normalizedVideo.durationMs,
+          bytes: normalizedVideo.bytes,
+        });
+  const video: VoteEligibleVideo =
+    normalizedVideo.platform === "youtube"
+      ? { ...baseVideo, platform: "youtube", fingerprint }
+      : {
+          ...baseVideo,
+          platform: "r2",
+          durationMs: normalizedVideo.durationMs,
+          fingerprint,
+        };
   return {
     statementId,
     verificationStage: stage,
-    video: { ...baseVideo, fingerprint: videoFingerprint(baseVideo) },
+    video,
   };
 }
 
@@ -290,8 +327,34 @@ export async function getVoteEligibleStatement(
       409
     );
   }
+  const eligible = parseVoteEligibleStatement(String(row.id), row.document);
+  if (eligible.video.platform === "r2") {
+    const document = objectValue(row.document);
+    const verification = document ? nestedObject(document, "verification") : undefined;
+    const storedVideo = normalizeStatementVideo(document?.video) ??
+      normalizeStatementVideo(verification?.embed);
+    if (!storedVideo || storedVideo.platform !== "r2") {
+      throw new WatchStoreError("VIDEO_NOT_ELIGIBLE", "The hosted video metadata is invalid.", 409);
+    }
+    try {
+      // A public object can be removed or changed independently of Postgres.
+      // Fail the watch-session gate closed unless SHA-256 identity, size and
+      // transport ETag still match the verified public object.
+      await verifyExistingR2Video(storedVideo);
+    } catch (error) {
+      console.error("R2 watch-start verification failed", {
+        statementId,
+        error: String(error),
+      });
+      throw new WatchStoreError(
+        "VIDEO_NOT_ELIGIBLE",
+        "The hosted video is temporarily unavailable or no longer matches the verified record.",
+        409
+      );
+    }
+  }
   return {
-    ...parseVoteEligibleStatement(String(row.id), row.document),
+    ...eligible,
     recordVersion: requiredInteger(row.version, "statement version"),
     seedGp,
   };
@@ -303,16 +366,31 @@ function mapSession(row: WatchSessionRow, receiptId: string | null): WatchSessio
   const creditedWatchMs = requiredInteger(row.credited_watch_ms, "credited watch time");
   const requiredWatchMs = requiredInteger(row.required_watch_ms, "required watch time");
   const durationMs = clipEndMs - clipStartMs;
+  const platform = row.video_platform;
+  if (platform !== "youtube" && platform !== "r2") {
+    throw new Error("Invalid video platform returned by the database.");
+  }
+  const video: VoteEligibleVideo =
+    platform === "youtube"
+      ? {
+          platform,
+          id: String(row.video_id),
+          startSeconds: clipStartMs / 1000,
+          endSeconds: clipEndMs / 1000,
+          fingerprint: String(row.video_fingerprint),
+        }
+      : {
+          platform,
+          id: String(row.video_id),
+          startSeconds: clipStartMs / 1000,
+          endSeconds: clipEndMs / 1000,
+          durationMs: clipEndMs - clipStartMs,
+          fingerprint: String(row.video_fingerprint),
+        };
   return {
     id: String(row.id),
     statementId: String(row.statement_id),
-    video: {
-      platform: "youtube",
-      id: String(row.video_id),
-      startSeconds: clipStartMs / 1000,
-      endSeconds: clipEndMs / 1000,
-      fingerprint: String(row.video_fingerprint),
-    },
+    video,
     creditedWatchMs,
     requiredWatchMs,
     watchedShare: durationMs > 0 ? Math.min(1, creditedWatchMs / durationMs) : 0,
@@ -401,10 +479,20 @@ export async function createWatchSession({
   const statement = await getVoteEligibleStatement(statementId);
   const sessionId = randomUUID();
   const clipStartMs = statement.video.startSeconds * 1000;
-  const clipEndMs = statement.video.endSeconds * 1000;
+  // R2's canonical whole-second end is ceil(durationMs / 1000). Use the
+  // verified millisecond duration for watch maths so short fractional clips
+  // cannot require more watch time than the media physically contains.
+  const clipEndMs =
+    statement.video.platform === "r2"
+      ? statement.video.durationMs
+      : statement.video.endSeconds * 1000;
   const requiredWatchMs = requiredWatchMilliseconds(clipStartMs, clipEndMs);
   const sql = db();
-  const startLockKey = `bhashan:watch-session:${userId}:${statementId}`;
+  // Serialize starts per user, not per statement. Starting another excerpt
+  // retires unfinished sessions for older statements/video revisions so one
+  // account cannot accrue several watch gates concurrently. A current session
+  // for this exact statement revision is preserved and reused.
+  const startLockKey = `bhashan:watch-session:${userId}`;
   const transactionRows = await sql.transaction((tx) => [
     // This must be a separate statement from the lookup. Under READ COMMITTED,
     // the lookup then receives a fresh snapshot after a concurrent starter
@@ -415,7 +503,22 @@ export async function createWatchSession({
     ),
     tx.query(
       `
-        WITH existing_session AS (
+        WITH retired_sessions AS (
+          UPDATE bhashan.statement_watch_sessions AS session
+          SET
+            expires_at = clock_timestamp(),
+            version = session.version + 1,
+            updated_at = clock_timestamp()
+          WHERE session.user_id = $1
+            AND session.qualified_at IS NULL
+            AND session.expires_at > clock_timestamp()
+            AND (
+              session.statement_id <> $2
+              OR session.video_fingerprint <> $3
+            )
+          RETURNING session.id
+        ),
+        existing_session AS (
           SELECT session.*
           FROM bhashan.statement_watch_sessions AS session
           WHERE session.user_id = $1
@@ -463,6 +566,10 @@ export async function createWatchSession({
             clock_timestamp(),
             clock_timestamp() + interval '30 minutes'
           WHERE NOT EXISTS (SELECT 1 FROM existing_session)
+            -- Force retirement to finish before the replacement insert is
+            -- considered, while still yielding one row when there was nothing
+            -- to retire.
+            AND (SELECT count(*) FROM retired_sessions) >= 0
           RETURNING *
         ),
         chosen_session AS (
@@ -600,6 +707,8 @@ export async function recordWatchHeartbeat({
         creditedWatchMs: requiredInteger(current.credited_watch_ms, "credited watch time"),
         lastPositionMs: requiredInteger(current.last_position_ms, "last playback position"),
         lastHeartbeatAtMs: previousHeartbeatAt.getTime(),
+        lastPlaying: current.last_player_state === "playing",
+        lastVisible: booleanValue(current.last_visible),
         reachedEnd: booleanValue(current.reached_end),
       },
       sample

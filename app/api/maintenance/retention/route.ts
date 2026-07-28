@@ -1,9 +1,11 @@
 import { timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
 import { runRetention } from "@/lib/retention";
+import { runR2Retention } from "@/lib/r2-retention";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 function authorized(request: Request): boolean {
   const secret = process.env.CRON_SECRET?.trim();
@@ -28,8 +30,16 @@ export async function GET(request: Request) {
 
   try {
     const deleted = await runRetention();
+    const r2 = await runR2Retention();
+    if (r2.status === "failed") {
+      console.error("R2 retention reported a monitoring-visible failure", r2);
+      return NextResponse.json(
+        { ok: false, error: "R2 retention failed.", deleted, r2 },
+        { status: 500, headers: { "Cache-Control": "no-store" } }
+      );
+    }
     return NextResponse.json(
-      { ok: true, deleted },
+      { ok: true, deleted, r2 },
       { headers: { "Cache-Control": "no-store" } }
     );
   } catch (error) {

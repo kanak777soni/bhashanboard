@@ -40,6 +40,14 @@ interface WatchSessionView {
   watchReceiptId: string | null;
 }
 
+type WatchPlayerState = "playing" | "paused" | "ended";
+
+interface WatchPlayerController {
+  getCurrentTime(): number;
+  getPlayerState(): WatchPlayerState;
+  pause(): void;
+}
+
 interface YoutubePlayer {
   destroy(): void;
   getCurrentTime(): number;
@@ -112,7 +120,7 @@ function loadYoutubeApi(): Promise<YoutubeApi> {
   return youtubeApiPromise;
 }
 
-function playerStateName(state: number, api?: YoutubeApi): "playing" | "paused" | "ended" {
+function playerStateName(state: number, api?: YoutubeApi): WatchPlayerState {
   if (api && state === api.PlayerState.PLAYING) return "playing";
   if (api && state === api.PlayerState.ENDED) return "ended";
   return "paused";
@@ -133,11 +141,14 @@ function messageFromPayload(payload: unknown, fallback: string): string {
 export default function StatementVotingPanel({
   statementId,
   video,
+  videoUrl,
   publicationEligible,
   initialRating,
 }: {
   statementId: string;
   video?: StatementVideo;
+  /** Public custom-domain URL derived from an R2 object key; never a signed URL. */
+  videoUrl?: string;
   publicationEligible: boolean;
   initialRating: PublicRatingSnapshot;
 }) {
@@ -156,8 +167,9 @@ export default function StatementVotingPanel({
   const [submitting, setSubmitting] = useState(false);
 
   const playerMountRef = useRef<HTMLDivElement | null>(null);
-  const playerRef = useRef<YoutubePlayer | null>(null);
-  const youtubeApiRef = useRef<YoutubeApi | undefined>(undefined);
+  const nativeVideoRef = useRef<HTMLVideoElement | null>(null);
+  const playerRef = useRef<WatchPlayerController | null>(null);
+  const nativeEndedRef = useRef(false);
   const sessionIdRef = useRef<string | null>(null);
   const heartbeatInFlightRef = useRef(false);
   const sessionStartingRef = useRef(false);
@@ -230,7 +242,7 @@ export default function StatementVotingPanel({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           positionSeconds: player.getCurrentTime(),
-          playerState: playerStateName(player.getPlayerState(), youtubeApiRef.current),
+          playerState: player.getPlayerState(),
           visible: document.visibilityState === "visible",
         }),
       });
@@ -250,14 +262,21 @@ export default function StatementVotingPanel({
   }, []);
 
   useEffect(() => {
-    if (!playerStarted || !video || !playerMountRef.current) return;
+    if (
+      !playerStarted ||
+      !video ||
+      video.platform !== "youtube" ||
+      !playerMountRef.current
+    ) {
+      return;
+    }
     let disposed = false;
     let player: YoutubePlayer | null = null;
+    let controller: WatchPlayerController | null = null;
 
     void loadYoutubeApi()
       .then((api) => {
         if (disposed || !playerMountRef.current) return;
-        youtubeApiRef.current = api;
         player = new api.Player(playerMountRef.current, {
           host: "https://www.youtube-nocookie.com",
           videoId: video.id,
@@ -273,7 +292,12 @@ export default function StatementVotingPanel({
           },
           events: {
             onReady: ({ target }) => {
-              playerRef.current = target;
+              controller = {
+                getCurrentTime: () => target.getCurrentTime(),
+                getPlayerState: () => playerStateName(target.getPlayerState(), api),
+                pause: () => target.pauseVideo(),
+              };
+              playerRef.current = controller;
               target.playVideo();
             },
             onStateChange: ({ data }) => {
@@ -282,7 +306,6 @@ export default function StatementVotingPanel({
             onError: () => setPlayerError("YouTube could not play this verified excerpt."),
           },
         });
-        playerRef.current = player;
       })
       .catch((error: unknown) => {
         if (!disposed) setPlayerError(error instanceof Error ? error.message : "The video player could not be loaded.");
@@ -290,17 +313,103 @@ export default function StatementVotingPanel({
 
     return () => {
       disposed = true;
-      playerRef.current = null;
+      if (playerRef.current === controller) playerRef.current = null;
       player?.destroy();
     };
   }, [playerStarted, sendHeartbeat, video]);
+
+  useEffect(() => {
+    if (
+      !playerStarted ||
+      !video ||
+      video.platform !== "r2" ||
+      !videoUrl ||
+      !nativeVideoRef.current
+    ) {
+      return;
+    }
+
+    const element = nativeVideoRef.current;
+    nativeEndedRef.current = false;
+    const controller: WatchPlayerController = {
+      getCurrentTime: () => element.currentTime,
+      getPlayerState: () =>
+        nativeEndedRef.current || element.ended
+          ? "ended"
+          : element.paused
+            ? "paused"
+            : "playing",
+      pause: () => element.pause(),
+    };
+    playerRef.current = controller;
+
+    const onLoadedMetadata = () => {
+      const actualDurationMs = Math.round(element.duration * 1000);
+      if (
+        !Number.isFinite(element.duration) ||
+        Math.abs(actualDurationMs - video.durationMs) > 1_500
+      ) {
+        element.pause();
+        setPlayerError("The hosted video does not match its verified duration.");
+        return;
+      }
+      element.currentTime = video.start;
+      element.playbackRate = 1;
+      void element.play().catch(() => {
+        // Autoplay can be blocked after the server creates a watch session.
+        // Native controls remain available for the user's next gesture.
+      });
+    };
+    const onPlay = () => {
+      nativeEndedRef.current = false;
+      if (element.currentTime >= element.duration) element.currentTime = video.start;
+      if (element.playbackRate !== 1) element.playbackRate = 1;
+    };
+    const onPause = () => void sendHeartbeat();
+    const onSeeking = () => {
+      nativeEndedRef.current = false;
+      void sendHeartbeat();
+    };
+    const onEnded = () => {
+      nativeEndedRef.current = true;
+      void sendHeartbeat();
+    };
+    const onRateChange = () => {
+      if (element.playbackRate !== 1) element.playbackRate = 1;
+    };
+    const onError = () => setPlayerError("The hosted MP4 could not be played.");
+
+    element.addEventListener("loadedmetadata", onLoadedMetadata);
+    element.addEventListener("play", onPlay);
+    element.addEventListener("pause", onPause);
+    element.addEventListener("seeking", onSeeking);
+    element.addEventListener("ended", onEnded);
+    element.addEventListener("ratechange", onRateChange);
+    element.addEventListener("error", onError);
+
+    // Metadata may already be available from the browser cache before this
+    // effect attaches its listener.
+    if (element.readyState >= HTMLMediaElement.HAVE_METADATA) onLoadedMetadata();
+
+    return () => {
+      element.removeEventListener("loadedmetadata", onLoadedMetadata);
+      element.removeEventListener("play", onPlay);
+      element.removeEventListener("pause", onPause);
+      element.removeEventListener("seeking", onSeeking);
+      element.removeEventListener("ended", onEnded);
+      element.removeEventListener("ratechange", onRateChange);
+      element.removeEventListener("error", onError);
+      element.pause();
+      if (playerRef.current === controller) playerRef.current = null;
+    };
+  }, [playerStarted, sendHeartbeat, video, videoUrl]);
 
   useEffect(() => {
     if (!playerStarted || !canTrackWatch) return;
     const interval = window.setInterval(() => void sendHeartbeat(), 4_000);
     const onVisibilityChange = () => {
       if (document.visibilityState === "hidden") {
-        playerRef.current?.pauseVideo();
+        playerRef.current?.pause();
         void sendHeartbeat();
       }
     };
@@ -323,6 +432,10 @@ export default function StatementVotingPanel({
 
     setPlayerError(null);
     setWatchError(null);
+    if (video?.platform === "r2" && !videoUrl) {
+      setPlayerError("The hosted video URL is not configured.");
+      return;
+    }
     if (!canTrackWatch || sessionIdRef.current) {
       setPlayerStarted(true);
       return;
@@ -431,7 +544,28 @@ export default function StatementVotingPanel({
       {video ? (
         playerStarted ? (
           <div className="player ruling-player">
-            <div ref={playerMountRef} className="youtube-mount" />
+            {video.platform === "youtube" ? (
+              <div ref={playerMountRef} className="youtube-mount" />
+            ) : (
+              <video
+                ref={nativeVideoRef}
+                src={videoUrl}
+                controls
+                playsInline
+                preload="metadata"
+                disablePictureInPicture
+                disableRemotePlayback
+                aria-label="Verified source excerpt"
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "contain",
+                  background: "#000",
+                }}
+              />
+            )}
           </div>
         ) : (
           <button
@@ -442,7 +576,9 @@ export default function StatementVotingPanel({
             aria-label="Load and play the verified source excerpt"
           >
             <svg className="play-glyph" aria-hidden="true"><use href="#g-play" /></svg>
-            <span className="note">Click to load · excerpt {video.start}s–{video.end}s</span>
+            <span className="note">
+              Click to load · {video.platform === "r2" ? "hosted MP4" : "YouTube"} excerpt {video.start}s–{video.end}s
+            </span>
           </button>
         )
       ) : (

@@ -69,7 +69,7 @@
 
         "status": {
           "enum": ["published", "held_parity", "held_review", "withdrawn"],
-          "description": "published — cleared for the ladder subject to Stage 3. held_parity — verified but queued, because publishing now would push its party past the 30% cap (docs/03-content-pipeline.md §3.4). held_review — a Committee question is open; see policy_note. withdrawn — retained in the audit record but removed from the public board."
+          "description": "published — included on the provisional ladder; public voting still requires Stage 3. held_parity — legacy status retained for old imports and not a valid reason to hide a newly qualified record. held_review — evidence, context, duplication, or a Committee question is open; see needs and policy_note. withdrawn — retained in the audit record but removed from the public board."
         },
 
         "speaker_id": { "type": "string", "description": "FK to politicians.json" },
@@ -150,16 +150,41 @@
       }
     },
     "video": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["platform", "id", "start", "end"],
-      "properties": {
-        "platform": { "const": "youtube" },
-        "id": { "type": "string", "pattern": "^[A-Za-z0-9_-]{6,20}$" },
-        "start": { "type": "integer", "minimum": 0, "maximum": 86400 },
-        "end": { "type": "integer", "minimum": 1, "maximum": 86400 }
-      },
-      "description": "Canonical externally hosted evidence excerpt. The excerpt must be between 3 and 180 seconds; application validation enforces the cross-field bounds."
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["platform", "id", "start", "end"],
+          "properties": {
+            "platform": { "const": "youtube" },
+            "id": { "type": "string", "pattern": "^[A-Za-z0-9_-]{6,20}$" },
+            "start": { "type": "integer", "minimum": 0, "maximum": 86400 },
+            "end": { "type": "integer", "minimum": 1, "maximum": 86400 }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "platform", "id", "start", "end", "sha256", "etag", "bytes", "contentType", "durationMs"
+          ],
+          "properties": {
+            "platform": { "const": "r2" },
+            "id": {
+              "type": "string",
+              "pattern": "^statement-videos/[0-9a-f]{2}/[0-9a-f]{64}\\.mp4$"
+            },
+            "start": { "const": 0 },
+            "end": { "type": "integer", "minimum": 3, "maximum": 180 },
+            "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+            "etag": { "type": "string", "pattern": "^[0-9a-f]{32}$" },
+            "bytes": { "type": "integer", "minimum": 1, "maximum": 52428800 },
+            "contentType": { "const": "video/mp4" },
+            "durationMs": { "type": "integer", "minimum": 3000, "maximum": 180000 }
+          }
+        }
+      ],
+      "description": "Canonical bounded evidence excerpt. YouTube remains externally embedded; rights-cleared R2 uploads are immutable, pre-trimmed browser-ready MP4 files. Application validation enforces cross-field duration bounds."
     },
     "axisScore": { "type": "integer", "minimum": 0, "maximum": 5 }
   }

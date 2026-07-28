@@ -34,7 +34,7 @@ export default function SubmitPage() {
             <input type="url" placeholder="Link to the original upload" required />
           </label>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
+          <div className="submit-timestamps">
             <label className="field">
               <span className="lbl">Start timestamp</span>
               <input type="text" placeholder="00:41" inputMode="numeric" />

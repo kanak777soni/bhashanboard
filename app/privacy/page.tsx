@@ -83,10 +83,12 @@ export default function PrivacyPage() {
         <h2>Video and other processors</h2>
         <p>
           The application uses Neon for its database, its deployment provider for hosting, Brevo for
-          transactional email, and YouTube for source footage. The normal clip facade does not load a
-          YouTube player until you activate it. Once activated, YouTube receives browser and playback
-          information under its own privacy terms. These providers may process information in other
-          countries subject to their contractual safeguards and applicable law.
+          transactional email, YouTube for embedded source footage, and Cloudflare R2 for short
+          rights-cleared excerpts hosted by the Board. The normal clip facade does not load either
+          video source until you activate it. Once activated, the relevant provider receives ordinary
+          network and playback-request information, such as the IP address, browser headers, requested
+          media range, and time of access, under its own privacy terms. These providers may process
+          information in other countries subject to their contractual safeguards and applicable law.
         </p>
 
         <h2>Retention and the permanent ballot record</h2>

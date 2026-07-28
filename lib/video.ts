@@ -1,8 +1,22 @@
-import type { StatementVideo, VerificationStage } from "./types";
+import type {
+  R2StatementVideo,
+  StatementVideo,
+  VerificationStage,
+  YouTubeStatementVideo,
+} from "./types";
 
 export const MAX_VIDEO_TIMESTAMP_SECONDS = 24 * 60 * 60;
 export const MIN_VIDEO_EXCERPT_SECONDS = 3;
 export const MAX_VIDEO_EXCERPT_SECONDS = 3 * 60;
+export const MAX_R2_VIDEO_BYTES = 50 * 1024 * 1024;
+
+const R2_VIDEO_KEY_PATTERN =
+  /^statement-videos\/[0-9a-f]{2}\/[0-9a-f]{64}\.mp4$/;
+// Admin uploads are one bounded PutObject request, never multipart. The ETag
+// remains conditional-transfer metadata; a server-streamed SHA-256 addresses
+// the immutable public object.
+const R2_ETAG_PATTERN = /^[0-9a-f]{32}$/;
+const R2_SHA256_PATTERN = /^[0-9a-f]{64}$/;
 
 const LEGACY_VERIFICATION_STAGES: Record<string, VerificationStage> = {
   lead: "text_sourced",
@@ -90,7 +104,7 @@ export function parseVideoTimestamp(value: string): number | undefined {
 /** Parse a YouTube watch, short, embed or youtu.be URL, or a bare video id. */
 export function parseYouTubeVideo(
   input: string
-): Pick<StatementVideo, "platform" | "id"> | undefined {
+): Pick<YouTubeStatementVideo, "platform" | "id"> | undefined {
   const value = input.trim();
   if (!value) return undefined;
 
@@ -120,9 +134,68 @@ export function parseYouTubeVideo(
   }
 }
 
+/** Normalize the quoted ETag returned by the S3-compatible R2 API. */
+export function normalizeR2Etag(value: unknown): string | undefined {
+  if (typeof value !== "string") return undefined;
+  let normalized = value.trim();
+  if (normalized.startsWith('W/"') && normalized.endsWith('"')) {
+    normalized = normalized.slice(3, -1);
+  } else if (normalized.startsWith('"') && normalized.endsWith('"')) {
+    normalized = normalized.slice(1, -1);
+  }
+  normalized = normalized.toLowerCase();
+  return R2_ETAG_PATTERN.test(normalized) ? normalized : undefined;
+}
+
+/** Normalize a hexadecimal SHA-256 digest computed by the application server. */
+export function normalizeR2Sha256(value: unknown): string | undefined {
+  if (typeof value !== "string") return undefined;
+  const normalized = value.trim().toLowerCase();
+  return R2_SHA256_PATTERN.test(normalized) ? normalized : undefined;
+}
+
 export function assertVideoExcerpt(video: StatementVideo): void {
-  if (video.platform !== "youtube") throw new Error("Only YouTube clips are currently supported.");
-  if (!/^[A-Za-z0-9_-]{6,20}$/.test(video.id)) throw new Error("The YouTube video ID is invalid.");
+  if (video.platform === "youtube") {
+    if (!/^[A-Za-z0-9_-]{6,20}$/.test(video.id)) {
+      throw new Error("The YouTube video ID is invalid.");
+    }
+  } else if (video.platform === "r2") {
+    if (!R2_VIDEO_KEY_PATTERN.test(video.id)) {
+      throw new Error("The R2 video object key is invalid.");
+    }
+    const normalizedEtag = normalizeR2Etag(video.etag);
+    if (!normalizedEtag || video.etag !== normalizedEtag) {
+      throw new Error("The R2 video ETag is invalid or is not normalized.");
+    }
+    const normalizedSha256 = normalizeR2Sha256(video.sha256);
+    if (!normalizedSha256 || video.sha256 !== normalizedSha256) {
+      throw new Error("The R2 video SHA-256 is invalid or is not normalized.");
+    }
+    if (video.id !== `statement-videos/${normalizedSha256.slice(0, 2)}/${normalizedSha256}.mp4`) {
+      throw new Error("The R2 video key must be the verified SHA-256 content address.");
+    }
+    if (!Number.isSafeInteger(video.bytes) || video.bytes <= 0 || video.bytes > MAX_R2_VIDEO_BYTES) {
+      throw new Error("The R2 video must be no larger than 50 MiB.");
+    }
+    if (video.contentType !== "video/mp4") {
+      throw new Error("The R2 video must be an MP4 file.");
+    }
+    if (
+      !Number.isSafeInteger(video.durationMs) ||
+      video.durationMs < MIN_VIDEO_EXCERPT_SECONDS * 1000 ||
+      video.durationMs > MAX_VIDEO_EXCERPT_SECONDS * 1000
+    ) {
+      throw new Error("The R2 video duration must be between three seconds and three minutes.");
+    }
+    if (video.start !== 0) {
+      throw new Error("An uploaded R2 excerpt must begin at zero seconds.");
+    }
+    if (video.end !== Math.ceil(video.durationMs / 1000)) {
+      throw new Error("The R2 video end must match its verified duration.");
+    }
+  } else {
+    throw new Error("The video platform is not supported.");
+  }
   if (!Number.isSafeInteger(video.start) || video.start < 0) {
     throw new Error("The video start must be a non-negative whole second.");
   }
@@ -152,9 +225,40 @@ export function normalizeStatementVideo(value: unknown): StatementVideo | undefi
   const platform = source.platform === undefined ? "youtube" : source.platform;
   const start = wholeSecond(source.start ?? source.start_s);
   const end = wholeSecond(source.end ?? source.end_s);
-  if (platform !== "youtube" || !id || start === undefined || end === undefined) return undefined;
+  if (!id || start === undefined || end === undefined) return undefined;
 
-  const video: StatementVideo = { platform, id, start, end };
+  let video: StatementVideo;
+  if (platform === "youtube") {
+    video = { platform, id, start, end };
+  } else if (platform === "r2") {
+    const etag = normalizeR2Etag(source.etag);
+    const sha256 = normalizeR2Sha256(source.sha256);
+    const bytes = wholeSecond(source.bytes);
+    const durationMs = wholeSecond(source.durationMs);
+    if (
+      !etag ||
+      !sha256 ||
+      bytes === undefined ||
+      durationMs === undefined ||
+      source.contentType !== "video/mp4" ||
+      start !== 0
+    ) {
+      return undefined;
+    }
+    video = {
+      platform,
+      id,
+      sha256,
+      etag,
+      bytes,
+      contentType: "video/mp4",
+      durationMs,
+      start,
+      end,
+    } satisfies R2StatementVideo;
+  } else {
+    return undefined;
+  }
   try {
     assertVideoExcerpt(video);
     return video;
@@ -221,7 +325,7 @@ export function committeePublicationIssues(rawDocument: unknown): string[] {
     normalizeStatementVideo(document.video) ??
     normalizeStatementVideo(verification?.embed);
   if (!video) {
-    issues.push("A valid bounded YouTube excerpt is required.");
+    issues.push("A valid bounded source-video excerpt is required.");
   }
 
   return issues;

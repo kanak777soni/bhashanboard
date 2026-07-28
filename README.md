@@ -4,7 +4,7 @@
 
 India first. Then the world.
 
-**Status:** pre-launch application with a 44-entry source corpus, registered accounts, verified-email authentication, server-timed video-gated one-time public rulings, an auditable Bayesian rating model, and administrator user controls. Every current corpus entry is still text-sourced, so public voting remains correctly locked until verified excerpts are attached.
+**Status:** pre-launch application with a 45-entry source corpus, registered accounts, verified-email authentication, server-timed video-gated one-time public rulings, an auditable Bayesian rating model, and administrator user controls. Every current corpus entry is still text-sourced, so public voting remains correctly locked until verified excerpts are attached.
 
 ---
 
@@ -38,6 +38,75 @@ Newsletter consent is stored only in Neon; this application does not mirror
 subscription state into a Brevo contact list. Vercel invokes the bearer-protected
 retention route daily to remove expired sessions, verification records,
 rate-limit buckets, and stale unfinished watch sessions.
+
+## Cloudflare R2 video setup
+
+YouTube excerpts remain supported. Administrators can also upload a
+rights-cleared, already-trimmed MP4 from the browser into a **private quarantine
+bucket**; the video bytes do not pass through Vercel and are not publicly
+reachable while untrusted. The server streams and SHA-256 hashes the complete
+object under an ETag precondition while retaining only the first 8 MiB for a
+structural fast-start MP4 inspection (including H.264/AAC declarations and
+duration tables). That inspection is not a full decoder pass. Only then does it
+copy the object to a separate public delivery bucket under a deterministic
+`statement-videos/<sha256-prefix>/<sha256>.mp4` key, verify the final HEAD
+response, and require the trusted administrator to play the promoted object
+through completely and approve its picture and audio before attachment. Neon
+records both approvals, and quarantine is removed best-effort. The single-PUT
+ETag remains conditional-transfer metadata, not the content identity.
+
+1. Create two **Standard** R2 buckets: a private quarantine/upload bucket and a
+   separate public delivery bucket. Never attach a public domain or `r2.dev` URL
+   to the quarantine bucket.
+2. Create one least-privilege R2 S3 token with Object Read & Write access scoped
+   **only** to those two buckets. It needs to PUT/GET/HEAD/DELETE quarantine
+   objects and COPY/HEAD public objects; do not grant account-wide admin. The
+   application deliberately has no automatic public-object deletion path.
+3. Connect a public HTTPS custom domain only to the delivery bucket. Use that
+   origin for `R2_PUBLIC_BASE_URL`; do not use `r2.dev` in production.
+4. Add all six `R2_*` values from `.env.example` locally and in Vercel before
+   deploying.
+5. Give the private upload bucket this exact-origin CORS policy. No `GET` or
+   `HEAD` browser access is needed:
+
+```json
+[
+  {
+    "AllowedOrigins": ["http://localhost:3000", "https://your-site.example"],
+    "AllowedMethods": ["PUT"],
+    "AllowedHeaders": ["content-type", "if-none-match", "cache-control", "x-amz-meta-upload-intent"],
+    "ExposeHeaders": ["etag"],
+    "MaxAgeSeconds": 3600
+  }
+]
+```
+
+6. Give the public delivery bucket exact-origin `GET` and `HEAD` CORS with the
+   `range` request header and expose `etag`, `content-length`, `content-range`
+   and `accept-ranges` for native playback.
+7. Enable an R2 **bucket-lock retention rule** for the public
+   `statement-videos/` prefix for at least seven days. This backs the
+   content-addressed, application-level write-once rule with provider-side
+   protection. A longer or indefinite lock is compatible with the application;
+   choose it only after deciding how legal takedowns will be handled.
+
+Use HandBrake's **Web Optimized** option or equivalent before upload. Neon keeps
+actor, quota, expiry, status, SHA-256, ETag, duration, promotion, playback
+approval, and statement-attachment metadata for each intent. Attaching a new
+hosted clip and saving its statement happen in one database transaction;
+replacing or removing it marks the previous upload detached. Each administrator
+is limited to four concurrent authorizations, 20 intents and 500 MiB of
+authorized bytes per rolling 24 hours. The daily job removes
+completed/rejected/expired quarantine objects and old untracked quarantine
+bytes. Every quarantine deletion is scheduled in a durable Neon outbox before
+R2 is touched, then completed and audited atomically; a lost response is retried
+idempotently. A promoted final that remains unattached for 24 hours is marked
+and written to the audit ledger so storage drift is visible. Public evidence
+objects are never deleted automatically, because even a reference check can
+race a new statement save or an identical re-upload. Never add an age-only
+lifecycle rule for `statement-videos/`; any future public deletion must be an
+explicit, audited operation coordinated with statement records and legal
+retention.
 
 ---
 
@@ -104,7 +173,7 @@ receipt ownership, publication status, and the current video revision.
 |---|---|
 | [`docs/01-concept.md`](docs/01-concept.md) | Positioning, the Verbatim Doctrine, Deadpan Prestige, content policy, naming (and the loaded-word trap) |
 | [`docs/02-ranking-system.md`](docs/02-ranking-system.md) | Earlier pairwise design exploration; superseded for scoring by the implemented rules page and voting code |
-| [`docs/03-content-pipeline.md`](docs/03-content-pipeline.md) | Embed-never-host, source tiers, the 4-stage pipeline, cold start, multilingual subtitles |
+| [`docs/03-content-pipeline.md`](docs/03-content-pipeline.md) | Embed-first evidence, controlled rights-cleared R2 hosting, source tiers, the 4-stage pipeline, cold start, multilingual subtitles |
 | [`docs/04-legal-and-safety.md`](docs/04-legal-and-safety.md) | **Can we use real names/images?** (yes), BNS §356, publisher-vs-intermediary trap, IT Rules 2026, MCC mode, risk register |
 | [`docs/05-growth-and-money.md`](docs/05-growth-and-money.md) | Share-card growth loop, The Weekly Gyan, The Standing Ovations, monetisation, global sequencing |
 | [`docs/06-roadmap.md`](docs/06-roadmap.md) | Phases, architecture sketch, metrics, what could kill this, **decisions needed from you** |

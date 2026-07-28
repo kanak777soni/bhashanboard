@@ -91,6 +91,8 @@ async function main() {
     ratingDerivedCorruptionRows,
     ratingBallotMismatchRows,
     integrityConstraintRows,
+    r2IndexRows,
+    r2UploadColumnRows,
     ownershipMismatchRows,
     publicationSeedRows,
   ] = await sql.transaction(
@@ -158,7 +160,8 @@ async function main() {
         )) OR (table_schema = 'bhashan' AND table_name IN (
           'statement_watch_sessions', 'statement_watch_receipts',
           'statement_votes', 'statement_vote_exclusions',
-          'statement_rating_aggregates'
+          'statement_rating_aggregates', 'r2_video_upload_intents',
+          'r2_object_deletion_intents'
         ))
       `),
       tx.query(`
@@ -172,7 +175,8 @@ async function main() {
           AND source_namespace.nspname = 'bhashan'
           AND source.relname IN (
             'statement_watch_sessions', 'statement_watch_receipts',
-            'statement_votes', 'statement_vote_exclusions'
+            'statement_votes', 'statement_vote_exclusions',
+            'r2_video_upload_intents'
           )
           AND target_namespace.nspname = 'public'
           AND target.relname = 'auth_user'
@@ -286,7 +290,28 @@ async function main() {
             'statement_watch_receipts_identity_uniq',
             'statement_watch_receipts_session_identity_fkey',
             'statement_votes_receipt_identity_fkey',
-            'statement_rating_aggregate_weighted_sum_check'
+            'statement_rating_aggregate_weighted_sum_check',
+            'statement_watch_sessions_video_platform_check'
+          )
+      `),
+      tx.query(`
+        SELECT indexname, indexdef
+        FROM pg_indexes
+        WHERE schemaname = 'bhashan'
+          AND indexname IN (
+            'r2_object_deletion_intents_active_key_uidx',
+            'statements_r2_video_id_uidx',
+            'r2_video_upload_intents_attachment_idx',
+            'r2_video_upload_intents_orphan_audit_idx'
+          )
+      `),
+      tx.query(`
+        SELECT column_name, data_type, is_nullable
+        FROM information_schema.columns
+        WHERE table_schema = 'bhashan'
+          AND table_name = 'r2_video_upload_intents'
+          AND column_name IN (
+            'attached_statement_id', 'attached_at', 'detached_at', 'orphaned_at'
           )
       `),
       tx.query(`
@@ -437,6 +462,8 @@ async function main() {
     "bhashan.statement_votes",
     "bhashan.statement_vote_exclusions",
     "bhashan.statement_rating_aggregates",
+    "bhashan.r2_video_upload_intents",
+    "bhashan.r2_object_deletion_intents",
   ]) {
     if (!extensionTableSet.has(table)) errors.push(`missing table ${table}`);
   }
@@ -514,6 +541,7 @@ async function main() {
     "statement_watch_receipts_session_identity_fkey",
     "statement_votes_receipt_identity_fkey",
     "statement_rating_aggregate_weighted_sum_check",
+    "statement_watch_sessions_video_platform_check",
   ]);
   for (const row of rowsOf(integrityConstraintRows)) {
     if (row.convalidated === true || row.convalidated === "true") {
@@ -522,6 +550,50 @@ async function main() {
   }
   for (const name of requiredIntegrityConstraints) {
     errors.push(`missing or unvalidated integrity constraint ${name}`);
+  }
+  const requiredR2Indexes = new Set([
+    "r2_object_deletion_intents_active_key_uidx",
+    "statements_r2_video_id_uidx",
+  ]);
+  for (const row of rowsOf(r2IndexRows)) {
+    const name = String(row.indexname);
+    const definition = String(row.indexdef);
+    if (/^CREATE UNIQUE INDEX\b/i.test(definition) && /\bWHERE\b/i.test(definition)) {
+      requiredR2Indexes.delete(name);
+    }
+  }
+  for (const name of requiredR2Indexes) {
+    errors.push(`missing or non-partial unique R2 index ${name}`);
+  }
+  const r2IndexSet = new Set(
+    rowsOf(r2IndexRows).map((row) => String(row.indexname))
+  );
+  for (const name of [
+    "r2_video_upload_intents_attachment_idx",
+    "r2_video_upload_intents_orphan_audit_idx",
+  ]) {
+    if (!r2IndexSet.has(name)) errors.push(`missing R2 lifecycle index ${name}`);
+  }
+  const r2UploadColumns = new Map(
+    rowsOf(r2UploadColumnRows).map((row) => [
+      String(row.column_name),
+      { type: String(row.data_type), nullable: String(row.is_nullable) },
+    ])
+  );
+  for (const [column, type] of [
+    ["attached_statement_id", "text"],
+    ["attached_at", "timestamp with time zone"],
+    ["detached_at", "timestamp with time zone"],
+    ["orphaned_at", "timestamp with time zone"],
+  ]) {
+    const actual = r2UploadColumns.get(column);
+    if (!actual) {
+      errors.push(`r2_video_upload_intents is missing column ${column}`);
+    } else if (actual.type !== type || actual.nullable !== "YES") {
+      errors.push(
+        `r2_video_upload_intents.${column} must be nullable ${type}`
+      );
+    }
   }
   const ownershipMismatches = rowsOf(ownershipMismatchRows).map(
     (row) => `${String(row.kind)}:${String(row.id)}`
@@ -546,6 +618,7 @@ async function main() {
     "statement_watch_receipts",
     "statement_votes",
     "statement_vote_exclusions",
+    "r2_video_upload_intents",
   ]) {
     if (!authForeignKeySet.has(table)) {
       errors.push(`missing auth-user foreign key from bhashan.${table}`);

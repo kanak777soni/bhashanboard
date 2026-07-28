@@ -30,15 +30,18 @@ export default async function NetasPage() {
       </div>
 
       <div className="tablewrap">
-        <table className="standings">
+        <table className="standings netas-table">
           <thead>
             <tr>
               <th className="c-rank">#</th>
               <th>Representative</th>
               <th className="c-meta">Office</th>
-              <th>Form</th>
-              <th className="c-gp">Entries</th>
-              <th className="c-gp">Career GP</th>
+              <th className="c-mobile-hide">Form</th>
+              <th className="c-gp c-mobile-hide">Entries</th>
+              <th className="c-gp">
+                <span className="netas-wide-label">Career GP</span>
+                <span className="only-narrow" aria-hidden="true">GP</span>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -59,14 +62,14 @@ export default async function NetasPage() {
                   <td className="c-meta" style={{ fontSize: 14, color: "var(--ink-70)" }}>
                     {r.neta.office}
                   </td>
-                  <td>
+                  <td className="c-mobile-hide">
                     <div className="formguide">
                       {r.entries.slice(0, 5).map((e) => (
                         <Medal key={e.slug} gp={e.gp} size={17} />
                       ))}
                     </div>
                   </td>
-                  <td className="c-gp">{r.entries.length}</td>
+                  <td className="c-gp c-mobile-hide">{r.entries.length}</td>
                   <td className="c-gp">{r.career.toLocaleString("en-IN")}</td>
                 </tr>
               );

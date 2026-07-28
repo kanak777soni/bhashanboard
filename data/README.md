@@ -40,10 +40,14 @@ better with a sentence in it. A corpus that has yielded to that once is worthles
 because from then on no reader can tell which sentences are real. **A null quote
 is a research task. An invented quote is the end of the project.**
 
-**2. Embed, never host.** `verification.embed` takes `{platform, id, start_s,
-end_s}`. A file path in that field is a bug. See `docs/03-content-pipeline.md`
-§3.1 — Prasar Bharati has issued strikes over Parliament footage, and self-hosting
-means you personally receive them.
+**2. Embed first; host only cleared evidence.** A YouTube
+`verification.embed` takes `{platform, id, start_s, end_s}`; a file path or URL
+in that field is a bug. The admin may attach an immutable R2 object only through
+the verified upload flow, and only when the project owns the excerpt, has
+permission to host it, or has recorded a lawful archival basis. See
+`docs/03-content-pipeline.md` §3.1. R2 object metadata is never accepted from
+the JSON seed importer: create or edit the entry in the administrator UI so the
+actor-bound quarantine and promotion record exists in Neon.
 
 ## Adding an entry
 
@@ -64,10 +68,11 @@ means you personally receive them.
 6. **Score the axes** against the rubric in §9.3. Note that **Consequence is
    inverted**: 5 means nothing happened or the speaker was promoted since, 0 means
    they resigned or were sacked.
-7. **Set `status`.** `published` only if the parity cap still holds — run the
-   script and look. Otherwise `held_parity`. If a Rule is engaged but you believe
-   the entry survives it, `held_review` plus a `policy_note` recording the ruling
-   and the reasoning.
+7. **Set `status`.** `published` is a content/evidence decision, never a way to
+   manufacture a party percentage. Use `held_review` when sourcing, context,
+   duplication or a Rule remains unresolved, with a `policy_note` where a Rule is
+   engaged. Coverage warnings govern the next research assignment, not which
+   already-qualified statement is hidden.
 8. **Re-run the script.** Zero errors, or it does not land.
 
 ## Party attribution
@@ -81,18 +86,20 @@ beyond argument.
 `politicians.json` carries the speaker's *current* affiliation for the player
 card. The two fields disagree on purpose.
 
-## The parity cap
+## The parity target
 
-No party above **30%** of the published set (`docs/03-content-pipeline.md` §3.4).
-The script enforces it as an error. When the cap binds, hold entries at
-`held_parity` — do not delete them, and do not raise the cap.
+No party above **30%** of the launch corpus remains the research target
+(`docs/03-content-pipeline.md` §3.4). The script reports any breach loudly. It is
+not permission to hide otherwise qualified records until the display looks
+balanced: that would turn a sampling problem into editorial scorekeeping.
+`held_parity` is retained for historical imports, but new holds must be justified
+by evidence, context, duplication or the Rules.
 
-It also warns when one party dominates the *top* of the ladder, which the
-headcount cap does not catch. Nobody counts a leaderboard; they look at the
-podium. **The fix for either is always more corpus and never a thumb on the
+It also warns when one party dominates the *top* of the ladder. Nobody counts a
+leaderboard; they look at the podium. **The fix for coverage imbalance is more
+corpus; the fix for a weak entry is evidence review; neither is a thumb on the
 ratings.** Re-weighting the rubric to move a party down the table is precisely
-the corruption the whole Elo design exists to prevent, and it is visible to
-anyone who diffs the numbers.
+the corruption the reproducible seed and public-vote model exists to prevent.
 
 ## `generated/leaderboard.json`
 

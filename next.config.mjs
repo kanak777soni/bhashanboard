@@ -1,8 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // Video is embedded, never hosted — see docs/03-content-pipeline.md §3.1.
-  // Only poster frames are served, and those come from the source platform.
+  // Source-platform poster frames remain remote. Rights-cleared administrator
+  // uploads are served as native video from the configured R2 custom domain.
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "i.ytimg.com" },

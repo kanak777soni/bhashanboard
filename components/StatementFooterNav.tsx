@@ -73,8 +73,8 @@ export default async function StatementFooterNav({ slug }: { slug: string }) {
         <h2 className="lbl">Cite this entry</h2>
         <p className="cite-text">{citation}</p>
         <p className="legend-foot">
-          Reproduce freely with attribution. The clip itself belongs to its publisher; we link, we do
-          not host.
+          Cite the record with attribution. Source-footage rights remain with
+          their owners whether the evidence is embedded or hosted with clearance.
         </p>
       </section>
     </>

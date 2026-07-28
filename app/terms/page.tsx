@@ -73,6 +73,12 @@ export default function TermsPage() {
           you already hold. Supplying a third-party link does not grant either you or the Board
           ownership of the linked footage.
         </p>
+        <p>
+          If you are authorized to provide a footage excerpt for hosting, you grant the Board a
+          non-exclusive licence to store, inspect, reproduce, and deliver that excerpt for the
+          archive, its evidence player, corrections, and lawful backups. You must identify its source
+          honestly and remain responsible for having the permission or other lawful basis you claim.
+        </p>
 
         <h2>Sources, corrections, and replies</h2>
         <p>

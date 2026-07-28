@@ -1,8 +1,8 @@
 {
   "$schema": "./schema/statement.schema.json",
   "corpus": "india",
-  "version": "0.1.0",
-  "compiled": "2026-07-26",
+  "version": "0.2.0",
+  "compiled": "2026-07-29",
   "$comment": "SEED CORPUS — India. Read data/README.md before adding an entry. Two rules govern this file and nothing overrides them: (1) every statement is a real, publicly-reported, on-record remark by a public figure acting in a public role, carrying at least one live source link; (2) nothing here is paraphrased into the `quote` field — if the exact wording could not be established from a source, `quote` is null and `claim` carries a neutral summary instead. `stage` is the content-pipeline stage each entry has actually cleared (docs/03-content-pipeline.md §3.3). No entry in this file has cleared Stage 3; none is publishable as-is.",
   "statements": [
     {
@@ -33,17 +33,17 @@
       },
       "verification": {
         "stage": "text_sourced",
-        "best_source_tier": "C",
+        "best_source_tier": "B",
         "needs": [
           "Tier A/B video of the News Nation interview with start/end timestamps",
           "surrounding 60 seconds transcribed and reviewed"
         ],
         "sources": [
           {
-            "tier": "C",
-            "publisher": "FactChecker.in",
-            "title": "PM Twice Wrong: Clouds Do Not Hinder Radar, May Hinder Weapons",
-            "url": "https://www.factchecker.in/pm-twice-wrong-clouds-do-not-hinder-radar-may-hinder-weapons"
+            "tier": "B",
+            "publisher": "News Nation",
+            "title": "PM Narendra Modi on News Nation: Why will I seek votes in the name of Indian Army?",
+            "url": "https://english.newsnationtv.com/election/lok-sabha-election/pm-narendra-modi-on-news-nation-why-will-i-seek-votes-in-the-name-of-indian-army-223741.html"
           },
           {
             "tier": "C",
@@ -527,7 +527,7 @@
     },
     {
       "id": "IN-0010",
-      "status": "published",
+      "status": "withdrawn",
       "speaker_id": "rahul-gandhi",
       "party_at_time": "INC",
       "office_at_time": "Vice-President, Indian National Congress",
@@ -537,31 +537,38 @@
       "venue": "Gobind Ballabh Pant Social Science Institute, Jhunsi, Allahabad",
       "language": "Hindi",
       "category": "Economics",
-      "neutral_title": "On poverty as a state of mind",
+      "neutral_title": "On reported remarks about poverty and mindset",
       "quote": null,
-      "quote_note": "Contemporaneous reports quote or render the remark in English and paraphrase it in Hindi, but the spoken language and exact original words are not established. The quote therefore remains null rather than back-translated.",
-      "claim": "That poverty is a state of mind rather than a shortage of food, money or material things, and can be overcome with self-confidence.",
-      "context": "Made shortly before the 2014 general election, in which the Congress recorded its worst-ever Lok Sabha result. Defenders argued the point was about the psychological trap of poverty rather than a denial of material deprivation; that reading should be linked from the entry.",
+      "quote_note": "The meeting was closed to reporters and no recording or first-party transcript has been located. The viral English wording came from the host institute's first press note, not from an established recording of Gandhi's original words; the institute issued a materially different clarification the next day. The quote remains null rather than treating either press note as verbatim speech.",
+      "claim": "That the host institute's first press note attributed to Gandhi the view that poverty was a state of mind and did not mean scarcity of food, money or material things, while a next-day clarification said he had distinguished material poverty from a poverty of thought.",
+      "context": "No media were invited. The first institute note supplied the widely repeated English wording and linked it to self-confidence through a self-help-group example. The same institute then said the remark had been misrepresented and that Gandhi had recognised both material deprivation and a poverty of thought. Without a recording, the archive cannot responsibly choose the harsher wording as his established statement.",
+      "counterpoint": "Material deprivation remains central to standard poverty measurement. That does not settle what Gandhi said at this closed event: the only first-party descriptions conflict, so this entry is held from the ladder pending primary evidence.",
       "axes": {
-        "logic_damage": 3,
-        "straight_face": 4,
+        "logic_damage": 2,
+        "straight_face": 2,
         "rewatch_value": 4,
-        "crowd_complicity": 2,
+        "crowd_complicity": 0,
         "consequence": 4
       },
       "verification": {
         "stage": "text_sourced",
         "best_source_tier": "B",
         "needs": [
-          "audiovisual recording or first-party transcript establishing the spoken language and exact words",
-          "surrounding 60 seconds transcribed and reviewed"
+          "audiovisual recording or contemporaneous first-party transcript establishing the spoken language and exact words",
+          "a Committee ruling reconciling the institute's first press note with its next-day clarification"
         ],
         "sources": [
           {
-            "tier": "C",
-            "publisher": "OneIndia",
-            "title": "Poverty is a state of mind: Rahul Gandhi made economics irrelevant",
-            "url": "https://www.oneindia.com/2013/08/06/poverty-a-state-of-mind-rahul-gandhi-made-economics-irrelevant-1276836.html"
+            "tier": "B",
+            "publisher": "The Indian Express",
+            "title": "Institute quotes Rahul Gandhi as saying poverty is 'just a state of mind'",
+            "url": "https://indianexpress.com/article/news-archive/web/institute-quotes-rahul-gandhi-as-saying-poverty-is-just-a-state-of-mind/"
+          },
+          {
+            "tier": "B",
+            "publisher": "NDTV",
+            "title": "Rahul Gandhi's 'poverty is a state of mind' remark draws flak",
+            "url": "https://www.ndtv.com/india-news/rahul-gandhis-poverty-is-a-state-of-mind-remark-draws-flak-530684"
           },
           {
             "tier": "B",
@@ -838,7 +845,7 @@
     },
     {
       "id": "IN-0016",
-      "status": "published",
+      "status": "held_review",
       "speaker_id": "p-chidambaram",
       "party_at_time": "INC",
       "office_at_time": "Member of Parliament and former Union Finance Minister",
@@ -1298,7 +1305,7 @@
     },
     {
       "id": "IN-0025",
-      "status": "published",
+      "status": "held_review",
       "speaker_id": "nirmal-maji",
       "party_at_time": "TMC",
       "office_at_time": "Member of the Legislative Assembly, Uluberia North",
@@ -1680,13 +1687,13 @@
     },
     {
       "id": "IN-0033",
-      "status": "published",
+      "status": "held_review",
       "speaker_id": "ganesh-singh",
       "party_at_time": "BJP",
       "office_at_time": "Member of Parliament, Satna",
       "state": "Madhya Pradesh",
-      "date": "2019-12",
-      "date_precision": "month",
+      "date": "2019-12-12",
+      "date_precision": "day",
       "venue": "Lok Sabha, debate on the Sanskrit Central Universities Bill 2019",
       "language": "Hindi",
       "category": "Science & Reason",
@@ -1704,13 +1711,18 @@
       },
       "verification": {
         "stage": "text_sourced",
-        "best_source_tier": "C",
+        "best_source_tier": "A",
         "needs": [
-          "VERBATIM WORDING from the Lok Sabha record — obtainable via Sansad, and blocking",
-          "exact date",
+          "VERBATIM WORDING transcribed from the linked Lok Sabha record — blocking",
           "Sansad TV footage with timestamps (Tier A)"
         ],
         "sources": [
+          {
+            "tier": "A",
+            "publisher": "Lok Sabha",
+            "title": "Lok Sabha Debates, 12 December 2019",
+            "url": "https://sansad.in/getFile/debatestextmk/17/II/12.12.2019m.pdf?source=loksabhadocs"
+          },
           {
             "tier": "C",
             "publisher": "Scroll.in",
@@ -1722,21 +1734,21 @@
     },
     {
       "id": "IN-0034",
-      "status": "published",
+      "status": "held_review",
       "speaker_id": "ramesh-pokhriyal",
       "party_at_time": "BJP",
       "office_at_time": "Member of Parliament, Haridwar",
       "state": "Uttarakhand",
-      "date": "2014",
-      "date_precision": "year",
-      "venue": "Parliament of India",
+      "date": "2014-12-03",
+      "date_precision": "day",
+      "venue": "Lok Sabha, Parliament of India",
       "language": "Hindi",
       "category": "Science & Reason",
       "neutral_title": "On the standing of astrology among the sciences",
       "quote": null,
       "claim": "That astrology is the biggest science, above science itself, and should be promoted.",
       "quote_note": "`quote` is null pending the parliamentary record. Reports render the remark in at least two materially different forms.",
-      "context": "Said in Parliament. Pokhriyal later became Union Minister for Education (2019–2021).",
+      "context": "Said in the same Lok Sabha intervention as IN-0035. The official record is linked, but this card remains held until its exact Hindi wording is transcribed and the Committee decides whether the two claims should be consolidated. Pokhriyal later became Union Minister for Education (2019–2021).",
       "axes": {
         "logic_damage": 5,
         "straight_face": 5,
@@ -1746,12 +1758,18 @@
       },
       "verification": {
         "stage": "text_sourced",
-        "best_source_tier": "C",
+        "best_source_tier": "A",
         "needs": [
-          "VERBATIM WORDING from the parliamentary record — obtainable, and blocking",
-          "exact date and House"
+          "VERBATIM WORDING transcribed from the linked Lok Sabha record — blocking",
+          "Committee ruling on consolidation with IN-0035, which came from the same intervention"
         ],
         "sources": [
+          {
+            "tier": "A",
+            "publisher": "Lok Sabha",
+            "title": "Lok Sabha Debates, 3 December 2014",
+            "url": "https://sansad.in/getFile/debatestextmk/16/III/0312.pdf?source=loksabhadocs"
+          },
           {
             "tier": "C",
             "publisher": "The Quint",
@@ -1810,21 +1828,21 @@
     },
     {
       "id": "IN-0036",
-      "status": "published",
+      "status": "held_review",
       "speaker_id": "dinesh-sharma",
       "party_at_time": "BJP",
       "office_at_time": "Deputy Chief Minister of Uttar Pradesh",
       "state": "Uttar Pradesh",
-      "date": "2018-04",
-      "date_precision": "month",
-      "venue": "Public event, Uttar Pradesh",
+      "date": "2018-05-30",
+      "date_precision": "day",
+      "venue": "Hindi Journalism Day event, Mathura",
       "language": "Hindi",
       "category": "History",
       "neutral_title": "On the antiquity of journalism",
       "quote": null,
       "claim": "That journalism began in the Mahabharata period.",
       "quote_note": "`quote` is null pending verbatim Hindi wording.",
-      "context": "Said days after the Tripura Chief Minister's remarks on the internet in the Mahabharata (IN-0005), and reported as seconding them.",
+      "context": "Said at a Hindi Journalism Day event in Mathura and reported as supporting the Tripura Chief Minister's earlier remarks about technology in the Mahabharata (IN-0005). The earlier April date in this corpus was incorrect.",
       "axes": {
         "logic_damage": 4,
         "straight_face": 5,
@@ -1837,7 +1855,7 @@
         "best_source_tier": "B",
         "needs": [
           "VERBATIM WORDING — blocking",
-          "exact date and venue",
+          "complete event footage and surrounding context",
           "corroborating second source"
         ],
         "sources": [
@@ -1846,6 +1864,12 @@
             "publisher": "Deccan Herald",
             "title": "Journalism started during Mahabharata: Deputy CM",
             "url": "https://www.deccanherald.com/india/journalism-started-during-mahabharata-deputy-cm-672602.html"
+          },
+          {
+            "tier": "B",
+            "publisher": "The Statesman",
+            "title": "Journalism began during Mahabharata: UP Deputy CM Dinesh Sharma",
+            "url": "https://www.thestatesman.com/india/journalism-began-during-mahabharata-up-deputy-cm-dinesh-sharma-1502642920.html"
           }
         ]
       }
@@ -1900,7 +1924,7 @@
     },
     {
       "id": "IN-0038",
-      "status": "published",
+      "status": "held_review",
       "speaker_id": "babul-supriyo",
       "party_at_time": "BJP",
       "office_at_time": "Union Minister of State",
@@ -1914,7 +1938,7 @@
       "quote": null,
       "claim": "That Ishwar Chandra Vidyasagar abolished the custom of Sati.",
       "quote_note": "`quote` is null pending verbatim Bengali wording.",
-      "context": "Sati was banned by regulation in 1829 under Lord William Bentinck, following a campaign led by Raja Ram Mohan Roy. Vidyasagar's landmark campaign was for widow remarriage, legalised in 1856.",
+      "context": "Sati was banned by regulation in 1829 under Lord William Bentinck, following a campaign led by Raja Ram Mohan Roy. Vidyasagar's landmark campaign was for widow remarriage, legalised in 1856. Reports also record that Supriyo later corrected himself; the original footage and correction must be placed together before this can return to the ladder.",
       "axes": {
         "logic_damage": 3,
         "straight_face": 4,
@@ -1928,7 +1952,7 @@
         "needs": [
           "VERBATIM WORDING — blocking",
           "exact date and venue",
-          "corroborating second source",
+          "original press-conference footage and the speaker's subsequent correction",
           "note: Supriyo has since joined the TMC — the entry must be attributed to BJP, his party at the time"
         ],
         "sources": [
@@ -1937,20 +1961,26 @@
             "publisher": "Deccan Herald",
             "title": "Bengal politicians' affair with foot-in-mouth remarks",
             "url": "https://www.deccanherald.com/india/bengal-politicians-affair-with-foot-in-mouth-remarks-774401.html"
+          },
+          {
+            "tier": "B",
+            "publisher": "Sangbad Pratidin",
+            "title": "Vidyasagar abolished sati system, said Union minister Babul Supriyo",
+            "url": "https://www.sangbadpratidin.in/kolkata/vidyasagar-abolished-sati-system-said-union-minister-babul-supriyo/pid/315964/"
           }
         ]
       }
     },
     {
       "id": "IN-0039",
-      "status": "published",
+      "status": "held_review",
       "speaker_id": "avdhut-wagh",
       "party_at_time": "BJP",
       "office_at_time": "Spokesperson, BJP Maharashtra",
       "state": "Maharashtra",
-      "date": "2020-04",
-      "date_precision": "month",
-      "venue": "Public statement, Maharashtra",
+      "date": "2020-03-31",
+      "date_precision": "day",
+      "venue": "Social-media statement, Maharashtra",
       "language": "Marathi",
       "category": "Science & Reason",
       "neutral_title": "On criticism of the Prime Minister and local infection counts",
@@ -1970,8 +2000,7 @@
         "best_source_tier": "B",
         "needs": [
           "VERBATIM WORDING — blocking",
-          "exact date",
-          "corroborating second source"
+          "the original Marathi post and its publication timestamp"
         ],
         "sources": [
           {
@@ -1979,27 +2008,33 @@
             "publisher": "Deccan Herald",
             "title": "Shiv Sena seeks action against BJP leader over remarks on COVID-19",
             "url": "https://deccanherald.com/national/national-politics/shiv-sena-seeks-action-against-bjp-leader-over-remarks-on-covid-19-819551.html"
+          },
+          {
+            "tier": "B",
+            "publisher": "Business Standard (PTI)",
+            "title": "Sena seeks action against BJP leader over remarks on COVID-19",
+            "url": "https://www.business-standard.com/article/pti-stories/sena-seeks-action-against-bjp-leader-over-remarks-on-covid-19-120033100343_1.html"
           }
         ]
       }
     },
     {
       "id": "IN-0040",
-      "status": "published",
+      "status": "withdrawn",
       "speaker_id": "bs-yediyurappa",
       "party_at_time": "BJP",
       "office_at_time": "Chief Minister of Karnataka",
       "state": "Karnataka",
-      "date": "2019-08",
-      "date_precision": "month",
-      "venue": "Public remarks during the Karnataka floods",
+      "date": "2019-10-23",
+      "date_precision": "day",
+      "venue": "Press remarks during renewed flooding in Karnataka",
       "language": "Kannada",
       "category": "Science & Reason",
       "neutral_title": "On the disposition of the rain god",
       "quote": null,
-      "claim": "That the rain god was furious, offered in the course of remarks on the state's flood emergency.",
+      "claim": "Describing repeated destructive rain as though the rain god were furious.",
       "quote_note": "`quote` is null pending verbatim Kannada wording. This entry is weakly sourced — a headline, not a transcript.",
-      "context": "Said during the August 2019 Karnataka floods.",
+      "context": "Said during renewed deadly flooding on 23 October 2019. In context this reads as an idiomatic description of relentless rain, not a factual theory of meteorology. It therefore fails the archive's 'claims, not mouths' gate and has been withdrawn.",
       "axes": {
         "logic_damage": 3,
         "straight_face": 4,
@@ -2011,8 +2046,7 @@
         "stage": "text_sourced",
         "best_source_tier": "B",
         "needs": [
-          "VERBATIM WORDING — blocking and currently absent",
-          "REVIEW: this may be a figure of speech rather than a claim. Default is REJECT unless footage shows otherwise."
+          "Retained only as a withdrawal record; re-propose solely if complete footage establishes a distinct checkable claim."
         ],
         "sources": [
           {
@@ -2020,27 +2054,33 @@
             "publisher": "Deccan Herald",
             "title": "Rain god is furious: CM BSY on Karnataka rain fury",
             "url": "https://www.deccanherald.com/india/karnataka/rain-god-is-furious-cm-bsy-on-karnataka-rain-fury-770530.html"
+          },
+          {
+            "tier": "B",
+            "publisher": "NDTV",
+            "title": "As Rain Hits Karnataka Again, 'Our Stars Are Not Good': BS Yediyurappa",
+            "url": "https://www.ndtv.com/karnataka-news/bs-yediyurappa-as-rain-hits-karnataka-again-our-stars-are-not-good-2121517"
           }
         ]
       }
     },
     {
       "id": "IN-0041",
-      "status": "published",
+      "status": "withdrawn",
       "speaker_id": "amit-shah",
       "party_at_time": "BJP",
       "office_at_time": "Member of Parliament, Rajya Sabha",
       "state": "Gujarat",
-      "date": "2017",
-      "date_precision": "year",
+      "date": "2018-02-05",
+      "date_precision": "day",
       "venue": "Rajya Sabha, maiden speech",
       "language": "Hindi",
       "category": "Economics",
       "neutral_title": "On selling fritters as employment",
       "quote": null,
-      "claim": "That selling fritters is not shameful, offered in defence of the pakoda framing of employment.",
+      "claim": "That selling pakodas is better than being unemployed and should be recognised as self-employment.",
       "quote_note": "`quote` is null pending the Rajya Sabha record.",
-      "context": "Part of the pakoda cluster: IN-0029 (the original remark), IN-0016 (the reply). Rajya Sabha proceedings give a clean route to a Tier A transcript.",
+      "context": "Part of the pakoda-employment cluster. Shah was answering P. Chidambaram, expressly acknowledged unemployment as a problem, and argued that earning through self-employment was not shameful. That is a political position rather than an independently broken factual claim, and a separate card duplicates the existing cluster, so this entry has been withdrawn.",
       "axes": {
         "logic_damage": 1,
         "straight_face": 4,
@@ -2052,9 +2092,7 @@
         "stage": "text_sourced",
         "best_source_tier": "B",
         "needs": [
-          "VERBATIM WORDING from the Rajya Sabha record — obtainable, and blocking",
-          "exact date",
-          "verify the year — reports place the maiden speech in 2017, the pakoda row in early 2018; if these are separate occasions the entry must be split"
+          "Retained only as a withdrawal record; the Rajya Sabha transcript may be used as context on the canonical pakoda-employment entry."
         ],
         "sources": [
           {
@@ -2062,6 +2100,12 @@
             "publisher": "Gulf News",
             "title": "Selling fritters not shameful: Shah in maiden Rajya Sabha speech",
             "url": "https://gulfnews.com/world/asia/india/selling-fritters-not-shameful-shah-in-maiden-rajya-sabha-speech-1.2168915"
+          },
+          {
+            "tier": "B",
+            "publisher": "Business Standard (PTI)",
+            "title": "Selling pakodas better than unemployment: Shah in maiden RS speech",
+            "url": "https://www.business-standard.com/article/politics/selling-pakodas-better-than-unemployment-shah-in-maiden-rs-speech-118020500610_1.html"
           }
         ]
       }
@@ -2078,50 +2122,51 @@
       "venue": "OBC national convention, Talkatora Stadium, New Delhi",
       "language": "Hindi",
       "category": "History",
-      "neutral_title": "On the founders of Coca-Cola and McDonald's",
-      "quote": "कोका-कोला कंपनी को शुरू करने वाला व्यक्ति शिकंजी बेचने वाला था। पानी में चीनी मिलाता था। उसके हुनर को लोगों ने पहचाना, पैसे आए उसने कंपनी शुरू की। इसी तरह से मैकडोनाल्ड कंपनी की शुरुआत एक ढाबा चलाने वाले ने की थी।",
-      "quote_translation": "The person who started the Coca-Cola company used to sell shikanji. He mixed sugar into water. People recognised his skill, money came in, and he started the company. Similarly, the McDonald's company was started by someone who ran a dhaba.",
-      "quote_note": "Original Hindi quoted by contemporaneous Hindi reporting from the address. The full-speech video and an exact timestamp are not yet attached.",
-      "claim": "That the founder of Coca-Cola had sold shikanji in America and the founder of McDonald's had run a dhaba, offered as an argument that entrepreneurial talent exists among those denied opportunity.",
-      "context": "Said while arguing that the government ignores skills and talent among backward classes. The rhetorical purpose is not in dispute; the historical claim is what is indexed.",
-      "counterpoint": "Coca-Cola was formulated in 1886 by John Pemberton, a pharmacist, and sold as a patent medicine at a pharmacy soda fountain. McDonald's was founded by Richard and Maurice McDonald, who ran a drive-in restaurant in California.",
+      "neutral_title": "On Coca-Cola's founder as a shikanji seller",
+      "quote": "मैं आपको बताता हूं, कौन था। कोका-कोला कंपनी को शुरू करने वाला एक शिकंजी बेचने वाला व्यक्ति था। वो अमेरिका में शिकंजी बेचता था, पानी में चीनी मिलाता था। उसके एक्सपीरियंस का आदर हुआ, हुनर का आदर हुआ, पैसा मिला, कोका-कोला कंपनी बनी।",
+      "quote_translation": "I will tell you who he was. The person who started the Coca-Cola company was someone who sold shikanji. He sold shikanji in America and mixed sugar into water. His experience was respected, his skill was respected, he received money, and the Coca-Cola company was formed.",
+      "quote_note": "Original Hindi is corroborated by the official Congress full-event video and contemporaneous Aaj Tak reporting. The separately stated McDonald's comparison has been removed from this canonical card because running a roadside restaurant is a loose but materially more defensible analogy; this entry indexes only the checkable Coca-Cola history claim.",
+      "claim": "That Coca-Cola was founded by a shikanji seller in America whose experience and skill were recognised and funded.",
+      "context": "Said while arguing that India fails to recognise skills and talent among backward classes. That policy argument and rhetorical purpose are recorded rather than treated as a rescue for the historical assertion.",
+      "counterpoint": "Coca-Cola's own history identifies Atlanta pharmacist John S. Pemberton as the creator of the syrup in 1886 and says he took it to Jacobs' Pharmacy, where it was first served as a soda-fountain drink. No evidence places him as a shikanji seller.",
       "axes": {
-        "logic_damage": 3,
-        "straight_face": 4,
-        "rewatch_value": 4,
+        "logic_damage": 5,
+        "straight_face": 5,
+        "rewatch_value": 5,
         "crowd_complicity": 3,
         "consequence": 5
       },
       "verification": {
         "stage": "text_sourced",
-        "best_source_tier": "B",
+        "best_source_tier": "A",
         "needs": [
-          "Tier A/B video of the Talkatora Stadium address with start/end timestamps and surrounding 60 seconds"
+          "confirm exact start and end seconds in the linked Congress full-event video",
+          "watch and transcribe the surrounding 60 seconds before committee verification"
         ],
         "sources": [
           {
-            "tier": "B",
-            "publisher": "India TV",
-            "title": "Coca-Cola founder sold shikanji in America, McDonald's owner ran dhaba: Rahul Gandhi at OBC meet",
-            "url": "https://www.indiatvnews.com/news/india-coca-cola-founder-sold-shikanji-in-america-mcdonald-s-owner-ran-dhaba-rahul-gandhi-at-obc-meet-446729"
+            "tier": "A",
+            "publisher": "Indian National Congress",
+            "title": "National Convention of AICC OBC Department, Talkatora Stadium",
+            "url": "https://www.youtube.com/watch?v=lIR9Fptq5HE"
+          },
+          {
+            "tier": "A",
+            "publisher": "The Coca-Cola Company",
+            "title": "The Birth of a Refreshing Idea",
+            "url": "https://www.coca-colacompany.com/about-us/history/the-birth-of-a-refreshing-idea"
           },
           {
             "tier": "B",
-            "publisher": "Zee News",
-            "title": "Coca Cola founder used to sell Shikanji, McDonald's founder ran a dhaba: Rahul Gandhi",
-            "url": "https://zeenews.india.com/india/coca-cola-founder-used-to-sell-shikanji-mcdonald-s-founder-ran-a-dhaba-rahul-gandhi-2115553.html"
+            "publisher": "Aaj Tak",
+            "title": "FACT CHECK: क्या वाकई शिकंजी बेचता था कोका कोला कंपनी का मालिक?",
+            "url": "https://www.aajtak.in/india/story/fact-check-rahul-gandhi-coca-cola-shikanji-macdonald-dhaba-551494-2018-06-11"
           },
           {
-            "tier": "B",
-            "publisher": "DNA India",
-            "title": "Coca-Cola owner used to sell Shikanji, McD was a dhaba: Rahul Gandhi",
-            "url": "https://www.dnaindia.com/india/report-coca-cola-owner-used-to-sell-shikanji-mcd-was-a-dhaba-rahul-gandhi-2624308"
-          },
-          {
-            "tier": "B",
-            "publisher": "Gizbot Hindi",
-            "title": "कोका-कोला कंपनी का मालिक शिकंजी बेचता था बयान पर फिर वायरल हुए राहुल गांधी",
-            "url": "https://hindi.gizbot.com/news/video-rahul-gandhi-saying-coca-cola-founder-used-sell-shikanji-goes-viral-016001.html"
+            "tier": "C",
+            "publisher": "BOOM",
+            "title": "Rahul Gandhi's Fuzzy History Of Coca-Cola's Origin & Founder",
+            "url": "https://www.boomlive.in/rahul-gandhis-fuzzy-history-of-coca-colas-origin-founder"
           }
         ]
       }
@@ -2220,6 +2265,60 @@
             "publisher": "Swarajya",
             "title": "Where Rahul Gandhi Misleads In Job Creation Figures",
             "url": "https://swarajyamag.com/politics/50000-chinese-jobs-vs-indias-450-where-rahul-gandhi-misleads-in-job-creation-figures"
+          }
+        ]
+      }
+    },
+    {
+      "id": "IN-0045",
+      "status": "published",
+      "speaker_id": "rahul-gandhi",
+      "party_at_time": "INC",
+      "office_at_time": "President, Indian National Congress",
+      "state": "Delhi",
+      "date": "2018-08-07",
+      "date_precision": "day",
+      "venue": "Congress Parliamentary Party meeting, Parliament House, New Delhi",
+      "language": "English",
+      "category": "History",
+      "neutral_title": "On an attributed 'Magical Train' campaign promise",
+      "quote": "In 2014 when he was elected Modiji said India had been a slow 'passenger train' for seventy years after Independence and now under his guidance and rule the country would become a sleek and shining 'Magical Train' which is destined for 'Achhe Din'. Give me your votes, said Modiji, and 'I will take you on the best and most comfortable journey of your life'.",
+      "quote_note": "Original English from the Congress speech text reproduced in full by National Herald. An audiovisual recording or first-party archived release is still required before committee verification.",
+      "claim": "That Narendra Modi had used the quoted passenger-train and 'Magical Train' analogy as a campaign promise before the 2014 election.",
+      "context": "Gandhi used the attribution to set up his own comparison of the government to a train driven toward disaster. The archive indexes only whether the earlier quotation he placed in Modi's mouth has a supporting record; it does not score the surrounding criticism.",
+      "counterpoint": "India Today's search of the available campaign record found Modi discussing bullet trains but no matching 'passenger train', 'Magical Train', or promised-journey quotation. A universal negative cannot be proved from an incomplete political archive, so the finding is 'no supporting record found', not 'fabricated'.",
+      "axes": {
+        "logic_damage": 3,
+        "straight_face": 4,
+        "rewatch_value": 4,
+        "crowd_complicity": 2,
+        "consequence": 5
+      },
+      "verification": {
+        "stage": "text_sourced",
+        "best_source_tier": "B",
+        "needs": [
+          "a first-party archived Congress release or complete video establishing delivery and surrounding context",
+          "a broader search of Modi's 2013-2014 campaign archive before any stronger verdict than 'no supporting record found'"
+        ],
+        "sources": [
+          {
+            "tier": "B",
+            "publisher": "National Herald",
+            "title": "Modi 'incompetent, autocratic driver', people looking for change, says Rahul Gandhi",
+            "url": "https://www.nationalheraldindia.com/india/modi-incompetent-autocratic-drive-people-looking-for-change-says-rahul-gandhi"
+          },
+          {
+            "tier": "B",
+            "publisher": "India Today",
+            "title": "Did Rahul Gandhi cook up Modi quotes? A fact check",
+            "url": "https://www.indiatoday.in/india/story/did-rahul-gandhi-cook-up-modi-quotes-a-fact-check-1307894-2018-08-07"
+          },
+          {
+            "tier": "B",
+            "publisher": "The Indian Express",
+            "title": "Rahul Gandhi attacks Narendra Modi ahead of the 2019 general election",
+            "url": "https://indianexpress.com/article/india/rahul-gandhi-narendra-modi-2019-general-elections-5295869/"
           }
         ]
       }

@@ -41,7 +41,7 @@ export interface Axes {
 
 export type VerificationStage = "text_sourced" | "av_verified" | "committee_passed";
 
-export interface StatementVideo {
+export interface YouTubeStatementVideo {
   platform: "youtube";
   id: string;
   /** Inclusive excerpt start, in whole seconds. */
@@ -49,6 +49,27 @@ export interface StatementVideo {
   /** Exclusive excerpt end, in whole seconds. */
   end: number;
 }
+
+export interface R2StatementVideo {
+  platform: "r2";
+  /** Immutable Cloudflare R2 object key, never a signed or public URL. */
+  id: string;
+  /** Server-computed SHA-256 of every stored byte, lowercase hexadecimal. */
+  sha256: string;
+  /** Public R2 object ETag, normalized without quotes; transport metadata only. */
+  etag: string;
+  /** Stored object size in bytes. */
+  bytes: number;
+  contentType: "video/mp4";
+  /** Browser-verified media duration rounded to a whole millisecond. */
+  durationMs: number;
+  /** R2 evidence files are already-trimmed clips and always begin at zero. */
+  start: 0;
+  /** Exclusive excerpt end, in whole seconds. */
+  end: number;
+}
+
+export type StatementVideo = YouTubeStatementVideo | R2StatementVideo;
 
 export interface VoteDistribution {
   0: number;

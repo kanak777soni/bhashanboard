@@ -46,7 +46,15 @@ This is the real constraint, and it's a copyright question, not a personality qu
 - **Fair dealing, §52(1)(a)(ii)** of the Copyright Act covers *criticism or review*. Short excerpts, transformative context, substantial added commentary and ranking — a genuinely reasonable position for a criticism-and-review site. But fair dealing is a defence you raise *after* being sued, not a shield that prevents the suit.
 - **§52(1)(q)** permits reproduction of matter published in official gazettes and reports of legislature proceedings — helpful for **transcripts**, and a good reason to lean on text.
 
-**The engineering answer that sidesteps almost all of this: embed, never host.** Full detail in `03-content-pipeline.md` §3.1. If YouTube serves the bytes, the rights-holder keeps their monetisation and their takedown lever, and they have very little reason to come after you.
+**The lowest-risk engineering default is to embed, not re-host.** Full detail is
+in `03-content-pipeline.md` §3.1. If YouTube serves the bytes, the rights-holder
+keeps their monetisation and takedown lever. Cloudflare R2 is a narrow exception
+for short evidence excerpts the project owns, has permission to host, or has a
+documented lawful archival basis for retaining. Storage technology does not
+create permission, so every hosted object still needs provenance and a working
+takedown path. The administrator workflow therefore requires an explicit rights
+and provenance attestation before it issues a private-quarantine upload URL;
+only a server-validated file is promoted to the separate public delivery bucket.
 
 ## 4.2 The trap in your original idea: publisher vs. intermediary
 
@@ -200,7 +208,7 @@ Rule 6 matters more than it looks: **BNS §152 and §196** (acts endangering sov
 |---|---|---|---|
 | §69A blocking order | **Medium-High** | Critical | Verbatim only, enforced parity, own domain, offshore host, offshore backups, transparency report, counsel on retainer |
 | Defamation notice / FIR | High | Medium | Verbatim doctrine, Tier A/B sourcing, neutral titles, right of reply, fast takedown, correction ledger |
-| Copyright strike / DMCA | Medium | Low-Medium | **Embed, never host**; multi-source fallback; transcripts as the durable asset |
+| Copyright strike / DMCA | Medium | Low-Medium | **Embed first**; host only cleared, provenance-recorded excerpts; maintain takedown control, multi-source fallback, and transcripts as the durable asset |
 | Coordinated brigading | **Very High** | High | Unchooseable duels, weighted votes, coordination detection, nightly recompute, public integrity report |
 | Branded as partisan → dead | **Very High** | Critical | Parity meter, queue balancing, cross-party duels, monthly public audit, no loaded vocabulary |
 | Loss of safe harbour (missed 3h) | Medium | Critical | Kill-switch + tested rota + pager from day one |

@@ -68,6 +68,11 @@ export interface AuditContext {
   detail: string;
 }
 
+export interface R2UploadAttachment {
+  actorId: string;
+  uploadIntentId: string;
+}
+
 interface DocumentRow {
   id: unknown;
   document: unknown;
@@ -234,7 +239,8 @@ export async function getAudit(limit = 1000): Promise<AuditEntry[]> {
 
 export async function createStatementRecord(
   document: StatementDocument,
-  audit: AuditContext
+  audit: AuditContext,
+  r2Attachment?: R2UploadAttachment
 ): Promise<StoredStatement> {
   const [actor, action, detail] = auditValues(audit);
   const payload = statementJson(document);
@@ -246,13 +252,53 @@ export async function createStatementRecord(
       WITH next_statement AS (
         SELECT
           'IN-' || lpad(nextval('bhashan.statement_number_seq')::text, 4, '0') AS id
+      ), inserted AS (
+        INSERT INTO bhashan.statements (id, document)
+        SELECT
+          id,
+          jsonb_set(${payload}::jsonb, '{id}', to_jsonb(id), true)
+        FROM next_statement
+        RETURNING id, document, version
+      ), attached AS (
+        UPDATE bhashan.r2_video_upload_intents AS upload
+        SET
+          attached_statement_id = inserted.id,
+          attached_at = coalesce(upload.attached_at, clock_timestamp()),
+          detached_at = NULL,
+          orphaned_at = NULL,
+          updated_at = clock_timestamp()
+        FROM inserted
+        WHERE upload.id = ${r2Attachment?.uploadIntentId ?? null}::uuid
+          AND upload.actor_user_id = ${r2Attachment?.actorId ?? null}
+          AND upload.status = 'completed'
+          AND upload.playback_attested_at IS NOT NULL
+          AND upload.public_key = inserted.document #>> '{video,id}'
+          AND inserted.document #>> '{video,platform}' = 'r2'
+          AND upload.attached_statement_id IS NULL
+        RETURNING upload.id
+      ), attachment_assertion AS (
+        SELECT
+          1 / CASE
+            WHEN (
+              (inserted.document #>> '{video,platform}' = 'r2')
+              = (${r2Attachment?.uploadIntentId ?? null}::uuid IS NOT NULL)
+            )
+            AND (
+              ${r2Attachment?.uploadIntentId ?? null}::uuid IS NULL
+              OR EXISTS (SELECT 1 FROM attached)
+            )
+            THEN 1
+            ELSE 0
+          END AS ok
+        FROM inserted
       )
-      INSERT INTO bhashan.statements (id, document)
       SELECT
-        id,
-        jsonb_set(${payload}::jsonb, '{id}', to_jsonb(id), true)
-      FROM next_statement
-      RETURNING id, document, version
+        inserted.id,
+        inserted.document,
+        inserted.version,
+        attachment_assertion.ok AS attachment_ok
+      FROM inserted
+      CROSS JOIN attachment_assertion
     `,
   ]);
   return mapStatement(mutationRow(result[3], "Statement", "new"));
@@ -262,7 +308,8 @@ export async function updateStatementRecord(
   id: string,
   document: StatementDocument,
   expectedVersion: number,
-  audit: AuditContext
+  audit: AuditContext,
+  r2Attachment?: R2UploadAttachment
 ): Promise<StoredStatement> {
   const [actor, action, detail] = auditValues(audit);
   const payload = statementJson(document);
@@ -298,10 +345,58 @@ export async function updateStatementRecord(
           AND statement.version = ${expectedVersion}
           AND NOT edit_state.has_votes
         RETURNING statement.id, statement.document, statement.version
+      ), detached AS (
+        UPDATE bhashan.r2_video_upload_intents AS upload
+        SET
+          attached_statement_id = NULL,
+          attached_at = NULL,
+          detached_at = clock_timestamp(),
+          updated_at = clock_timestamp()
+        FROM updated
+        WHERE upload.attached_statement_id = updated.id
+          AND upload.public_key IS DISTINCT FROM updated.document #>> '{video,id}'
+        RETURNING upload.id
+      ), attached AS (
+        UPDATE bhashan.r2_video_upload_intents AS upload
+        SET
+          attached_statement_id = updated.id,
+          attached_at = coalesce(upload.attached_at, clock_timestamp()),
+          detached_at = NULL,
+          orphaned_at = NULL,
+          updated_at = clock_timestamp()
+        FROM updated
+        WHERE upload.id = ${r2Attachment?.uploadIntentId ?? null}::uuid
+          AND upload.actor_user_id = ${r2Attachment?.actorId ?? null}
+          AND upload.status = 'completed'
+          AND upload.playback_attested_at IS NOT NULL
+          AND upload.public_key = updated.document #>> '{video,id}'
+          AND updated.document #>> '{video,platform}' = 'r2'
+          AND (
+            upload.attached_statement_id IS NULL
+            OR upload.attached_statement_id = updated.id
+          )
+        RETURNING upload.id
+      ), attachment_assertion AS (
+        SELECT
+          1 / CASE
+            WHEN ${r2Attachment?.uploadIntentId ?? null}::uuid IS NULL
+              OR EXISTS (SELECT 1 FROM attached)
+            THEN 1
+            ELSE 0
+          END AS ok
+        FROM updated
       )
-      SELECT updated.id, updated.document, updated.version, edit_state.has_votes
+      SELECT
+        updated.id,
+        updated.document,
+        updated.version,
+        edit_state.has_votes,
+        attachment_assertion.ok AS attachment_ok,
+        detached_state.detached_count
       FROM edit_state
       LEFT JOIN updated ON true
+      LEFT JOIN attachment_assertion ON true
+      LEFT JOIN LATERAL (SELECT count(*) AS detached_count FROM detached) AS detached_state ON true
     `,
   ]);
   const outcome = (result[5] as unknown as StatementEditRow[])[0];

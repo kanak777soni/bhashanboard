@@ -217,6 +217,24 @@ export function validateSnapshot(snapshot) {
     if (!statuses.has(statement.status)) {
       throw new Error(`Statement ${statement.id} has invalid status.`);
     }
+    // Inspect both locations independently. An invalid root placeholder must
+    // not hide a canonical legacy embed that runtime fallback would accept.
+    for (const importedVideo of [statement.video, statement.verification?.embed]) {
+      if (
+        importedVideo &&
+        typeof importedVideo === "object" &&
+        !Array.isArray(importedVideo) &&
+        (
+          importedVideo.platform === "r2" ||
+          (typeof importedVideo.id === "string" &&
+            importedVideo.id.startsWith("statement-videos/"))
+        )
+      ) {
+        throw new Error(
+          `Statement ${statement.id} cannot import an R2 video from JSON; use the actor-bound administrator upload workflow.`
+        );
+      }
+    }
     const sources = statement.verification?.sources;
     if (!Array.isArray(sources) || sources.length < 1 || sources.length > 4) {
       throw new Error(`Statement ${statement.id} must have one to four sources.`);

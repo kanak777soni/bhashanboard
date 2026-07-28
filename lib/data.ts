@@ -153,14 +153,34 @@ const getDataCached = cache(async (): Promise<PublicData> => {
 
   const canonicalLedger: LedgerEntry[] = [
     {
+      date: "2026-07-29",
+      kind: "integrity",
+      detail: `Neutrality and evidence audit: source quality was applied without regard to party. Every still-published Tier C-only card was moved to review (BJP, INC and TMC alike). Five additional BJP cards with missing original wording or material metadata/context gaps were moved to review; the rain-god figure of speech and the duplicate pakoda card were withdrawn on their merits, not to force a party percentage.`,
+    },
+    {
+      date: "2026-07-29",
+      kind: "correction",
+      detail: `Rahul Gandhi corpus review: IN-0042 now indexes only the historically incorrect Coca-Cola/shikanji claim and no longer bundles the materially more defensible McDonald's comparison. The English "Magical Train" attribution was added with the limited finding "no supporting record found" — not "fabricated". Scores remain formula-derived; no requested GP was inserted by hand.`,
+    },
+    {
+      date: "2026-07-29",
+      kind: "withdrawal",
+      detail: `IN-0010, the reported "poverty is a state of mind" remark, was withdrawn from the ladder. Reporters were excluded, no recording was found, and the host institute's first press note and next-day clarification materially conflict. The harsher release cannot be presented as established verbatim speech.`,
+    },
+    {
+      date: "2026-07-29",
+      kind: "audit",
+      detail: `Two proposed opposition clips were recorded in Refused rather than silently omitted. The Muzaffarnagar/ISI speech is genuine and officially contradicted, but the statement is barred by the same no-religion/community rule applied to every party. The Ashok Gehlot electricity-and-water clip is a context cut: the full passage shows him recounting an alleged old Jan Sangh rumour, not advancing the claim himself.`,
+    },
+    {
       date: "2026-07-26",
       kind: "audit",
-      detail: `Parity holdback withdrawn. Thirteen entries — all from one party — had been kept off the ladder so the board would read as balanced. That edits the display rather than the sampling, and misrepresents what the research found. All ${model.CORPUS.length} indexed entries are now placed. Parity from here governs how hard we search, not what we show.`,
+      detail: `Parity-only holdback withdrawn. Thirteen entries — all from one party — had been kept off the ladder solely so the board would read as balanced. That edits the display rather than the sampling. Later review may still hold or withdraw any entry for source quality, context, duplication or the Rules; party percentage is never itself the reason.`,
     },
     {
       date: "2026-07-26",
       kind: "integrity",
-      detail: `Coverage imbalance published rather than corrected: BJP is 51% of the seed against a 30% target, and holds every one of the top fourteen places. This is a statement about where the research looked, not about what the parties said. The corpus leans heavily on the pseudoscience genre and has barely searched economics or deflection, where opposition material would sit. It is closed by sourcing, never by holding entries back or adjusting ratings.`,
+      detail: `Coverage imbalance disclosed rather than corrected through scores. This is a statement about where the research looked, not about what the parties said. The corpus leans heavily on the pseudoscience genre and has barely searched economics or deflection, where opposition material would sit. The gap is closed by sourcing and evidence review, never by adjusting ratings.`,
     },
     {
       date: "2026-07-26",

@@ -213,6 +213,48 @@
       "rule": "S",
       "ruling": "REJECT",
       "reasoning": "The wording is disputed on the recording. HuffPost's review concludes he said 'the Steve Jobs and the Microsofts and the leaders of the Facebooks', which contains no error. Where a claim turns entirely on whether a speaker said 'and' or 'of', the audio has to settle it, and this audio does not. Rule 3 would in any case bar indexing a slip of the tongue."
+    },
+    {
+      "descriptor": "Election-rally claim that Pakistani intelligence had contacted 10–15 Muslim youths from families affected by the Muzaffarnagar riots",
+      "attributed_to": "Rahul Gandhi (INC), Vice-President of the Indian National Congress, Dussehra Ground, Indore",
+      "date": "2013-10-24",
+      "rule": "1",
+      "ruling": "REJECTED — religion and community. The statement is well attributed and was later officially contradicted: the Ministry of Home Affairs told Rajya Sabha that central intelligence had no input suggesting such contact. That evidence does not override the archive's subject exclusion, because the allegation cannot be quoted or explained without attaching terrorism-related suspicion to named members of a religious community. The official contradiction is recorded here; the statement is not ranked, and the evidence does not justify calling it conclusively fabricated.",
+      "sources": [
+        {
+          "publisher": "Ministry of Home Affairs, Government of India",
+          "url": "https://www.mha.gov.in/MHA1/Par2017/pdfs/par2014-pdfs/rs-050214/1612.pdf"
+        },
+        {
+          "publisher": "The Indian Express",
+          "url": "https://indianexpress.com/article/news-archive/web/pak-intelligence-agencies-in-touch-with-riothit-muslims-in-muzaffarnagar-rahul/"
+        },
+        {
+          "publisher": "NDTV",
+          "url": "https://www.ndtv.com/india-news/rahul-gandhis-isi-remark-no-such-input-from-intelligence-says-up-government-539008"
+        }
+      ]
+    },
+    {
+      "descriptor": "Claim that water loses its strength after electricity is generated from it",
+      "attributed_to": "Ashok Gehlot (INC), AICC General Secretary and former Chief Minister of Rajasthan",
+      "date": "2018-05-26",
+      "rule": "S",
+      "ruling": "REJECTED — attribution and context failure. The viral excerpt removes the setup. In the full Congress press conference, Gehlot was recalling and ridiculing an alleged historical Jan Sangh argument about the Bhakra dam; he was not presenting the electricity-and-water claim as his own belief. The words may be quoted only as a reported quotation inside that surrounding context, never as a Gehlot science claim.",
+      "sources": [
+        {
+          "publisher": "Alt News",
+          "url": "https://www.altnews.in/no-ashok-gehlot-did-not-say-that-generating-electricity-will-remove-energy-from-water/"
+        },
+        {
+          "publisher": "India Today",
+          "url": "https://www.indiatoday.in/fyi/story/here-s-the-truth-behind-ashok-gehlot-s-viral-bijli-paani-comment-1251438-2018-06-05"
+        },
+        {
+          "publisher": "Ashok Gehlot, verified account",
+          "url": "https://x.com/ashokgehlot51/status/1004004892371894272"
+        }
+      ]
     }
   ]
 }

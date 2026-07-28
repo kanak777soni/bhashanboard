@@ -6,9 +6,13 @@ Your plan says *"whenever any politician gives a new foolish speech we rank that
 
 Solve this and you have a business. Don't solve it, and you have a nice-looking site with 40 clips that nobody revisits.
 
-## 3.1 The critical constraint: **embed, never host**
+## 3.1 The critical constraint: **embed first; host only cleared evidence**
 
-**Do not store video files. Ever.**
+**Do not copy a platform clip merely because it is technically downloadable.**
+YouTube remains the default because the source platform serves the bytes and
+retains takedown control. The administrator may use Cloudflare R2 only for an
+already-trimmed MP4 that the project owns, has permission to host, or has a
+documented lawful archival basis for retaining.
 
 Concrete precedent: **Prasar Bharati has issued YouTube copyright strikes against news channels and journalists for using Parliament footage** — despite parliamentary proceedings themselves being public-domain material. The *proceedings* are public domain; the *broadcast signal* is claimed by Prasar Bharati. Self-hosting clips means you personally receive the strike, the DMCA notice, and the liability.
 
@@ -20,12 +24,35 @@ Embedding means:
 
 **Clipping without re-hosting:** YouTube embeds accept `start` and `end` parameters. You store `{video_id, start_s, end_s}` and the player shows exactly your 22 seconds. You get precise clipping with none of the copyright exposure. Do the same for other platforms where supported; where not, deep-link with a timestamp.
 
+**Controlled R2 hosting:** the Committee Room accepts a pre-compressed,
+fast-start MP4 no larger than 50 MiB or three minutes. It must contain H.264
+video and AAC audio. An administrator must explicitly attest that the exact
+footage is rights-cleared and its provenance is recorded. The browser can PUT
+only to a strict prefix in a private quarantine bucket. After checking the
+stored headers and MP4 bytes, the server streams the complete object under an
+ETag precondition, computes its SHA-256, and copies it into a separate public
+bucket under that digest's content address. It verifies the final object, records
+the actor-bound intent in Neon, then requires a trusted administrator to play
+the promoted object through completely and approve its picture and audio before
+attachment. Neon binds that approved intent to the statement in the same
+transaction that saves the statement, and records later detachment if the clip
+is replaced or removed. Unattached promoted finals are flagged in the audit
+ledger after a 24-hour grace period; they are not age-deleted automatically
+because a content-addressed object can be shared by identical uploads. The
+server's H.264/AAC and sample-table checks are structural, not a
+substitute for a full decoder pass. Quarantine is removed best-effort. The ETag
+is retained only for conditional transfer and HEAD checks. Unvalidated bytes
+never sit behind the public media domain. This is storage and delivery, not
+transcoding. Unsupported MOV/AVI/MKV/HEVC uploads must be converted beforehand.
+
 **Trade-off you accept:** source videos get deleted, go private, or get geo-blocked. Mitigate:
 - Nightly **link-health crawler** over every embed; auto-flag dead links
 - Store multiple `source_urls` per clip (news channel + party channel + Sansad TV) and fall back automatically
 - Keep the **transcript** — it's yours, it's text, it survives, and it's what search and rankings actually run on. A clip with a dead embed degrades to a quoted-text card, not a 404.
 
-> Screen-recording a clip and re-uploading it "for archival" defeats the entire strategy. It is the single most tempting shortcut and the one that gets you struck. Write it into the contributor guidelines.
+> Screen-recording a platform clip and re-uploading it "for archival" without a
+> rights decision still defeats the strategy. R2 changes the delivery mechanism;
+> it does not create permission or remove the source/provenance requirement.
 
 ## 3.2 Source tiers
 

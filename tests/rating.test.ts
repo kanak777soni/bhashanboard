@@ -36,6 +36,8 @@ test("normal visible playback advances unique contiguous coverage", () => {
       creditedWatchMs: 0,
       lastPositionMs: 0,
       lastHeartbeatAtMs: 0,
+      lastPlaying: false,
+      lastVisible: true,
       reachedEnd: false,
     },
     {
@@ -68,6 +70,8 @@ test("a forward seek does not earn watch credit", () => {
       creditedWatchMs: 0,
       lastPositionMs: 0,
       lastHeartbeatAtMs: 0,
+      lastPlaying: false,
+      lastVisible: true,
       reachedEnd: false,
     },
     {
@@ -80,6 +84,76 @@ test("a forward seek does not earn watch credit", () => {
 
   assert.equal(result.seekDetected, true);
   assert.equal(result.creditedWatchMs, 0);
+  assert.equal(result.reachedEnd, false);
+});
+
+test("paused or hidden positions near the end cannot satisfy the end gate", () => {
+  const state = {
+    clipStartMs: 0,
+    clipEndMs: 10_000,
+    contiguousThroughMs: 8_000,
+    creditedWatchMs: 8_000,
+    lastPositionMs: 8_000,
+    lastHeartbeatAtMs: 8_000,
+    lastPlaying: false,
+    lastVisible: true,
+    reachedEnd: false,
+  };
+
+  const paused = calculateWatchProgress(state, {
+    positionMs: 9_500,
+    heartbeatAtMs: 10_000,
+    playing: false,
+    visible: true,
+  });
+  assert.equal(paused.reachedEnd, false);
+  assert.equal(paused.creditedWatchMs, 8_000);
+
+  const hidden = calculateWatchProgress(state, {
+    positionMs: 9_500,
+    heartbeatAtMs: 10_000,
+    playing: true,
+    visible: false,
+  });
+  assert.equal(hidden.reachedEnd, false);
+  assert.equal(hidden.creditedWatchMs, 8_000);
+
+  const staleLegacyFlag = calculateWatchProgress(
+    { ...state, contiguousThroughMs: 1_000, creditedWatchMs: 1_000, reachedEnd: true },
+    {
+      positionMs: 9_500,
+      heartbeatAtMs: 10_000,
+      playing: false,
+      visible: true,
+    }
+  );
+  assert.equal(staleLegacyFlag.reachedEnd, false);
+});
+
+test("natural visible progression through the end satisfies the end gate", () => {
+  const result = calculateWatchProgress(
+    {
+      clipStartMs: 0,
+      clipEndMs: 10_000,
+      contiguousThroughMs: 8_000,
+      creditedWatchMs: 8_000,
+      lastPositionMs: 8_000,
+      lastHeartbeatAtMs: 8_000,
+      lastPlaying: true,
+      lastVisible: true,
+      reachedEnd: false,
+    },
+    {
+      positionMs: 10_000,
+      heartbeatAtMs: 10_000,
+      playing: true,
+      visible: true,
+    }
+  );
+
+  assert.equal(result.seekDetected, false);
+  assert.equal(result.creditedWatchMs, 10_000);
+  assert.equal(result.reachedEnd, true);
 });
 
 test("rapid heartbeats cannot manufacture watch time", () => {
@@ -90,6 +164,8 @@ test("rapid heartbeats cannot manufacture watch time", () => {
     creditedWatchMs: 0,
     lastPositionMs: 0,
     lastHeartbeatAtMs: 0,
+    lastPlaying: false,
+    lastVisible: true,
     reachedEnd: false,
   };
 
@@ -119,6 +195,8 @@ test("hidden playback and replayed coverage do not earn extra time", () => {
       creditedWatchMs: 4_000,
       lastPositionMs: 4_000,
       lastHeartbeatAtMs: 4_000,
+      lastPlaying: true,
+      lastVisible: false,
       reachedEnd: false,
     },
     {
@@ -140,4 +218,106 @@ test("hidden playback and replayed coverage do not earn extra time", () => {
     }
   );
   assert.equal(replay.creditedWatchMs, 4_000);
+});
+
+test("a pause heartbeat closes the active interval without poisoning resume", () => {
+  const paused = calculateWatchProgress(
+    {
+      clipStartMs: 0,
+      clipEndMs: 20_000,
+      contiguousThroughMs: 4_000,
+      creditedWatchMs: 4_000,
+      lastPositionMs: 4_000,
+      lastHeartbeatAtMs: 4_000,
+      lastPlaying: true,
+      lastVisible: true,
+      reachedEnd: false,
+    },
+    {
+      positionMs: 7_000,
+      heartbeatAtMs: 7_000,
+      playing: false,
+      visible: true,
+    }
+  );
+
+  assert.equal(paused.seekDetected, false);
+  assert.equal(paused.creditedWatchMs, 7_000);
+  assert.equal(paused.lastPositionMs, 7_000);
+  assert.equal(paused.lastPlaying, false);
+
+  const resumed = calculateWatchProgress(paused, {
+    positionMs: 11_000,
+    heartbeatAtMs: 21_000,
+    playing: true,
+    visible: true,
+  });
+  assert.equal(resumed.seekDetected, false);
+  assert.equal(resumed.creditedWatchMs, 11_000);
+});
+
+test("pausing before the first playing heartbeat preserves a resumable baseline", () => {
+  const paused = calculateWatchProgress(
+    {
+      clipStartMs: 0,
+      clipEndMs: 20_000,
+      contiguousThroughMs: 0,
+      creditedWatchMs: 0,
+      lastPositionMs: 0,
+      lastHeartbeatAtMs: 0,
+      lastPlaying: false,
+      lastVisible: true,
+      reachedEnd: false,
+    },
+    {
+      positionMs: 3_000,
+      heartbeatAtMs: 3_000,
+      playing: false,
+      visible: true,
+    }
+  );
+  assert.equal(paused.creditedWatchMs, 0);
+  assert.equal(paused.lastPositionMs, 0);
+
+  const resumed = calculateWatchProgress(paused, {
+    positionMs: 7_000,
+    heartbeatAtMs: 20_000,
+    playing: true,
+    visible: true,
+  });
+  assert.equal(resumed.seekDetected, false);
+  assert.equal(resumed.creditedWatchMs, 7_000);
+});
+
+test("seeking while already paused cannot manufacture a new baseline", () => {
+  const soughtWhilePaused = calculateWatchProgress(
+    {
+      clipStartMs: 0,
+      clipEndMs: 20_000,
+      contiguousThroughMs: 4_000,
+      creditedWatchMs: 4_000,
+      lastPositionMs: 4_000,
+      lastHeartbeatAtMs: 4_000,
+      lastPlaying: false,
+      lastVisible: true,
+      reachedEnd: false,
+    },
+    {
+      positionMs: 9_000,
+      heartbeatAtMs: 10_000,
+      playing: false,
+      visible: true,
+    }
+  );
+  assert.equal(soughtWhilePaused.creditedWatchMs, 4_000);
+  assert.equal(soughtWhilePaused.lastPositionMs, 4_000);
+
+  const resumed = calculateWatchProgress(soughtWhilePaused, {
+    positionMs: 11_000,
+    heartbeatAtMs: 12_000,
+    playing: true,
+    visible: true,
+  });
+  assert.equal(resumed.seekDetected, true);
+  assert.equal(resumed.creditedWatchMs, 4_000);
 });
