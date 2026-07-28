@@ -1,8 +1,10 @@
 import Link from "next/link";
+import { requireAdmin } from "@/lib/require-admin";
 import { getParties, getPoliticians, getStatements } from "@/lib/store";
 import { createPolitician } from "../actions";
 
 export default async function AdminPeople() {
+  await requireAdmin();
   const [people, parties, statements] = await Promise.all([getPoliticians(), getParties(), getStatements()]);
   const counts = new Map<string, number>();
   statements.forEach((s) => counts.set(s.speaker_id, (counts.get(s.speaker_id) ?? 0) + 1));

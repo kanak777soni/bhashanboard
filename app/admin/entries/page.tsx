@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { requireAdmin } from "@/lib/require-admin";
 import { computeLadder, getPoliticians, getStatements, weightedScore } from "@/lib/store";
 import { setStatus, toggleHallOfFame } from "../actions";
 
@@ -20,6 +21,7 @@ export default async function EntriesPage({
 }: {
   searchParams: Promise<{ filter?: string; q?: string; party?: string }>;
 }) {
+  await requireAdmin();
   const sp = await searchParams;
   const filterKey = sp.filter && FILTERS[sp.filter] ? sp.filter : "all";
   const q = (sp.q ?? "").toLowerCase();

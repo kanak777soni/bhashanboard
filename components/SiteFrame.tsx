@@ -3,6 +3,8 @@ import Masthead from "./Masthead";
 import SiteNav from "./SiteNav";
 import Ticker from "./Ticker";
 
+const PRELAUNCH = process.env.SITE_PRELAUNCH !== "false";
+
 /** Every page except the duel wears this. The duel is deliberately bare. */
 export default function SiteFrame({ children }: { children: React.ReactNode }) {
   return (
@@ -31,16 +33,18 @@ export default function SiteFrame({ children }: { children: React.ReactNode }) {
             <span className="lbl">Standing orders</span>
             <p className="colophon-note">
               <Link href="/rules">The Rules</Link> &middot; <Link href="/ledger">The Ledger</Link>{" "}
-              &middot; <Link href="/submit">Submissions</Link>
+              &middot; <Link href="/submit">Submissions</Link> &middot;{" "}
+              <Link href="/privacy">Privacy</Link> &middot; <Link href="/terms">Terms</Link>
             </p>
           </div>
         </div>
-        <p>
-          <strong>This is a pre-launch build.</strong> Entries concern real, named representatives and
-          are drawn from reputable reporting, but none has been verified to publication standard. Where
-          the exact wording of a remark could not be established, no quotation is shown &mdash; a neutral
-          subject line stands in its place until the words themselves are sourced.
-        </p>
+        {PRELAUNCH && (
+          <p>
+            <strong>This is a pre-launch build.</strong> Each record states its own verification status;
+            public rulings open only after the complete publication bar is met. Where exact wording could
+            not be established, no quotation is shown &mdash; a neutral subject line stands in its place.
+          </p>
+        )}
         <p>
           Type is currently rendering in system fallbacks. Production self-hosts Libre Caslon Display,
           Source Serif&nbsp;4, Archivo and Tiro Devanagari Hindi via <code>next/font</code>.

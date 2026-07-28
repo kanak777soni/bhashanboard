@@ -53,19 +53,28 @@ export default function RulesPage() {
 
         <h2>The rating rubric</h2>
         <p>
-          Ratings are produced by pairwise comparison, not by a score assigned to an entry in isolation.
-          A rater is shown two entries and answers one question: which is more magnificent? Ratings
-          update by Elo. The formula is published because a mechanical, auditable rule is the point.
+          The official ballot belongs to one statement. A verified member must watch at least 90% of its
+          bounded source excerpt, in a visible tab and through the end, before choosing one of five fixed
+          positions: Flat (0), Wry (25), Sharp (50), Savage (75), or Historic (100). One account may enter
+          one final ruling per statement. It cannot be edited or submitted twice.
         </p>
         <p>
-          Every entry begins at 1,500 points and is unranked until it has completed twenty placement
-          duels. Matchups are never chooseable — the server selects them, pairing entries of similar
-          rating and, wherever possible, from different parties.
+          Every valid public ballot has equal strength: one ballot, one value. There are no secret party,
+          subscription, or popularity multipliers. New entries begin with a ten-vote editorial prior derived
+          from the five published seed axes. If <em>p</em> is that seed performance, <em>n</em> is the number
+          of valid public rulings, and <em>s</em> is their sum, the live performance is
+          <code> (10p + s) / (10 + n)</code>. GP is <code>round(1000 + 10 × performance)</code>.
         </p>
         <p>
-          Raters may optionally tag <em>why</em> across five axes: logic damage, straight face, rewatch
-          value, crowd complicity, and consequence. These tags do not affect the rating. They drive
-          categories, honorifics and the public record.
+          The prior prevents one early ballot from throwing an entry across the ladder; its influence fades
+          predictably as public rulings accumulate. Raw ballots, watch receipts, and exclusions are immutable.
+          An administrator may exclude a ballot for abuse, but cannot rewrite it, and the action remains in
+          the audit record. The public performance bar, vote count, and distribution come from valid ballots.
+        </p>
+        <p>
+          The five editorial axes—logic damage, straight face, rewatch value, crowd complicity, and
+          consequence—establish only the seed prior. Aamne-Saamne remains a playful, non-scoring exhibition;
+          picks made there never alter the ladder.
         </p>
 
         <h2>What a tier means</h2>

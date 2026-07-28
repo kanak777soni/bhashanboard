@@ -1,7 +1,9 @@
 import Link from "next/link";
+import { requireAdmin } from "@/lib/require-admin";
 import { computeLadder, coverage, getStatements, weightedScore } from "@/lib/store";
 
 export default async function AdminOverview() {
+  await requireAdmin();
   const statements = await getStatements();
   const ladder = computeLadder(statements);
   const gpById = new Map(ladder.map((l) => [l.id, l]));

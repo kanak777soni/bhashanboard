@@ -2,10 +2,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import EntryForm from "@/components/admin/EntryForm";
 import PublishGuard from "@/components/admin/PublishGuard";
+import { requireAdmin } from "@/lib/require-admin";
 import { computeLadder, getParties, getPoliticians, getStatement, getStatements, weightedScore } from "@/lib/store";
 import { updateStatement } from "../../actions";
 
 export default async function EditEntry({ params }: { params: Promise<{ id: string }> }) {
+  await requireAdmin();
   const { id } = await params;
   const entry = await getStatement(id);
   if (!entry) notFound();

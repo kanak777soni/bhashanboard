@@ -1,6 +1,8 @@
+import { requireAdmin } from "@/lib/require-admin";
 import { getAudit } from "@/lib/store";
 
 export default async function AdminAudit() {
+  await requireAdmin();
   const log = await getAudit();
   return (
     <section className="admin-section">
@@ -12,13 +14,14 @@ export default async function AdminAudit() {
       </p>
       <div className="tablewrap">
         <table className="ledger">
-          <thead><tr><th style={{ width: 150 }}>When</th><th style={{ width: 90 }}>Action</th><th style={{ width: 80 }}>Entry</th><th>Detail</th></tr></thead>
+          <thead><tr><th style={{ width: 150 }}>When</th><th style={{ width: 90 }}>Action</th><th style={{ width: 150 }}>Actor</th><th style={{ width: 80 }}>Entry</th><th>Detail</th></tr></thead>
           <tbody>
-            {log.length === 0 && <tr><td colSpan={4} className="empty">Nothing recorded yet.</td></tr>}
+            {log.length === 0 && <tr><td colSpan={5} className="empty">Nothing recorded yet.</td></tr>}
             {log.map((e, i) => (
               <tr key={i}>
                 <td className="num" style={{ fontSize: 12 }}>{e.at.replace("T", " ").slice(0, 16)}</td>
                 <td><span className={`kind ${e.action === "withdraw" ? "withdrawal" : e.action === "create" ? "reply" : "correction"}`}>{e.action}</span></td>
+                <td style={{ fontSize: 12 }}>{e.actor}</td>
                 <td className="num" style={{ fontSize: 12 }}>{e.target}</td>
                 <td style={{ fontSize: 14.5 }}>{e.detail}</td>
               </tr>

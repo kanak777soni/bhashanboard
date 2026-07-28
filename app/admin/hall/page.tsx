@@ -1,8 +1,10 @@
 import Link from "next/link";
+import { requireAdmin } from "@/lib/require-admin";
 import { computeLadder, getPoliticians, getStatements } from "@/lib/store";
 import { toggleHallOfFame } from "../actions";
 
 export default async function AdminHall() {
+  await requireAdmin();
   const statements = await getStatements();
   const people = new Map((await getPoliticians()).map((p) => [p.id, p]));
   const ladder = new Map(computeLadder(statements).map((l) => [l.id, l]));
@@ -35,9 +37,8 @@ export default async function AdminHall() {
       <section className="admin-section">
         <h2>Hall of Fame</h2>
         <p className="rail-note" style={{ marginBottom: 14 }}>
-          Induction retires an entry from active duelling into the permanent gallery. It is the one
-          editorial act the Committee performs on the board itself, so it is deliberately manual, and each
-          induction is written to the audit log.
+          Induction places an entry in the permanent gallery without changing its rating. It is a deliberate
+          editorial act, so it remains manual and every change is written to the audit log.
         </p>
         <div className="tablewrap">
           <table className="ledger">

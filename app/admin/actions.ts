@@ -15,6 +15,15 @@ import {
   type StatementStatus,
   type StoredStatement,
 } from "@/lib/store";
+import type { StatementVideo } from "@/lib/types";
+import {
+  assertVideoExcerpt,
+  committeePublicationIssues,
+  normalizeVerificationStage,
+  parseVideoTimestamp,
+  parseYouTubeVideo,
+  requireVerificationStage,
+} from "@/lib/video";
 
 const STATUSES: readonly StatementStatus[] = [
   "published",
@@ -22,6 +31,8 @@ const STATUSES: readonly StatementStatus[] = [
   "held_review",
   "withdrawn",
 ];
+const SOURCE_TIERS = ["A", "B", "C"] as const;
+type SourceTier = (typeof SOURCE_TIERS)[number];
 
 function str(fd: FormData, key: string): string {
   return String(fd.get(key) ?? "").trim();
@@ -53,34 +64,24 @@ function formVersion(fd: FormData): number {
   return version;
 }
 
-/** Parse "https://youtu.be/ID", "watch?v=ID" or a bare id. */
-function parseVideo(input: string): { platform: string; id: string } | undefined {
-  const value = input.trim();
-  if (!value) return undefined;
-  const match =
-    value.match(/(?:youtube\.com\/.*[?&]v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]{6,})/) ??
-    value.match(/^([\w-]{6,})$/);
-  return match ? { platform: "youtube", id: match[1] } : undefined;
-}
+function collectVideo(fd: FormData): StatementVideo | undefined {
+  const input = str(fd, "video");
+  const startInput = str(fd, "video_start");
+  const endInput = str(fd, "video_end");
+  if (!input && !startInput && !endInput) return undefined;
+  if (!input) throw new Error("A YouTube video is required when timestamps are supplied.");
 
-function toSeconds(value: string): number | undefined {
-  const input = value.trim();
-  if (!input) return undefined;
-  if (/^\d+$/.test(input)) return Number(input);
-  const parts = input.split(":").map(Number);
-  if (parts.some(Number.isNaN)) return undefined;
-  return parts.reduce((total, part) => total * 60 + part, 0);
-}
+  const parsed = parseYouTubeVideo(input);
+  if (!parsed) throw new Error("Enter a valid YouTube URL or video ID.");
+  const start = parseVideoTimestamp(startInput);
+  const end = parseVideoTimestamp(endInput);
+  if (start === undefined || end === undefined) {
+    throw new Error("A video requires valid start and end timestamps.");
+  }
 
-function collectVideo(fd: FormData): StoredStatement["video"] {
-  const video = parseVideo(str(fd, "video"));
-  return video
-    ? {
-        ...video,
-        start: toSeconds(str(fd, "video_start")),
-        end: toSeconds(str(fd, "video_end")),
-      }
-    : undefined;
+  const video: StatementVideo = { ...parsed, start, end };
+  assertVideoExcerpt(video);
+  return video;
 }
 
 function collectAxes(fd: FormData): Record<string, number> {
@@ -99,17 +100,51 @@ function collectAxes(fd: FormData): Record<string, number> {
   return axes;
 }
 
+function sourceTier(value: string, label: string): SourceTier {
+  const tier = value || "C";
+  if (!SOURCE_TIERS.includes(tier as SourceTier)) {
+    throw new Error(`${label} has an invalid source tier.`);
+  }
+  return tier as SourceTier;
+}
+
+function sourceUrl(value: string, index: number): string {
+  if (value.length > 2_048) {
+    throw new Error(`Source ${index + 1} URL is too long.`);
+  }
+  let parsed: URL;
+  try {
+    parsed = new URL(value);
+  } catch {
+    throw new Error(`Source ${index + 1} must use a valid http(s) URL.`);
+  }
+  if (
+    !["http:", "https:"].includes(parsed.protocol) ||
+    !parsed.hostname ||
+    parsed.username ||
+    parsed.password
+  ) {
+    throw new Error(
+      `Source ${index + 1} must use a public http(s) URL without embedded credentials.`
+    );
+  }
+  return value;
+}
+
 function collectSources(fd: FormData) {
-  const sources: { tier: string; publisher: string; title: string; url: string }[] = [];
+  const sources: { tier: SourceTier; publisher: string; title: string; url: string }[] = [];
   for (let index = 0; index < 4; index++) {
     const publisher = str(fd, `src_publisher_${index}`);
+    const title = str(fd, `src_title_${index}`);
     const url = str(fd, `src_url_${index}`);
-    if (!publisher && !url) continue;
+    if (!publisher && !title && !url) continue;
+    if (!publisher) throw new Error(`Source ${index + 1} requires a publisher.`);
+    if (!url) throw new Error(`Source ${index + 1} requires a URL.`);
     sources.push({
-      tier: str(fd, `src_tier_${index}`) || "C",
+      tier: sourceTier(str(fd, `src_tier_${index}`), `Source ${index + 1}`),
       publisher,
-      title: str(fd, `src_title_${index}`),
-      url,
+      title,
+      url: sourceUrl(url, index),
     });
   }
   return sources;
@@ -161,7 +196,8 @@ function collectQuoteFields(fd: FormData) {
 
 function collectVerification(
   fd: FormData,
-  fallback?: StoredStatement["verification"]
+  fallback: StoredStatement["verification"] | undefined,
+  video: StatementVideo | undefined
 ): StoredStatement["verification"] {
   const needs = str(fd, "needs")
     ? str(fd, "needs")
@@ -169,9 +205,17 @@ function collectVerification(
         .map((need) => need.trim())
         .filter(Boolean)
     : [];
+  const stage = requireVerificationStage(str(fd, "stage") || fallback?.stage || "text_sourced");
+  if (stage !== "text_sourced" && !video) {
+    throw new Error(`${stage} requires a video with valid start and end timestamps.`);
+  }
+  const bestSourceTier = sourceTier(
+    str(fd, "best_source_tier") || fallback?.best_source_tier || "C",
+    "Best source"
+  );
   return {
-    stage: str(fd, "stage") || fallback?.stage || "text_sourced",
-    best_source_tier: str(fd, "best_source_tier") || fallback?.best_source_tier || "C",
+    stage,
+    best_source_tier: bestSourceTier,
     needs,
     sources: collectSources(fd),
   };
@@ -183,7 +227,8 @@ function statementDocument(
   status: StatementStatus,
   fallback?: StoredStatement
 ): StatementDocument {
-  return {
+  const video = collectVideo(fd);
+  const document: StatementDocument = {
     status,
     speaker_id: str(fd, "speaker_id") || fallback?.speaker_id || "",
     party_at_time: str(fd, "party_at_time") || fallback?.party_at_time || "",
@@ -203,10 +248,19 @@ function statementDocument(
     counterpoint: str(fd, "counterpoint") || undefined,
     policy_note: fallback?.policy_note,
     hall_of_fame: fallback ? fd.get("hall_of_fame") === "on" : false,
-    video: collectVideo(fd),
+    video,
     axes: collectAxes(fd),
-    verification: collectVerification(fd, fallback?.verification),
+    verification: collectVerification(fd, fallback?.verification, video),
   };
+  if (document.verification.stage === "committee_passed") {
+    const issues = committeePublicationIssues(document);
+    if (issues.length > 0) {
+      throw new Error(
+        `Committee-passed publication requirements are not met: ${issues.join(" ")}`
+      );
+    }
+  }
+  return document;
 }
 
 // ── statements ──────────────────────────────────────────────────────
@@ -280,6 +334,14 @@ export async function setStatus(fd: FormData) {
       quoteTranslation: before.quote_translation,
       quoteNote: before.quote_note,
     });
+    if (normalizeVerificationStage(before.verification.stage) === "committee_passed") {
+      const issues = committeePublicationIssues({ ...before, status });
+      if (issues.length > 0) {
+        throw new Error(
+          `Committee-passed publication requirements are not met: ${issues.join(" ")}`
+        );
+      }
+    }
   }
   if (status === before.status) return;
 

@@ -7,7 +7,7 @@ import { getData } from "@/lib/data";
 
 export const metadata: Metadata = {
   title: "Hall of Fame",
-  description: "Entries retired from active duelling into the permanent gallery.",
+  description: "Entries inducted from the live standings into the permanent gallery.",
 };
 
 export default async function HallPage() {
@@ -26,9 +26,8 @@ export default async function HallPage() {
       </div>
 
       <p className="prose" style={{ marginTop: 16 }}>
-        Once a year the Committee retires roughly five all-time entries from active duelling into a
-        permanent gallery. This solves a genuine problem — the same legendary entries dominating the
-        ladder forever — and creates an annual ceremony.
+        Once a year the Committee inducts roughly five all-time entries from the live standings into a
+        permanent gallery. The rating record remains intact; induction is an editorial honour, not a vote.
       </p>
       <p className="prose">
 {inducted.length ? "Inducted below." : "The first induction has not yet taken place. Standing candidates are shown below."}
@@ -56,7 +55,7 @@ export default async function HallPage() {
                 )}
                 <div className="entry-sub" style={{ marginTop: 4 }}>
                   {neta?.name} &middot; {s.partyAtTime} &middot; {neta?.state} &middot;{" "}
-                  <span className="num">{s.duels.toLocaleString("en-IN")}</span> duels
+                  <span className="num">{s.rating.validVoteCount.toLocaleString("en-IN")}</span> public rulings
                 </div>
               </div>
               <div className="hall-gp">{s.gp.toLocaleString("en-IN")}</div>

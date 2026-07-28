@@ -1,5 +1,11 @@
 # `data/` — the corpus
 
+> **Current scoring note (July 2026).** The seed-rank files and Elo references
+> below document the original cold-start design. The live application now uses
+> each entry's seed placement as a ten-vote Bayesian prior; equal-strength,
+> immutable public rulings progressively outweigh it. Aamne-Saamne is a
+> non-scoring exhibition.
+
 The archive itself. `docs/09-seed-corpus.md` explains what is in here, how it was
 built, and what is missing. This file is the working reference for adding to it.
 

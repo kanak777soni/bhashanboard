@@ -1,5 +1,7 @@
 # 08 — Information Architecture & Page Design
 
+> **Current scoring note (July 2026).** References in this design document to pairwise duels, Elo, weighted memberships, or internal placement votes are historical. The implemented authority is `/rules`: one equal-strength, immutable ruling per verified account and statement, after qualifying playback, with a published Bayesian seed prior. Aamne-Saamne is a non-scoring exhibition.
+
 ## 8.1 Single-page or multi-page? — **Multi-page. Not close.**
 
 You asked because you weren't sure. Here is the reasoning, because the *why* matters more than the answer.

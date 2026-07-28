@@ -2,6 +2,10 @@ import { cache } from "react";
 import { unstable_noStore as noStore } from "next/cache";
 import { buildCorpus, type CorpusStatement, type RawParty, type RawPolitician, type RawStatement } from "./corpus";
 import { db } from "./db";
+import {
+  parseRatingAggregate,
+  type RatingAggregateRecord,
+} from "./rating-aggregate";
 import type { LedgerEntry, Neta, Party } from "./types";
 
 export const CATEGORIES = [
@@ -79,33 +83,56 @@ const getDataCached = cache(async (): Promise<PublicData> => {
       (tx) => [
         tx.query("select document from bhashan.parties order by id"),
         tx.query("select document from bhashan.politicians order by id"),
-        tx.query("select document from bhashan.statements order by id"),
+        tx.query("select document, rating_seed_gp from bhashan.statements order by id"),
         tx.query("select document from bhashan.rejections order by position, id"),
         tx.query("select key, document from bhashan.settings"),
         tx.query(
           "select occurred_at, action, detail from bhashan.audit_events where action <> 'seed' order by occurred_at desc, event_id desc limit 100"
         ),
+        tx.query(`
+          select
+            statement_id, prior_performance, prior_strength,
+            valid_vote_count, valid_vote_sum,
+            vote_0_count, vote_25_count, vote_50_count, vote_75_count, vote_100_count,
+            performance, gp, model_version, updated_at
+          from bhashan.statement_rating_aggregates
+          order by statement_id
+        `),
       ],
       { readOnly: true }
     );
-  const [partyRows, politicianRows, statementRows, rejectionRows, settingRows, auditRows] =
+  const [
+    partyRows,
+    politicianRows,
+    statementRows,
+    rejectionRows,
+    settingRows,
+    auditRows,
+    aggregateRows,
+  ] =
     rows as unknown as [
       { document: unknown }[],
       { document: unknown }[],
-      { document: unknown }[],
+      { document: unknown; rating_seed_gp: unknown }[],
       { document: unknown }[],
       { key: string; document: unknown }[],
       AuditRow[],
+      RatingAggregateRecord[],
     ];
 
   const parties = partyRows.map((row) => row.document as RawParty);
   const politicians = politicianRows.map((row) => row.document as RawPolitician);
-  const statements = statementRows.map((row) => row.document as RawStatement);
+  const statements = statementRows.map((row) => ({
+    ...(row.document as RawStatement),
+    rating_seed_gp:
+      row.rating_seed_gp == null ? null : Number(row.rating_seed_gp),
+  }));
   const rejections = rejectionRows.map((row) => row.document as RawRejection);
+  const ratingAggregates = aggregateRows.map(parseRatingAggregate);
   const settings = new Map(
     settingRows.map((row) => [String(row.key), row.document as unknown])
   );
-  const model = buildCorpus({ statements, politicians, parties });
+  const model = buildCorpus({ statements, politicians, parties, ratingAggregates });
   const PARTIES = model.CORPUS_PARTIES;
   const NETAS = model.CORPUS_NETAS;
   const STATEMENTS = model.ON_LADDER;

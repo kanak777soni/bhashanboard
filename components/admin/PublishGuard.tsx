@@ -1,29 +1,20 @@
 import type { StoredStatement } from "@/lib/store";
+import { committeePublicationIssues } from "@/lib/video";
 
 /**
  * What would be wrong with publishing this entry, stated before you do.
  *
- * These are warnings, not locks — the Committee can place anything it
- * likes. But placing an entry with no Tier A/B source, or one whose
- * wording was never established, is a decision that should be made
- * knowingly rather than by clicking past a form.
+ * Blocking issues are the same fail-closed rules enforced by the admin
+ * mutation and vote gate. Notes are editorial improvements that do not
+ * decide voting eligibility.
  */
 export default function PublishGuard({ entry }: { entry: StoredStatement }) {
-  const issues: { level: "block" | "warn"; text: string }[] = [];
+  const issues: { level: "block" | "warn"; text: string }[] =
+    committeePublicationIssues(entry).map((text) => ({ level: "block", text }));
   const sources = entry.verification.sources ?? [];
 
-  if (!["A", "B"].includes(entry.verification.best_source_tier))
-    issues.push({ level: "block", text: "No Tier A or B source. §3.2 says nothing publishes without one." });
   if (sources.length < 2 && entry.verification.best_source_tier !== "A")
     issues.push({ level: "warn", text: "Single-sourced. Corroboration is required below Tier A." });
-  if (!entry.quote)
-    issues.push({ level: "warn", text: "No verbatim quote established — the page will show a neutral subject line, unquoted." });
-  if (entry.quote && entry.language !== "English" && !entry.quote_translation?.trim())
-    issues.push({ level: "block", text: "Non-English quote has no English translation." });
-  if (!entry.video?.id)
-    issues.push({ level: "warn", text: "No clip attached. An entry without video cannot reach the verified stage." });
-  if (entry.verification.stage === "text_sourced")
-    issues.push({ level: "warn", text: "Verification stage is text-sourced: reported, not verified." });
   if (!entry.counterpoint)
     issues.push({ level: "warn", text: "No counterpoint. An indexed claim with nothing set against it is an accusation, not a record." });
 

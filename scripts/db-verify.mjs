@@ -84,6 +84,15 @@ async function main() {
     sequenceRows,
     auditRows,
     triggerRows,
+    extensionTableRows,
+    authForeignKeyRows,
+    authRateLimitColumnRows,
+    authRateLimitConstraintRows,
+    ratingDerivedCorruptionRows,
+    ratingBallotMismatchRows,
+    integrityConstraintRows,
+    ownershipMismatchRows,
+    publicationSeedRows,
   ] = await sql.transaction(
     (tx) => [
       tx.query(
@@ -137,8 +146,179 @@ async function main() {
           JOIN pg_namespace AS namespace ON namespace.oid = relation.relnamespace
           WHERE namespace.nspname = 'bhashan'
             AND NOT tgisinternal
+            AND trigger.tgenabled <> 'D'
         `
       ),
+      tx.query(`
+        SELECT table_schema, table_name
+        FROM information_schema.tables
+        WHERE (table_schema = 'public' AND table_name IN (
+          'auth_user', 'auth_session', 'auth_account', 'auth_verification',
+          'auth_rate_limit'
+        )) OR (table_schema = 'bhashan' AND table_name IN (
+          'statement_watch_sessions', 'statement_watch_receipts',
+          'statement_votes', 'statement_vote_exclusions',
+          'statement_rating_aggregates'
+        ))
+      `),
+      tx.query(`
+        SELECT source.relname AS source_table, target.relname AS target_table
+        FROM pg_constraint constraint_record
+        JOIN pg_class source ON source.oid = constraint_record.conrelid
+        JOIN pg_namespace source_namespace ON source_namespace.oid = source.relnamespace
+        JOIN pg_class target ON target.oid = constraint_record.confrelid
+        JOIN pg_namespace target_namespace ON target_namespace.oid = target.relnamespace
+        WHERE constraint_record.contype = 'f'
+          AND source_namespace.nspname = 'bhashan'
+          AND source.relname IN (
+            'statement_watch_sessions', 'statement_watch_receipts',
+            'statement_votes', 'statement_vote_exclusions'
+          )
+          AND target_namespace.nspname = 'public'
+          AND target.relname = 'auth_user'
+      `),
+      tx.query(`
+        SELECT column_name, data_type, is_nullable
+        FROM information_schema.columns
+        WHERE table_schema = 'public'
+          AND table_name = 'auth_rate_limit'
+        ORDER BY ordinal_position
+      `),
+      tx.query(`
+        SELECT
+          constraint_record.contype AS constraint_type,
+          array_agg(attribute.attname ORDER BY key_column.ordinality) AS columns
+        FROM pg_constraint constraint_record
+        JOIN pg_class relation ON relation.oid = constraint_record.conrelid
+        JOIN pg_namespace namespace ON namespace.oid = relation.relnamespace
+        CROSS JOIN LATERAL unnest(constraint_record.conkey)
+          WITH ORDINALITY AS key_column(attribute_number, ordinality)
+        JOIN pg_attribute attribute
+          ON attribute.attrelid = relation.oid
+         AND attribute.attnum = key_column.attribute_number
+        WHERE namespace.nspname = 'public'
+          AND relation.relname = 'auth_rate_limit'
+          AND constraint_record.contype IN ('p', 'u')
+        GROUP BY constraint_record.oid, constraint_record.contype
+      `),
+      tx.query(`
+        WITH calculated AS (
+          SELECT
+            aggregate.*,
+            aggregate.prior_strength + aggregate.valid_vote_count AS denominator,
+            (
+              aggregate.prior_strength * aggregate.prior_performance
+              + aggregate.valid_vote_sum
+            )::numeric / nullif(
+              aggregate.prior_strength + aggregate.valid_vote_count,
+              0
+            ) AS expected_performance
+          FROM bhashan.statement_rating_aggregates AS aggregate
+        )
+        SELECT statement_id
+        FROM calculated
+        WHERE denominator <= 0
+          OR model_version <> 1
+          OR prior_strength <> 10
+          OR valid_vote_sum <> (
+            vote_25_count * 25
+            + vote_50_count * 50
+            + vote_75_count * 75
+            + vote_100_count * 100
+          )
+          OR abs(performance - expected_performance) > 0.000001
+          OR gp <> round(1000 + 10 * expected_performance)::integer
+        ORDER BY statement_id
+      `),
+      tx.query(`
+        WITH immutable_ballots AS (
+          SELECT
+            vote.statement_id,
+            count(*) FILTER (
+              WHERE exclusion.vote_id IS NULL
+            )::bigint AS valid_vote_count,
+            coalesce(sum(vote.value) FILTER (
+              WHERE exclusion.vote_id IS NULL
+            ), 0)::bigint AS valid_vote_sum,
+            count(*) FILTER (
+              WHERE exclusion.vote_id IS NULL AND vote.value = 0
+            )::bigint AS vote_0_count,
+            count(*) FILTER (
+              WHERE exclusion.vote_id IS NULL AND vote.value = 25
+            )::bigint AS vote_25_count,
+            count(*) FILTER (
+              WHERE exclusion.vote_id IS NULL AND vote.value = 50
+            )::bigint AS vote_50_count,
+            count(*) FILTER (
+              WHERE exclusion.vote_id IS NULL AND vote.value = 75
+            )::bigint AS vote_75_count,
+            count(*) FILTER (
+              WHERE exclusion.vote_id IS NULL AND vote.value = 100
+            )::bigint AS vote_100_count
+          FROM bhashan.statement_votes AS vote
+          LEFT JOIN bhashan.statement_vote_exclusions AS exclusion
+            ON exclusion.vote_id = vote.id
+          GROUP BY vote.statement_id
+        )
+        SELECT coalesce(aggregate.statement_id, ballots.statement_id) AS statement_id
+        FROM bhashan.statement_rating_aggregates AS aggregate
+        FULL JOIN immutable_ballots AS ballots
+          ON ballots.statement_id = aggregate.statement_id
+        WHERE aggregate.statement_id IS NULL
+          OR ballots.statement_id IS NULL
+          OR aggregate.valid_vote_count <> ballots.valid_vote_count
+          OR aggregate.valid_vote_sum <> ballots.valid_vote_sum
+          OR aggregate.vote_0_count <> ballots.vote_0_count
+          OR aggregate.vote_25_count <> ballots.vote_25_count
+          OR aggregate.vote_50_count <> ballots.vote_50_count
+          OR aggregate.vote_75_count <> ballots.vote_75_count
+          OR aggregate.vote_100_count <> ballots.vote_100_count
+        ORDER BY statement_id
+      `),
+      tx.query(`
+        SELECT constraint_record.conname, constraint_record.convalidated
+        FROM pg_constraint AS constraint_record
+        JOIN pg_class AS relation ON relation.oid = constraint_record.conrelid
+        JOIN pg_namespace AS namespace ON namespace.oid = relation.relnamespace
+        WHERE namespace.nspname = 'bhashan'
+          AND constraint_record.conname IN (
+            'statement_watch_sessions_identity_uniq',
+            'statement_watch_receipts_identity_uniq',
+            'statement_watch_receipts_session_identity_fkey',
+            'statement_votes_receipt_identity_fkey',
+            'statement_rating_aggregate_weighted_sum_check'
+          )
+      `),
+      tx.query(`
+        SELECT 'receipt-session' AS kind, receipt.id::text AS id
+        FROM bhashan.statement_watch_receipts AS receipt
+        LEFT JOIN bhashan.statement_watch_sessions AS session
+          ON session.id = receipt.watch_session_id
+         AND session.user_id = receipt.user_id
+         AND session.statement_id = receipt.statement_id
+         AND session.video_fingerprint = receipt.video_fingerprint
+        WHERE session.id IS NULL
+          OR session.qualified_at IS NULL
+          OR session.reached_end = false
+          OR session.credited_watch_ms < session.required_watch_ms
+          OR receipt.watched_ms <> session.credited_watch_ms
+          OR receipt.required_watch_ms <> session.required_watch_ms
+        UNION ALL
+        SELECT 'vote-receipt', vote.id::text
+        FROM bhashan.statement_votes AS vote
+        LEFT JOIN bhashan.statement_watch_receipts AS receipt
+          ON receipt.id = vote.watch_receipt_id
+         AND receipt.user_id = vote.user_id
+         AND receipt.statement_id = vote.statement_id
+        WHERE receipt.id IS NULL
+      `),
+      tx.query(`
+        SELECT id
+        FROM bhashan.statements
+        WHERE status = 'published'
+          AND document #>> '{verification,stage}' IN ('verified', 'committee_passed')
+          AND rating_seed_gp IS NULL
+      `),
     ],
     { readOnly: true }
   );
@@ -241,6 +421,136 @@ async function main() {
       (row) => `${String(row.table_name)}:${String(row.trigger_name)}`
     )
   );
+  const extensionTableSet = new Set(
+    rowsOf(extensionTableRows).map(
+      (row) => `${String(row.table_schema)}.${String(row.table_name)}`
+    )
+  );
+  for (const table of [
+    "public.auth_user",
+    "public.auth_session",
+    "public.auth_account",
+    "public.auth_verification",
+    "public.auth_rate_limit",
+    "bhashan.statement_watch_sessions",
+    "bhashan.statement_watch_receipts",
+    "bhashan.statement_votes",
+    "bhashan.statement_vote_exclusions",
+    "bhashan.statement_rating_aggregates",
+  ]) {
+    if (!extensionTableSet.has(table)) errors.push(`missing table ${table}`);
+  }
+
+  const expectedRateLimitColumns = new Map([
+    ["id", "text"],
+    ["key", "text"],
+    ["count", "integer"],
+    ["last_request", "bigint"],
+  ]);
+  const rateLimitColumns = new Map(
+    rowsOf(authRateLimitColumnRows).map((row) => [
+      String(row.column_name),
+      { type: String(row.data_type), nullable: String(row.is_nullable) },
+    ])
+  );
+  for (const [column, type] of expectedRateLimitColumns) {
+    const actual = rateLimitColumns.get(column);
+    if (!actual) {
+      errors.push(`auth_rate_limit is missing column ${column}`);
+    } else {
+      if (actual.type !== type) {
+        errors.push(`auth_rate_limit.${column} has type ${actual.type}, expected ${type}`);
+      }
+      if (actual.nullable !== "NO") {
+        errors.push(`auth_rate_limit.${column} must be NOT NULL`);
+      }
+    }
+  }
+  const rateLimitConstraints = rowsOf(authRateLimitConstraintRows).map((row) => ({
+    type: String(row.constraint_type),
+    columns: Array.isArray(row.columns)
+      ? row.columns.map(String)
+      : String(row.columns).replace(/^\{|\}$/g, "").split(","),
+  }));
+  if (
+    !rateLimitConstraints.some(
+      (constraint) => constraint.type === "p" && constraint.columns.join(",") === "id"
+    )
+  ) {
+    errors.push("auth_rate_limit must have a primary key on id");
+  }
+  if (
+    !rateLimitConstraints.some(
+      (constraint) => constraint.type === "u" && constraint.columns.join(",") === "key"
+    )
+  ) {
+    errors.push("auth_rate_limit must have a unique constraint on key");
+  }
+
+  const ratingDerivedCorruptionIds = rowsOf(ratingDerivedCorruptionRows).map(
+    (row) => String(row.statement_id)
+  );
+  if (ratingDerivedCorruptionIds.length > 0) {
+    errors.push(
+      `rating aggregate derived fields are corrupt for ${conciseIds(
+        ratingDerivedCorruptionIds
+      )}`
+    );
+  }
+  const ratingBallotMismatchIds = rowsOf(ratingBallotMismatchRows).map(
+    (row) => String(row.statement_id)
+  );
+  if (ratingBallotMismatchIds.length > 0) {
+    errors.push(
+      `rating aggregate totals differ from immutable ballots for ${conciseIds(
+        ratingBallotMismatchIds
+      )}`
+    );
+  }
+
+  const requiredIntegrityConstraints = new Set([
+    "statement_watch_sessions_identity_uniq",
+    "statement_watch_receipts_identity_uniq",
+    "statement_watch_receipts_session_identity_fkey",
+    "statement_votes_receipt_identity_fkey",
+    "statement_rating_aggregate_weighted_sum_check",
+  ]);
+  for (const row of rowsOf(integrityConstraintRows)) {
+    if (row.convalidated === true || row.convalidated === "true") {
+      requiredIntegrityConstraints.delete(String(row.conname));
+    }
+  }
+  for (const name of requiredIntegrityConstraints) {
+    errors.push(`missing or unvalidated integrity constraint ${name}`);
+  }
+  const ownershipMismatches = rowsOf(ownershipMismatchRows).map(
+    (row) => `${String(row.kind)}:${String(row.id)}`
+  );
+  if (ownershipMismatches.length > 0) {
+    errors.push(`receipt/vote ownership mismatch for ${conciseIds(ownershipMismatches)}`);
+  }
+  const missingPublicationSeeds = rowsOf(publicationSeedRows).map((row) => String(row.id));
+  if (missingPublicationSeeds.length > 0) {
+    errors.push(
+      `committee-passed published statements lack frozen seeds: ${conciseIds(
+        missingPublicationSeeds
+      )}`
+    );
+  }
+
+  const authForeignKeySet = new Set(
+    rowsOf(authForeignKeyRows).map((row) => String(row.source_table))
+  );
+  for (const table of [
+    "statement_watch_sessions",
+    "statement_watch_receipts",
+    "statement_votes",
+    "statement_vote_exclusions",
+  ]) {
+    if (!authForeignKeySet.has(table)) {
+      errors.push(`missing auth-user foreign key from bhashan.${table}`);
+    }
+  }
   for (const table of ["parties", "politicians", "statements", "rejections", "settings"]) {
     for (const trigger of ["prepare_document_mutation", "audit_document_change"]) {
       if (!triggerSet.has(`${table}:${trigger}`)) {
@@ -249,12 +559,22 @@ async function main() {
     }
   }
   for (const trigger of [
+    "statements:prepare_statement_rating_seed",
+    "statements:protect_statement_rating_inputs",
     "audit_events:prevent_audit_event_mutation",
     "audit_events:prevent_audit_event_truncate",
     "corpus_imports:prevent_history_mutation",
     "corpus_imports:prevent_history_truncate",
     "corpus_artifacts:prevent_history_mutation",
     "corpus_artifacts:prevent_history_truncate",
+    "statement_watch_receipts:prevent_watch_receipt_mutation",
+    "statement_watch_receipts:prevent_watch_receipt_truncate",
+    "statement_watch_receipts:validate_watch_receipt_insert",
+    "statement_votes:prevent_statement_vote_mutation",
+    "statement_votes:prevent_statement_vote_truncate",
+    "statement_votes:serialize_statement_vote_insert",
+    "statement_vote_exclusions:prevent_vote_exclusion_mutation",
+    "statement_vote_exclusions:prevent_vote_exclusion_truncate",
   ]) {
     if (!triggerSet.has(trigger)) errors.push(`missing trigger ${trigger}`);
   }

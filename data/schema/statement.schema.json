@@ -43,6 +43,20 @@
             "required": ["language"]
           },
           "then": { "not": { "required": ["quote_translation"] } }
+        },
+        {
+          "if": {
+            "properties": {
+              "verification": {
+                "properties": {
+                  "stage": { "enum": ["av_verified", "committee_passed"] }
+                },
+                "required": ["stage"]
+              }
+            },
+            "required": ["verification"]
+          },
+          "then": { "required": ["video"] }
         }
       ],
       "required": [
@@ -51,11 +65,11 @@
         "neutral_title", "quote", "claim", "context", "axes", "verification"
       ],
       "properties": {
-        "id": { "type": "string", "pattern": "^IN-[0-9]{4}$" },
+        "id": { "type": "string", "pattern": "^IN-[0-9]{4,}$" },
 
         "status": {
-          "enum": ["published", "held_parity", "held_review"],
-          "description": "published — cleared for the ladder subject to Stage 3. held_parity — verified but queued, because publishing now would push its party past the 30% cap (docs/03-content-pipeline.md §3.4). held_review — a Committee question is open; see policy_note."
+          "enum": ["published", "held_parity", "held_review", "withdrawn"],
+          "description": "published — cleared for the ladder subject to Stage 3. held_parity — verified but queued, because publishing now would push its party past the 30% cap (docs/03-content-pipeline.md §3.4). held_review — a Committee question is open; see policy_note. withdrawn — retained in the audit record but removed from the public board."
         },
 
         "speaker_id": { "type": "string", "description": "FK to politicians.json" },
@@ -89,6 +103,8 @@
 
         "policy_note": { "type": "string", "description": "Required for any entry that engages a Rule in docs/04-legal-and-safety.md §4.8 without being rejected by it. Must record the ruling and the reasoning, not just the flag." },
 
+        "video": { "$ref": "#/$defs/video" },
+
         "axes": {
           "type": "object",
           "additionalProperties": false,
@@ -100,7 +116,7 @@
             "crowd_complicity": { "$ref": "#/$defs/axisScore" },
             "consequence":      { "$ref": "#/$defs/axisScore" }
           },
-          "description": "Seed scores only. These exist to bootstrap a ladder before any duels have been fought, and every one of them is replaced by Elo the moment real duels arrive. See docs/09-seed-corpus.md for the rubric each number is scored against."
+          "description": "Seed scores only. They establish the frozen editorial prior for the public rating; equal-strength public rulings progressively outweigh it. Aamne-Saamne exhibition picks never affect this score. See docs/09-seed-corpus.md for the rubric each number is scored against."
         },
 
         "verification": {
@@ -109,21 +125,11 @@
           "required": ["stage", "best_source_tier", "sources"],
           "properties": {
             "stage": {
-              "enum": ["lead", "text_sourced", "av_verified", "committee_passed"],
-              "description": "lead — a claim seen somewhere, nothing checked. text_sourced — attributed to a named person by at least one reputable outlet; NOT publishable. av_verified — Tier A/B clip located, timestamped, surrounding context watched. committee_passed — the full Stage 3 checklist signed off. Nothing publishes below committee_passed."
+              "enum": ["text_sourced", "av_verified", "committee_passed"],
+              "description": "text_sourced — attributed to a named person by at least one reputable outlet; NOT publishable. av_verified — Tier A/B clip located with a bounded timestamped excerpt and surrounding context watched. committee_passed — the full Stage 3 checklist signed off. Nothing publishes below committee_passed."
             },
-            "best_source_tier": { "enum": ["A", "B", "C", "D"] },
+            "best_source_tier": { "enum": ["A", "B", "C"] },
             "needs": { "type": "array", "items": { "type": "string" }, "description": "The specific outstanding work. This is the research queue; treat it as the to-do list, not as documentation." },
-            "embed": {
-              "type": ["object", "null"],
-              "description": "Embed target. EMBED, NEVER HOST (docs/03-content-pipeline.md §3.1). Storing a file path here is a bug.",
-              "properties": {
-                "platform": { "type": "string" },
-                "id": { "type": "string" },
-                "start_s": { "type": "number" },
-                "end_s": { "type": "number" }
-              }
-            },
             "sources": {
               "type": "array",
               "minItems": 1,
@@ -132,7 +138,7 @@
                 "type": "object",
                 "required": ["tier", "publisher", "title", "url"],
                 "properties": {
-                  "tier": { "enum": ["A", "B", "C", "D"] },
+                  "tier": { "enum": ["A", "B", "C"] },
                   "publisher": { "type": "string" },
                   "title": { "type": "string" },
                   "url": { "type": "string", "format": "uri" }
@@ -142,6 +148,18 @@
           }
         }
       }
+    },
+    "video": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["platform", "id", "start", "end"],
+      "properties": {
+        "platform": { "const": "youtube" },
+        "id": { "type": "string", "pattern": "^[A-Za-z0-9_-]{6,20}$" },
+        "start": { "type": "integer", "minimum": 0, "maximum": 86400 },
+        "end": { "type": "integer", "minimum": 1, "maximum": 86400 }
+      },
+      "description": "Canonical externally hosted evidence excerpt. The excerpt must be between 3 and 180 seconds; application validation enforces the cross-field bounds."
     },
     "axisScore": { "type": "integer", "minimum": 0, "maximum": 5 }
   }

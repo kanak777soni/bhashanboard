@@ -1,16 +1,28 @@
 import type { MetadataRoute } from "next";
+import { resolvedPublicSiteUrl } from "@/lib/auth-config";
 import { getData } from "@/lib/data";
 
-const BASE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://bhashanboard.example";
+const BASE = resolvedPublicSiteUrl();
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const data = await getData();
-  const statics = ["", "/duel", "/netas", "/hall", "/ledger", "/rejected", "/rules", "/submit"].map((p) => ({
+  const statics = [
+    "",
+    "/duel",
+    "/netas",
+    "/hall",
+    "/ledger",
+    "/rejected",
+    "/rules",
+    "/submit",
+    "/privacy",
+    "/terms",
+  ].map((p) => ({
     url: `${BASE}${p}`,
     changeFrequency: "weekly" as const,
     priority: p === "" ? 1 : 0.6,
   }));
-  const entries = data.CORPUS.map((s) => ({
+  const entries = data.CORPUS.filter((s) => s.publicationEligible).map((s) => ({
     url: `${BASE}/statement/${s.slug}`,
     changeFrequency: "monthly" as const,
     priority: 0.8,

@@ -1,6 +1,10 @@
 import "server-only";
 import { unstable_noStore as noStore } from "next/cache";
 import { db } from "./db";
+import {
+  assertStatementHasNoVotes,
+  statementRatingLockKey,
+} from "./statement-rating-lock";
 
 export type StatementStatus = "published" | "held_parity" | "held_review" | "withdrawn";
 
@@ -68,6 +72,10 @@ interface DocumentRow {
   id: unknown;
   document: unknown;
   version: unknown;
+}
+
+interface StatementEditRow extends DocumentRow {
+  has_votes: unknown;
 }
 
 interface AuditRow {
@@ -262,17 +270,45 @@ export async function updateStatementRecord(
     tx`SELECT set_config('bhashan.actor', ${actor}, true)`,
     tx`SELECT set_config('bhashan.action', ${action}, true)`,
     tx`SELECT set_config('bhashan.detail', ${detail}, true)`,
+    tx`SELECT pg_advisory_xact_lock(hashtextextended('bhashan:seed-ladder', 0))`,
+    tx`SELECT pg_advisory_xact_lock(
+      hashtextextended(${statementRatingLockKey(id)}, 0)
+    )`,
     tx`
-      UPDATE bhashan.statements
-      SET
-        document = jsonb_set(${payload}::jsonb, '{id}', to_jsonb(id), true),
-        version = version + 1,
-        updated_at = now()
-      WHERE id = ${id} AND version = ${expectedVersion}
-      RETURNING id, document, version
+      WITH edit_state AS MATERIALIZED (
+        SELECT EXISTS (
+          SELECT 1
+          FROM bhashan.statement_votes AS vote
+          WHERE vote.statement_id = ${id}
+        ) AS has_votes
+      ),
+      updated AS (
+        UPDATE bhashan.statements AS statement
+        SET
+          document = jsonb_set(
+            ${payload}::jsonb,
+            '{id}',
+            to_jsonb(statement.id),
+            true
+          ),
+          version = statement.version + 1,
+          updated_at = now()
+        FROM edit_state
+        WHERE statement.id = ${id}
+          AND statement.version = ${expectedVersion}
+          AND NOT edit_state.has_votes
+        RETURNING statement.id, statement.document, statement.version
+      )
+      SELECT updated.id, updated.document, updated.version, edit_state.has_votes
+      FROM edit_state
+      LEFT JOIN updated ON true
     `,
   ]);
-  return mapStatement(mutationRow(result[3], "Statement", id));
+  const outcome = (result[5] as unknown as StatementEditRow[])[0];
+  assertStatementHasNoVotes(id, outcome?.has_votes);
+  return mapStatement(
+    mutationRow(outcome?.id == null ? [] : [outcome], "Statement", id)
+  );
 }
 
 export async function setStatementStatus(
@@ -286,6 +322,10 @@ export async function setStatementStatus(
     tx`SELECT set_config('bhashan.actor', ${actor}, true)`,
     tx`SELECT set_config('bhashan.action', ${action}, true)`,
     tx`SELECT set_config('bhashan.detail', ${detail}, true)`,
+    tx`SELECT pg_advisory_xact_lock(hashtextextended('bhashan:seed-ladder', 0))`,
+    tx`SELECT pg_advisory_xact_lock(
+      hashtextextended(${statementRatingLockKey(id)}, 0)
+    )`,
     tx`
       UPDATE bhashan.statements
       SET
@@ -296,7 +336,7 @@ export async function setStatementStatus(
       RETURNING id, document, version
     `,
   ]);
-  return mapStatement(mutationRow(result[3], "Statement", id));
+  return mapStatement(mutationRow(result[5], "Statement", id));
 }
 
 export async function setStatementHallOfFame(

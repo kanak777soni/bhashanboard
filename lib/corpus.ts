@@ -1,4 +1,22 @@
-import type { Axes, Neta, Party, Source, SourceTier, Statement } from "./types";
+import type {
+  Axes,
+  Neta,
+  Party,
+  PersistedStatementRatingAggregate,
+  Source,
+  SourceTier,
+  Statement,
+  StatementRating,
+  StatementVideo,
+  VerificationStage,
+  VoteDistribution,
+} from "./types";
+import { RATING_PRIOR_STRENGTH } from "./rating";
+import {
+  isCommitteePublicationEligible,
+  normalizeStatementVideo,
+  normalizeVerificationStage,
+} from "./video";
 
 /**
  * Pure adapter from persisted corpus documents to the public view model.
@@ -45,6 +63,8 @@ export interface RawStatement {
   video?: { platform?: string; id?: string; start?: number; end?: number };
   axes: Record<string, number>;
   verification: RawVerification;
+  /** Runtime-only publication seed stored beside, not inside, the document. */
+  rating_seed_gp?: number | null;
 }
 
 export interface RawPolitician {
@@ -74,7 +94,9 @@ export interface CorpusStatement extends Statement {
   quoteNote?: string;
   policyNote?: string;
   contextNote?: string;
-  verificationStage: string;
+  verificationStage: VerificationStage;
+  /** True only when the complete server-side publication and voting bar passes. */
+  publicationEligible: boolean;
   bestSourceTier: string;
   needs: string[];
   held?: "parity" | "review";
@@ -162,14 +184,65 @@ function daysSince(date: string, referenceTime: number): number {
     : Math.max(0, Math.round((referenceTime - parsed) / 86_400_000));
 }
 
+function emptyVoteDistribution(): VoteDistribution {
+  return { 0: 0, 25: 0, 50: 0, 75: 0, 100: 0 };
+}
+
+function seedPerformance(seedGp: number): number {
+  return Math.min(100, Math.max(0, (seedGp - 1000) / 10));
+}
+
+function publicRating(
+  seedGp: number,
+  aggregate: PersistedStatementRatingAggregate | undefined
+): { gp: number; rating: StatementRating } {
+  // An aggregate row freezes the editorial prior at the first ballot. Keep
+  // using it even if every ballot is later excluded and the valid count
+  // returns to zero; recomputing from today's ladder seed would move the score.
+  if (aggregate) {
+    return {
+      gp: aggregate.gp,
+      rating: {
+        source: "community",
+        performance: aggregate.performance,
+        validVoteCount: aggregate.validVoteCount,
+        validVoteSum: aggregate.validVoteSum,
+        distribution: { ...aggregate.distribution },
+        priorPerformance: aggregate.priorPerformance,
+        priorStrength: aggregate.priorStrength,
+        modelVersion: aggregate.modelVersion,
+        updatedAt: aggregate.updatedAt,
+      },
+    };
+  }
+
+  const performance = seedPerformance(seedGp);
+  return {
+    gp: seedGp,
+    rating: {
+      source: "seed",
+      performance,
+      validVoteCount: 0,
+      validVoteSum: 0,
+      distribution: emptyVoteDistribution(),
+      priorPerformance: performance,
+      priorStrength: RATING_PRIOR_STRENGTH,
+      modelVersion: null,
+      updatedAt: null,
+    },
+  };
+}
+
 export function buildCorpus({
   statements,
   politicians,
   parties,
+  ratingAggregates = [],
 }: {
   statements: RawStatement[];
   politicians: RawPolitician[];
   parties: RawParty[];
+  ratingAggregates?: readonly PersistedStatementRatingAggregate[];
 }, referenceDate: Date | number | string = Date.now()): CorpusModel {
   const parsedReference = new Date(referenceDate);
   if (Number.isNaN(parsedReference.getTime())) {
@@ -184,6 +257,9 @@ export function buildCorpus({
   const visible = statements.filter((statement) => statement.status !== "withdrawn");
   const ordered = [...ladder].sort((a, b) => weighted(b.axes) - weighted(a.axes));
   const gpById = new Map<string, number>();
+  const ratingByStatementId = new Map(
+    ratingAggregates.map((aggregate) => [aggregate.statementId, aggregate] as const)
+  );
 
   let index = 0;
   for (const [share, low, high] of BANDS) {
@@ -209,6 +285,14 @@ export function buildCorpus({
       typeof raw.quote_translation === "string" && raw.quote_translation.trim().length > 0
         ? raw.quote_translation
         : undefined;
+    const video: StatementVideo | undefined =
+      normalizeStatementVideo(raw.video) ?? normalizeStatementVideo(raw.verification.embed);
+    const persistedSeed = Number(raw.rating_seed_gp);
+    const seedGp =
+      Number.isSafeInteger(persistedSeed) && persistedSeed >= 1000 && persistedSeed <= 2000
+        ? persistedSeed
+        : gpById.get(raw.id) ?? 1500;
+    const effectiveRating = publicRating(seedGp, ratingByStatementId.get(raw.id));
 
     return {
       id: Number(raw.id.replace(/\D/g, "")) || 0,
@@ -237,12 +321,16 @@ export function buildCorpus({
       script: scriptOf(raw.language),
       venue: raw.venue,
       daysAgo: daysSince(raw.date, referenceTime),
-      gp: gpById.get(raw.id) ?? 1500,
+      gp: effectiveRating.gp,
+      seedGp,
+      rating: effectiveRating.rating,
       previousRank: 0,
       duels: 0,
+      video,
       sources: toSources(raw.verification),
       axes: toAxes(raw.axes),
-      verificationStage: raw.verification.stage,
+      verificationStage: normalizeVerificationStage(raw.verification.stage),
+      publicationEligible: isCommitteePublicationEligible(raw),
       bestSourceTier: raw.verification.best_source_tier,
       needs: raw.verification.needs ?? [],
       held:

@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { applyDuel } from "@/lib/elo";
 import { languageTag } from "@/lib/language";
 
 export interface DuelEntry {
@@ -12,7 +11,6 @@ export interface DuelEntry {
   party: string;
   state: string;
   gp: number;
-  duels: number;
   hasQuote: boolean;
   language: string;
 }
@@ -23,22 +21,11 @@ interface Pair {
 }
 
 /**
- * Aamne-Saamne. The only screen on the site that behaves like an app —
- * full-bleed, keyboard-first, no masthead (docs/08-information-architecture.md §8.1).
- *
- * Matchmaking rules, in order (§2.2):
- *   1. Users can never request a matchup. The server picks. This is the
- *      anti-brigading mechanism — you cannot target what you cannot select.
- *   2. Rating proximity: pair within ~±150 GP.
- *   3. Cross-party bias: prefer pairs from different parties, which forces
- *      a comparative judgment across party lines.
- *
- * Ratings here update in local state so the mechanic is playable. In
- * production, votes append to an immutable log and ratings are recomputed
- * nightly, so a fraud sweep can unwind a brigade retroactively.
+ * Aamne-Saamne is the site's deliberately theatrical, non-scoring exhibition.
+ * The official rating is entered on one statement only after its verified
+ * footage has been watched. Picks made here never leave this component.
  */
 export default function DuelStage({ entries }: { entries: DuelEntry[] }) {
-  const [pool, setPool] = useState(entries);
   const [seen, setSeen] = useState(0);
   const [stamped, setStamped] = useState<"a" | "b" | null>(null);
   const [cursor, setCursor] = useState(0);
@@ -60,24 +47,13 @@ export default function DuelStage({ entries }: { entries: DuelEntry[] }) {
     []
   );
 
-  const pair = useMemo(() => pick(pool, cursor), [pool, cursor, pick]);
+  const pair = useMemo(() => pick(entries, cursor), [entries, cursor, pick]);
 
   const choose = useCallback(
     (side: "a" | "b") => {
       if (stamped) return;
       setStamped(side);
-      const winner = side === "a" ? pair.a : pair.b;
-      const loser = side === "a" ? pair.b : pair.a;
-      const next = applyDuel(winner.gp, winner.duels, loser.gp, loser.duels);
-
       window.setTimeout(() => {
-        setPool((prev) =>
-          prev.map((e) => {
-            if (e.slug === winner.slug) return { ...e, gp: Math.round(next.winner), duels: e.duels + 1 };
-            if (e.slug === loser.slug) return { ...e, gp: Math.round(next.loser), duels: e.duels + 1 };
-            return e;
-          })
-        );
         setSeen((s) => s + 1);
         setCursor((c) => c + 1);
         setStamped(null);
@@ -125,9 +101,9 @@ export default function DuelStage({ entries }: { entries: DuelEntry[] }) {
       <div className="duel-bar">
         <Link href="/">&larr; The Standings</Link>
         <span className="duel-meta">
-          {sameParty ? "Honeypot pair — same party" : `${pair.a.party} vs ${pair.b.party} · you decide`}
+          {sameParty ? "Same-party exhibition" : `${pair.a.party} vs ${pair.b.party} · you decide`}
         </span>
-        <span className="duel-meta">Committee session</span>
+        <span className="duel-meta">Exhibition · no rating effect</span>
       </div>
 
       <div className="duel-stage">
@@ -138,7 +114,7 @@ export default function DuelStage({ entries }: { entries: DuelEntry[] }) {
       <div className="duel-foot">
         <p className="duel-prompt">Which is more magnificent?</p>
         <div className="duel-stats">
-          SESSION: {seen} {seen === 1 ? "DUEL" : "DUELS"} · ← → TO CHOOSE · S TO SKIP
+          SESSION: {seen} {seen === 1 ? "PICK" : "PICKS"} · ← → TO CHOOSE · S TO SKIP · NOTHING IS RECORDED
         </div>
       </div>
     </div>

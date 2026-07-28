@@ -1,5 +1,9 @@
 # 06 — Roadmap, Architecture Sketch & Open Decisions
 
+> **Historical planning note.** Duel/Elo milestones in this document were
+> superseded by the implemented one-statement, watch-gated public ruling model.
+> Treat the current application, `/rules`, and `README.md` as authoritative.
+
 ## 6.1 What to build, in order
 
 The ordering principle: **the duel loop is the product.** Everything before it exists to make the first duel possible; everything after it is amplification. If you build profiles, comments, and country tabs before duels work, you will have a pretty site nobody returns to.

@@ -18,7 +18,11 @@ const FILE_SPECS = [
 ];
 
 export function loadRepoEnv() {
-  if (process.env.DATABASE_URL || process.env.database_url) return;
+  if (
+    process.env.MIGRATION_DATABASE_URL ||
+    process.env.DATABASE_URL ||
+    process.env.database_url
+  ) return;
   const candidates = [join(ROOT, ".env"), join(ROOT, "..", ".env")];
   const envPath = candidates.find(existsSync);
   if (envPath) process.loadEnvFile(envPath);
@@ -26,9 +30,14 @@ export function loadRepoEnv() {
 
 export function getDatabaseUrl() {
   loadRepoEnv();
-  const value = process.env.DATABASE_URL || process.env.database_url;
+  const value =
+    process.env.MIGRATION_DATABASE_URL ||
+    process.env.DATABASE_URL ||
+    process.env.database_url;
   if (!value) {
-    throw new Error("DATABASE_URL is missing. Add the Neon PostgreSQL URL to .env.");
+    throw new Error(
+      "MIGRATION_DATABASE_URL or DATABASE_URL is missing. Add a Neon PostgreSQL URL to .env."
+    );
   }
   if (!/^postgres(?:ql)?:\/\//i.test(value)) {
     throw new Error("DATABASE_URL must be a PostgreSQL URL.");
@@ -38,7 +47,11 @@ export function getDatabaseUrl() {
 
 export function safeErrorMessage(error) {
   let message = error instanceof Error ? error.message : String(error);
-  for (const value of [process.env.DATABASE_URL, process.env.database_url]) {
+  for (const value of [
+    process.env.MIGRATION_DATABASE_URL,
+    process.env.DATABASE_URL,
+    process.env.database_url,
+  ]) {
     if (value) message = message.split(value).join("[redacted database URL]");
   }
   return message
@@ -79,14 +92,19 @@ export function sha256(value) {
   return createHash("sha256").update(input).digest("hex");
 }
 
+/** Repository text is canonically LF so checksums are stable on Windows. */
+function canonicalRepoText(value) {
+  return String(value).replace(/\r\n?/g, "\n");
+}
+
 export function hashDocument(document) {
   return sha256(canonicalJson(document));
 }
 
 function readArtifact(path, payloadKey) {
   const absolutePath = join(ROOT, path);
-  const bytes = readFileSync(absolutePath);
-  const sourceText = bytes.toString("utf8");
+  const sourceText = canonicalRepoText(readFileSync(absolutePath, "utf8"));
+  const bytes = Buffer.from(sourceText, "utf8");
   const document = JSON.parse(sourceText);
   const wrapper = payloadKey
     ? Object.fromEntries(Object.entries(document).filter(([key]) => key !== payloadKey))
@@ -409,7 +427,7 @@ export function listMigrationFiles() {
     .map((name) => ({
       name,
       path: join(MIGRATIONS_DIR, name),
-      sql: readFileSync(join(MIGRATIONS_DIR, name), "utf8"),
+      sql: canonicalRepoText(readFileSync(join(MIGRATIONS_DIR, name), "utf8")),
     }));
 }
 

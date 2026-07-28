@@ -6,7 +6,7 @@ import { getData } from "@/lib/data";
 
 export const metadata: Metadata = {
   title: "Aamne-Saamne",
-  description: "Two statements. One question. The duel that produces the ranking.",
+  description: "Two statements. One magnificent question. A non-scoring exhibition.",
 };
 
 export default async function DuelPage() {
@@ -20,7 +20,6 @@ export default async function DuelPage() {
       party: s.partyAtTime,
       state: neta?.state ?? "—",
       gp: s.gp,
-      duels: s.duels,
       hasQuote: s.hasVerbatimQuote,
       language: s.language,
     };
@@ -34,7 +33,7 @@ export default async function DuelPage() {
           <span className="lbl">The Committee is waiting</span>
         </div>
         <p className="prose" style={{ marginTop: 16 }}>
-          At least two published entries are required before a duel can be convened.{" "}
+          At least two published entries are required before an exhibition can be convened.{" "}
           <Link href="/">Return to the record.</Link>
         </p>
       </SiteFrame>

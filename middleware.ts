@@ -1,56 +1,63 @@
 import { NextResponse, type NextRequest } from "next/server";
-import {
-  ADMIN_SESSION_COOKIE,
-  adminAuthConfig,
-  adminSessionToken,
-  basicPassword,
-  safePasswordEqual,
-  safeTokenEqual,
-} from "@/lib/admin-session";
+import { getSessionCookie } from "better-auth/cookies";
 
 /**
  * Route-level gate for the Committee Room. Server Actions independently call
  * requireAdmin(), so this is the first layer rather than the only layer.
  */
 export async function middleware(req: NextRequest) {
-  const config = adminAuthConfig();
-
-  if (config.mode === "insecure-local") {
-    return NextResponse.next();
+  let normalizedPath = req.nextUrl.pathname;
+  try {
+    // Decode twice so an encoded route segment cannot bypass the generic
+    // admin-endpoint closure before the catch-all auth route decodes it.
+    normalizedPath = decodeURIComponent(decodeURIComponent(normalizedPath));
+  } catch {
+    // Better Auth will reject malformed path encoding; retain the raw path.
   }
+  normalizedPath = normalizedPath.toLowerCase();
 
-  if (config.mode === "misconfigured") {
-    return new NextResponse("The Committee Room is unavailable: admin authentication is not configured.", {
-      status: 503,
+  // Better Auth's admin plugin supplies the role/ban schema and authoritative
+  // session checks. Its generic mutation endpoints are intentionally closed:
+  // user-management writes must pass through our audited Server Actions, which
+  // also protect the final administrator and prevent self-lockout.
+  if (
+    normalizedPath === "/api/auth/admin" ||
+    normalizedPath.startsWith("/api/auth/admin/")
+  ) {
+    return new NextResponse(null, {
+      status: 404,
       headers: { "Cache-Control": "no-store" },
     });
   }
 
-  const expectedToken = await adminSessionToken(config.password);
-  if (safeTokenEqual(req.cookies.get(ADMIN_SESSION_COOKIE)?.value, expectedToken)) {
+  // Core Better Auth endpoints perform their own origin, CSRF, rate-limit and
+  // session checks. The remainder of this middleware is only for page routes.
+  if (normalizedPath === "/api/auth" || normalizedPath.startsWith("/api/auth/")) {
     return NextResponse.next();
   }
 
-  const suppliedPassword = basicPassword(req.headers.get("authorization"));
-  if (safePasswordEqual(suppliedPassword, config.password)) {
-    const response = NextResponse.next();
-    response.cookies.set(ADMIN_SESSION_COOKIE, expectedToken, {
-      httpOnly: true,
-      sameSite: "strict",
-      secure: process.env.NODE_ENV === "production",
-      path: "/admin",
-      maxAge: 60 * 60 * 8,
-    });
-    return response;
+  const returnPath = `${req.nextUrl.pathname}${req.nextUrl.search}`;
+  const signInUrl = new URL("/sign-in", req.url);
+  signInUrl.searchParams.set("callbackURL", returnPath);
+
+  // Middleware is deliberately only an optimistic redirect. Every protected
+  // layout, Server Action and API handler performs a full database-backed
+  // session/role check, so a forged cookie never grants data or a mutation.
+  if (getSessionCookie(req)) {
+    return NextResponse.next();
   }
 
-  return new NextResponse("The Committee Room is closed.", {
-    status: 401,
-    headers: {
-      "Cache-Control": "no-store",
-      "WWW-Authenticate": 'Basic realm="The Committee Room", charset="UTF-8"',
-    },
-  });
+  if (req.nextUrl.pathname.startsWith("/account")) {
+    return NextResponse.redirect(signInUrl);
+  }
+
+  // There is deliberately no network-facing bootstrap password. The first
+  // verified administrator is promoted once with `npm run admin:promote --
+  // email@example.com`; every browser request then uses a normal Better Auth
+  // session and receives the full database-backed role check in the layout.
+  return NextResponse.redirect(signInUrl);
 }
 
-export const config = { matcher: ["/admin/:path*"] };
+export const config = {
+  matcher: ["/admin/:path*", "/account/:path*", "/api/auth/:path*"],
+};

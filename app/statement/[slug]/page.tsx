@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import SiteFrame from "@/components/SiteFrame";
 import Guilloche from "@/components/Guilloche";
-import ClipFacade from "@/components/ClipFacade";
+import StatementVotingPanel from "@/components/StatementVotingPanel";
 import Medal from "@/components/Medal";
 import EntryTitle from "@/components/EntryTitle";
 import StatementFooterNav from "@/components/StatementFooterNav";
@@ -24,6 +24,9 @@ export async function generateMetadata({
   return {
     title,
     description: `${neta?.name ?? "Unknown"} · ${s.venue}, ${s.daysAgo} days ago. Indexed by the Bhashan Board.`,
+    robots: s.publicationEligible
+      ? { index: true, follow: true }
+      : { index: false, follow: false },
     openGraph: { title, description: `${neta?.name} · ${s.venue}` },
   };
 }
@@ -45,7 +48,6 @@ export default async function StatementPage({ params }: { params: Promise<{ slug
   const party = data.partyByCode(s.partyAtTime);
   const tier = tierOf(s.gp);
   const rank = s.held ? null : data.rankOf(s.slug);
-  const verified = s.verificationStage !== "text_sourced";
 
   return (
     <SiteFrame>
@@ -74,14 +76,22 @@ export default async function StatementPage({ params }: { params: Promise<{ slug
           {/* The honest state of the record, stated before anything else.
               Claiming ratification over unverified material would be the
               same failure as inventing a quote. */}
-          {!verified && (
+          {!s.publicationEligible && (
             <div className="provisional">
               <span className="lbl">Not yet verified for publication</span>
               <p>
-                This entry is <strong>text-sourced</strong>: a named representative, a real remark, and at
-                least one reputable outlet. It is not published. Publication requires a Tier A or B clip
-                with a timestamp, the surrounding sixty seconds watched, a transcript, subtitles and a
-                human sign-off.
+                {s.verificationStage === "text_sourced" ? (
+                  <>This entry is <strong>text-sourced</strong>: a named representative, a reported remark,
+                  and at least one attributable outlet. It is not published. Publication and voting require
+                  a bounded Tier A or B video excerpt, transcript, context review, and human sign-off.</>
+                ) : s.verificationStage === "av_verified" ? (
+                  <>A bounded source excerpt is attached, but the entry still awaits transcript, context,
+                  subtitle, and human review. It cannot receive public rulings until the Committee signs off.</>
+                ) : (
+                  <>This entry is marked committee-passed but does not satisfy the complete publication bar.
+                  It remains provisional and cannot receive public rulings until its status, original wording,
+                  translation, context, source tier, and bounded video evidence all pass validation.</>
+                )}
               </p>
               {s.needs.length > 0 && (
                 <ul className="needs">
@@ -119,12 +129,27 @@ export default async function StatementPage({ params }: { params: Promise<{ slug
             {party && ` · ${party.name}`} · {s.venue}
           </p>
 
-          <ClipFacade />
+          <StatementVotingPanel
+            key={s.corpusId}
+            statementId={s.corpusId}
+            video={s.video}
+            publicationEligible={s.publicationEligible}
+            initialRating={{
+              gp: s.gp,
+              performance: s.rating.performance,
+              validVoteCount: s.rating.validVoteCount,
+              distribution: s.rating.distribution,
+            }}
+          />
 
           <div className="verdict">
             <div>
-              <span className="lbl">Rating</span>
+              <span className="lbl">{s.rating.source === "community" ? "Public GP" : "Seed GP"}</span>
               <b>{s.held ? "—" : s.gp.toLocaleString("en-IN")}</b>
+            </div>
+            <div>
+              <span className="lbl">Public rulings</span>
+              <b>{s.rating.validVoteCount.toLocaleString("en-IN")}</b>
             </div>
             <div>
               <span className="lbl">Ladder rank</span>
@@ -201,7 +226,7 @@ export default async function StatementPage({ params }: { params: Promise<{ slug
           {!s.held && (
             <div className="axes">
               <div className="lbl" style={{ marginBottom: 8 }}>
-                Judgment axes &middot; seed scoring, no duels fought yet
+                Editorial seed axes &middot; frozen when public voting begins
               </div>
               {AXIS_LABELS.map(([key, label]) => (
                 <div className="axis" key={key}>
@@ -213,8 +238,9 @@ export default async function StatementPage({ params }: { params: Promise<{ slug
                 </div>
               ))}
               <p style={{ fontSize: 13, color: "var(--ink-45)", margin: "10px 0 0" }}>
-                Scored 0&ndash;5 on each axis. Consequence is inverted: 5 means nothing happened, or a
-                promotion followed.
+                The Committee scores each axis 0&ndash;5 to establish a transparent prior. Verified public
+                rulings then move the live performance score; consequence is inverted, so 5 means nothing
+                happened, or a promotion followed.
               </p>
             </div>
           )}

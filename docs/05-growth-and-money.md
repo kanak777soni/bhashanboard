@@ -1,5 +1,7 @@
 # 05 — Distribution, Growth & Money
 
+> **Current scoring note (July 2026).** References in this design document to pairwise duels, Elo, weighted memberships, or internal placement votes are historical. The implemented authority is `/rules`: one equal-strength, immutable ruling per verified account and statement, after qualifying playback, with a published Bayesian seed prior. Aamne-Saamne is a non-scoring exhibition.
+
 ## 5.1 The core insight: you are a meme factory that happens to own a website
 
 Nobody discovers a ranking site by searching for one. They see a clip on Reels, laugh, notice a gold-foil watermark that says **#4 GLOBALLY · KOHINOOR CLASS**, and think *"…wait, there's a ranking for this?"*

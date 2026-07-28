@@ -1,5 +1,7 @@
 # 01 — Concept, Positioning & Name
 
+> **Current scoring note (July 2026).** References in this design document to pairwise duels, Elo, weighted memberships, or internal placement votes are historical. The implemented authority is `/rules`: one equal-strength, immutable ruling per verified account and statement, after qualifying playback, with a published Bayesian seed prior. Aamne-Saamne is a non-scoring exhibition.
+
 ## 1.1 The one-line pitch
 
 > **A permanent, sourced, ranked archive of the things politicians actually said — presented with the total institutional seriousness of an international awards committee.**

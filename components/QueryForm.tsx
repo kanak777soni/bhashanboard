@@ -124,7 +124,7 @@ export default function QueryForm({
           { value: "gp", label: "Rating (GP)" },
           { value: "new", label: "Newest" },
           { value: "climb", label: "Biggest climber" },
-          { value: "duels", label: "Most duels" },
+          { value: "rulings", label: "Most public rulings" },
         ])}
         <button
           type="button"

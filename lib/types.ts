@@ -39,6 +39,54 @@ export interface Axes {
   consequence: number;
 }
 
+export type VerificationStage = "text_sourced" | "av_verified" | "committee_passed";
+
+export interface StatementVideo {
+  platform: "youtube";
+  id: string;
+  /** Inclusive excerpt start, in whole seconds. */
+  start: number;
+  /** Exclusive excerpt end, in whole seconds. */
+  end: number;
+}
+
+export interface VoteDistribution {
+  0: number;
+  25: number;
+  50: number;
+  75: number;
+  100: number;
+}
+
+export type StatementRatingSource = "community" | "seed";
+
+/** Rating details exposed with every public statement. */
+export interface StatementRating {
+  source: StatementRatingSource;
+  performance: number;
+  validVoteCount: number;
+  validVoteSum: number;
+  distribution: VoteDistribution;
+  priorPerformance: number;
+  priorStrength: number;
+  modelVersion: number | null;
+  updatedAt: string | null;
+}
+
+/** Validated persisted aggregate passed into the pure corpus adapter. */
+export interface PersistedStatementRatingAggregate {
+  statementId: string;
+  priorPerformance: number;
+  priorStrength: number;
+  validVoteCount: number;
+  validVoteSum: number;
+  distribution: VoteDistribution;
+  performance: number;
+  gp: number;
+  modelVersion: number;
+  updatedAt: string;
+}
+
 export interface Statement {
   id: number;
   slug: string;
@@ -55,10 +103,16 @@ export interface Statement {
   venue: string;
   /** Days before "today" that this was said. */
   daysAgo: number;
+  /** Effective public GP: persisted community GP when votes exist, otherwise seed GP. */
   gp: number;
+  /** Frozen editorial bootstrap score, retained for transparent fallback. */
+  seedGp: number;
+  rating: StatementRating;
   /** Rank at the previous recompute, for the movement column. */
   previousRank: number;
   duels: number;
+  /** A bounded, externally hosted evidence excerpt. */
+  video?: StatementVideo;
   sources: Source[];
   axes: Axes;
   reply?: string;

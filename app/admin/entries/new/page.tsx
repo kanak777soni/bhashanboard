@@ -1,8 +1,10 @@
 import EntryForm from "@/components/admin/EntryForm";
+import { requireAdmin } from "@/lib/require-admin";
 import { getParties, getPoliticians } from "@/lib/store";
 import { createStatement } from "../../actions";
 
 export default async function NewEntry() {
+  await requireAdmin();
   const [people, parties] = await Promise.all([getPoliticians(), getParties()]);
   return (
     <section className="admin-section">

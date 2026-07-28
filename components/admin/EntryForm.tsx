@@ -1,4 +1,5 @@
 import { AXIS_LABELS, AXIS_WEIGHTS, type StoredPolitician, type StoredStatement } from "@/lib/store";
+import { MAX_VIDEO_EXCERPT_SECONDS, normalizeVerificationStage } from "@/lib/video";
 
 const CATEGORIES = ["Science & Reason", "History", "Economics", "Whataboutery", "Standing Ovation"];
 const LANGUAGES = ["Hindi", "English", "Bengali", "Tamil", "Telugu", "Marathi", "Kannada", "Malayalam", "Gujarati", "Punjabi", "Odia", "Assamese"];
@@ -23,6 +24,7 @@ export default function EntryForm({
 }) {
   const v = entry?.verification;
   const sources = v?.sources ?? [];
+  const verificationStage = normalizeVerificationStage(v?.stage);
 
   return (
     <form action={action} className="admin-form">
@@ -149,7 +151,8 @@ export default function EntryForm({
         <legend>The video</legend>
         <p className="rail-note">
           Paste a YouTube link or ID. The clip is <strong>embedded, never hosted</strong> — we store the id
-          and the in/out points, and the platform serves the bytes.
+          and the in/out points, and the platform serves the bytes. Both timestamps are required and the
+          excerpt may be at most {MAX_VIDEO_EXCERPT_SECONDS / 60} minutes.
         </p>
         <div className="admin-grid">
           <label className="field" style={{ gridColumn: "1 / -1" }}>
@@ -158,11 +161,11 @@ export default function EntryForm({
           </label>
           <label className="field">
             <span className="lbl">Start</span>
-            <input name="video_start" defaultValue={entry?.video?.start ?? ""} placeholder="00:41 or 41" />
+            <input name="video_start" inputMode="numeric" defaultValue={entry?.video?.start ?? ""} placeholder="00:41 or 41" />
           </label>
           <label className="field">
             <span className="lbl">End</span>
-            <input name="video_end" defaultValue={entry?.video?.end ?? ""} placeholder="01:03 or 63" />
+            <input name="video_end" inputMode="numeric" defaultValue={entry?.video?.end ?? ""} placeholder="01:03 or 63" />
           </label>
         </div>
       </fieldset>
@@ -198,10 +201,10 @@ export default function EntryForm({
         <div className="admin-grid">
           <label className="field">
             <span className="lbl">Verification stage</span>
-            <select name="stage" defaultValue={v?.stage ?? "text_sourced"}>
+            <select name="stage" defaultValue={verificationStage}>
               <option value="text_sourced">text_sourced — reported, not yet verified</option>
-              <option value="clip_attached">clip_attached — video and timestamps in hand</option>
-              <option value="verified">verified — transcript, context and sign-off complete</option>
+              <option value="av_verified">av_verified — video and timestamps in hand</option>
+              <option value="committee_passed">committee_passed — transcript, context and sign-off complete</option>
             </select>
           </label>
           <label className="field">

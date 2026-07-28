@@ -1,5 +1,7 @@
 # 04 — Legal, Compliance & Safety (India)
 
+> **Current scoring note (July 2026).** References in this design document to pairwise duels, Elo, weighted memberships, or internal placement votes are historical. The implemented authority is `/rules`: one equal-strength, immutable ruling per verified account and statement, after qualifying playback, with a published Bayesian seed prior. Aamne-Saamne is a non-scoring exhibition.
+
 > **Not legal advice.** This is research-grounded product guidance to make your conversation with an Indian media/tech lawyer short and cheap. Retain one before public launch — budget for it in Phase 1, not Phase 3.
 
 ## 4.1 Your direct question: can we use real names and real images?

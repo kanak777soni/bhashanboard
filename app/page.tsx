@@ -14,6 +14,10 @@ export default async function StandingsPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const data = await getData();
+  const publicationReady = data.CORPUS.filter(
+    (statement) => statement.publicationEligible
+  ).length;
+  const awaitingVerification = data.STATS.indexed - publicationReady;
   const query = parseQuery(await searchParams);
   const rows = runQuery(query, {
     statements: data.rankedStatements(),
@@ -36,25 +40,25 @@ export default async function StandingsPage({
         <div>
           <div className="sec-head">
             <h1>The Standings</h1>
-            <span className="lbl">Ratified by the Committee</span>
+            <span className="lbl">Seed ladder · public rulings after verification</span>
           </div>
           <StandingsTable rows={rows} term={query.q} />
           <p style={{ marginTop: 18 }} className="lbl">
-            Ratings are recomputed nightly from the duel record.
+            GP uses verified public rulings where available; otherwise the published editorial seed rubric remains visible.
           </p>
         </div>
 
         <aside className="rail">
-          {/* The duel is the retention engine. It was a small button below
-              a sixteen-row table; it belongs at the top of the rail. */}
+          {/* Aamne-Saamne stays as a playful discovery surface. Official
+              ratings are entered on each statement after watching evidence. */}
           <section className="rail-block summons">
             <h2>The Committee is sitting</h2>
             <p className="rail-note">
-              Two entries are placed before you. You decide which is more magnificent. Ratings move
-              accordingly.
+              Two entries are placed before you. Pick the more magnificent one for sport; this exhibition
+              does not alter either statement&rsquo;s rating.
             </p>
             <Link className="btn seal summons-btn" href="/duel">
-              Take your seat
+              Enter the exhibition
             </Link>
             <p className="lbl summons-foot">
               Aamne-Saamne &middot; <span className="num">{data.STATEMENTS.length}</span> entries in the pool
@@ -88,7 +92,8 @@ export default async function StandingsPage({
               </div>
             </dl>
             <p className="rail-note" style={{ marginTop: 10 }}>
-              Every entry is text-sourced and none is verified for publication.{" "}
+              {publicationReady.toLocaleString("en-IN")} publication-ready;{" "}
+              {awaitingVerification.toLocaleString("en-IN")} awaiting final verification.{" "}
               <Link href="/ledger">The ledger explains what is missing.</Link>
             </p>
           </section>

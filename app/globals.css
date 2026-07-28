@@ -663,6 +663,34 @@ footer.site p { margin: 0 0 8px; font-size: 13.5px; color: var(--ink-70); max-wi
 .field.checkbox input { width: auto; }
 .admin-submit { position: sticky; bottom: 0; background: var(--ground); border-top: 1px solid var(--rule-hard); padding: 14px 0; }
 
+.danger-zone {
+  border: 1px solid var(--seal);
+  border-left-width: 3px;
+  margin-top: 38px;
+  padding: 18px;
+}
+.danger-zone > .lbl { color: var(--seal); }
+.danger-zone h2 {
+  font-family: var(--font-display);
+  font-size: 23px;
+  font-weight: 400;
+  margin: 5px 0 8px;
+}
+.danger-zone p { max-width: 66ch; }
+.danger-zone .admin-form { margin-top: 18px; }
+.danger-zone .admin-form .field { max-width: 320px; margin-bottom: 14px; }
+.danger-zone .rail-note { margin: 14px 0 0; }
+
+.legal-date {
+  color: var(--ink-45);
+  font-family: var(--font-util);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: .14em;
+  margin: 0 0 22px;
+  text-transform: uppercase;
+}
+
 /* ── sources on the certificate ──────────────────────────────────
    These carry live URLs. An archive that asks you to trust it and then
    makes its citations unclickable has the relationship backwards. */
@@ -703,3 +731,62 @@ footer.site p { margin: 0 0 8px; font-size: 13.5px; color: var(--ink-70); max-wi
 .guard-pip { font-family: var(--font-util); font-size: 9px; font-weight: 700; letter-spacing: .1em; border: 1px solid currentColor; text-align: center; padding: 1px 0; }
 .guard li.block .guard-pip { color: var(--seal); }
 .guard li.warn .guard-pip { color: var(--foil); }
+
+/* ── verified watch + one-time public ruling ──────────────────── */
+.ruling-panel {
+  border: 1px solid var(--rule-hard);
+  background: var(--ground);
+  margin: 24px 0;
+  padding: clamp(16px, 3vw, 26px);
+}
+.ruling-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; }
+.ruling-head h2 { font-family: var(--font-display); font-size: clamp(23px, 3vw, 31px); font-weight: 400; line-height: 1.1; margin: 5px 0 0; }
+.ruling-score { display: flex; align-items: baseline; color: var(--seal); white-space: nowrap; }
+.ruling-score .num { font-size: clamp(30px, 5vw, 46px); line-height: 1; }
+.ruling-score small { font-family: var(--font-data); font-size: 11px; color: var(--ink-45); margin-left: 4px; }
+.performance-track { position: relative; height: 13px; margin-top: 18px; border: 1px solid var(--rule-hard); background: var(--ground-2); }
+.performance-track i { display: block; height: 100%; background: linear-gradient(90deg, var(--shade-cool), var(--foil), var(--seal)); }
+.performance-track b { position: absolute; top: -5px; width: 2px; height: 21px; background: var(--ink); transform: translateX(-1px); }
+.performance-legend { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; margin: 5px 0 18px; }
+.performance-legend span:nth-child(2) { text-align: center; }
+.performance-legend span:last-child { text-align: right; }
+.ruling-player { max-width: 760px; }
+.ruling-player .youtube-mount, .ruling-player iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.player-locked { cursor: default; min-height: 210px; color: rgba(220, 227, 212, .48); }
+.player-locked .lbl { color: rgba(220, 227, 212, .58); }
+.ballot-box { max-width: 760px; margin: 0 auto; border: 1px solid var(--rule-hard); border-top: 0; padding: 14px 16px 16px; }
+.ruling-status { margin: 0; font-size: 14.5px; color: var(--ink-70); }
+.ruling-status a { text-underline-offset: 3px; }
+.ruling-alert { border-left: 3px solid var(--seal); background: var(--ground-2); color: var(--seal); font-size: 13px; margin: 12px auto 0; max-width: 760px; padding: 8px 10px; }
+.watch-progress-copy { display: flex; justify-content: space-between; align-items: baseline; gap: 14px; }
+.watch-progress-track { height: 8px; border: 1px solid var(--rule-hard); margin-top: 6px; }
+.watch-progress-track i { display: block; height: 100%; background: var(--rise); transition: width 240ms ease; }
+.watch-progress p { color: var(--ink-45); font-size: 12.5px; margin: 7px 0 0; }
+.ballot-options { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; margin: 14px 0; }
+.ballot-options button { appearance: none; background: transparent; color: var(--ink); border: 1px solid var(--rule-hard); cursor: pointer; min-width: 0; padding: 9px 5px; text-align: center; }
+.ballot-options button:hover { border-color: var(--seal); }
+.ballot-options button.selected { background: var(--seal); border-color: var(--seal); color: var(--on-seal); }
+.ballot-options b, .ballot-options span, .ballot-options small { display: block; }
+.ballot-options b { font-family: var(--font-util); font-size: 9.5px; letter-spacing: .1em; text-transform: uppercase; }
+.ballot-options span { font-family: var(--font-data); font-size: 19px; margin: 2px 0; }
+.ballot-options small { font-size: 10.5px; line-height: 1.25; opacity: .66; }
+.ballot-submit { width: 100%; text-align: center; }
+.btn:disabled { cursor: not-allowed; opacity: .42; }
+.ruling-final { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+.ruling-final .stamp { flex: none; margin: 3px 0; }
+.ruling-final p { flex: 1 1 300px; margin: 0; font-size: 14.5px; }
+.vote-distribution { display: flex; height: 7px; max-width: 760px; margin: 14px auto 0; border: 1px solid var(--rule-hard); }
+.vote-distribution i:nth-child(1) { background: var(--shade-cool); }
+.vote-distribution i:nth-child(2) { background: var(--bronze); }
+.vote-distribution i:nth-child(3) { background: var(--foil); }
+.vote-distribution i:nth-child(4) { background: var(--facet); }
+.vote-distribution i:nth-child(5) { background: var(--seal); }
+.admin-ban-control { display: grid; gap: 5px; min-width: 150px; }
+.admin-ban-control input { width: 100%; background: transparent; color: var(--ink); border: 0; border-bottom: 1px solid var(--rule-hard); font: 13px var(--font-body); }
+@media (max-width: 640px) {
+  .ruling-head { align-items: center; }
+  .performance-legend { grid-template-columns: 1fr 1fr; }
+  .performance-legend span:nth-child(2) { grid-column: 1 / -1; grid-row: 2; text-align: left; }
+  .ballot-options { grid-template-columns: repeat(2, 1fr); }
+  .ballot-options button:last-child { grid-column: 1 / -1; }
+}

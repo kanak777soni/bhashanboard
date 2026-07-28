@@ -1,5 +1,9 @@
 # 09 — The Seed Corpus (India)
 
+> **Current scoring note (July 2026).** References in this design document to pairwise duels, Elo, weighted memberships, or internal placement votes are historical. The implemented authority is `/rules`: one equal-strength, immutable ruling per verified account and statement, after qualifying playback, with a published Bayesian seed prior. Aamne-Saamne is a non-scoring exhibition.
+
+> **Historical corpus snapshot.** Counts and parity-holdback decisions below describe the original research pass, not the live database. As of 28 July 2026 the database contains 44 placed entries, 34 representatives, 22 parties, 16 refusals, and 14 established verbatim quotes; all 44 entries remain text-sourced. The database verification report and the public record are authoritative.
+
 > The brief was: research the internet, find every foolish statement by an Indian politician, build a proper database, and rank the speeches. This document is the honest version of what that produced — what is in the corpus, how each entry got there, how the ranking was derived before a single duel has been fought, and the four places where the research does not yet reach.
 
 **Files.** `data/statements.json` · `data/politicians.json` · `data/parties.json` · `data/rejected.json` · `data/schema/statement.schema.json` · `tools/seed-rank.mjs` · `data/generated/leaderboard.json`

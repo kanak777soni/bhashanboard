@@ -1,15 +1,22 @@
 import type { Metadata } from "next";
 import Glyphs from "@/components/Glyphs";
+import { resolvedPublicSiteUrl } from "@/lib/auth-config";
 import "./globals.css";
 
+const SITE_URL = resolvedPublicSiteUrl();
+const PRELAUNCH = process.env.SITE_PRELAUNCH !== "false";
+
 export const metadata: Metadata = {
-  metadataBase: new URL("https://bhashanboard.example"),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "The Bhashan Board",
     template: "%s — The Bhashan Board",
   },
   description:
-    "An archive of public wisdom. Independently ranked. Verbatim, sourced statements by elected representatives, ranked by pairwise duel.",
+    "An archive of public wisdom. Sourced statements by elected representatives, ranked by verified one-time public rulings.",
+  robots: PRELAUNCH
+    ? { index: false, follow: false }
+    : { index: true, follow: true },
   openGraph: {
     siteName: "The Bhashan Board",
     type: "website",
@@ -32,9 +39,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         <Glyphs />
-        <div className="specimen">
-          Pre-launch &middot; entries are text-sourced and not yet verified for publication &middot; nothing here is live
-        </div>
+        {PRELAUNCH && (
+          <div className="specimen">
+            Pre-launch &middot; research records remain provisional until committee-passed
+          </div>
+        )}
         {children}
       </body>
     </html>
