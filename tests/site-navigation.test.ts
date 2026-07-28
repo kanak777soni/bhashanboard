@@ -39,6 +39,19 @@ test("admin navigation includes account and administration links", () => {
   );
 });
 
+test("admin navigation normalizes role casing like the server guard", () => {
+  assert.deepEqual(
+    resolveAccountNavigation({
+      authenticated: true,
+      role: "user, Admin",
+    }),
+    [
+      { href: "/account", label: "Account" },
+      { href: "/admin", label: "Admin" },
+    ]
+  );
+});
+
 test("an unauthenticated role value never reveals privileged navigation", () => {
   assert.deepEqual(
     resolveAccountNavigation({

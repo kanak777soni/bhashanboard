@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Glyphs from "@/components/Glyphs";
 import { resolvedPublicSiteUrl } from "@/lib/auth-config";
 import "./globals.css";
+import "./mobile.css";
 
 const SITE_URL = resolvedPublicSiteUrl();
 const PRELAUNCH = process.env.SITE_PRELAUNCH !== "false";
@@ -41,7 +42,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Glyphs />
         {PRELAUNCH && (
           <div className="specimen">
-            Pre-launch &middot; research records remain provisional until committee-passed
+            <span className="specimen-wide">
+              Pre-launch &middot; research records remain provisional until committee-passed
+            </span>
+            <span className="specimen-mobile">
+              Pre-launch &middot; records not yet verified
+            </span>
           </div>
         )}
         {children}

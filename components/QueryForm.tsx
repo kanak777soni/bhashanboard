@@ -71,9 +71,10 @@ export default function QueryForm({
   const select = (
     id: keyof Query,
     label: string,
-    options: { value: string; label: string; disabled?: boolean }[]
+    options: { value: string; label: string; disabled?: boolean }[],
+    className = ""
   ) => (
-    <label className="field" key={id}>
+    <label className={`field field-${id} ${className}`.trim()} key={`${id}-${className}`}>
       <span className="lbl">{label}</span>
       <select
         value={query[id]}
@@ -87,6 +88,13 @@ export default function QueryForm({
       </select>
     </label>
   );
+
+  const sortOptions = [
+    { value: "gp", label: "Rating (GP)" },
+    { value: "new", label: "Newest" },
+    { value: "climb", label: "Biggest climber" },
+    { value: "rulings", label: "Most public rulings" },
+  ];
 
   return (
     <section className="query" aria-label="Query the record">
@@ -102,7 +110,9 @@ export default function QueryForm({
           must not sit below 260px of controls. */}
       <div className="query-primary">
         <label className="field field-search">
-          <span className="lbl">Search the record &mdash; press /</span>
+          <span className="lbl">
+            Search the record <span className="query-shortcut">&mdash; press /</span>
+          </span>
           <input
             id="q"
             type="search"
@@ -120,12 +130,7 @@ export default function QueryForm({
           { value: "all", label: "All tiers" },
           ...TIERS.map((t) => ({ value: t.key, label: t.name })),
         ])}
-        {select("sort", "Sort by", [
-          { value: "gp", label: "Rating (GP)" },
-          { value: "new", label: "Newest" },
-          { value: "climb", label: "Biggest climber" },
-          { value: "rulings", label: "Most public rulings" },
-        ])}
+        {select("sort", "Sort by", sortOptions, "field-sort-desktop")}
         <button
           type="button"
           className="disclose"
@@ -133,12 +138,18 @@ export default function QueryForm({
           aria-expanded={open}
           aria-controls="more-filters"
         >
-          {open ? "Fewer filters" : "More filters"}
+          <span className="disclose-desktop">
+            {open ? "Fewer filters" : "More filters"}
+          </span>
+          <span className="disclose-mobile">
+            {open ? "Fewer filters" : "Filters"}
+          </span>
         </button>
       </div>
 
       {open && (
         <div className="filters" id="more-filters">
+          {select("sort", "Sort by", sortOptions, "field-sort-mobile")}
           {select("country", "Country", [
             { value: "India", label: "India" },
             { value: "United States", label: "United States (soon)", disabled: true },
@@ -165,7 +176,7 @@ export default function QueryForm({
         </div>
       )}
 
-      <div className="tokens">
+      <div className={`tokens ${tokens.length === 0 ? "tokens-empty" : ""}`}>
         {tokens.length === 0 ? (
           <span className="lbl">No filters applied &middot; showing the full record</span>
         ) : (

@@ -16,21 +16,44 @@ export default async function Ticker() {
     { href: "/ledger", text: "No entry is verified for publication. Every one awaits a Tier A or B clip, a timestamp and a transcript." },
   ];
 
-  // Duplicated so the -50% translate loops seamlessly.
-  const loop = [...items, ...items];
+  const tickerGroup = (duplicate = false) => (
+    <div className="ticker-group" aria-hidden={duplicate || undefined}>
+      {items.map((item, index) => (
+        <Link
+          key={`${item.href}-${index}`}
+          href={item.href}
+          tabIndex={duplicate ? -1 : undefined}
+        >
+          {item.text}
+        </Link>
+      ))}
+    </div>
+  );
 
   return (
-    <div className="ticker">
-      <span className="ticker-tag">State of the record</span>
-      <div className="ticker-viewport">
-        <div className="ticker-track">
-          {loop.map((it, i) => (
-            <Link key={i} href={it.href} aria-hidden={i >= items.length}>
-              {it.text}
-            </Link>
-          ))}
+    <>
+      <Link
+        className="ticker-mobile"
+        href="/ledger"
+        aria-label={`Record status: ${STATS.indexed} entries indexed; ${STATS.onLadder} on the ladder; ${STATS.heldParity} held for parity`}
+      >
+        <span className="ticker-mobile-label">Record status</span>
+        <span className="ticker-mobile-counts" aria-hidden="true">
+          <span className="num">{STATS.indexed}</span> indexed &middot;{" "}
+          <span className="num">{STATS.onLadder}</span> on ladder &middot;{" "}
+          <span className="num">{STATS.heldParity}</span> held
+        </span>
+      </Link>
+
+      <div className="ticker ticker-desktop">
+        <span className="ticker-tag">State of the record</span>
+        <div className="ticker-viewport">
+          <div className="ticker-track">
+            {tickerGroup()}
+            {tickerGroup(true)}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

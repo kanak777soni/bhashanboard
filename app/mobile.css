@@ -1,0 +1,514 @@
+/*
+ * Responsive presentation layer.
+ *
+ * This file is imported after globals.css so the mobile rules stay isolated
+ * from the archive's base design and from feature-specific styles.
+ */
+
+.specimen-mobile,
+.nav-mobile,
+.ticker-mobile,
+.field-sort-mobile,
+.disclose-mobile {
+  display: none;
+}
+
+/* Two equal groups make the existing -50% ticker animation loop exactly. */
+.ticker-track {
+  gap: 0;
+}
+
+.ticker-group {
+  display: flex;
+  flex: none;
+  gap: 44px;
+  padding-right: 44px;
+}
+
+.field input:focus-visible,
+.field select:focus-visible,
+.field textarea:focus-visible {
+  outline: 2px solid var(--seal);
+  outline-offset: 2px;
+}
+
+.nav-auth-pending {
+  width: 136px;
+  min-height: 39px;
+  display: block;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--foil-soft),
+    transparent
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ticker-viewport {
+    overflow-x: auto;
+  }
+
+  .ticker-track {
+    animation: none;
+  }
+
+  .ticker-group[aria-hidden="true"] {
+    display: none;
+  }
+}
+
+@media (max-width: 760px) {
+  :root {
+    --page-gutter: clamp(14px, 4vw, 18px);
+  }
+
+  :root[data-theme="dark"] {
+    --ink-45: rgba(220, 227, 212, .64);
+  }
+
+  .specimen {
+    min-height: 32px;
+    padding: 6px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9.5px;
+    line-height: 1.35;
+    letter-spacing: .13em;
+  }
+
+  .specimen-wide {
+    display: none;
+  }
+
+  .specimen-mobile {
+    display: inline;
+  }
+
+  .lbl {
+    color: var(--ink-70);
+    font-size: 11px;
+    letter-spacing: .11em;
+  }
+
+  /* Masthead: one deliberate column, followed by a compact metadata grid. */
+  .masthead {
+    padding: 18px 0 12px;
+  }
+
+  .mast-inner {
+    display: grid;
+    align-items: start;
+    gap: 12px;
+  }
+
+  .mast-inner > * {
+    min-width: 0;
+  }
+
+  .nameplate {
+    font-size: clamp(30px, 8.7vw, 34px);
+    line-height: 1;
+    white-space: nowrap;
+    text-wrap: nowrap;
+  }
+
+  .tagline {
+    max-width: 34ch;
+    margin-top: 7px;
+    font-size: 14.5px;
+    line-height: 1.42;
+  }
+
+  .motto {
+    margin-top: 4px;
+    font-size: 13px;
+    line-height: 1.35;
+  }
+
+  .colophon {
+    width: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 4px 12px;
+    text-align: left;
+    line-height: 1.4;
+  }
+
+  .colophon > .lbl {
+    min-width: 0;
+    white-space: nowrap;
+  }
+
+  .colophon > .lbl:nth-of-type(2) {
+    text-align: right;
+  }
+
+  .colophon .theme-toggle {
+    min-height: 44px;
+    justify-self: end;
+    padding: 0 10px;
+  }
+
+  /* Party distribution stays complete but no longer consumes four rows. */
+  .parity {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 8px 12px;
+    padding: 10px 0 8px;
+  }
+
+  .parity > .lbl {
+    align-self: center;
+  }
+
+  .parity-bar {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .parity-legend {
+    width: 100%;
+    max-width: 100%;
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 16px;
+    padding: 2px 0 5px;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scrollbar-width: none;
+    touch-action: pan-x;
+  }
+
+  .parity-legend::-webkit-scrollbar {
+    display: none;
+  }
+
+  .parity-legend > span {
+    flex: none;
+    white-space: nowrap;
+  }
+
+  /* Only one navigation tree is exposed at each breakpoint. */
+  .nav-desktop {
+    display: none;
+  }
+
+  .nav-mobile {
+    min-height: 46px;
+    position: relative;
+    display: flex;
+    align-items: stretch;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .nav-mobile-sections {
+    position: static;
+    flex: none;
+  }
+
+  .nav-mobile-summary {
+    min-height: 46px;
+    padding: 0 12px 0 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    color: var(--ink);
+    font-family: var(--font-util);
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: .12em;
+    list-style: none;
+    text-transform: uppercase;
+  }
+
+  .nav-mobile-summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .nav-mobile-summary::after {
+    content: "+";
+    color: var(--seal);
+    font-family: var(--font-data);
+    font-size: 16px;
+    font-weight: 400;
+  }
+
+  .nav-mobile-sections[open] .nav-mobile-summary::after {
+    content: "\2212";
+  }
+
+  .nav-mobile-menu {
+    position: absolute;
+    z-index: 30;
+    top: calc(100% + 1px);
+    right: 0;
+    left: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 8px;
+    background: var(--ground-3);
+    border: 1px solid var(--rule-hard);
+    box-shadow: 0 12px 30px rgba(20, 29, 24, .18);
+  }
+
+  .nav-mobile-menu a,
+  .nav-mobile-auth a {
+    min-height: 46px;
+    display: flex;
+    align-items: center;
+    color: var(--ink-70);
+    font-family: var(--font-util);
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-decoration: none;
+    text-transform: uppercase;
+  }
+
+  .nav-mobile-menu a {
+    padding: 8px 10px;
+    border-left: 2px solid transparent;
+  }
+
+  .nav-mobile-menu a:hover,
+  .nav-mobile-menu a[aria-current="page"] {
+    color: var(--ink);
+    background: var(--foil-soft);
+    border-left-color: var(--seal);
+  }
+
+  .nav-mobile-auth {
+    min-width: 0;
+    margin-left: auto;
+    display: flex;
+    align-items: stretch;
+  }
+
+  .nav-mobile-auth .nav-auth-pending {
+    width: 112px;
+    min-height: 46px;
+  }
+
+  .nav-mobile-auth a {
+    padding: 0 11px;
+    justify-content: center;
+    border-left: 1px solid var(--rule);
+    white-space: nowrap;
+  }
+
+  .nav-mobile-auth .nav-register {
+    color: var(--on-seal);
+    background: var(--seal);
+  }
+
+  /* The phone receives one complete status sentence, not a clipped marquee. */
+  .ticker-desktop {
+    display: none;
+  }
+
+  .ticker-mobile {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    color: var(--ink);
+    border-bottom: 1px solid var(--rule);
+    text-decoration: none;
+  }
+
+  .ticker-mobile-label {
+    flex: none;
+    color: var(--seal);
+    font-family: var(--font-util);
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+  }
+
+  .ticker-mobile-counts {
+    min-width: 0;
+    overflow: hidden;
+    color: var(--ink-70);
+    font-size: 11.5px;
+    text-align: right;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 760px) and (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ink-45: rgba(220, 227, 212, .64);
+  }
+}
+
+@media (max-width: 640px) {
+  .field > .lbl {
+    font-size: 11px;
+  }
+
+  .query {
+    padding: 13px 0 12px;
+  }
+
+  .query-head {
+    margin-bottom: 10px;
+    flex-wrap: nowrap;
+  }
+
+  .query-head > .lbl {
+    flex: none;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .query-primary {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+    gap: 10px;
+  }
+
+  .query-primary .field-search {
+    grid-column: 1 / -1;
+  }
+
+  .query-shortcut,
+  .query-primary .field-sort-desktop,
+  .disclose-desktop {
+    display: none;
+  }
+
+  .field input,
+  .field select {
+    min-height: 44px;
+    padding-top: 7px;
+    padding-bottom: 7px;
+    font-size: 16px;
+  }
+
+  .query-primary .disclose {
+    min-height: 44px;
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
+    align-self: end;
+    justify-content: center;
+    background: var(--ground-3);
+    border: 1px solid var(--rule-hard);
+  }
+
+  .disclose-mobile {
+    display: inline;
+  }
+
+  .filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .filters .field-sort-mobile {
+    display: flex;
+  }
+
+  .tokens {
+    min-height: 0;
+    margin-top: 10px;
+  }
+
+  .tokens-empty {
+    display: none;
+  }
+
+  .columns {
+    padding-top: 16px;
+  }
+
+  .sec-head {
+    gap: 5px 10px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .sec-head > .lbl {
+    line-height: 1.4;
+  }
+
+  .tablewrap {
+    overscroll-behavior-inline: contain;
+  }
+
+  table.standings {
+    table-layout: fixed;
+  }
+
+  table.standings th,
+  table.standings td {
+    padding: 10px 5px;
+    vertical-align: top;
+  }
+
+  table.standings .c-rank {
+    width: 31px;
+  }
+
+  table.standings .c-medal {
+    width: 29px;
+  }
+
+  table.standings .c-gp {
+    width: 61px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  .entry-quote {
+    display: -webkit-box;
+    overflow: hidden;
+    font-size: 15.5px;
+    line-height: 1.35;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+
+  .entry-sub {
+    font-size: 10.5px;
+    line-height: 1.45;
+  }
+}
+
+@media (max-width: 420px) {
+  .nameplate {
+    font-size: clamp(28px, 9.4vw, 33px);
+  }
+
+  .tagline {
+    font-size: 14px;
+  }
+
+  .motto {
+    font-size: 12.5px;
+  }
+
+  .nav-mobile-summary {
+    padding-right: 9px;
+  }
+
+  .nav-mobile-auth a {
+    padding-right: 9px;
+    padding-left: 9px;
+  }
+
+  .ticker-mobile {
+    gap: 9px;
+  }
+
+  .ticker-mobile-counts {
+    font-size: 10.5px;
+  }
+}

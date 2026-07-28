@@ -38,7 +38,7 @@ export function resolveAccountNavigation({
   ];
   const roles = (role ?? "")
     .split(",")
-    .map((value) => value.trim())
+    .map((value) => value.trim().toLowerCase())
     .filter(Boolean);
 
   if (roles.includes("admin")) {
