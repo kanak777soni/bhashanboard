@@ -20,6 +20,19 @@ test("the entry editor separates draft saves from explicit publication", async (
   assert.match(actionSource, /statementWorkflowAction\(fd\)/);
   assert.match(
     actionSource,
+    /if \(!value\) return "save_draft"/
+  );
+  assert.match(actionSource, /getAll\("workflow_action"\)/);
+  assert.match(
+    actionSource,
+    /submittedValues\.find\(\(item\) => item !== "save_draft"\)/
+  );
+  assert.match(
+    formSource,
+    /name="workflow_action"\s+value="save_draft"\s*\/>\s*<\/form>/
+  );
+  assert.match(
+    actionSource,
     /before\.status === "published"[\s\S]*?\? "held_review"[\s\S]*?: before\.status/
   );
   assert.match(formSource, /list="statement-language-options"/);

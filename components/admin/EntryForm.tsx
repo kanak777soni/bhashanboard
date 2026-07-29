@@ -448,6 +448,11 @@ export default function EntryForm({
           </button>
         </div>
       )}
+
+      {/* The submitter button appears before this fallback in form-data order.
+          A click therefore keeps its explicit action, while an Enter-key
+          submission with no submitter safely becomes Save draft. */}
+      <input type="hidden" name="workflow_action" value="save_draft" />
     </form>
   );
 }

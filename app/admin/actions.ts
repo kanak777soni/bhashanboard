@@ -71,7 +71,21 @@ function statementStatus(fd: FormData, fallback?: StatementStatus): StatementSta
 }
 
 function statementWorkflowAction(fd: FormData): StatementWorkflowAction {
-  const value = str(fd, "workflow_action");
+  const submittedValues = fd
+    .getAll("workflow_action")
+    .map((value) => String(value).trim())
+    .filter(Boolean);
+  // The form also carries a final save-draft fallback. Prefer an explicit
+  // publish/restore submitter regardless of where the browser or React places
+  // that submitter in FormData.
+  const value =
+    submittedValues.find((item) => item !== "save_draft") ??
+    submittedValues[0] ??
+    "";
+  // Pressing Enter in a form field can submit without a submitter button, so
+  // no button name/value reaches FormData. Fail closed to a draft save: an
+  // implicit submission must never publish or restore an entry.
+  if (!value) return "save_draft";
   if (
     !STATEMENT_WORKFLOW_ACTIONS.includes(value as StatementWorkflowAction)
   ) {
