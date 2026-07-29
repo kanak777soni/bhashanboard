@@ -3,9 +3,25 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 test("the entry editor separates draft saves from explicit publication", async () => {
-  const [formSource, actionSource, listSource, overviewSource, storeSource] = await Promise.all([
+  const [
+    formSource,
+    guardSource,
+    actionSource,
+    detailSource,
+    listSource,
+    overviewSource,
+    storeSource,
+  ] = await Promise.all([
     readFile(new URL("../components/admin/EntryForm.tsx", import.meta.url), "utf8"),
+    readFile(
+      new URL("../components/admin/PublishGuard.tsx", import.meta.url),
+      "utf8"
+    ),
     readFile(new URL("../app/admin/actions.ts", import.meta.url), "utf8"),
+    readFile(
+      new URL("../app/admin/entries/[id]/page.tsx", import.meta.url),
+      "utf8"
+    ),
     readFile(new URL("../app/admin/entries/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/admin/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../lib/store.ts", import.meta.url), "utf8"),
@@ -13,8 +29,12 @@ test("the entry editor separates draft saves from explicit publication", async (
 
   assert.doesNotMatch(formSource, /<select name="status"/);
   assert.match(formSource, /name="workflow_action"\s+value="save_draft"/);
-  assert.match(formSource, /name="workflow_action"\s+value="publish"/);
-  assert.match(formSource, /data-publish-submit/);
+  assert.match(formSource, /publicationAction[\s\S]*?: "publish"/);
+  assert.match(guardSource, /name="workflow_action"/);
+  assert.match(guardSource, /value=\{workflowAction\}/);
+  assert.match(guardSource, /data-publish-submit/);
+  assert.match(guardSource, /disabled=\{!ready\}/);
+  assert.doesNotMatch(guardSource, /publishButton\.disabled|querySelector/);
   assert.match(formSource, /name="date"/);
   assert.match(formSource, /name="venue"/);
   assert.match(actionSource, /statementWorkflowAction\(fd\)/);
@@ -35,6 +55,13 @@ test("the entry editor separates draft saves from explicit publication", async (
     actionSource,
     /before\.status === "published"[\s\S]*?\? "held_review"[\s\S]*?: before\.status/
   );
+  assert.match(actionSource, /result=restored/);
+  assert.match(
+    actionSource,
+    /workflowAction === "publish" \? "live" : "saved"/
+  );
+  assert.match(detailSource, /label: "Now live"/);
+  assert.match(detailSource, /role="status"/);
   assert.match(formSource, /list="statement-language-options"/);
   assert.doesNotMatch(formSource, /<select name="language"/);
   assert.match(

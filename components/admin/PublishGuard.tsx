@@ -121,7 +121,13 @@ function readChecklist(form: HTMLFormElement): ChecklistItem[] {
  * authoritative, while this client-side view makes the remaining essentials
  * obvious and keeps the explicit Go live action deliberate.
  */
-export default function PublishGuard() {
+export default function PublishGuard({
+  workflowAction,
+  submitLabel,
+}: {
+  workflowAction?: "publish" | "restore_live";
+  submitLabel?: string;
+}) {
   const guardRef = useRef<HTMLDivElement | null>(null);
   const [items, setItems] = useState<ChecklistItem[]>([]);
 
@@ -130,18 +136,6 @@ export default function PublishGuard() {
     if (!form) return;
     const nextItems = readChecklist(form);
     setItems(nextItems);
-
-    const publishButton = form.querySelector<HTMLButtonElement>(
-      "[data-publish-submit]"
-    );
-    if (publishButton) {
-      const ready = nextItems.every((item) => item.complete);
-      publishButton.disabled = !ready;
-      publishButton.setAttribute("aria-disabled", String(!ready));
-      publishButton.title = ready
-        ? "Put this clip live"
-        : "Add the remaining essentials first";
-    }
   }, []);
 
   useEffect(() => {
@@ -201,6 +195,30 @@ export default function PublishGuard() {
             </li>
           ))}
         </ul>
+      )}
+
+      {workflowAction && (
+        <div className="publication-checklist-action">
+          <button
+            className="btn seal"
+            type="submit"
+            name="workflow_action"
+            value={workflowAction}
+            data-publish-submit
+            disabled={!ready}
+            aria-disabled={!ready}
+            title={
+              ready
+                ? "Put this clip live"
+                : "Add the remaining essentials first"
+            }
+          >
+            {submitLabel ??
+              (workflowAction === "restore_live"
+                ? "Put unchanged clip back live"
+                : "Go live")}
+          </button>
+        </div>
       )}
     </div>
   );

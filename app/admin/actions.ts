@@ -477,7 +477,7 @@ export async function updateStatement(fd: FormData) {
       detail: `"${before.neutral_title}" — put the unchanged voted clip back live.`,
     });
     refresh();
-    return;
+    redirect(`/admin/entries/${id}?result=restored`);
   }
 
   const quoteFields = collectQuoteFields(fd);
@@ -525,6 +525,11 @@ export async function updateStatement(fd: FormData) {
     ? { actorId: actor.id, uploadIntentId: collected.cloudinaryUploadIntentId }
     : undefined);
   refresh();
+  redirect(
+    `/admin/entries/${id}?result=${
+      workflowAction === "publish" ? "live" : "saved"
+    }`
+  );
 }
 
 export async function setStatus(fd: FormData) {

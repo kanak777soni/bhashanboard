@@ -69,6 +69,19 @@ export default function EntryForm({
   const verificationStage = normalizeVerificationStage(verification?.stage);
   const initialVideo = normalizeStatementVideo(entry?.video);
   const entryIsLive = entry?.status === "published";
+  const canRestoreVotedClip =
+    hasVotes && !entryIsLive && Boolean(entry?.status.startsWith("held"));
+  const publicationAction: "publish" | "restore_live" | undefined = hasVotes
+    ? canRestoreVotedClip
+      ? "restore_live"
+      : undefined
+    : "publish";
+  const publicationLabel =
+    publicationAction === "restore_live"
+      ? "Put unchanged clip back live"
+      : entryIsLive
+        ? "Update live clip"
+        : "Go live";
 
   return (
     <form action={action} className="admin-form">
@@ -396,7 +409,10 @@ export default function EntryForm({
           Saving keeps this as a draft. <strong>Go live</strong> is the explicit
           publishing decision and puts the clip on Watch without a code push.
         </p>
-        <PublishGuard />
+        <PublishGuard
+          workflowAction={publicationAction}
+          submitLabel={publicationLabel}
+        />
       </fieldset>
 
       {hasVotes ? (
@@ -405,20 +421,8 @@ export default function EntryForm({
           <p>
             The clip, wording and score history now stay immutable. Use the
             status controls above to take this unchanged card offline or put it
-            back live.
+            back live through the preview check.
           </p>
-          {!entryIsLive && entry?.status.startsWith("held") && (
-            <button
-              className="btn seal"
-              type="submit"
-              name="workflow_action"
-              value="restore_live"
-              data-publish-submit
-              disabled
-            >
-              Put unchanged clip back live
-            </button>
-          )}
         </div>
       ) : (
         <div className="admin-submit">
@@ -436,16 +440,6 @@ export default function EntryForm({
               Drafts never appear on Watch and cannot receive votes.
             </span>
           </div>
-          <button
-            className="btn seal"
-            type="submit"
-            name="workflow_action"
-            value="publish"
-            data-publish-submit
-            disabled
-          >
-            {entryIsLive ? "Update live clip" : "Go live"}
-          </button>
         </div>
       )}
 

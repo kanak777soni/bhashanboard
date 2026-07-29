@@ -15,11 +15,13 @@ import { setStatus, updateStatement } from "../../actions";
 
 export default async function EditEntry({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ result?: string }>;
 }) {
   await requireAdmin();
-  const { id } = await params;
+  const [{ id }, query] = await Promise.all([params, searchParams]);
   const entry = await getStatement(id);
   if (!entry) notFound();
 
@@ -29,6 +31,23 @@ export default async function EditEntry({
     getStatementVoteCount(id),
   ]);
   const readiness = statementReadiness(entry);
+  const resultNotice =
+    query.result === "live"
+      ? {
+          label: "Now live",
+          message: "The clip is on Watch and can receive verified user votes.",
+        }
+      : query.result === "restored"
+        ? {
+            label: "Back live",
+            message: "The unchanged voted clip is live again.",
+          }
+        : query.result === "saved"
+          ? {
+              label: "Draft saved",
+              message: "Your changes are saved. The clip remains offline.",
+            }
+          : undefined;
 
   return (
     <>
@@ -89,6 +108,12 @@ export default async function EditEntry({
             </Link>
           )}
         </p>
+        {resultNotice && (
+          <div className="guard clear" role="status" style={{ marginTop: 14 }}>
+            <span className="lbl">{resultNotice.label}</span>
+            <p>{resultNotice.message}</p>
+          </div>
+        )}
       </section>
 
       <section className="admin-section">
