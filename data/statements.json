@@ -2136,6 +2136,12 @@
         "crowd_complicity": 3,
         "consequence": 5
       },
+      "video": {
+        "platform": "youtube",
+        "id": "ogB0ZZYPaYM",
+        "start": 9,
+        "end": 57
+      },
       "verification": {
         "stage": "text_sourced",
         "best_source_tier": "A",
@@ -2164,9 +2170,10 @@
           },
           {
             "tier": "C",
-            "publisher": "BOOM",
-            "title": "Rahul Gandhi's Fuzzy History Of Coca-Cola's Origin & Founder",
-            "url": "https://www.boomlive.in/rahul-gandhis-fuzzy-history-of-coca-colas-origin-founder"
+            "publisher": "The Unique India",
+            "title": "Coca-Cola Founder Was A Shikanji Seller — Rahul Gandhi speech clip",
+            "url": "https://www.youtube.com/watch?v=ogB0ZZYPaYM",
+            "role": "footage"
           }
         ]
       }
