@@ -14,7 +14,7 @@ import type {
 import { RATING_PRIOR_STRENGTH } from "./rating";
 import {
   isCommitteePublicationEligible,
-  normalizeStatementVideo,
+  normalizeStatementEvidenceVideo,
   normalizeVerificationStage,
 } from "./video";
 
@@ -286,7 +286,7 @@ export function buildCorpus({
         ? raw.quote_translation
         : undefined;
     const video: StatementVideo | undefined =
-      normalizeStatementVideo(raw.video) ?? normalizeStatementVideo(raw.verification.embed);
+      normalizeStatementEvidenceVideo(raw);
     const persistedSeed = Number(raw.rating_seed_gp);
     const seedGp =
       Number.isSafeInteger(persistedSeed) && persistedSeed >= 1000 && persistedSeed <= 2000

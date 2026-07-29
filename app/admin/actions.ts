@@ -16,7 +16,10 @@ import {
   type StoredStatement,
 } from "@/lib/store";
 import type { StatementVideo } from "@/lib/types";
-import { verifyExistingR2Video, verifyR2AttachmentToken } from "@/lib/r2";
+import {
+  verifyCloudinaryAttachmentToken,
+  verifyExistingCloudinaryVideo,
+} from "@/lib/cloudinary";
 import {
   assertVideoExcerpt,
   committeePublicationIssues,
@@ -70,18 +73,25 @@ async function collectVideo(
   fd: FormData,
   fallback: StoredStatement | undefined,
   actorId: string
-): Promise<{ video?: StatementVideo; r2UploadIntentId?: string }> {
+): Promise<{
+  video?: StatementVideo;
+  cloudinaryUploadIntentId?: string;
+}> {
   const platform = str(fd, "video_platform");
   const input = str(fd, "video");
   const startInput = str(fd, "video_start");
   const endInput = str(fd, "video_end");
   if (platform === "none") return {};
 
-  if (platform === "r2") {
-    if (!input) throw new Error("Upload and verify an MP4 before saving the R2 video.");
+  if (platform === "cloudinary") {
+    if (!input) {
+      throw new Error(
+        "Upload and verify a video before saving the Cloudinary asset."
+      );
+    }
     const attachmentToken = str(fd, "video_attachment_token");
     if (attachmentToken) {
-      const verified = await verifyR2AttachmentToken({
+      const verified = await verifyCloudinaryAttachmentToken({
         actorId,
         attachmentToken,
         playbackAttested: str(fd, "video_playback_attested") === "true",
@@ -89,14 +99,19 @@ async function collectVideo(
       if (verified.video.id !== input) {
         throw new Error("The uploaded video does not match this form. Upload it again.");
       }
-      return { video: verified.video, r2UploadIntentId: verified.intentId };
+      return {
+        video: verified.video,
+        cloudinaryUploadIntentId: verified.intentId,
+      };
     }
 
     const existing = normalizeStatementVideo(fallback?.video);
-    if (existing?.platform === "r2" && existing.id === input) {
-      return { video: await verifyExistingR2Video(existing) };
+    if (existing?.platform === "cloudinary" && existing.id === input) {
+      return { video: await verifyExistingCloudinaryVideo(existing) };
     }
-    throw new Error("The R2 video authorization expired. Upload the MP4 again.");
+    throw new Error(
+      "The Cloudinary video authorization expired. Upload the file again."
+    );
   }
 
   if (platform && platform !== "youtube") {
@@ -261,7 +276,10 @@ async function statementDocument(
   status: StatementStatus,
   actorId: string,
   fallback?: StoredStatement
-): Promise<{ document: StatementDocument; r2UploadIntentId?: string }> {
+): Promise<{
+  document: StatementDocument;
+  cloudinaryUploadIntentId?: string;
+}> {
   const collectedVideo = await collectVideo(fd, fallback, actorId);
   const video = collectedVideo.video;
   const document: StatementDocument = {
@@ -296,7 +314,10 @@ async function statementDocument(
       );
     }
   }
-  return { document, r2UploadIntentId: collectedVideo.r2UploadIntentId };
+  return {
+    document,
+    cloudinaryUploadIntentId: collectedVideo.cloudinaryUploadIntentId,
+  };
 }
 
 // ── statements ──────────────────────────────────────────────────────
@@ -314,8 +335,8 @@ export async function createStatement(fd: FormData) {
     detail: `Added "${entry.neutral_title}" — ${entry.party_at_time}, status ${entry.status}${
       entry.quote ? "" : ", no verbatim quote established"
     }.`,
-  }, collected.r2UploadIntentId
-    ? { actorId: actor.id, uploadIntentId: collected.r2UploadIntentId }
+  }, collected.cloudinaryUploadIntentId
+    ? { actorId: actor.id, uploadIntentId: collected.cloudinaryUploadIntentId }
     : undefined);
 
   refresh();
@@ -355,7 +376,11 @@ export async function updateStatement(fd: FormData) {
   if (JSON.stringify(beforeVideo) !== JSON.stringify(entry.video)) {
     notes.push(
       entry.video
-        ? `video changed to ${entry.video.platform === "r2" ? "hosted MP4" : "YouTube"}`
+        ? `video changed to ${
+            entry.video.platform === "cloudinary"
+              ? "hosted Cloudinary MP4"
+              : "YouTube"
+          }`
         : "video removed"
     );
   }
@@ -364,8 +389,8 @@ export async function updateStatement(fd: FormData) {
     actor: actor.label,
     action: "update",
     detail: notes.length ? `${notes.join("; ")}.` : `Edited "${entry.neutral_title}".`,
-  }, collected.r2UploadIntentId
-    ? { actorId: actor.id, uploadIntentId: collected.r2UploadIntentId }
+  }, collected.cloudinaryUploadIntentId
+    ? { actorId: actor.id, uploadIntentId: collected.cloudinaryUploadIntentId }
     : undefined);
   refresh();
 }
@@ -393,8 +418,8 @@ export async function setStatus(fd: FormData) {
       }
     }
     const storedVideo = normalizeStatementVideo(before.video);
-    if (storedVideo?.platform === "r2") {
-      await verifyExistingR2Video(storedVideo);
+    if (storedVideo?.platform === "cloudinary") {
+      await verifyExistingCloudinaryVideo(storedVideo);
     }
   }
   if (status === before.status) return;

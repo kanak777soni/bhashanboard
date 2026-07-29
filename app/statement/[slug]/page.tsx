@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import SiteFrame from "@/components/SiteFrame";
 import Guilloche from "@/components/Guilloche";
 import StatementVotingPanel from "@/components/StatementVotingPanel";
-import { verifiedR2PublicVideoUrl } from "@/lib/r2";
+import { cloudinaryVideoUrl } from "@/lib/cloudinary";
 import Medal from "@/components/Medal";
 import EntryTitle from "@/components/EntryTitle";
 import StatementFooterNav from "@/components/StatementFooterNav";
@@ -50,16 +50,15 @@ export default async function StatementPage({ params }: { params: Promise<{ slug
   const tier = tierOf(s.gp);
   const rank = s.held ? null : data.rankOf(s.slug);
   let hostedVideoUrl: string | undefined;
-  if (s.video?.platform === "r2") {
+  if (s.video?.platform === "cloudinary") {
     try {
-      // Do not expose a playback URL merely because Postgres contains one.
-      // The public object must still match its SHA-256 identity, size and
-      // conditional-transfer ETag.
-      hostedVideoUrl = await verifiedR2PublicVideoUrl(s.video);
+      // Authenticated Cloudinary media has no unsigned public URL. Generate
+      // the signed, versioned MP4 derivative only on the server.
+      hostedVideoUrl = cloudinaryVideoUrl(s.video);
     } catch (error) {
-      // Missing R2 configuration must not break builds or the rest of an entry
-      // page; playback and its voting gate simply remain unavailable.
-      console.error("R2 public playback verification failed", {
+      // Missing Cloudinary configuration must not break the rest of an entry;
+      // playback and its watch gate remain unavailable.
+      console.error("Cloudinary playback URL generation failed", {
         statementId: s.corpusId,
         error: String(error),
       });

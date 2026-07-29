@@ -2,7 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   // Source-platform poster frames remain remote. Rights-cleared administrator
-  // uploads are served as native video from the configured R2 custom domain.
+  // uploads are delivered through a server-generated signed Cloudinary URL.
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "i.ytimg.com" },

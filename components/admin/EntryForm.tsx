@@ -4,7 +4,7 @@ import {
   normalizeStatementVideo,
   normalizeVerificationStage,
 } from "@/lib/video";
-import R2VideoUploadField from "./R2VideoUploadField";
+import CloudinaryVideoUploadField from "./CloudinaryVideoUploadField";
 
 const CATEGORIES = ["Science & Reason", "History", "Economics", "Whataboutery", "Standing Ovation"];
 const LANGUAGES = ["Hindi", "English", "Bengali", "Tamil", "Telugu", "Marathi", "Kannada", "Malayalam", "Gujarati", "Punjabi", "Odia", "Assamese"];
@@ -157,12 +157,12 @@ export default function EntryForm({
         <legend>The video</legend>
         <p className="rail-note">
           Prefer a source-platform embed when it is stable. For rights-cleared evidence, upload a
-          browser-ready MP4 directly to Cloudflare R2. Uploaded files are not transcoded: they must
-          already use H.264 video, AAC audio and fast-start layout, and a trusted administrator must
-          play the promoted clip through once before attaching it. Every excerpt may be at most{" "}
+          video directly to authenticated Cloudinary storage. Cloudinary accepts MP4, MOV or WebM
+          and produces one browser-ready H.264/AAC MP4. A trusted administrator must play that
+          processed clip through once before attaching it. Every excerpt may be at most{" "}
           {MAX_VIDEO_EXCERPT_SECONDS / 60} minutes.
         </p>
-        <R2VideoUploadField initialVideo={initialVideo} />
+        <CloudinaryVideoUploadField initialVideo={initialVideo} />
       </fieldset>
 
       <fieldset>

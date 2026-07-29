@@ -1,5 +1,5 @@
 import type {
-  R2StatementVideo,
+  CloudinaryStatementVideo,
   StatementVideo,
   VerificationStage,
   YouTubeStatementVideo,
@@ -8,15 +8,12 @@ import type {
 export const MAX_VIDEO_TIMESTAMP_SECONDS = 24 * 60 * 60;
 export const MIN_VIDEO_EXCERPT_SECONDS = 3;
 export const MAX_VIDEO_EXCERPT_SECONDS = 3 * 60;
-export const MAX_R2_VIDEO_BYTES = 50 * 1024 * 1024;
+export const MAX_HOSTED_VIDEO_BYTES = 50 * 1024 * 1024;
+export const MAX_CLOUDINARY_DERIVED_VIDEO_BYTES = 100 * 1024 * 1024;
 
-const R2_VIDEO_KEY_PATTERN =
-  /^statement-videos\/[0-9a-f]{2}\/[0-9a-f]{64}\.mp4$/;
-// Admin uploads are one bounded PutObject request, never multipart. The ETag
-// remains conditional-transfer metadata; a server-streamed SHA-256 addresses
-// the immutable public object.
-const R2_ETAG_PATTERN = /^[0-9a-f]{32}$/;
-const R2_SHA256_PATTERN = /^[0-9a-f]{64}$/;
+const CLOUDINARY_VIDEO_ID_PATTERN =
+  /^bhashanboard\/statement-videos\/[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+const CLOUDINARY_ASSET_ID_PATTERN = /^[A-Za-z0-9_-]{16,128}$/;
 
 const LEGACY_VERIFICATION_STAGES: Record<string, VerificationStage> = {
   lead: "text_sourced",
@@ -134,24 +131,14 @@ export function parseYouTubeVideo(
   }
 }
 
-/** Normalize the quoted ETag returned by the S3-compatible R2 API. */
-export function normalizeR2Etag(value: unknown): string | undefined {
-  if (typeof value !== "string") return undefined;
-  let normalized = value.trim();
-  if (normalized.startsWith('W/"') && normalized.endsWith('"')) {
-    normalized = normalized.slice(3, -1);
-  } else if (normalized.startsWith('"') && normalized.endsWith('"')) {
-    normalized = normalized.slice(1, -1);
-  }
-  normalized = normalized.toLowerCase();
-  return R2_ETAG_PATTERN.test(normalized) ? normalized : undefined;
+export function isCloudinaryVideoPublicId(value: unknown): value is string {
+  return typeof value === "string" && CLOUDINARY_VIDEO_ID_PATTERN.test(value);
 }
 
-/** Normalize a hexadecimal SHA-256 digest computed by the application server. */
-export function normalizeR2Sha256(value: unknown): string | undefined {
+export function normalizeCloudinaryAssetId(value: unknown): string | undefined {
   if (typeof value !== "string") return undefined;
-  const normalized = value.trim().toLowerCase();
-  return R2_SHA256_PATTERN.test(normalized) ? normalized : undefined;
+  const normalized = value.trim();
+  return CLOUDINARY_ASSET_ID_PATTERN.test(normalized) ? normalized : undefined;
 }
 
 export function assertVideoExcerpt(video: StatementVideo): void {
@@ -159,39 +146,46 @@ export function assertVideoExcerpt(video: StatementVideo): void {
     if (!/^[A-Za-z0-9_-]{6,20}$/.test(video.id)) {
       throw new Error("The YouTube video ID is invalid.");
     }
-  } else if (video.platform === "r2") {
-    if (!R2_VIDEO_KEY_PATTERN.test(video.id)) {
-      throw new Error("The R2 video object key is invalid.");
+  } else if (video.platform === "cloudinary") {
+    if (!isCloudinaryVideoPublicId(video.id)) {
+      throw new Error("The Cloudinary video public ID is invalid.");
     }
-    const normalizedEtag = normalizeR2Etag(video.etag);
-    if (!normalizedEtag || video.etag !== normalizedEtag) {
-      throw new Error("The R2 video ETag is invalid or is not normalized.");
+    const normalizedAssetId = normalizeCloudinaryAssetId(video.assetId);
+    if (!normalizedAssetId || video.assetId !== normalizedAssetId) {
+      throw new Error("The Cloudinary asset ID is invalid.");
     }
-    const normalizedSha256 = normalizeR2Sha256(video.sha256);
-    if (!normalizedSha256 || video.sha256 !== normalizedSha256) {
-      throw new Error("The R2 video SHA-256 is invalid or is not normalized.");
+    if (!Number.isSafeInteger(video.version) || video.version <= 0) {
+      throw new Error("The Cloudinary video version is invalid.");
     }
-    if (video.id !== `statement-videos/${normalizedSha256.slice(0, 2)}/${normalizedSha256}.mp4`) {
-      throw new Error("The R2 video key must be the verified SHA-256 content address.");
+    if (
+      !Number.isSafeInteger(video.bytes) ||
+      video.bytes <= 0 ||
+      video.bytes > MAX_HOSTED_VIDEO_BYTES
+    ) {
+      throw new Error("The hosted video must be no larger than 50 MiB.");
     }
-    if (!Number.isSafeInteger(video.bytes) || video.bytes <= 0 || video.bytes > MAX_R2_VIDEO_BYTES) {
-      throw new Error("The R2 video must be no larger than 50 MiB.");
+    if (
+      !Number.isSafeInteger(video.derivedBytes) ||
+      video.derivedBytes <= 0 ||
+      video.derivedBytes > MAX_CLOUDINARY_DERIVED_VIDEO_BYTES
+    ) {
+      throw new Error("The processed Cloudinary video size is invalid.");
     }
-    if (video.contentType !== "video/mp4") {
-      throw new Error("The R2 video must be an MP4 file.");
+    if (video.format !== "mp4") {
+      throw new Error("The Cloudinary delivery format must be MP4.");
     }
     if (
       !Number.isSafeInteger(video.durationMs) ||
       video.durationMs < MIN_VIDEO_EXCERPT_SECONDS * 1000 ||
       video.durationMs > MAX_VIDEO_EXCERPT_SECONDS * 1000
     ) {
-      throw new Error("The R2 video duration must be between three seconds and three minutes.");
+      throw new Error("The hosted video duration must be between three seconds and three minutes.");
     }
     if (video.start !== 0) {
-      throw new Error("An uploaded R2 excerpt must begin at zero seconds.");
+      throw new Error("An uploaded Cloudinary excerpt must begin at zero seconds.");
     }
     if (video.end !== Math.ceil(video.durationMs / 1000)) {
-      throw new Error("The R2 video end must match its verified duration.");
+      throw new Error("The hosted video end must match its verified duration.");
     }
   } else {
     throw new Error("The video platform is not supported.");
@@ -230,17 +224,19 @@ export function normalizeStatementVideo(value: unknown): StatementVideo | undefi
   let video: StatementVideo;
   if (platform === "youtube") {
     video = { platform, id, start, end };
-  } else if (platform === "r2") {
-    const etag = normalizeR2Etag(source.etag);
-    const sha256 = normalizeR2Sha256(source.sha256);
+  } else if (platform === "cloudinary") {
+    const assetId = normalizeCloudinaryAssetId(source.assetId);
+    const version = wholeSecond(source.version);
     const bytes = wholeSecond(source.bytes);
+    const derivedBytes = wholeSecond(source.derivedBytes);
     const durationMs = wholeSecond(source.durationMs);
     if (
-      !etag ||
-      !sha256 ||
+      !assetId ||
+      version === undefined ||
       bytes === undefined ||
+      derivedBytes === undefined ||
       durationMs === undefined ||
-      source.contentType !== "video/mp4" ||
+      source.format !== "mp4" ||
       start !== 0
     ) {
       return undefined;
@@ -248,14 +244,15 @@ export function normalizeStatementVideo(value: unknown): StatementVideo | undefi
     video = {
       platform,
       id,
-      sha256,
-      etag,
+      assetId,
+      version,
       bytes,
-      contentType: "video/mp4",
+      derivedBytes,
+      format: "mp4",
       durationMs,
       start,
       end,
-    } satisfies R2StatementVideo;
+    } satisfies CloudinaryStatementVideo;
   } else {
     return undefined;
   }
@@ -265,6 +262,29 @@ export function normalizeStatementVideo(value: unknown): StatementVideo | undefi
   } catch {
     return undefined;
   }
+}
+
+/**
+ * Resolve the single video that may support publication and voting.
+ *
+ * Hosted media is canonical only in the root `video` field because that
+ * location is governed by the upload-intent attachment invariant. The former
+ * `verification.embed` field remains a compatibility fallback for YouTube
+ * only; accepting hosted media there would bypass attachment and retention
+ * tracking.
+ */
+export function normalizeStatementEvidenceVideo(
+  rawDocument: unknown
+): StatementVideo | undefined {
+  const document = record(rawDocument);
+  if (!document) return undefined;
+
+  const rootVideo = normalizeStatementVideo(document.video);
+  if (rootVideo) return rootVideo;
+
+  const verification = record(document.verification);
+  const legacyEmbed = normalizeStatementVideo(verification?.embed);
+  return legacyEmbed?.platform === "youtube" ? legacyEmbed : undefined;
 }
 
 /**
@@ -321,9 +341,7 @@ export function committeePublicationIssues(rawDocument: unknown): string[] {
     issues.push("A matching Tier A/B HTTP(S) source is required.");
   }
 
-  const video =
-    normalizeStatementVideo(document.video) ??
-    normalizeStatementVideo(verification?.embed);
+  const video = normalizeStatementEvidenceVideo(document);
   if (!video) {
     issues.push("A valid bounded source-video excerpt is required.");
   }

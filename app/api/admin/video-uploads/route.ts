@@ -2,16 +2,20 @@ import { NextResponse } from "next/server";
 import { ApiRateLimitError, enforceApiRateLimit } from "@/lib/api-rate-limit";
 import { AuthConfigurationError } from "@/lib/auth";
 import { AuthGuardError } from "@/lib/auth-guards";
-import { createR2UploadAuthorization, R2VideoError } from "@/lib/r2";
+import {
+  CloudinaryVideoError,
+  createCloudinaryUploadAuthorization,
+} from "@/lib/cloudinary";
 import { requireAdmin } from "@/lib/require-admin";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const maxDuration = 30;
 
 type UploadStartResponse =
   | {
       ok: true;
-      upload: Awaited<ReturnType<typeof createR2UploadAuthorization>>;
+      upload: Awaited<ReturnType<typeof createCloudinaryUploadAuthorization>>;
     }
   | { ok: false; error: { code: string; message: string } };
 
@@ -56,7 +60,7 @@ export async function POST(request: Request) {
       typeof input?.contentType === "string" ? input.contentType.trim().toLowerCase() : "";
     const bytes = Number(input?.bytes);
     const rightsAttested = input?.rightsAttested === true;
-    const upload = await createR2UploadAuthorization({
+    const upload = await createCloudinaryUploadAuthorization({
       actorId: actor.id,
       fileName,
       contentType,
@@ -74,10 +78,10 @@ export async function POST(request: Request) {
     if (error instanceof AuthConfigurationError) {
       return failure(error.status, "AUTH_NOT_CONFIGURED", "Authentication is not configured.");
     }
-    if (error instanceof AuthGuardError || error instanceof R2VideoError) {
+    if (error instanceof AuthGuardError || error instanceof CloudinaryVideoError) {
       return failure(error.status, error.code, error.message);
     }
-    console.error("Failed to authorize R2 video upload", error);
+    console.error("Failed to authorize Cloudinary video upload", error);
     return failure(500, "INTERNAL_ERROR", "The video upload could not be authorized.");
   }
 }

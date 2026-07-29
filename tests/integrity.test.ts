@@ -94,86 +94,100 @@ test("database guards serialize direct statement edits with the first vote", asy
   );
 });
 
-test("R2 migration and corpus import fail closed on non-canonical evidence", async () => {
-  const [migrationSource, importSource, r2Source, retentionSource, watchSource, storeSource] = await Promise.all([
-    readFile(new URL("../db/migrations/0007_r2_video.sql", import.meta.url), "utf8"),
+test("Cloudinary migration and corpus import fail closed on non-canonical evidence", async () => {
+  const [migrationSource, importSource, storeSource] = await Promise.all([
+    readFile(new URL("../db/migrations/0008_cloudinary_video.sql", import.meta.url), "utf8"),
     readFile(new URL("../scripts/db-common.mjs", import.meta.url), "utf8"),
-    readFile(new URL("../lib/r2.ts", import.meta.url), "utf8"),
-    readFile(new URL("../lib/r2-retention.ts", import.meta.url), "utf8"),
-    readFile(new URL("../lib/watch-store.ts", import.meta.url), "utf8"),
     readFile(new URL("../lib/store.ts", import.meta.url), "utf8"),
   ]);
 
-  assert.match(migrationSource, /WHEN candidate \? 'platform' THEN candidate ->> 'platform'/);
-  assert.match(migrationSource, /candidate_platform IS DISTINCT FROM 'r2'/);
-  assert.match(migrationSource, /left\(candidate_etag, 3\) = 'W\/"'/);
-  assert.match(migrationSource, /candidate_etag := lower\(candidate_etag\)/);
-  assert.match(migrationSource, /candidate_sha256 := lower\(btrim/);
-  assert.match(migrationSource, /candidate_id <> \(\s*'statement-videos\/' \|\| left\(candidate_sha256, 2\)/);
-  assert.match(importSource, /importedVideo\.platform === "r2"/);
-  assert.match(importSource, /actor-bound administrator upload workflow/);
-  assert.match(r2Source, /"content-length",\s*"content-type",\s*"if-none-match"/);
-  assert.match(r2Source, /new GetObjectCommand\(\{[\s\S]*?IfMatch: rawEtag/);
-  assert.match(r2Source, /createHash\("sha256"\)/);
-  assert.match(r2Source, /for await \(const rawChunk of response\.Body/);
-  assert.match(r2Source, /totalBytes !== expected\.bytes/);
-  assert.match(r2Source, /"validated-sha256": source\.sha256/);
-  assert.match(r2Source, /publicBaseUrl\(\);[\s\S]*?const intentId = randomUUID/);
-  assert.match(r2Source, /cf-copy-destination-if-none-match/);
-  assert.match(r2Source, /playback_attested_at = coalesce\(playback_attested_at/);
-  assert.match(migrationSource, /playback_attested_at timestamptz/);
   assert.match(
-    watchSource,
-    /"v3",\s*video\.platform,\s*video\.id,\s*video\.sha256,\s*video\.startSeconds,\s*video\.endSeconds,\s*video\.durationMs,\s*video\.bytes/
+    migrationSource,
+    /IF EXISTS \(SELECT 1 FROM bhashan\.r2_video_upload_intents\)/
   );
   assert.match(
     migrationSource,
-    /'v3',\s*'r2',\s*candidate_id,\s*candidate_sha256,\s*start_seconds::text,\s*end_seconds::text,\s*duration_ms::text,\s*object_bytes::text/
+    /LOCK TABLE[\s\S]*?bhashan\.r2_video_upload_intents[\s\S]*?bhashan\.statements[\s\S]*?IN ACCESS EXCLUSIVE MODE/
   );
-  assert.match(migrationSource, /CREATE TABLE IF NOT EXISTS bhashan\.r2_object_deletion_intents/);
-  assert.match(migrationSource, /bucket_role text NOT NULL CHECK \(bucket_role = 'upload'\)/);
-  assert.doesNotMatch(migrationSource, /public-orphan/);
+  assert.match(
+    migrationSource,
+    /IF EXISTS \(SELECT 1 FROM bhashan\.r2_object_deletion_intents\)/
+  );
+  assert.match(migrationSource, /WHERE session\.video_platform = 'r2'/);
+  assert.match(migrationSource, /DROP TABLE bhashan\.r2_object_deletion_intents/);
+  assert.match(migrationSource, /DROP TABLE bhashan\.r2_video_upload_intents/);
+  assert.match(
+    migrationSource,
+    /CREATE TABLE bhashan\.cloudinary_video_upload_intents/
+  );
+  assert.match(
+    migrationSource,
+    /public_id ~ '\^bhashanboard\/statement-videos\/\[0-9a-f\]\{8\}/
+  );
+  assert.match(migrationSource, /expected_bytes bigint NOT NULL CHECK \(expected_bytes BETWEEN 1 AND 52428800\)/);
+  assert.match(migrationSource, /derived_bytes bigint CHECK \(derived_bytes BETWEEN 1 AND 104857600\)/);
+  assert.match(
+    migrationSource,
+    /actual_bytes IS NOT NULL\s+AND actual_bytes = expected_bytes/
+  );
+  assert.match(
+    migrationSource,
+    /\(coalesce\(detached_at, completed_at\)\)/
+  );
+  assert.match(
+    migrationSource,
+    /CONSTRAINT cloudinary_video_upload_intents_attachment_unique[\s\S]*?UNIQUE \(attached_statement_id\)[\s\S]*?DEFERRABLE INITIALLY DEFERRED/
+  );
+  assert.match(
+    migrationSource,
+    /status IN \(\s*'authorized',\s*'processing',\s*'completed',\s*'rejected',\s*'expired',\s*'deleting',\s*'deleted'/
+  );
+  assert.match(migrationSource, /CHECK \(video_platform IN \('youtube', 'cloudinary'\)\)/);
+  assert.match(migrationSource, /WHEN candidate \? 'platform' THEN candidate ->> 'platform'/);
+  assert.match(migrationSource, /candidate_platform IS DISTINCT FROM 'cloudinary'/);
+  assert.match(migrationSource, /IF candidate_index <> 1 THEN\s+CONTINUE/);
+  assert.match(migrationSource, /candidate_asset_id := btrim\(coalesce\(candidate ->> 'assetId'/);
+  assert.match(migrationSource, /derived_bytes_text := candidate ->> 'derivedBytes'/);
+  assert.match(importSource, /importedVideo\.platform === "r2"/);
+  assert.match(importSource, /importedVideo\.platform === "cloudinary"/);
+  assert.match(importSource, /Object\.hasOwn\(importedVideo, "assetId"\)/);
+  assert.match(importSource, /actor-bound administrator upload workflow/);
+  assert.match(migrationSource, /playback_attested_at timestamptz/);
+  assert.match(migrationSource, /transformation_requested_at timestamptz/);
+  assert.match(migrationSource, /deletion_attempt_id uuid/);
+  assert.match(
+    migrationSource,
+    /'v4',\s*'cloudinary',\s*candidate_id,\s*candidate_asset_id,\s*cloudinary_version::text,\s*start_seconds::text,\s*end_seconds::text,\s*duration_ms::text,\s*object_bytes::text,\s*derived_bytes::text/
+  );
   assert.match(migrationSource, /attached_statement_id text REFERENCES bhashan\.statements\(id\) ON DELETE RESTRICT/);
+  assert.match(storeSource, /UPDATE bhashan\.cloudinary_video_upload_intents AS upload/);
+  assert.match(storeSource, /upload\.public_id = inserted\.document #>> '\{video,id\}'/);
+  assert.match(storeSource, /upload\.asset_id = inserted\.document #>> '\{video,assetId\}'/);
+  assert.match(storeSource, /upload\.version::text = inserted\.document #>> '\{video,version\}'/);
+  assert.match(storeSource, /upload\.actual_bytes::text = inserted\.document #>> '\{video,bytes\}'/);
+  assert.match(storeSource, /upload\.derived_bytes::text = inserted\.document #>> '\{video,derivedBytes\}'/);
+  assert.match(storeSource, /upload\.duration_ms::text = inserted\.document #>> '\{video,durationMs\}'/);
+  assert.match(storeSource, /inserted\.document #>> '\{video,platform\}' = 'cloudinary'/);
   assert.match(storeSource, /attached_statement_id = inserted\.id/);
   assert.match(storeSource, /attached_statement_id = updated\.id/);
+  assert.match(storeSource, /EXISTS \(SELECT 1 FROM retained_attachment\)/);
   assert.match(storeSource, /attachment_assertion\.ok AS attachment_ok/);
-  assert.match(retentionSource, /Persist the decision before making the external delete call/);
-  assert.match(retentionSource, /const intent = await planDeletion/);
-  assert.match(retentionSource, /await completeDeletion\(intent\)/);
-  assert.match(retentionSource, /r2-public-orphan-audit/);
-  assert.match(retentionSource, /'automaticDeletion', false/);
-  assert.doesNotMatch(retentionSource, /deleteR2VideoObject|listR2VideoObjects/);
-
-  assert.match(
-    r2Source,
-    /\(status = 'authorized' AND upload_expires_at <= clock_timestamp\(\)\)\s*OR \(status = 'processing' AND expires_at <= clock_timestamp\(\)\)/
-  );
-  const completionRetryStart = r2Source.indexOf("if (!intent) {");
-  const liveProcessingCheck = r2Source.indexOf(
-    "!r2UploadIntentShouldExpire({",
-    completionRetryStart
-  );
-  const expiryMutation = r2Source.indexOf(
-    "await markIntentExpired(payload.intentId, actorId)",
-    completionRetryStart
-  );
-  assert.ok(completionRetryStart >= 0 && liveProcessingCheck > completionRetryStart);
-  assert.ok(expiryMutation > liveProcessingCheck);
 });
 
-test("an invalid root video cannot hide an R2 legacy embed during JSON import", () => {
+test("an invalid root video cannot hide a Cloudinary embed during JSON import", () => {
   const snapshot = structuredClone(buildLocalSnapshot());
   const statement = snapshot.documents.statements.statements[0];
   statement.video = { platform: null, id: "invalid", start: 0, end: 30 };
   statement.verification = {
     ...statement.verification,
     embed: {
-      platform: "r2",
-      id: `statement-videos/ab/${"ab".repeat(32)}.mp4`,
-      sha256: "ab".repeat(32),
-      etag: "cd".repeat(16),
+      platform: "cloudinary",
+      id: "bhashanboard/statement-videos/12345678-1234-4123-8123-123456789abc",
+      assetId: "asset_1234567890abcdef",
+      version: 1,
       bytes: 1024,
-      contentType: "video/mp4",
+      derivedBytes: 768,
+      format: "mp4",
       durationMs: 30_000,
       start: 0,
       end: 30,
@@ -182,7 +196,7 @@ test("an invalid root video cannot hide an R2 legacy embed during JSON import", 
 
   assert.throws(
     () => validateSnapshot(snapshot),
-    /cannot import an R2 video from JSON/
+    /cannot import an uploaded video from JSON/
   );
 });
 

@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit --pretty false",
-    "test": "tsx --test tests/rating.test.ts tests/video.test.ts tests/mp4.test.ts tests/r2-retention.test.ts tests/r2-upload-policy.test.ts tests/r2-public-url.test.ts tests/auth-redirect.test.ts tests/auth-config.test.ts tests/brevo-config.test.ts tests/integrity.test.ts tests/site-navigation.test.ts",
+    "test": "tsx --test tests/rating.test.ts tests/video.test.ts tests/cloudinary-config.test.ts tests/cloudinary-retention.test.ts tests/auth-redirect.test.ts tests/auth-config.test.ts tests/brevo-config.test.ts tests/integrity.test.ts tests/site-navigation.test.ts",
     "check:overflow": "node scripts/check-overflow.mjs",
     "admin:promote": "node scripts/promote-admin.mjs",
     "db:migrate": "node scripts/db-migrate.mjs",
@@ -17,10 +17,9 @@
     "db:setup": "npm run db:migrate && npm run db:import && npm run db:verify"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.1096.0",
-    "@aws-sdk/s3-request-presigner": "^3.1096.0",
     "@neondatabase/serverless": "^1.1.0",
     "better-auth": "^1.6.25",
+    "cloudinary": "^2.10.0",
     "next": "^15.5.22",
     "pg": "^8.22.0",
     "react": "19.0.0",

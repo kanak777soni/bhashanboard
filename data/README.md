@@ -42,12 +42,13 @@ is a research task. An invented quote is the end of the project.**
 
 **2. Embed first; host only cleared evidence.** A YouTube
 `verification.embed` takes `{platform, id, start_s, end_s}`; a file path or URL
-in that field is a bug. The admin may attach an immutable R2 object only through
-the verified upload flow, and only when the project owns the excerpt, has
-permission to host it, or has recorded a lawful archival basis. See
-`docs/03-content-pipeline.md` §3.1. R2 object metadata is never accepted from
-the JSON seed importer: create or edit the entry in the administrator UI so the
-actor-bound quarantine and promotion record exists in Neon.
+in that field is a bug. The admin may attach a verified Cloudinary asset only
+through the signed upload and playback-approval flow, and only when the project
+owns the excerpt, has permission to host it, or has recorded a lawful archival
+basis. See `docs/03-content-pipeline.md` §3.1. Cloudinary asset metadata is never
+accepted from the JSON seed importer: create or edit the entry in the
+administrator UI so its actor-bound upload, provider verification, and approval
+record exists in Neon.
 
 ## Adding an entry
 

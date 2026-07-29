@@ -699,17 +699,17 @@ footer.site p { margin: 0 0 8px; font-size: 13.5px; color: var(--ink-70); max-wi
 .field.checkbox input { width: auto; }
 .admin-submit { position: sticky; bottom: 0; background: var(--ground); border-top: 1px solid var(--rule-hard); padding: 14px 0; }
 .admin-video-field { margin-top: 14px; }
-.r2-upload-panel { border-top: 1px solid var(--rule); margin-top: 8px; padding-top: 14px; }
-.r2-uploaded { border-left: 3px solid var(--rise); padding: 2px 0 2px 12px; }
-.r2-uploaded p { margin: 8px 0 4px; }
-.r2-uploaded code { color: var(--ink-45); font-size: 11px; overflow-wrap: anywhere; }
-.r2-playback-approval { margin-top: 14px; }
-.r2-playback-approval video { background: #000; display: block; max-height: 420px; width: 100%; }
-.r2-playback-attestation { margin-top: 12px; }
-.r2-file-picker { margin-top: 16px; }
-.r2-upload-progress { height: 30px; border: 1px solid var(--rule-hard); position: relative; overflow: hidden; }
-.r2-upload-progress i { background: var(--foil-soft); display: block; height: 100%; transition: width .15s linear; }
-.r2-upload-progress .lbl { left: 9px; position: absolute; top: 7px; }
+.hosted-video-upload-panel { border-top: 1px solid var(--rule); margin-top: 8px; padding-top: 14px; }
+.hosted-video-uploaded { border-left: 3px solid var(--rise); padding: 2px 0 2px 12px; }
+.hosted-video-uploaded p { margin: 8px 0 4px; }
+.hosted-video-uploaded code { color: var(--ink-45); font-size: 11px; overflow-wrap: anywhere; }
+.hosted-video-playback-approval { margin-top: 14px; }
+.hosted-video-playback-approval video { background: #000; display: block; max-height: 420px; width: 100%; }
+.hosted-video-playback-attestation { margin-top: 12px; }
+.hosted-video-file-picker { margin-top: 16px; }
+.hosted-video-upload-progress { height: 30px; border: 1px solid var(--rule-hard); position: relative; overflow: hidden; }
+.hosted-video-upload-progress i { background: var(--foil-soft); display: block; height: 100%; transition: width .15s linear; }
+.hosted-video-upload-progress .lbl { left: 9px; position: absolute; top: 7px; }
 
 .danger-zone {
   border: 1px solid var(--seal);

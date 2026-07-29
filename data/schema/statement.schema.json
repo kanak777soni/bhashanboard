@@ -166,25 +166,26 @@
           "type": "object",
           "additionalProperties": false,
           "required": [
-            "platform", "id", "start", "end", "sha256", "etag", "bytes", "contentType", "durationMs"
+            "platform", "id", "start", "end", "assetId", "version", "bytes", "derivedBytes", "format", "durationMs"
           ],
           "properties": {
-            "platform": { "const": "r2" },
+            "platform": { "const": "cloudinary" },
             "id": {
               "type": "string",
-              "pattern": "^statement-videos/[0-9a-f]{2}/[0-9a-f]{64}\\.mp4$"
+              "pattern": "^bhashanboard/statement-videos/[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
             },
+            "assetId": { "type": "string", "pattern": "^[A-Za-z0-9_-]{16,128}$" },
+            "version": { "type": "integer", "minimum": 1 },
             "start": { "const": 0 },
             "end": { "type": "integer", "minimum": 3, "maximum": 180 },
-            "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
-            "etag": { "type": "string", "pattern": "^[0-9a-f]{32}$" },
             "bytes": { "type": "integer", "minimum": 1, "maximum": 52428800 },
-            "contentType": { "const": "video/mp4" },
+            "derivedBytes": { "type": "integer", "minimum": 1, "maximum": 104857600 },
+            "format": { "const": "mp4" },
             "durationMs": { "type": "integer", "minimum": 3000, "maximum": 180000 }
           }
         }
       ],
-      "description": "Canonical bounded evidence excerpt. YouTube remains externally embedded; rights-cleared R2 uploads are immutable, pre-trimmed browser-ready MP4 files. Application validation enforces cross-field duration bounds."
+      "description": "Canonical bounded evidence excerpt. YouTube remains externally embedded; rights-cleared Cloudinary uploads are authenticated assets with a verified, version-pinned MP4 derivative. Application validation enforces cross-field duration bounds."
     },
     "axisScore": { "type": "integer", "minimum": 0, "maximum": 5 }
   }

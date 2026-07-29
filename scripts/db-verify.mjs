@@ -91,8 +91,9 @@ async function main() {
     ratingDerivedCorruptionRows,
     ratingBallotMismatchRows,
     integrityConstraintRows,
-    r2IndexRows,
-    r2UploadColumnRows,
+    cloudinaryIndexRows,
+    cloudinaryUploadColumnRows,
+    cloudinaryConsistencyRows,
     ownershipMismatchRows,
     publicationSeedRows,
   ] = await sql.transaction(
@@ -160,7 +161,8 @@ async function main() {
         )) OR (table_schema = 'bhashan' AND table_name IN (
           'statement_watch_sessions', 'statement_watch_receipts',
           'statement_votes', 'statement_vote_exclusions',
-          'statement_rating_aggregates', 'r2_video_upload_intents',
+          'statement_rating_aggregates', 'cloudinary_video_upload_intents',
+          'r2_video_upload_intents',
           'r2_object_deletion_intents'
         ))
       `),
@@ -176,7 +178,7 @@ async function main() {
           AND source.relname IN (
             'statement_watch_sessions', 'statement_watch_receipts',
             'statement_votes', 'statement_vote_exclusions',
-            'r2_video_upload_intents'
+            'cloudinary_video_upload_intents'
           )
           AND target_namespace.nspname = 'public'
           AND target.relname = 'auth_user'
@@ -280,7 +282,12 @@ async function main() {
         ORDER BY statement_id
       `),
       tx.query(`
-        SELECT constraint_record.conname, constraint_record.convalidated
+        SELECT
+          constraint_record.conname,
+          constraint_record.convalidated,
+          constraint_record.condeferrable,
+          constraint_record.condeferred,
+          pg_get_constraintdef(constraint_record.oid) AS definition
         FROM pg_constraint AS constraint_record
         JOIN pg_class AS relation ON relation.oid = constraint_record.conrelid
         JOIN pg_namespace AS namespace ON namespace.oid = relation.relnamespace
@@ -291,7 +298,8 @@ async function main() {
             'statement_watch_receipts_session_identity_fkey',
             'statement_votes_receipt_identity_fkey',
             'statement_rating_aggregate_weighted_sum_check',
-            'statement_watch_sessions_video_platform_check'
+            'statement_watch_sessions_video_platform_check',
+            'cloudinary_video_upload_intents_attachment_unique'
           )
       `),
       tx.query(`
@@ -299,6 +307,10 @@ async function main() {
         FROM pg_indexes
         WHERE schemaname = 'bhashan'
           AND indexname IN (
+            'statements_cloudinary_video_id_uidx',
+            'cloudinary_video_upload_intents_public_id_key',
+            'cloudinary_video_upload_intents_expiry_idx',
+            'cloudinary_video_upload_intents_retention_idx',
             'r2_object_deletion_intents_active_key_uidx',
             'statements_r2_video_id_uidx',
             'r2_video_upload_intents_attachment_idx',
@@ -309,10 +321,86 @@ async function main() {
         SELECT column_name, data_type, is_nullable
         FROM information_schema.columns
         WHERE table_schema = 'bhashan'
-          AND table_name = 'r2_video_upload_intents'
+          AND table_name = 'cloudinary_video_upload_intents'
           AND column_name IN (
-            'attached_statement_id', 'attached_at', 'detached_at', 'orphaned_at'
+            'id', 'actor_user_id', 'status', 'public_id',
+            'expected_bytes', 'actual_bytes', 'derived_bytes',
+            'asset_id', 'version', 'duration_ms', 'format',
+            'rights_attested_at', 'playback_attested_at',
+            'attached_statement_id', 'attached_at', 'detached_at',
+            'upload_expires_at', 'expires_at', 'processing_started_at',
+            'transformation_requested_at', 'completed_at',
+            'deletion_started_at', 'deletion_attempt_id', 'deleted_at',
+            'last_error_code', 'created_at', 'updated_at'
           )
+      `),
+      tx.query(`
+        SELECT 'cloudinary-statement-attachment' AS kind, statement.id::text AS id
+        FROM bhashan.statements AS statement
+        LEFT JOIN bhashan.cloudinary_video_upload_intents AS upload
+          ON upload.attached_statement_id = statement.id
+         AND upload.status = 'completed'
+         AND upload.playback_attested_at IS NOT NULL
+         AND upload.public_id = statement.document #>> '{video,id}'
+         AND upload.asset_id = statement.document #>> '{video,assetId}'
+         AND upload.version::text = statement.document #>> '{video,version}'
+         AND upload.actual_bytes::text = statement.document #>> '{video,bytes}'
+         AND upload.derived_bytes::text = statement.document #>> '{video,derivedBytes}'
+         AND upload.duration_ms::text = statement.document #>> '{video,durationMs}'
+         AND upload.format = statement.document #>> '{video,format}'
+         AND statement.document #>> '{video,start}' = '0'
+         AND ((upload.duration_ms + 999) / 1000)::text
+           = statement.document #>> '{video,end}'
+        WHERE statement.document #>> '{video,platform}' = 'cloudinary'
+          AND upload.id IS NULL
+
+        UNION ALL
+
+        SELECT 'cloudinary-intent-attachment', upload.id::text
+        FROM bhashan.cloudinary_video_upload_intents AS upload
+        LEFT JOIN bhashan.statements AS statement
+          ON statement.id = upload.attached_statement_id
+        WHERE upload.attached_statement_id IS NOT NULL
+          AND (
+            statement.id IS NULL
+            OR statement.document #>> '{video,platform}' IS DISTINCT FROM 'cloudinary'
+            OR upload.status IS DISTINCT FROM 'completed'
+            OR upload.playback_attested_at IS NULL
+            OR upload.public_id IS DISTINCT FROM statement.document #>> '{video,id}'
+            OR upload.asset_id IS DISTINCT FROM statement.document #>> '{video,assetId}'
+            OR upload.version::text IS DISTINCT FROM statement.document #>> '{video,version}'
+            OR upload.actual_bytes::text IS DISTINCT FROM statement.document #>> '{video,bytes}'
+            OR upload.derived_bytes::text IS DISTINCT FROM statement.document #>> '{video,derivedBytes}'
+            OR upload.duration_ms::text IS DISTINCT FROM statement.document #>> '{video,durationMs}'
+            OR upload.format IS DISTINCT FROM statement.document #>> '{video,format}'
+            OR statement.document #>> '{video,start}' IS DISTINCT FROM '0'
+            OR ((upload.duration_ms + 999) / 1000)::text
+              IS DISTINCT FROM statement.document #>> '{video,end}'
+          )
+
+        UNION ALL
+
+        SELECT 'hosted-verification-embed', statement.id::text
+        FROM bhashan.statements AS statement
+        WHERE statement.document #>> '{verification,embed,platform}'
+          IN ('cloudinary', 'r2')
+           OR statement.document #>> '{verification,embed,id}'
+             LIKE 'statement-videos/%'
+           OR statement.document #>> '{verification,embed,id}'
+             LIKE 'bhashanboard/statement-videos/%'
+
+        UNION ALL
+
+        SELECT 'residual-r2-statement', statement.id::text
+        FROM bhashan.statements AS statement
+        WHERE statement.document #>> '{video,platform}' = 'r2'
+           OR statement.document #>> '{video,id}' LIKE 'statement-videos/%'
+
+        UNION ALL
+
+        SELECT 'residual-r2-watch-session', session.id::text
+        FROM bhashan.statement_watch_sessions AS session
+        WHERE session.video_platform = 'r2'
       `),
       tx.query(`
         SELECT 'receipt-session' AS kind, receipt.id::text AS id
@@ -345,7 +433,7 @@ async function main() {
           AND rating_seed_gp IS NULL
       `),
     ],
-    { readOnly: true }
+    { readOnly: true, isolationLevel: "RepeatableRead" }
   );
 
   const imported = rowsOf(importRows)[0];
@@ -462,10 +550,15 @@ async function main() {
     "bhashan.statement_votes",
     "bhashan.statement_vote_exclusions",
     "bhashan.statement_rating_aggregates",
+    "bhashan.cloudinary_video_upload_intents",
+  ]) {
+    if (!extensionTableSet.has(table)) errors.push(`missing table ${table}`);
+  }
+  for (const table of [
     "bhashan.r2_video_upload_intents",
     "bhashan.r2_object_deletion_intents",
   ]) {
-    if (!extensionTableSet.has(table)) errors.push(`missing table ${table}`);
+    if (extensionTableSet.has(table)) errors.push(`obsolete table ${table} still exists`);
   }
 
   const expectedRateLimitColumns = new Map([
@@ -542,6 +635,7 @@ async function main() {
     "statement_votes_receipt_identity_fkey",
     "statement_rating_aggregate_weighted_sum_check",
     "statement_watch_sessions_video_platform_check",
+    "cloudinary_video_upload_intents_attachment_unique",
   ]);
   for (const row of rowsOf(integrityConstraintRows)) {
     if (row.convalidated === true || row.convalidated === "true") {
@@ -551,49 +645,170 @@ async function main() {
   for (const name of requiredIntegrityConstraints) {
     errors.push(`missing or unvalidated integrity constraint ${name}`);
   }
-  const requiredR2Indexes = new Set([
-    "r2_object_deletion_intents_active_key_uidx",
-    "statements_r2_video_id_uidx",
+  const videoPlatformConstraint = rowsOf(integrityConstraintRows).find(
+    (row) => String(row.conname) === "statement_watch_sessions_video_platform_check"
+  );
+  if (
+    !videoPlatformConstraint ||
+    !/\bcloudinary\b/.test(String(videoPlatformConstraint.definition)) ||
+    /'r2'/.test(String(videoPlatformConstraint.definition))
+  ) {
+    errors.push(
+      "statement_watch_sessions_video_platform_check must allow Cloudinary and reject R2"
+    );
+  }
+  const cloudinaryAttachmentConstraint = rowsOf(integrityConstraintRows).find(
+    (row) =>
+      String(row.conname) ===
+      "cloudinary_video_upload_intents_attachment_unique"
+  );
+  if (
+    !cloudinaryAttachmentConstraint ||
+    !(
+      cloudinaryAttachmentConstraint.condeferrable === true ||
+      cloudinaryAttachmentConstraint.condeferrable === "true"
+    ) ||
+    !(
+      cloudinaryAttachmentConstraint.condeferred === true ||
+      cloudinaryAttachmentConstraint.condeferred === "true"
+    ) ||
+    !/UNIQUE \(attached_statement_id\) DEFERRABLE INITIALLY DEFERRED/i.test(
+      String(cloudinaryAttachmentConstraint.definition)
+    )
+  ) {
+    errors.push(
+      "Cloudinary statement attachment uniqueness must be deferrable and initially deferred"
+    );
+  }
+
+  const requiredCloudinaryUniqueIndexes = new Set([
+    "statements_cloudinary_video_id_uidx",
   ]);
-  for (const row of rowsOf(r2IndexRows)) {
+  for (const row of rowsOf(cloudinaryIndexRows)) {
     const name = String(row.indexname);
     const definition = String(row.indexdef);
     if (/^CREATE UNIQUE INDEX\b/i.test(definition) && /\bWHERE\b/i.test(definition)) {
-      requiredR2Indexes.delete(name);
+      requiredCloudinaryUniqueIndexes.delete(name);
     }
   }
-  for (const name of requiredR2Indexes) {
-    errors.push(`missing or non-partial unique R2 index ${name}`);
+  for (const name of requiredCloudinaryUniqueIndexes) {
+    errors.push(`missing or non-partial unique Cloudinary index ${name}`);
   }
-  const r2IndexSet = new Set(
-    rowsOf(r2IndexRows).map((row) => String(row.indexname))
+  const cloudinaryPublicIdIndex = rowsOf(cloudinaryIndexRows).find(
+    (row) =>
+      String(row.indexname) ===
+      "cloudinary_video_upload_intents_public_id_key"
+  );
+  if (
+    !cloudinaryPublicIdIndex ||
+    !/^CREATE UNIQUE INDEX\b/i.test(String(cloudinaryPublicIdIndex.indexdef)) ||
+    /\bWHERE\b/i.test(String(cloudinaryPublicIdIndex.indexdef))
+  ) {
+    errors.push(
+      "cloudinary_video_upload_intents.public_id must have an unconditional unique index"
+    );
+  }
+  const cloudinaryIndexSet = new Set(
+    rowsOf(cloudinaryIndexRows).map((row) => String(row.indexname))
   );
   for (const name of [
+    "cloudinary_video_upload_intents_expiry_idx",
+    "cloudinary_video_upload_intents_retention_idx",
+  ]) {
+    if (!cloudinaryIndexSet.has(name)) {
+      errors.push(`missing Cloudinary lifecycle index ${name}`);
+    }
+  }
+  const cloudinaryExpiryIndex = rowsOf(cloudinaryIndexRows).find(
+    (row) =>
+      String(row.indexname) === "cloudinary_video_upload_intents_expiry_idx"
+  );
+  if (
+    cloudinaryExpiryIndex &&
+    (
+      !/\bupload_expires_at\b/i.test(String(cloudinaryExpiryIndex.indexdef)) ||
+      !/\bexpires_at\b/i.test(String(cloudinaryExpiryIndex.indexdef)) ||
+      !/\bWHERE\b/i.test(String(cloudinaryExpiryIndex.indexdef))
+    )
+  ) {
+    errors.push("Cloudinary expiry index does not cover both upload leases");
+  }
+  const cloudinaryRetentionIndex = rowsOf(cloudinaryIndexRows).find(
+    (row) =>
+      String(row.indexname) === "cloudinary_video_upload_intents_retention_idx"
+  );
+  if (
+    cloudinaryRetentionIndex &&
+    (
+      !/coalesce\(detached_at, completed_at\)/i.test(
+        String(cloudinaryRetentionIndex.indexdef)
+      ) ||
+      !/\bWHERE\b/i.test(String(cloudinaryRetentionIndex.indexdef))
+    )
+  ) {
+    errors.push("Cloudinary retention index does not preserve the post-detach grace period");
+  }
+  for (const name of [
+    "r2_object_deletion_intents_active_key_uidx",
+    "statements_r2_video_id_uidx",
     "r2_video_upload_intents_attachment_idx",
     "r2_video_upload_intents_orphan_audit_idx",
   ]) {
-    if (!r2IndexSet.has(name)) errors.push(`missing R2 lifecycle index ${name}`);
+    if (cloudinaryIndexSet.has(name)) errors.push(`obsolete R2 index ${name} still exists`);
   }
-  const r2UploadColumns = new Map(
-    rowsOf(r2UploadColumnRows).map((row) => [
+  const cloudinaryUploadColumns = new Map(
+    rowsOf(cloudinaryUploadColumnRows).map((row) => [
       String(row.column_name),
       { type: String(row.data_type), nullable: String(row.is_nullable) },
     ])
   );
-  for (const [column, type] of [
-    ["attached_statement_id", "text"],
-    ["attached_at", "timestamp with time zone"],
-    ["detached_at", "timestamp with time zone"],
-    ["orphaned_at", "timestamp with time zone"],
+  for (const [column, type, nullable] of [
+    ["id", "uuid", "NO"],
+    ["actor_user_id", "text", "NO"],
+    ["status", "text", "NO"],
+    ["public_id", "text", "NO"],
+    ["expected_bytes", "bigint", "NO"],
+    ["actual_bytes", "bigint", "YES"],
+    ["derived_bytes", "bigint", "YES"],
+    ["asset_id", "text", "YES"],
+    ["version", "bigint", "YES"],
+    ["duration_ms", "integer", "YES"],
+    ["format", "text", "YES"],
+    ["rights_attested_at", "timestamp with time zone", "NO"],
+    ["playback_attested_at", "timestamp with time zone", "YES"],
+    ["attached_statement_id", "text", "YES"],
+    ["attached_at", "timestamp with time zone", "YES"],
+    ["detached_at", "timestamp with time zone", "YES"],
+    ["upload_expires_at", "timestamp with time zone", "NO"],
+    ["expires_at", "timestamp with time zone", "NO"],
+    ["processing_started_at", "timestamp with time zone", "YES"],
+    ["transformation_requested_at", "timestamp with time zone", "YES"],
+    ["completed_at", "timestamp with time zone", "YES"],
+    ["deletion_started_at", "timestamp with time zone", "YES"],
+    ["deletion_attempt_id", "uuid", "YES"],
+    ["deleted_at", "timestamp with time zone", "YES"],
+    ["last_error_code", "text", "YES"],
+    ["created_at", "timestamp with time zone", "NO"],
+    ["updated_at", "timestamp with time zone", "NO"],
   ]) {
-    const actual = r2UploadColumns.get(column);
+    const actual = cloudinaryUploadColumns.get(column);
     if (!actual) {
-      errors.push(`r2_video_upload_intents is missing column ${column}`);
-    } else if (actual.type !== type || actual.nullable !== "YES") {
+      errors.push(`cloudinary_video_upload_intents is missing column ${column}`);
+    } else if (actual.type !== type || actual.nullable !== nullable) {
       errors.push(
-        `r2_video_upload_intents.${column} must be nullable ${type}`
+        `cloudinary_video_upload_intents.${column} must be ${type} nullable=${nullable}`
       );
     }
+  }
+  const cloudinaryConsistencyIssues = rowsOf(cloudinaryConsistencyRows).map(
+    (row) => `${String(row.kind)}:${String(row.id)}`
+  );
+  if (cloudinaryConsistencyIssues.length > 0) {
+    errors.push(
+      `hosted-video attachment consistency failed for ${conciseIds(
+        cloudinaryConsistencyIssues
+      )}`
+    );
   }
   const ownershipMismatches = rowsOf(ownershipMismatchRows).map(
     (row) => `${String(row.kind)}:${String(row.id)}`
@@ -618,7 +833,7 @@ async function main() {
     "statement_watch_receipts",
     "statement_votes",
     "statement_vote_exclusions",
-    "r2_video_upload_intents",
+    "cloudinary_video_upload_intents",
   ]) {
     if (!authForeignKeySet.has(table)) {
       errors.push(`missing auth-user foreign key from bhashan.${table}`);

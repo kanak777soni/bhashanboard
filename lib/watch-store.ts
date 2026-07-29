@@ -2,7 +2,7 @@ import "server-only";
 
 import { createHash, randomUUID } from "node:crypto";
 import { db } from "./db";
-import { verifyExistingR2Video } from "./r2";
+import { verifyExistingCloudinaryVideo } from "./cloudinary";
 import {
   calculateWatchProgress,
   requiredWatchMilliseconds,
@@ -13,7 +13,7 @@ import {
   committeePublicationIssues,
   MAX_VIDEO_EXCERPT_SECONDS,
   MIN_VIDEO_EXCERPT_SECONDS,
-  normalizeStatementVideo,
+  normalizeStatementEvidenceVideo,
   normalizeVerificationStage,
 } from "./video";
 
@@ -55,7 +55,10 @@ interface VoteEligibleVideoBase {
 
 export type VoteEligibleVideo =
   | (VoteEligibleVideoBase & { platform: "youtube" })
-  | (VoteEligibleVideoBase & { platform: "r2"; durationMs: number });
+  | (VoteEligibleVideoBase & {
+      platform: "cloudinary";
+      durationMs: number;
+    });
 
 export type VideoFingerprintInput =
   | {
@@ -65,13 +68,15 @@ export type VideoFingerprintInput =
       endSeconds: number;
     }
   | {
-      platform: "r2";
+      platform: "cloudinary";
       id: string;
-      sha256: string;
+      assetId: string;
+      version: number;
       startSeconds: number;
       endSeconds: number;
       durationMs: number;
       bytes: number;
+      derivedBytes: number;
     };
 
 export interface VoteEligibleStatement {
@@ -204,14 +209,16 @@ export function videoFingerprint(video: VideoFingerprintInput): string {
     video.platform === "youtube"
       ? ["v1", video.platform, video.id, video.startSeconds, video.endSeconds]
       : [
-          "v3",
+          "v4",
           video.platform,
           video.id,
-          video.sha256,
+          video.assetId,
+          video.version,
           video.startSeconds,
           video.endSeconds,
           video.durationMs,
           video.bytes,
+          video.derivedBytes,
         ];
   return createHash("md5")
     .update(parts.join("|"))
@@ -250,8 +257,7 @@ export function parseVoteEligibleStatement(
     );
   }
 
-  const normalizedVideo =
-    normalizeStatementVideo(document.video) ?? normalizeStatementVideo(verification?.embed);
+  const normalizedVideo = normalizeStatementEvidenceVideo(document);
   if (!normalizedVideo) {
     throw new WatchStoreError(
       "VIDEO_NOT_ELIGIBLE",
@@ -278,17 +284,19 @@ export function parseVoteEligibleStatement(
       ? videoFingerprint({ ...baseVideo, platform: "youtube" })
       : videoFingerprint({
           ...baseVideo,
-          platform: "r2",
-          sha256: normalizedVideo.sha256,
+          platform: "cloudinary",
+          assetId: normalizedVideo.assetId,
+          version: normalizedVideo.version,
           durationMs: normalizedVideo.durationMs,
           bytes: normalizedVideo.bytes,
+          derivedBytes: normalizedVideo.derivedBytes,
         });
   const video: VoteEligibleVideo =
     normalizedVideo.platform === "youtube"
       ? { ...baseVideo, platform: "youtube", fingerprint }
       : {
           ...baseVideo,
-          platform: "r2",
+          platform: "cloudinary",
           durationMs: normalizedVideo.durationMs,
           fingerprint,
         };
@@ -328,21 +336,19 @@ export async function getVoteEligibleStatement(
     );
   }
   const eligible = parseVoteEligibleStatement(String(row.id), row.document);
-  if (eligible.video.platform === "r2") {
+  if (eligible.video.platform === "cloudinary") {
     const document = objectValue(row.document);
-    const verification = document ? nestedObject(document, "verification") : undefined;
-    const storedVideo = normalizeStatementVideo(document?.video) ??
-      normalizeStatementVideo(verification?.embed);
-    if (!storedVideo || storedVideo.platform !== "r2") {
+    const storedVideo = normalizeStatementEvidenceVideo(document);
+    if (!storedVideo || storedVideo.platform !== "cloudinary") {
       throw new WatchStoreError("VIDEO_NOT_ELIGIBLE", "The hosted video metadata is invalid.", 409);
     }
     try {
-      // A public object can be removed or changed independently of Postgres.
-      // Fail the watch-session gate closed unless SHA-256 identity, size and
-      // transport ETag still match the verified public object.
-      await verifyExistingR2Video(storedVideo);
+      // The provider asset can be removed independently of Postgres. Fail the
+      // watch gate closed unless the immutable, signed derivative still has
+      // the byte identity recorded at administrator approval.
+      await verifyExistingCloudinaryVideo(storedVideo);
     } catch (error) {
-      console.error("R2 watch-start verification failed", {
+      console.error("Cloudinary watch-start verification failed", {
         statementId,
         error: String(error),
       });
@@ -367,7 +373,7 @@ function mapSession(row: WatchSessionRow, receiptId: string | null): WatchSessio
   const requiredWatchMs = requiredInteger(row.required_watch_ms, "required watch time");
   const durationMs = clipEndMs - clipStartMs;
   const platform = row.video_platform;
-  if (platform !== "youtube" && platform !== "r2") {
+  if (platform !== "youtube" && platform !== "cloudinary") {
     throw new Error("Invalid video platform returned by the database.");
   }
   const video: VoteEligibleVideo =
@@ -479,11 +485,11 @@ export async function createWatchSession({
   const statement = await getVoteEligibleStatement(statementId);
   const sessionId = randomUUID();
   const clipStartMs = statement.video.startSeconds * 1000;
-  // R2's canonical whole-second end is ceil(durationMs / 1000). Use the
-  // verified millisecond duration for watch maths so short fractional clips
-  // cannot require more watch time than the media physically contains.
+  // Hosted videos have a canonical whole-second end of ceil(durationMs /
+  // 1000). Use provider-verified milliseconds for watch maths so fractional
+  // clips never require more time than the media physically contains.
   const clipEndMs =
-    statement.video.platform === "r2"
+    statement.video.platform === "cloudinary"
       ? statement.video.durationMs
       : statement.video.endSeconds * 1000;
   const requiredWatchMs = requiredWatchMilliseconds(clipStartMs, clipEndMs);

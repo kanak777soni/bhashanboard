@@ -1,36 +1,40 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { R2StatementVideo, StatementVideo } from "@/lib/types";
-import { MAX_R2_VIDEO_BYTES, MAX_VIDEO_EXCERPT_SECONDS, MIN_VIDEO_EXCERPT_SECONDS } from "@/lib/video";
+import type { CloudinaryStatementVideo, StatementVideo } from "@/lib/types";
+import {
+  MAX_HOSTED_VIDEO_BYTES,
+  MAX_VIDEO_EXCERPT_SECONDS,
+  MIN_VIDEO_EXCERPT_SECONDS,
+} from "@/lib/video";
 
-type VideoMode = "none" | "youtube" | "r2";
+type VideoMode = "none" | "youtube" | "cloudinary";
 
 interface UploadAuthorization {
-  key: string;
   uploadUrl: string;
   uploadToken: string;
   expiresAt: string;
-  requiredHeaders: Record<string, string>;
+  fields: Record<string, string>;
 }
 
 interface PendingUploadCompletion {
   uploadToken: string;
-  putCompleted: boolean;
+  uploadCompleted: boolean;
 }
+
+const RECOVERABLE_UPLOAD_KEY = "bhashan:cloudinary-upload-completion:v1";
 
 const TERMINAL_COMPLETION_CODES = new Set([
   "EXPIRED_UPLOAD_TOKEN",
   "UPLOAD_EXPIRED",
   "INVALID_UPLOAD_TOKEN",
-  "INVALID_MP4",
   "VIDEO_UPLOAD_MISMATCH",
-  "R2_FINAL_CONFLICT",
+  "CLOUDINARY_DERIVATIVE_MISMATCH",
 ]);
 
 class UploadRequestError extends Error {
   constructor(readonly status: number) {
-    super("Cloudflare R2 did not accept the video.");
+    super("Cloudinary did not accept the video.");
     this.name = "UploadRequestError";
   }
 }
@@ -79,45 +83,60 @@ function playedEntireVideo(video: HTMLVideoElement): boolean {
   return coveredThrough >= video.duration - toleranceSeconds;
 }
 
-async function browserDuration(file: File): Promise<number> {
+async function browserDuration(file: File): Promise<number | undefined> {
   const objectUrl = URL.createObjectURL(file);
   try {
-    return await new Promise<number>((resolve, reject) => {
+    return await new Promise<number | undefined>((resolve) => {
       const video = document.createElement("video");
+      let settled = false;
+      const finish = (value: number | undefined) => {
+        if (settled) return;
+        settled = true;
+        window.clearTimeout(timeout);
+        video.onloadedmetadata = null;
+        video.onerror = null;
+        video.removeAttribute("src");
+        video.load();
+        resolve(value);
+      };
+      const timeout = window.setTimeout(() => finish(undefined), 10_000);
       video.preload = "metadata";
       video.onloadedmetadata = () => {
         const durationMs = Math.round(video.duration * 1000);
-        if (!Number.isSafeInteger(durationMs) || durationMs <= 0) {
-          reject(new Error("The browser could not read this video's duration."));
-        } else {
-          resolve(durationMs);
-        }
+        finish(
+          Number.isSafeInteger(durationMs) && durationMs > 0
+            ? durationMs
+            : undefined
+        );
       };
-      video.onerror = () => reject(new Error("This browser cannot read the selected MP4."));
+      // Some MOV codecs cannot be decoded by the local browser even though
+      // Cloudinary can transcode them. Provider metadata remains authoritative.
+      video.onerror = () => finish(undefined);
       video.src = objectUrl;
+      video.load();
     });
   } finally {
     URL.revokeObjectURL(objectUrl);
   }
 }
 
-function putWithProgress(
+function uploadWithProgress(
   authorization: UploadAuthorization,
   file: File,
   onProgress: (percent: number) => void
 ): Promise<void> {
   return new Promise((resolve, reject) => {
     const request = new XMLHttpRequest();
-    request.open("PUT", authorization.uploadUrl);
-    for (const [name, value] of Object.entries(authorization.requiredHeaders)) {
-      request.setRequestHeader(name, value);
-    }
+    request.open("POST", authorization.uploadUrl);
+    request.timeout = 10 * 60 * 1000;
     request.upload.onprogress = (event) => {
       if (event.lengthComputable && event.total > 0) {
         onProgress(Math.min(100, Math.round((event.loaded / event.total) * 100)));
       }
     };
     request.onerror = () => reject(new UploadRequestError(0));
+    request.ontimeout = () =>
+      reject(new Error("The Cloudinary upload timed out. Select the file and try again."));
     request.onabort = () => reject(new Error("The video upload was cancelled."));
     request.onload = () => {
       if (request.status >= 200 && request.status < 300) {
@@ -127,15 +146,24 @@ function putWithProgress(
         reject(new UploadRequestError(request.status));
       }
     };
-    request.send(file);
+    const body = new FormData();
+    for (const [name, value] of Object.entries(authorization.fields)) {
+      body.append(name, value);
+    }
+    body.append("file", file, file.name);
+    request.send(body);
   });
 }
 
-export default function R2VideoUploadField({ initialVideo }: { initialVideo?: StatementVideo }) {
+export default function CloudinaryVideoUploadField({
+  initialVideo,
+}: {
+  initialVideo?: StatementVideo;
+}) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [mode, setMode] = useState<VideoMode>(initialVideo?.platform ?? "youtube");
-  const [asset, setAsset] = useState<R2StatementVideo | null>(
-    initialVideo?.platform === "r2" ? initialVideo : null
+  const [asset, setAsset] = useState<CloudinaryStatementVideo | null>(
+    initialVideo?.platform === "cloudinary" ? initialVideo : null
   );
   const [attachmentToken, setAttachmentToken] = useState("");
   const [playbackUrl, setPlaybackUrl] = useState("");
@@ -151,10 +179,22 @@ export default function R2VideoUploadField({ initialVideo }: { initialVideo?: St
   const busy = uploading || completing;
 
   useEffect(() => {
+    try {
+      const uploadToken = window.sessionStorage.getItem(RECOVERABLE_UPLOAD_KEY);
+      if (uploadToken && uploadToken.length <= 8_192) {
+        setPendingCompletion({ uploadToken, uploadCompleted: true });
+        setMode("cloudinary");
+      }
+    } catch {
+      // Recovery is optional when browser storage is disabled.
+    }
+  }, []);
+
+  useEffect(() => {
     const needsCompletion =
-      mode === "r2" && Boolean(pendingCompletion?.putCompleted);
+      mode === "cloudinary" && Boolean(pendingCompletion?.uploadCompleted);
     const needsPlaybackApproval =
-      mode === "r2" && Boolean(attachmentToken) && !playbackAttested;
+      mode === "cloudinary" && Boolean(attachmentToken) && !playbackAttested;
     if (!busy && !needsCompletion && !needsPlaybackApproval) return;
     const form = containerRef.current?.closest("form");
     if (!form) return;
@@ -162,9 +202,9 @@ export default function R2VideoUploadField({ initialVideo }: { initialVideo?: St
       event.preventDefault();
       setError(
         busy
-          ? "Wait for the R2 upload and server checks to finish before saving."
+          ? "Wait for the Cloudinary upload and server checks to finish before saving."
           : needsCompletion
-            ? "The MP4 is already uploaded. Retry the server checks before saving."
+            ? "The video is already uploaded. Retry the server checks before saving."
             : "Play the uploaded clip through to the end, then confirm playback before saving."
       );
     };
@@ -186,7 +226,7 @@ export default function R2VideoUploadField({ initialVideo }: { initialVideo?: St
         | {
             ok?: boolean;
             result?: {
-              video?: R2StatementVideo;
+              video?: CloudinaryStatementVideo;
               attachmentToken?: string;
               playbackUrl?: string;
             };
@@ -197,7 +237,7 @@ export default function R2VideoUploadField({ initialVideo }: { initialVideo?: St
       const completedPlaybackUrl = completionPayload?.result?.playbackUrl;
       if (
         !completionResponse.ok ||
-        completedVideo?.platform !== "r2" ||
+        completedVideo?.platform !== "cloudinary" ||
         typeof completedToken !== "string" ||
         typeof completedPlaybackUrl !== "string"
       ) {
@@ -209,10 +249,15 @@ export default function R2VideoUploadField({ initialVideo }: { initialVideo?: St
           setPendingCompletion((current) =>
             current?.uploadToken === uploadToken ? null : current
           );
+          try {
+            window.sessionStorage.removeItem(RECOVERABLE_UPLOAD_KEY);
+          } catch {
+            // Recovery is optional when browser storage is disabled.
+          }
         }
         const message = payloadMessage(
           completionPayload,
-          "The uploaded MP4 could not be verified by the server."
+          "The uploaded video could not be verified by the server."
         );
         setError(
           terminal
@@ -225,12 +270,17 @@ export default function R2VideoUploadField({ initialVideo }: { initialVideo?: St
       setPendingCompletion((current) =>
         current?.uploadToken === uploadToken ? null : current
       );
+      try {
+        window.sessionStorage.removeItem(RECOVERABLE_UPLOAD_KEY);
+      } catch {
+        // Recovery is optional when browser storage is disabled.
+      }
       setAsset(completedVideo);
       setAttachmentToken(completedToken);
       setPlaybackUrl(completedPlaybackUrl);
       setPreviewReachedEnd(false);
       setPlaybackAttested(false);
-      setMode("r2");
+      setMode("cloudinary");
     } catch {
       setError(
         "The completion request did not reach the server. The file is already uploaded; retry the server checks without uploading it again."
@@ -246,11 +296,23 @@ export default function R2VideoUploadField({ initialVideo }: { initialVideo?: St
       setError("Confirm the rights and provenance attestation before uploading.");
       return;
     }
-    if ((file.type && file.type !== "video/mp4") || !/\.mp4$/i.test(file.name)) {
-      setError("Choose an MP4 file. MOV, MKV, AVI and HEVC-only files are not accepted.");
+    // The statement applies to one selected file only. Every replacement must
+    // receive a fresh attestation, even if this attempt fails validation.
+    setRightsAttested(false);
+    const extension = /\.[^.]+$/.exec(file.name.toLowerCase())?.[0] ?? "";
+    const expectedType: Record<string, string> = {
+      ".mp4": "video/mp4",
+      ".mov": "video/quicktime",
+      ".webm": "video/webm",
+    };
+    if (
+      !expectedType[extension] ||
+      (file.type && file.type.toLowerCase() !== expectedType[extension])
+    ) {
+      setError("Choose an MP4, MOV or WebM video file.");
       return;
     }
-    if (file.size <= 0 || file.size > MAX_R2_VIDEO_BYTES) {
+    if (file.size <= 0 || file.size > MAX_HOSTED_VIDEO_BYTES) {
       setError("The video must be 50 MiB or smaller.");
       return;
     }
@@ -261,8 +323,9 @@ export default function R2VideoUploadField({ initialVideo }: { initialVideo?: St
     try {
       const durationMs = await browserDuration(file);
       if (
-        durationMs < MIN_VIDEO_EXCERPT_SECONDS * 1000 ||
-        durationMs > MAX_VIDEO_EXCERPT_SECONDS * 1000
+        durationMs !== undefined &&
+        (durationMs < MIN_VIDEO_EXCERPT_SECONDS * 1000 ||
+          durationMs > MAX_VIDEO_EXCERPT_SECONDS * 1000)
       ) {
         throw new Error("The video must be between three seconds and three minutes long.");
       }
@@ -273,7 +336,7 @@ export default function R2VideoUploadField({ initialVideo }: { initialVideo?: St
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           fileName: file.name,
-          contentType: "video/mp4",
+          contentType: file.type.toLowerCase(),
           bytes: file.size,
           rightsAttested: true,
         }),
@@ -290,21 +353,29 @@ export default function R2VideoUploadField({ initialVideo }: { initialVideo?: St
       const authorization = authorizationPayload.upload;
       setPendingCompletion({
         uploadToken: authorization.uploadToken,
-        putCompleted: false,
+        uploadCompleted: false,
       });
-      await putWithProgress(authorization, file, setUploadProgress);
+      await uploadWithProgress(authorization, file, setUploadProgress);
       uploadedToken = authorization.uploadToken;
       setPendingCompletion((current) =>
         current?.uploadToken === authorization.uploadToken
-          ? { ...current, putCompleted: true }
+          ? { ...current, uploadCompleted: true }
           : current
       );
+      try {
+        window.sessionStorage.setItem(
+          RECOVERABLE_UPLOAD_KEY,
+          authorization.uploadToken
+        );
+      } catch {
+        // In-memory recovery remains available for this page.
+      }
     } catch (uploadError) {
       setError(
         uploadError instanceof UploadRequestError
-          ? uploadError.status === 412
-            ? "That immutable video key already exists. Select the file again."
-            : "Cloudflare R2 did not accept the video. Check the bucket CORS settings."
+          ? uploadError.status === 409
+            ? "That Cloudinary video ID already exists. Select the file again."
+            : "Cloudinary did not accept or process the video. Check the signed upload preset and try again."
           : uploadError instanceof Error
             ? uploadError.message
             : "The video upload failed."
@@ -325,13 +396,14 @@ export default function R2VideoUploadField({ initialVideo }: { initialVideo?: St
         <select
           name="video_platform"
           value={mode}
+          disabled={busy}
           onChange={(event) => {
             setMode(event.target.value as VideoMode);
             setError(null);
           }}
         >
           <option value="youtube">YouTube excerpt</option>
-          <option value="r2">Upload an MP4 to Cloudflare R2</option>
+          <option value="cloudinary">Upload a video to Cloudinary</option>
           <option value="none">No video</option>
         </select>
       </label>
@@ -367,8 +439,8 @@ export default function R2VideoUploadField({ initialVideo }: { initialVideo?: St
         </div>
       )}
 
-      {mode === "r2" && (
-        <div className="r2-upload-panel">
+      {mode === "cloudinary" && (
+        <div className="hosted-video-upload-panel">
           <input type="hidden" name="video" value={asset?.id ?? ""} />
           <input type="hidden" name="video_attachment_token" value={attachmentToken} />
           <input
@@ -377,18 +449,19 @@ export default function R2VideoUploadField({ initialVideo }: { initialVideo?: St
             value={attachmentToken && playbackAttested ? "true" : "false"}
           />
           {asset ? (
-            <div className="r2-uploaded">
+            <div className="hosted-video-uploaded">
               <span className="stamp green">
                 {playbackAttested || !attachmentToken
-                  ? "R2 video playback approved"
-                  : "R2 container structure accepted"}
+                  ? "Cloudinary playback approved"
+                  : "Cloudinary MP4 derivative accepted"}
               </span>
               <p>
-                MP4 · structurally declares H.264/AAC · {formatDuration(asset.durationMs)} · {formatBytes(asset.bytes)}
+                H.264/AAC MP4 &middot; {formatDuration(asset.durationMs)}{" "}
+                &middot; {formatBytes(asset.derivedBytes)}
               </p>
               <code>{asset.id}</code>
               {playbackUrl && (
-                <div className="r2-playback-approval">
+                <div className="hosted-video-playback-approval">
                   <video
                     src={playbackUrl}
                     controls
@@ -401,18 +474,18 @@ export default function R2VideoUploadField({ initialVideo }: { initialVideo?: St
                       setError(
                         complete
                           ? null
-                          : "Playback skipped part of the promoted clip. Replay it from the beginning without seeking."
+                          : "Playback skipped part of the processed clip. Replay it from the beginning without seeking."
                       );
                     }}
                     onError={() => {
                       setPreviewReachedEnd(false);
                       setPlaybackAttested(false);
                       setError(
-                        "This promoted MP4 did not play correctly in the browser. Do not attach it."
+                        "This processed MP4 did not play correctly in the browser. Do not attach it."
                       );
                     }}
                   />
-                  <label className="field r2-playback-attestation">
+                  <label className="field hosted-video-playback-attestation">
                     <span>
                       <input
                         type="checkbox"
@@ -423,7 +496,7 @@ export default function R2VideoUploadField({ initialVideo }: { initialVideo?: St
                           setError(null);
                         }}
                       />{" "}
-                      I played this promoted clip through to the end and confirm that its picture
+                      I played this processed clip through to the end and confirm that its picture
                       and audio work in the browser.
                     </span>
                   </label>
@@ -438,7 +511,7 @@ export default function R2VideoUploadField({ initialVideo }: { initialVideo?: St
           ) : (
             <p className="rail-note">No hosted video is attached yet.</p>
           )}
-          <label className="field r2-rights-attestation">
+          <label className="field hosted-video-rights-attestation">
             <span>
               <input
                 type="checkbox"
@@ -453,11 +526,13 @@ export default function R2VideoUploadField({ initialVideo }: { initialVideo?: St
               publisher/source provenance is recorded in this entry.
             </span>
           </label>
-          <label className="field r2-file-picker">
-            <span className="lbl">{asset ? "Replace with another MP4" : "Choose an MP4"}</span>
+          <label className="field hosted-video-file-picker">
+            <span className="lbl">
+              {asset ? "Replace with another video" : "Choose a video"}
+            </span>
             <input
               type="file"
-              accept="video/mp4,.mp4"
+              accept="video/mp4,video/quicktime,video/webm,.mp4,.mov,.webm"
               disabled={busy || !rightsAttested}
               onChange={(event) => {
                 const file = event.target.files?.[0];
@@ -466,11 +541,14 @@ export default function R2VideoUploadField({ initialVideo }: { initialVideo?: St
               }}
             />
           </label>
-          {pendingCompletion?.putCompleted && (
+          {pendingCompletion?.uploadCompleted && (
             <div>
-              <span className="stamp foil">R2 upload awaiting server checks</span>
+              <span className="stamp foil">
+                Cloudinary upload awaiting server checks
+              </span>
               <p className="rail-note">
-                The MP4 is already in private quarantine. Retrying does not upload it again.
+                The authenticated asset is already uploaded. Retrying does not
+                upload it again.
               </p>
               <button
                 type="button"
@@ -484,16 +562,18 @@ export default function R2VideoUploadField({ initialVideo }: { initialVideo?: St
           )}
           <p className="rail-note">
             {uploading
-              ? "Uploading to private quarantine..."
+              ? uploadProgress >= 100
+                ? "Upload complete. Cloudinary is generating the browser-ready MP4..."
+                : "Uploading directly to authenticated Cloudinary storage..."
               : completing
-                ? "Checking and promoting the uploaded file..."
-                : "Maximum 50 MiB and three minutes. The server accepts only a fast-start MP4 structure declaring H.264 video and AAC audio; full browser playback approval is still required."}
+                ? "Checking Cloudinary metadata and the processed MP4..."
+                : "MP4, MOV or WebM; maximum 50 MiB and three minutes. Cloudinary creates one H.264/AAC MP4, and full browser playback approval is required."}
           </p>
           {uploading && (
             <div
-              className="r2-upload-progress"
+              className="hosted-video-upload-progress"
               role="progressbar"
-              aria-label="R2 video upload"
+              aria-label="Cloudinary video upload"
               aria-valuemin={0}
               aria-valuemax={100}
               aria-valuenow={uploadProgress}

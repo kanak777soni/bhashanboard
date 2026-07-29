@@ -50,26 +50,28 @@ export interface YouTubeStatementVideo {
   end: number;
 }
 
-export interface R2StatementVideo {
-  platform: "r2";
-  /** Immutable Cloudflare R2 object key, never a signed or public URL. */
+export interface CloudinaryStatementVideo {
+  platform: "cloudinary";
+  /** Random, immutable Cloudinary public ID. Never store a delivery URL. */
   id: string;
-  /** Server-computed SHA-256 of every stored byte, lowercase hexadecimal. */
-  sha256: string;
-  /** Public R2 object ETag, normalized without quotes; transport metadata only. */
-  etag: string;
-  /** Stored object size in bytes. */
+  /** Cloudinary's immutable identifier for this asset. */
+  assetId: string;
+  /** Version returned by Cloudinary and embedded in every delivery URL. */
+  version: number;
+  /** Original uploaded object size in bytes. */
   bytes: number;
-  contentType: "video/mp4";
-  /** Browser-verified media duration rounded to a whole millisecond. */
+  /** Size of the eagerly generated browser-ready MP4 derivative. */
+  derivedBytes: number;
+  format: "mp4";
+  /** Provider-verified media duration rounded to a whole millisecond. */
   durationMs: number;
-  /** R2 evidence files are already-trimmed clips and always begin at zero. */
+  /** Hosted evidence files are already-trimmed clips and begin at zero. */
   start: 0;
   /** Exclusive excerpt end, in whole seconds. */
   end: number;
 }
 
-export type StatementVideo = YouTubeStatementVideo | R2StatementVideo;
+export type StatementVideo = YouTubeStatementVideo | CloudinaryStatementVideo;
 
 export interface VoteDistribution {
   0: number;

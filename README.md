@@ -28,85 +28,111 @@ not rewritten. A row edited through the admin is protected from later seed
 imports and must be reconciled manually if its local JSON counterpart changes.
 
 For production, copy every required value documented in `.env.example` into the
-hosting environment. Sign up and verify the first account, then promote it once
-from a trusted terminal with
-`npm run admin:promote -- verified-user@example.com`. Registered administrators
-can promote other verified users in `/admin/users`. There is no shared browser
-password or network-facing bootstrap endpoint. Never expose `DATABASE_URL`,
-`BETTER_AUTH_SECRET`, or `BREVO_API_KEY` through a `NEXT_PUBLIC_` variable.
-Newsletter consent is stored only in Neon; this application does not mirror
-subscription state into a Brevo contact list. Vercel invokes the bearer-protected
-retention route daily to remove expired sessions, verification records,
-rate-limit buckets, and stale unfinished watch sessions.
+hosting environment. Never expose `DATABASE_URL`, `BETTER_AUTH_SECRET`,
+`BREVO_API_KEY`, or any `CLOUDINARY_*` value through a `NEXT_PUBLIC_` variable.
+Vercel invokes the bearer-protected retention route daily to remove expired
+sessions, verification records, rate-limit buckets, stale unfinished watch
+sessions, and eligible unattached video assets.
 
-## Cloudflare R2 video setup
+## Brevo email and the first administrator
 
-YouTube excerpts remain supported. Administrators can also upload a
-rights-cleared, already-trimmed MP4 from the browser into a **private quarantine
-bucket**; the video bytes do not pass through Vercel and are not publicly
-reachable while untrusted. The server streams and SHA-256 hashes the complete
-object under an ETag precondition while retaining only the first 8 MiB for a
-structural fast-start MP4 inspection (including H.264/AAC declarations and
-duration tables). That inspection is not a full decoder pass. Only then does it
-copy the object to a separate public delivery bucket under a deterministic
-`statement-videos/<sha256-prefix>/<sha256>.mp4` key, verify the final HEAD
-response, and require the trusted administrator to play the promoted object
-through completely and approve its picture and audio before attachment. Neon
-records both approvals, and quarantine is removed best-effort. The single-PUT
-ETag remains conditional-transfer metadata, not the content identity.
+The application has no built-in admin username, admin email, or
+`ADMIN_PASSWORD`. An administrator is an ordinary verified account whose role
+has been promoted in Neon:
 
-1. Create two **Standard** R2 buckets: a private quarantine/upload bucket and a
-   separate public delivery bucket. Never attach a public domain or `r2.dev` URL
-   to the quarantine bucket.
-2. Create one least-privilege R2 S3 token with Object Read & Write access scoped
-   **only** to those two buckets. It needs to PUT/GET/HEAD/DELETE quarantine
-   objects and COPY/HEAD public objects; do not grant account-wide admin. The
-   application deliberately has no automatic public-object deletion path.
-3. Connect a public HTTPS custom domain only to the delivery bucket. Use that
-   origin for `R2_PUBLIC_BASE_URL`; do not use `r2.dev` in production.
-4. Add all six `R2_*` values from `.env.example` locally and in Vercel before
-   deploying.
-5. Give the private upload bucket this exact-origin CORS policy. No `GET` or
-   `HEAD` browser access is needed:
+1. In Brevo, verify the exact sender address in `BREVO_SENDER_EMAIL`, or
+   authenticate its domain. Create a Brevo API key with transactional-email
+   access.
+2. Set the required `BREVO_API_KEY` and `BREVO_SENDER_EMAIL` values locally and
+   in Vercel. `BREVO_SENDER_NAME` is optional and defaults to
+   `The Bhashan Board`. The three `BREVO_*_TEMPLATE_ID` values are also optional;
+   when omitted, the application sends its built-in verification, reset, and
+   welcome messages. Leave them unset unless tested: verification and reset
+   templates receive `{{ params.name }}` and `{{ params.actionUrl }}` (and must
+   render `actionUrl` as a clickable link); the welcome template receives
+   `{{ params.name }}` and `{{ params.siteUrl }}`.
+3. Set `BETTER_AUTH_SECRET` to a stable random secret of at least 32 bytes. Set
+   `BETTER_AUTH_URL` and `NEXT_PUBLIC_SITE_URL` to the deployed HTTPS origin in
+   production, with no trailing slash.
+4. Deploy, register normally with the email that should own the first admin
+   account, and open the Brevo verification link.
+5. From a trusted terminal whose `DATABASE_URL` or `MIGRATION_DATABASE_URL`
+   points at that Neon database, run:
 
-```json
-[
-  {
-    "AllowedOrigins": ["http://localhost:3000", "https://your-site.example"],
-    "AllowedMethods": ["PUT"],
-    "AllowedHeaders": ["content-type", "if-none-match", "cache-control", "x-amz-meta-upload-intent"],
-    "ExposeHeaders": ["etag"],
-    "MaxAgeSeconds": 3600
-  }
-]
+```bash
+npm run admin:promote -- verified-user@example.com
 ```
 
-6. Give the public delivery bucket exact-origin `GET` and `HEAD` CORS with the
-   `range` request header and expose `etag`, `content-length`, `content-range`
-   and `accept-ranges` for native playback.
-7. Enable an R2 **bucket-lock retention rule** for the public
-   `statement-videos/` prefix for at least seven days. This backs the
-   content-addressed, application-level write-once rule with provider-side
-   protection. A longer or indefinite lock is compatible with the application;
-   choose it only after deciding how legal takedowns will be handled.
+Use the account's email in that command; the display name is not a login
+username. Sign in again if an existing session does not immediately show the
+administrator navigation. That first administrator can manage and promote
+other verified users in `/admin/users`. There is no shared browser password or
+network-facing bootstrap endpoint. Newsletter consent remains only in Neon; it
+is not copied into a Brevo marketing contact list.
 
-Use HandBrake's **Web Optimized** option or equivalent before upload. Neon keeps
-actor, quota, expiry, status, SHA-256, ETag, duration, promotion, playback
-approval, and statement-attachment metadata for each intent. Attaching a new
-hosted clip and saving its statement happen in one database transaction;
-replacing or removing it marks the previous upload detached. Each administrator
-is limited to four concurrent authorizations, 20 intents and 500 MiB of
-authorized bytes per rolling 24 hours. The daily job removes
-completed/rejected/expired quarantine objects and old untracked quarantine
-bytes. Every quarantine deletion is scheduled in a durable Neon outbox before
-R2 is touched, then completed and audited atomically; a lost response is retried
-idempotently. A promoted final that remains unattached for 24 hours is marked
-and written to the audit ledger so storage drift is visible. Public evidence
-objects are never deleted automatically, because even a reference check can
-race a new statement save or an identical re-upload. Never add an age-only
-lifecycle rule for `statement-videos/`; any future public deletion must be an
-explicit, audited operation coordinated with statement records and legal
-retention.
+## Cloudinary video setup
+
+YouTube excerpts remain supported. Administrators can also upload a
+rights-cleared MP4, MOV, or WebM file directly from the browser to Cloudinary;
+the video bytes do not pass through Vercel. The server issues short-lived,
+administrator-bound signed upload parameters. Cloudinary retains the original
+as an `authenticated` asset. The server first validates Cloudinary's
+authoritative identity, byte, format, duration, and visual-dimension metadata;
+only then does it request the H.264/AAC MP4 derivative asynchronously. A trusted
+administrator must play that derivative through completely and approve its
+picture and audio before it can be attached to a statement.
+
+1. In Cloudinary, copy the **cloud name**, **API key**, and **API secret** from
+   the API Keys page.
+2. Under **Settings → Upload → Upload presets**, create a preset for video
+   uploads. Set its signing mode to **Signed**, delivery type to
+   **Authenticated**, allowed formats to `mp4,mov,webm`, and maximum file size
+   to **52,428,800 bytes (50 MiB)**. Allow the request's custom public ID, and
+   leave folder/public-ID prefix rewriting plus eager/incoming
+   transformations empty—the application signs the exact private ID and its
+   single derivative request only after validating the original. Give it
+   a stable name such as `bhashanboard-video`.
+3. Add these four non-public environment values from `.env.example` both locally and in
+   Vercel:
+
+```dotenv
+CLOUDINARY_CLOUD_NAME=your-cloud-name
+CLOUDINARY_API_KEY=your-api-key
+CLOUDINARY_API_SECRET=your-api-secret
+CLOUDINARY_VIDEO_UPLOAD_PRESET=bhashanboard-video
+```
+
+4. Redeploy after adding or changing the values. Do not create
+   `NEXT_PUBLIC_CLOUDINARY_*` variables, do not use an unsigned upload preset,
+   and do not put the API secret in browser code. Cloudinary's upload endpoint
+   already supports direct browser uploads; no bucket CORS policy, public
+   bucket, custom media domain, or webhook is required for this flow.
+
+Before issuing an upload, the server reads that preset through Cloudinary's
+Admin API and fails closed if it is unsigned, public, too large, accepts other
+formats, rewrites IDs/folders, or contains merged transformations. This protects
+the account from a mistyped or later-edited preset.
+
+The preset enforces file type and byte size. It cannot reject by duration or
+visual dimensions, so the browser's three-minute check is only an early
+convenience: the server
+authoritatively rejects any asset whose Cloudinary metadata reports a duration
+over three minutes, has no visual stream, or exceeds the bounded 4K pixel
+envelope. Hosted originals remain authenticated rather than being renamed
+public. Playback uses signed delivery URLs for the normalized H.264/AAC MP4
+derivative.
+
+Neon keeps the actor, quota, expiry, Cloudinary asset identity and version,
+provider metadata, playback approval, and statement-attachment state for each
+intent. Attaching a hosted clip and saving its statement happen in one database
+transaction; replacing or removing it marks the previous upload detached. Each
+authorization conservatively reserves 50 MiB against a 500 MiB rolling
+24-hour allowance (so at most ten new authorizations can be issued per
+administrator in that window), with a four-active limit. Eligible rejected,
+expired, or orphaned authenticated assets are deleted only after signed-upload
+replay has expired and a durable database claim exists. Cleanup targets
+Cloudinary's immutable asset ID, retries idempotently, and records the outcome
+in the audit ledger.
 
 ---
 
@@ -173,7 +199,7 @@ receipt ownership, publication status, and the current video revision.
 |---|---|
 | [`docs/01-concept.md`](docs/01-concept.md) | Positioning, the Verbatim Doctrine, Deadpan Prestige, content policy, naming (and the loaded-word trap) |
 | [`docs/02-ranking-system.md`](docs/02-ranking-system.md) | Earlier pairwise design exploration; superseded for scoring by the implemented rules page and voting code |
-| [`docs/03-content-pipeline.md`](docs/03-content-pipeline.md) | Embed-first evidence, controlled rights-cleared R2 hosting, source tiers, the 4-stage pipeline, cold start, multilingual subtitles |
+| [`docs/03-content-pipeline.md`](docs/03-content-pipeline.md) | Embed-first evidence, controlled rights-cleared Cloudinary hosting, source tiers, the 4-stage pipeline, cold start, multilingual subtitles |
 | [`docs/04-legal-and-safety.md`](docs/04-legal-and-safety.md) | **Can we use real names/images?** (yes), BNS §356, publisher-vs-intermediary trap, IT Rules 2026, MCC mode, risk register |
 | [`docs/05-growth-and-money.md`](docs/05-growth-and-money.md) | Share-card growth loop, The Weekly Gyan, The Standing Ovations, monetisation, global sequencing |
 | [`docs/06-roadmap.md`](docs/06-roadmap.md) | Phases, architecture sketch, metrics, what could kill this, **decisions needed from you** |

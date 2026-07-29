@@ -48,13 +48,16 @@ This is the real constraint, and it's a copyright question, not a personality qu
 
 **The lowest-risk engineering default is to embed, not re-host.** Full detail is
 in `03-content-pipeline.md` §3.1. If YouTube serves the bytes, the rights-holder
-keeps their monetisation and takedown lever. Cloudflare R2 is a narrow exception
+keeps their monetisation and takedown lever. Cloudinary is a narrow exception
 for short evidence excerpts the project owns, has permission to host, or has a
-documented lawful archival basis for retaining. Storage technology does not
-create permission, so every hosted object still needs provenance and a working
-takedown path. The administrator workflow therefore requires an explicit rights
-and provenance attestation before it issues a private-quarantine upload URL;
-only a server-validated file is promoted to the separate public delivery bucket.
+documented lawful archival basis for retaining. Storage and transcoding
+technology do not create permission, so every hosted asset still needs
+provenance and a working takedown path. The administrator workflow therefore
+requires an explicit rights and provenance attestation before it issues
+short-lived signed upload parameters. The original remains an authenticated
+Cloudinary asset; only a server-verified H.264/AAC derivative can proceed to
+full playback approval and statement attachment, and playback uses signed
+delivery URLs rather than a public unsigned asset.
 
 ## 4.2 The trap in your original idea: publisher vs. intermediary
 

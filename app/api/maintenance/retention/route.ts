@@ -1,7 +1,7 @@
 import { timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
+import { runCloudinaryRetention } from "@/lib/cloudinary-retention";
 import { runRetention } from "@/lib/retention";
-import { runR2Retention } from "@/lib/r2-retention";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -30,16 +30,24 @@ export async function GET(request: Request) {
 
   try {
     const deleted = await runRetention();
-    const r2 = await runR2Retention();
-    if (r2.status === "failed") {
-      console.error("R2 retention reported a monitoring-visible failure", r2);
+    const cloudinary = await runCloudinaryRetention();
+    if (cloudinary.status === "failed") {
+      console.error(
+        "Cloudinary retention reported a monitoring-visible failure",
+        cloudinary
+      );
       return NextResponse.json(
-        { ok: false, error: "R2 retention failed.", deleted, r2 },
+        {
+          ok: false,
+          error: "Cloudinary retention failed.",
+          deleted,
+          cloudinary,
+        },
         { status: 500, headers: { "Cache-Control": "no-store" } }
       );
     }
     return NextResponse.json(
-      { ok: true, deleted, r2 },
+      { ok: true, deleted, cloudinary },
       { headers: { "Cache-Control": "no-store" } }
     );
   } catch (error) {

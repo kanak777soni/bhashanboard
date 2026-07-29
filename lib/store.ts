@@ -31,7 +31,18 @@ export interface StoredStatement {
   counterpoint?: string;
   policy_note?: string;
   hall_of_fame?: boolean;
-  video?: { platform?: string; id?: string; start?: number; end?: number };
+  video?: {
+    platform?: string;
+    id?: string;
+    assetId?: string;
+    version?: number;
+    bytes?: number;
+    derivedBytes?: number;
+    durationMs?: number;
+    format?: string;
+    start?: number;
+    end?: number;
+  };
   axes: Record<string, number>;
   verification: {
     stage: string;
@@ -68,7 +79,7 @@ export interface AuditContext {
   detail: string;
 }
 
-export interface R2UploadAttachment {
+export interface CloudinaryUploadAttachment {
   actorId: string;
   uploadIntentId: string;
 }
@@ -240,7 +251,7 @@ export async function getAudit(limit = 1000): Promise<AuditEntry[]> {
 export async function createStatementRecord(
   document: StatementDocument,
   audit: AuditContext,
-  r2Attachment?: R2UploadAttachment
+  cloudinaryAttachment?: CloudinaryUploadAttachment
 ): Promise<StoredStatement> {
   const [actor, action, detail] = auditValues(audit);
   const payload = statementJson(document);
@@ -260,31 +271,39 @@ export async function createStatementRecord(
         FROM next_statement
         RETURNING id, document, version
       ), attached AS (
-        UPDATE bhashan.r2_video_upload_intents AS upload
+        UPDATE bhashan.cloudinary_video_upload_intents AS upload
         SET
           attached_statement_id = inserted.id,
           attached_at = coalesce(upload.attached_at, clock_timestamp()),
           detached_at = NULL,
-          orphaned_at = NULL,
           updated_at = clock_timestamp()
         FROM inserted
-        WHERE upload.id = ${r2Attachment?.uploadIntentId ?? null}::uuid
-          AND upload.actor_user_id = ${r2Attachment?.actorId ?? null}
+        WHERE upload.id = ${cloudinaryAttachment?.uploadIntentId ?? null}::uuid
+          AND upload.actor_user_id = ${cloudinaryAttachment?.actorId ?? null}
           AND upload.status = 'completed'
           AND upload.playback_attested_at IS NOT NULL
-          AND upload.public_key = inserted.document #>> '{video,id}'
-          AND inserted.document #>> '{video,platform}' = 'r2'
+          AND upload.public_id = inserted.document #>> '{video,id}'
+          AND upload.asset_id = inserted.document #>> '{video,assetId}'
+          AND upload.version::text = inserted.document #>> '{video,version}'
+          AND upload.actual_bytes::text = inserted.document #>> '{video,bytes}'
+          AND upload.derived_bytes::text = inserted.document #>> '{video,derivedBytes}'
+          AND upload.duration_ms::text = inserted.document #>> '{video,durationMs}'
+          AND upload.format = inserted.document #>> '{video,format}'
+          AND inserted.document #>> '{video,start}' = '0'
+          AND ((upload.duration_ms + 999) / 1000)::text
+            = inserted.document #>> '{video,end}'
+          AND inserted.document #>> '{video,platform}' = 'cloudinary'
           AND upload.attached_statement_id IS NULL
         RETURNING upload.id
       ), attachment_assertion AS (
         SELECT
           1 / CASE
             WHEN (
-              (inserted.document #>> '{video,platform}' = 'r2')
-              = (${r2Attachment?.uploadIntentId ?? null}::uuid IS NOT NULL)
+              (inserted.document #>> '{video,platform}' = 'cloudinary')
+              = (${cloudinaryAttachment?.uploadIntentId ?? null}::uuid IS NOT NULL)
             )
             AND (
-              ${r2Attachment?.uploadIntentId ?? null}::uuid IS NULL
+              ${cloudinaryAttachment?.uploadIntentId ?? null}::uuid IS NULL
               OR EXISTS (SELECT 1 FROM attached)
             )
             THEN 1
@@ -309,7 +328,7 @@ export async function updateStatementRecord(
   document: StatementDocument,
   expectedVersion: number,
   audit: AuditContext,
-  r2Attachment?: R2UploadAttachment
+  cloudinaryAttachment?: CloudinaryUploadAttachment
 ): Promise<StoredStatement> {
   const [actor, action, detail] = auditValues(audit);
   const payload = statementJson(document);
@@ -346,7 +365,7 @@ export async function updateStatementRecord(
           AND NOT edit_state.has_votes
         RETURNING statement.id, statement.document, statement.version
       ), detached AS (
-        UPDATE bhashan.r2_video_upload_intents AS upload
+        UPDATE bhashan.cloudinary_video_upload_intents AS upload
         SET
           attached_statement_id = NULL,
           attached_at = NULL,
@@ -354,33 +373,70 @@ export async function updateStatementRecord(
           updated_at = clock_timestamp()
         FROM updated
         WHERE upload.attached_statement_id = updated.id
-          AND upload.public_key IS DISTINCT FROM updated.document #>> '{video,id}'
+          AND (
+            updated.document #>> '{video,platform}' IS DISTINCT FROM 'cloudinary'
+            OR upload.public_id IS DISTINCT FROM updated.document #>> '{video,id}'
+          )
         RETURNING upload.id
       ), attached AS (
-        UPDATE bhashan.r2_video_upload_intents AS upload
+        UPDATE bhashan.cloudinary_video_upload_intents AS upload
         SET
           attached_statement_id = updated.id,
           attached_at = coalesce(upload.attached_at, clock_timestamp()),
           detached_at = NULL,
-          orphaned_at = NULL,
           updated_at = clock_timestamp()
         FROM updated
-        WHERE upload.id = ${r2Attachment?.uploadIntentId ?? null}::uuid
-          AND upload.actor_user_id = ${r2Attachment?.actorId ?? null}
+        WHERE upload.id = ${cloudinaryAttachment?.uploadIntentId ?? null}::uuid
+          AND upload.actor_user_id = ${cloudinaryAttachment?.actorId ?? null}
           AND upload.status = 'completed'
           AND upload.playback_attested_at IS NOT NULL
-          AND upload.public_key = updated.document #>> '{video,id}'
-          AND updated.document #>> '{video,platform}' = 'r2'
+          AND upload.public_id = updated.document #>> '{video,id}'
+          AND upload.asset_id = updated.document #>> '{video,assetId}'
+          AND upload.version::text = updated.document #>> '{video,version}'
+          AND upload.actual_bytes::text = updated.document #>> '{video,bytes}'
+          AND upload.derived_bytes::text = updated.document #>> '{video,derivedBytes}'
+          AND upload.duration_ms::text = updated.document #>> '{video,durationMs}'
+          AND upload.format = updated.document #>> '{video,format}'
+          AND updated.document #>> '{video,start}' = '0'
+          AND ((upload.duration_ms + 999) / 1000)::text
+            = updated.document #>> '{video,end}'
+          AND updated.document #>> '{video,platform}' = 'cloudinary'
           AND (
             upload.attached_statement_id IS NULL
             OR upload.attached_statement_id = updated.id
           )
         RETURNING upload.id
+      ), retained_attachment AS (
+        SELECT upload.id
+        FROM bhashan.cloudinary_video_upload_intents AS upload
+        JOIN updated ON upload.attached_statement_id = updated.id
+        WHERE upload.status = 'completed'
+          AND upload.playback_attested_at IS NOT NULL
+          AND upload.public_id = updated.document #>> '{video,id}'
+          AND upload.asset_id = updated.document #>> '{video,assetId}'
+          AND upload.version::text = updated.document #>> '{video,version}'
+          AND upload.actual_bytes::text = updated.document #>> '{video,bytes}'
+          AND upload.derived_bytes::text = updated.document #>> '{video,derivedBytes}'
+          AND upload.duration_ms::text = updated.document #>> '{video,durationMs}'
+          AND upload.format = updated.document #>> '{video,format}'
+          AND updated.document #>> '{video,start}' = '0'
+          AND ((upload.duration_ms + 999) / 1000)::text
+            = updated.document #>> '{video,end}'
+          AND updated.document #>> '{video,platform}' = 'cloudinary'
       ), attachment_assertion AS (
         SELECT
           1 / CASE
-            WHEN ${r2Attachment?.uploadIntentId ?? null}::uuid IS NULL
-              OR EXISTS (SELECT 1 FROM attached)
+            WHEN (
+              updated.document #>> '{video,platform}' = 'cloudinary'
+              AND (
+                EXISTS (SELECT 1 FROM attached)
+                OR EXISTS (SELECT 1 FROM retained_attachment)
+              )
+            )
+            OR (
+              updated.document #>> '{video,platform}' IS DISTINCT FROM 'cloudinary'
+              AND ${cloudinaryAttachment?.uploadIntentId ?? null}::uuid IS NULL
+            )
             THEN 1
             ELSE 0
           END AS ok

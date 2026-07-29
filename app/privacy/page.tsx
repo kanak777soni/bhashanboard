@@ -19,7 +19,7 @@ export default function PrivacyPage() {
     <SiteFrame>
       <article className="document">
         <h1 className="page-title">Privacy notice</h1>
-        <p className="legal-date">Last updated 28 July 2026</p>
+        <p className="legal-date">Last updated 29 July 2026</p>
         <p>
           The Bhashan Board is a pre-launch public-interest satire and archive project. This notice
           explains what the service records when you create an account, watch a source excerpt, or
@@ -83,7 +83,7 @@ export default function PrivacyPage() {
         <h2>Video and other processors</h2>
         <p>
           The application uses Neon for its database, its deployment provider for hosting, Brevo for
-          transactional email, YouTube for embedded source footage, and Cloudflare R2 for short
+          transactional email, YouTube for embedded source footage, and Cloudinary for short
           rights-cleared excerpts hosted by the Board. The normal clip facade does not load either
           video source until you activate it. Once activated, the relevant provider receives ordinary
           network and playback-request information, such as the IP address, browser headers, requested

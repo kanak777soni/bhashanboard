@@ -218,7 +218,9 @@ export function validateSnapshot(snapshot) {
       throw new Error(`Statement ${statement.id} has invalid status.`);
     }
     // Inspect both locations independently. An invalid root placeholder must
-    // not hide a canonical legacy embed that runtime fallback would accept.
+    // not hide uploaded evidence that runtime fallback would accept. Uploaded
+    // assets must always enter through the actor-bound administrator workflow,
+    // never through a repository corpus import.
     for (const importedVideo of [statement.video, statement.verification?.embed]) {
       if (
         importedVideo &&
@@ -226,12 +228,17 @@ export function validateSnapshot(snapshot) {
         !Array.isArray(importedVideo) &&
         (
           importedVideo.platform === "r2" ||
+          importedVideo.platform === "cloudinary" ||
           (typeof importedVideo.id === "string" &&
-            importedVideo.id.startsWith("statement-videos/"))
+            importedVideo.id.startsWith("statement-videos/")) ||
+          (typeof importedVideo.id === "string" &&
+            importedVideo.id.startsWith("bhashanboard/statement-videos/")) ||
+          Object.hasOwn(importedVideo, "assetId") ||
+          Object.hasOwn(importedVideo, "derivedBytes")
         )
       ) {
         throw new Error(
-          `Statement ${statement.id} cannot import an R2 video from JSON; use the actor-bound administrator upload workflow.`
+          `Statement ${statement.id} cannot import an uploaded video from JSON; use the actor-bound administrator upload workflow.`
         );
       }
     }

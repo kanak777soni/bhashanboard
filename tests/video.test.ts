@@ -4,14 +4,35 @@ import {
   assertVideoExcerpt,
   committeePublicationIssues,
   isCommitteePublicationEligible,
-  MAX_R2_VIDEO_BYTES,
-  normalizeR2Etag,
-  normalizeR2Sha256,
+  isCloudinaryVideoPublicId,
+  MAX_CLOUDINARY_DERIVED_VIDEO_BYTES,
+  MAX_HOSTED_VIDEO_BYTES,
+  normalizeCloudinaryAssetId,
+  normalizeStatementEvidenceVideo,
   normalizeStatementVideo,
   normalizeVerificationStage,
   parseVideoTimestamp,
   parseYouTubeVideo,
 } from "../lib/video";
+
+const CLOUDINARY_PUBLIC_ID =
+  "bhashanboard/statement-videos/123e4567-e89b-42d3-a456-426614174000";
+const CLOUDINARY_ASSET_ID = "asset_0123456789abcdef";
+
+function validCloudinaryVideo() {
+  return {
+    platform: "cloudinary",
+    id: CLOUDINARY_PUBLIC_ID,
+    assetId: CLOUDINARY_ASSET_ID,
+    version: 1_722_345_678,
+    bytes: 12_345_678,
+    derivedBytes: 10_234_567,
+    format: "mp4",
+    durationMs: 61_250,
+    start: 0,
+    end: 62,
+  };
+}
 
 function eligibleCommitteeDocument() {
   return {
@@ -59,63 +80,96 @@ test("YouTube inputs and strict timestamps produce a canonical excerpt", () => {
   );
 });
 
-test("R2 uploads normalize to an immutable, bounded MP4 excerpt", () => {
-  const sha256 = "0123456789abcdef".repeat(4);
+test("Cloudinary uploads normalize to a version-pinned, bounded MP4 excerpt", () => {
   const video = normalizeStatementVideo({
-    platform: "r2",
-    id: `statement-videos/01/${sha256}.mp4`,
-    sha256: sha256.toUpperCase(),
-    etag: '"0123456789ABCDEF0123456789ABCDEF"',
-    bytes: 12_345_678,
-    contentType: "video/mp4",
-    durationMs: 61_250,
-    start: 0,
-    end: 62,
+    ...validCloudinaryVideo(),
+    assetId: ` ${CLOUDINARY_ASSET_ID} `,
+    version: "1722345678",
   });
 
   assert.deepEqual(video, {
-    platform: "r2",
-    id: `statement-videos/01/${sha256}.mp4`,
-    sha256,
-    etag: "0123456789abcdef0123456789abcdef",
-    bytes: 12_345_678,
-    contentType: "video/mp4",
-    durationMs: 61_250,
-    start: 0,
-    end: 62,
+    ...validCloudinaryVideo(),
+    assetId: CLOUDINARY_ASSET_ID,
   });
-  assert.equal(normalizeR2Etag('W/"0123456789ABCDEF0123456789ABCDEF"'), "0123456789abcdef0123456789abcdef");
-  assert.equal(normalizeR2Sha256(` ${sha256.toUpperCase()} `), sha256);
+  assert.equal(isCloudinaryVideoPublicId(CLOUDINARY_PUBLIC_ID), true);
+  assert.equal(
+    normalizeCloudinaryAssetId(` ${CLOUDINARY_ASSET_ID} `),
+    CLOUDINARY_ASSET_ID
+  );
 });
 
-test("R2 uploads fail closed when metadata or the immutable key is invalid", () => {
-  const sha256 = "0123456789abcdef".repeat(4);
-  const valid = {
-    platform: "r2",
-    id: `statement-videos/01/${sha256}.mp4`,
-    sha256,
-    etag: "0123456789abcdef0123456789abcdef",
-    bytes: 12_345_678,
-    contentType: "video/mp4",
-    durationMs: 61_250,
-    start: 0,
-    end: 62,
-  };
+test("Cloudinary uploads fail closed when provider metadata is invalid", () => {
+  const valid = validCloudinaryVideo();
 
   assert.equal(normalizeStatementVideo({ ...valid, id: "../evidence.mp4" }), undefined);
   assert.equal(
-    normalizeStatementVideo({ ...valid, id: `statement-videos/ff/${sha256}.mp4` }),
+    normalizeStatementVideo({
+      ...valid,
+      id: "bhashanboard/statement-videos/123E4567-E89B-42D3-A456-426614174000",
+    }),
     undefined
   );
-  assert.equal(normalizeStatementVideo({ ...valid, sha256: `${valid.sha256}00` }), undefined);
-  assert.equal(normalizeStatementVideo({ ...valid, etag: `${valid.etag}-2` }), undefined);
+  assert.equal(normalizeStatementVideo({ ...valid, assetId: "too-short" }), undefined);
+  assert.equal(normalizeStatementVideo({ ...valid, version: 0 }), undefined);
   assert.equal(normalizeStatementVideo({ ...valid, start: 1 }), undefined);
   assert.equal(normalizeStatementVideo({ ...valid, end: 61 }), undefined);
-  assert.equal(normalizeStatementVideo({ ...valid, bytes: MAX_R2_VIDEO_BYTES + 1 }), undefined);
-  assert.equal(normalizeStatementVideo({ ...valid, contentType: "video/quicktime" }), undefined);
+  assert.equal(
+    normalizeStatementVideo({ ...valid, bytes: MAX_HOSTED_VIDEO_BYTES + 1 }),
+    undefined
+  );
+  assert.equal(
+    normalizeStatementVideo({
+      ...valid,
+      derivedBytes: MAX_CLOUDINARY_DERIVED_VIDEO_BYTES + 1,
+    }),
+    undefined
+  );
+  assert.equal(normalizeStatementVideo({ ...valid, format: "webm" }), undefined);
+  assert.equal(normalizeStatementVideo({ ...valid, durationMs: 2_999, end: 3 }), undefined);
   assert.equal(
     normalizeStatementVideo({ id: "abcDEF_1234", platform: null, start: 0, end: 30 }),
     undefined
+  );
+});
+
+test("legacy verification embeds remain YouTube-only", () => {
+  assert.deepEqual(
+    normalizeStatementEvidenceVideo({
+      verification: {
+        embed: {
+          platform: "youtube",
+          id: "abcDEF_1234",
+          start_s: 10,
+          end_s: 30,
+        },
+      },
+    }),
+    {
+      platform: "youtube",
+      id: "abcDEF_1234",
+      start: 10,
+      end: 30,
+    }
+  );
+  assert.equal(
+    normalizeStatementEvidenceVideo({
+      verification: { embed: validCloudinaryVideo() },
+    }),
+    undefined
+  );
+  assert.deepEqual(
+    normalizeStatementEvidenceVideo({
+      video: validCloudinaryVideo(),
+      verification: {
+        embed: {
+          platform: "youtube",
+          id: "abcDEF_1234",
+          start: 10,
+          end: 30,
+        },
+      },
+    }),
+    validCloudinaryVideo()
   );
 });
 
@@ -175,21 +229,10 @@ test("committee evidence requires the matching best-tier HTTP(S) source", () => 
   );
 });
 
-test("committee publication accepts a verified R2 MP4 as video evidence", () => {
-  const sha256 = "0123456789abcdef".repeat(4);
+test("committee publication accepts a verified Cloudinary MP4 as video evidence", () => {
   const eligible = {
     ...eligibleCommitteeDocument(),
-    video: {
-      platform: "r2",
-      id: `statement-videos/01/${sha256}.mp4`,
-      sha256,
-      etag: "0123456789abcdef0123456789abcdef",
-      bytes: 12_345_678,
-      contentType: "video/mp4",
-      durationMs: 30_000,
-      start: 0,
-      end: 30,
-    },
+    video: { ...validCloudinaryVideo(), durationMs: 30_000, end: 30 },
   };
 
   assert.deepEqual(committeePublicationIssues(eligible), []);

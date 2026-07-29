@@ -147,7 +147,7 @@ export default function StatementVotingPanel({
 }: {
   statementId: string;
   video?: StatementVideo;
-  /** Public custom-domain URL derived from an R2 object key; never a signed URL. */
+  /** Signed, version-pinned URL for an authenticated Cloudinary derivative. */
   videoUrl?: string;
   publicationEligible: boolean;
   initialRating: PublicRatingSnapshot;
@@ -322,7 +322,7 @@ export default function StatementVotingPanel({
     if (
       !playerStarted ||
       !video ||
-      video.platform !== "r2" ||
+      video.platform !== "cloudinary" ||
       !videoUrl ||
       !nativeVideoRef.current
     ) {
@@ -432,7 +432,7 @@ export default function StatementVotingPanel({
 
     setPlayerError(null);
     setWatchError(null);
-    if (video?.platform === "r2" && !videoUrl) {
+    if (video?.platform === "cloudinary" && !videoUrl) {
       setPlayerError("The hosted video URL is not configured.");
       return;
     }
@@ -577,7 +577,7 @@ export default function StatementVotingPanel({
           >
             <svg className="play-glyph" aria-hidden="true"><use href="#g-play" /></svg>
             <span className="note">
-              Click to load · {video.platform === "r2" ? "hosted MP4" : "YouTube"} excerpt {video.start}s–{video.end}s
+              Click to load · {video.platform === "cloudinary" ? "hosted MP4" : "YouTube"} excerpt {video.start}s–{video.end}s
             </span>
           </button>
         )
