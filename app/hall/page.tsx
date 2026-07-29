@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import ClassAward from "@/components/ClassAward";
+import ClassLadder from "@/components/ClassLadder";
 import SiteFrame from "@/components/SiteFrame";
-import Medal from "@/components/Medal";
 import EntryTitle from "@/components/EntryTitle";
+import { sarcasmSignature } from "@/components/SarcasmProfile";
 import { getData } from "@/lib/data";
-import { buildPublicInventory } from "@/lib/public-inventory";
+import { hallEligibility } from "@/lib/hall";
 
 export const metadata: Metadata = {
   title: "Hall of Fame",
@@ -13,68 +15,194 @@ export const metadata: Metadata = {
 
 export default async function HallPage() {
   const data = await getData();
-  const inventory = buildPublicInventory(data.CORPUS);
-  // Induction is an editorial honour, but its public display still depends
-  // on the same evidence and ten-ruling bar as the standings. Seed scores
-  // must never create a preview gallery.
+  const inventory = data.publicInventory();
   const inducted = inventory.rankedVideos.filter((s) => s.hallOfFame);
+  const rankedRoad = inventory.rankedVideos
+    .filter((statement) => !statement.hallOfFame)
+    .slice(0, 6);
+  const placementRoad =
+    rankedRoad.length === 0
+      ? [...inventory.liveVideos]
+          .filter((statement) => statement.rating.validVoteCount < 10)
+          .sort(
+            (a, b) =>
+              b.rating.validVoteCount - a.rating.validVoteCount ||
+              a.slug.localeCompare(b.slug),
+          )
+          .slice(0, 6)
+      : [];
+  const road = rankedRoad.length > 0 ? rankedRoad : placementRoad;
 
   return (
     <SiteFrame>
-      <div className="sec-head" style={{ marginTop: 26 }}>
-        <h1>Hall of Fame</h1>
-        <span className="lbl">Retired hurt</span>
-      </div>
+      <section className="hall-hero" aria-labelledby="hall-title">
+        <div className="hall-hero-copy">
+          <span className="lbl">The permanent gallery</span>
+          <h1 id="hall-title">Hall of Fame</h1>
+          <p>
+            Kohinoor is a public class. The Hall is the rarer honour: a
+            permanent place for the moments the Board refuses to let disappear.
+            The clip receives the honour, never the person.
+          </p>
+        </div>
+        <dl className="hall-rule">
+          <div>
+            <dt>25</dt>
+            <dd>valid public votes</dd>
+          </div>
+          <div>
+            <dt>1,875+</dt>
+            <dd>GP · Kohinoor Class</dd>
+          </div>
+          <div>
+            <dt>1</dt>
+            <dd>formal induction</dd>
+          </div>
+        </dl>
+      </section>
 
-      <p className="prose" style={{ marginTop: 16 }}>
-        Once a year, roughly five all-time entries from the live standings join
-        this permanent gallery. The score stays untouched; induction is an
-        honour, not another vote.
-      </p>
-      <p className="prose">
-        {inducted.length
-          ? "Inducted below."
-          : "The first eligible induction has not yet taken place. The gallery stays empty until a video-backed entry is publicly ranked and formally inducted."}
-      </p>
+      <section className="hall-gallery" aria-labelledby="hall-inducted">
+        <div className="sec-head">
+          <h2 id="hall-inducted">The inducted moments</h2>
+          <span className="lbl">
+            {inducted.length} permanent{" "}
+            {inducted.length === 1 ? "entry" : "entries"}
+          </span>
+        </div>
 
-      <div style={{ marginTop: 24, borderTop: "2px solid var(--ink)" }}>
         {inducted.length === 0 && (
-          <div className="empty">
-            No Hall of Fame entry is public yet.{" "}
-            <Link href="/watch">Watch the live clips</Link> or{" "}
-            <Link href="/record">browse the archive</Link>.
+          <div className="hall-empty">
+            <span className="stamp foil">The first plinth is still empty</span>
+            <h3>No moment has been inducted yet.</h3>
+            <p>
+              Until the first ceremony, the strongest public clips wait below
+              with their paperwork in order.
+            </p>
           </div>
         )}
-        {inducted.map((s) => {
-          const neta = data.netaBySlug(s.neta);
-          const publicRank = inventory.publicRankBySlug.get(s.slug);
-          return (
-            <article className="hall-entry" key={s.slug}>
-              <div className="hall-rank">
-                <Medal gp={s.gp} size={28} />
-                <div className="num" style={{ fontSize: 11, color: "var(--ink-45)", marginTop: 2 }}>
-                  {publicRank ? `#${publicRank}` : ""}
-                </div>
-              </div>
-              <div>
-                <Link href={`/statement/${s.slug}`} className="hall-quote">
-                  <EntryTitle statement={s} />
-                </Link>
-                {s.citation && (
-                  <div style={{ fontStyle: "italic", color: "var(--foil)", fontSize: 14, marginTop: 2 }}>
-                    {s.citation}
+        {inducted.length > 0 && (
+          <div className="hall-card-grid">
+            {inducted.map((statement) => {
+              const neta = data.netaBySlug(statement.neta);
+              const publicRank =
+                inventory.publicRankBySlug.get(statement.slug) ?? 0;
+              return (
+                <article className="hall-card" key={statement.slug}>
+                  <span className="hall-card-kicker">
+                    Inducted moment &middot; public rank #{publicRank}
+                  </span>
+                  <Link
+                    href={`/statement/${statement.slug}`}
+                    className="hall-card-title"
+                  >
+                    <EntryTitle statement={statement} />
+                  </Link>
+                  <p className="entry-sub">
+                    {neta?.name ?? "Representative"} &middot;{" "}
+                    {statement.partyAtTime} &middot; {statement.category}
+                  </p>
+                  <ClassAward
+                    gp={statement.gp}
+                    validVoteCount={statement.rating.validVoteCount}
+                    performance={statement.rating.performance}
+                    rank={publicRank}
+                    hallOfFame
+                    signature={sarcasmSignature(statement.axes)}
+                  />
+                </article>
+              );
+            })}
+          </div>
+        )}
+      </section>
+
+      <section className="hall-road" aria-labelledby="hall-road-title">
+        <div className="sec-head">
+          <h2 id="hall-road-title">Road to the Hall</h2>
+          <Link className="lbl" href="/standings">
+            Open the full standings &rarr;
+          </Link>
+        </div>
+
+        {road.length > 0 ? (
+          <div className="hall-road-grid">
+            {road.map((statement) => {
+              const neta = data.netaBySlug(statement.neta);
+              const publicRank =
+                inventory.publicRankBySlug.get(statement.slug) ?? 0;
+              const eligibility = hallEligibility(statement);
+              const progress =
+                statement.rating.validVoteCount < 10
+                  ? `${10 - statement.rating.validVoteCount} more ${
+                      10 - statement.rating.validVoteCount === 1
+                        ? "vote"
+                        : "votes"
+                    } to receive a class`
+                  : eligibility.eligible
+                    ? "Eligible for formal induction"
+                    : [
+                        eligibility.remainingVotes > 0
+                          ? `${eligibility.remainingVotes} more ${
+                              eligibility.remainingVotes === 1
+                                ? "vote"
+                                : "votes"
+                            }`
+                          : "",
+                        eligibility.remainingGp > 0
+                          ? `${eligibility.remainingGp} GP to Kohinoor`
+                          : "",
+                      ]
+                        .filter(Boolean)
+                        .join(" · ");
+
+              return (
+                <article className="hall-road-card" key={statement.slug}>
+                  <div>
+                    <span className="lbl">
+                      {eligibility.eligible
+                        ? "Ready for the ceremony"
+                        : "Still climbing"}
+                    </span>
+                    <Link
+                      href={`/statement/${statement.slug}`}
+                      className="hall-road-title"
+                    >
+                      <EntryTitle statement={statement} />
+                    </Link>
+                    <p className="entry-sub">
+                      {neta?.name ?? "Representative"} &middot;{" "}
+                      {statement.partyAtTime}
+                    </p>
                   </div>
-                )}
-                <div className="entry-sub" style={{ marginTop: 4 }}>
-                  {neta?.name} &middot; {s.partyAtTime} &middot; {neta?.state} &middot;{" "}
-                  <span className="num">{s.rating.validVoteCount.toLocaleString("en-IN")}</span> public votes
-                </div>
-              </div>
-              <div className="hall-gp">{s.gp.toLocaleString("en-IN")}</div>
-            </article>
-          );
-        })}
-      </div>
+                  <ClassAward
+                    gp={statement.gp}
+                    validVoteCount={statement.rating.validVoteCount}
+                    performance={statement.rating.performance}
+                    rank={publicRank}
+                    signature={{
+                      label: "Logic Break",
+                      value: statement.axes.logic,
+                    }}
+                  />
+                  <p className="hall-road-progress">{progress}</p>
+                </article>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="hall-empty">
+            <h3>The road is open.</h3>
+            <p>
+              No clip is live yet. Send the moment that should face the Board.
+            </p>
+            <Link className="btn seal" href="/submit">
+              Send a clip
+            </Link>
+          </div>
+        )}
+      </section>
+
+      <ClassLadder statements={inventory.rankedVideos} />
     </SiteFrame>
   );
 }

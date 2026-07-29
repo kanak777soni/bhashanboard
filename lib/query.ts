@@ -1,4 +1,4 @@
-import { tierOf } from "./tiers";
+import { TIERS, tierOf } from "./tiers";
 import type { CorpusStatement } from "./corpus";
 import type { Neta } from "./types";
 
@@ -135,7 +135,7 @@ export function activeTokens(query: Query): { key: keyof Query; label: string; v
     country: "Country",
     party: "Party",
     state: "State",
-    tier: "Tier",
+    tier: "Class",
     category: "Category",
     language: "Language",
     period: "Period",
@@ -145,6 +145,12 @@ export function activeTokens(query: Query): { key: keyof Query; label: string; v
     .map((k) => ({
       key: k,
       label: labels[k]!,
-      value: k === "period" ? `Last ${query[k]} days` : String(query[k]),
+      value:
+        k === "period"
+          ? `Last ${query[k]} days`
+          : k === "tier"
+            ? TIERS.find((tier) => tier.key === query[k])?.name ??
+              String(query[k])
+            : String(query[k]),
     }));
 }

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import ClassLadder from "@/components/ClassLadder";
 import SiteFrame from "@/components/SiteFrame";
 import HowItWorks from "@/components/public/HowItWorks";
 import ResearchEntryCard from "@/components/public/ResearchEntryCard";
@@ -9,7 +10,7 @@ import { getData } from "@/lib/data";
 export const metadata = {
   title: "The Bhashan Board",
   description:
-    "Watch public statements, score the sarcasm, and see where they land.",
+    "Public speeches, public sarcasm. Watch the moments and see which class each clip earns.",
 };
 
 export default async function FrontPage() {
@@ -33,6 +34,9 @@ export default async function FrontPage() {
     (statement) =>
       statement.rating.validVoteCount > 0 &&
       statement.rating.validVoteCount < 10,
+  ).length;
+  const hallCount = inventory.rankedVideos.filter(
+    (statement) => statement.hallOfFame,
   ).length;
 
   return (
@@ -85,6 +89,27 @@ export default async function FrontPage() {
       )}
 
       <HowItWorks />
+
+      <div className={styles.awardSection}>
+        <ClassLadder statements={inventory.rankedVideos} />
+      </div>
+
+      <section className={styles.hallCallout} aria-labelledby="hall-callout">
+        <div>
+          <span className="lbl">The permanent gallery</span>
+          <h2 id="hall-callout">Hall of Fame</h2>
+          <p>
+            {hallCount > 0
+              ? `${hallCount} ${
+                  hallCount === 1 ? "moment has" : "moments have"
+                } earned a permanent place on the Board.`
+              : "The gallery is waiting for its first formally inducted moment. Follow the strongest clips on their road to the Hall."}
+          </p>
+        </div>
+        <Link className="btn seal" href="/hall">
+          Enter the Hall
+        </Link>
+      </section>
 
       {secondary.length > 0 && (
         <section className={styles.section} aria-labelledby="keep-watching">

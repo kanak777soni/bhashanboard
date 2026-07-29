@@ -16,7 +16,9 @@ export default async function Masthead() {
             <h1 className="nameplate">
               <Link href="/">The Bhashan Board</Link>
             </h1>
-            <p className="tagline">An archive of public wisdom. Independently ranked.</p>
+            <p className="tagline">
+              Public speeches. Public sarcasm. Independently ranked.
+            </p>
             {/* Institutions have mottoes. The joke is that ours is sincere. */}
             <p className="motto">&ldquo;Dicta manent&rdquo; &mdash; what was said, remains</p>
           </div>

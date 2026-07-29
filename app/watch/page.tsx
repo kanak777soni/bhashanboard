@@ -84,6 +84,8 @@ export default async function WatchPage({
               ? "Finding its place"
               : "Ranked",
         publicRank: data.publicRankOf(statement.slug),
+        axes: statement.axes,
+        hallOfFame: statement.hallOfFame,
       },
     ];
   });

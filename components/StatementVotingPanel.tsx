@@ -10,6 +10,10 @@ import {
   useState,
   type KeyboardEvent as ReactKeyboardEvent,
 } from "react";
+import ClassAward from "@/components/ClassAward";
+import SarcasmProfile, {
+  sarcasmSignature,
+} from "@/components/SarcasmProfile";
 import VerifiedVideoPlayer, {
   type VerifiedVideoHeartbeat,
   type VerifiedVideoHeartbeatReason,
@@ -25,7 +29,7 @@ import {
   resolvePlaybackPolicy,
   watchSessionErrorDisposition,
 } from "@/lib/playback-policy";
-import type { StatementVideo } from "@/lib/types";
+import type { Axes, StatementVideo } from "@/lib/types";
 
 const BALLOT_OPTIONS = [
   { value: 0, label: "Flat", detail: "Did not land" },
@@ -151,6 +155,8 @@ export default function StatementVotingPanel({
   initialRating,
   active = true,
   authCallbackPath,
+  resultsMode = "always",
+  resultAward,
 }: {
   statementId: string;
   video?: StatementVideo;
@@ -162,6 +168,14 @@ export default function StatementVotingPanel({
   active?: boolean;
   /** Preserve the selected feed clip across sign-in. */
   authCallbackPath?: string;
+  /** Watch can keep aggregate results blind until this member has voted. */
+  resultsMode?: "always" | "after-vote";
+  /** Optional Watch-only award reveal shown after the blind ballot. */
+  resultAward?: {
+    axes: Axes;
+    hallOfFame?: boolean;
+    publicRank?: number;
+  };
 }) {
   const { data: authSession, isPending: authPending } = useSession();
   const pathname = usePathname();
@@ -258,11 +272,14 @@ export default function StatementVotingPanel({
   const playbackAllowed = playbackPolicy.playbackAllowed;
   playbackAllowedRef.current = playbackAllowed;
   const hasPublicRulings = rating.validVoteCount > 0;
-  const displayedPerformance = hasPublicRulings
+  const revealPublicResults =
+    resultsMode === "always" || Boolean(currentVote);
+  const displayedPerformance = hasPublicRulings && revealPublicResults
     ? Math.max(0, Math.min(100, rating.performance))
     : 0;
 
   const publicRulingLabel = useMemo(() => {
+    if (!revealPublicResults) return "Results reveal after your vote";
     if (rating.validVoteCount === 0) return "Fresh clip · no votes yet";
     if (rating.validVoteCount < 10) {
       return `${rating.validVoteCount}/10 votes · finding its place`;
@@ -270,7 +287,7 @@ export default function StatementVotingPanel({
     return `${rating.validVoteCount.toLocaleString("en-IN")} public vote${
       rating.validVoteCount === 1 ? "" : "s"
     }`;
-  }, [rating.validVoteCount]);
+  }, [rating.validVoteCount, revealPublicResults]);
 
   useEffect(() => {
     setRating(initialRating);
@@ -916,7 +933,7 @@ export default function StatementVotingPanel({
     <section className="ruling-panel" aria-labelledby={`ruling-${statementId}`}>
       <div className="ruling-head">
         <div>
-          <span className="lbl">Clip &amp; public score</span>
+          <span className="lbl">The moment &amp; your ruling</span>
           <strong
             id={`ruling-${statementId}`}
             style={{
@@ -928,21 +945,25 @@ export default function StatementVotingPanel({
               margin: "5px 0 0",
             }}
           >
-            Watch it. Then score it.
+            Watch the moment. Enter your ruling.
           </strong>
         </div>
         <div
           className="ruling-score"
           aria-label={
-            hasPublicRulings
+            !revealPublicResults
+              ? "Public result hidden until your vote"
+              : hasPublicRulings
               ? `Current public performance ${Math.round(rating.performance)} out of 100`
               : "No public performance yet"
           }
         >
           <span className="num">
-            {hasPublicRulings ? Math.round(rating.performance) : "—"}
+            {revealPublicResults && hasPublicRulings
+              ? Math.round(rating.performance)
+              : "—"}
           </span>
-          <small>/ 100</small>
+          <small>{revealPublicResults ? "/ 100" : "after vote"}</small>
         </div>
       </div>
 
@@ -972,7 +993,9 @@ export default function StatementVotingPanel({
 
       <div className="performance-track" aria-hidden="true">
         <i style={{ width: `${displayedPerformance}%` }} />
-        {hasPublicRulings && <b style={{ left: `${displayedPerformance}%` }} />}
+        {revealPublicResults && hasPublicRulings && (
+          <b style={{ left: `${displayedPerformance}%` }} />
+        )}
       </div>
       <div className="performance-legend lbl">
         <span>Flat</span>
@@ -988,14 +1011,14 @@ export default function StatementVotingPanel({
         ))}
       </div>
       <details className="rating-explainer">
-        <summary>How this score works</summary>
+        <summary>How the public score works</summary>
         <p>
           Every vote has equal weight. The score is the sum of vote values
-          divided by {rating.validVoteCount || "the number of"} valid votes; GP
-          is 1000 plus ten times that score.
-          {rating.validVoteCount < 10
-            ? " A clip joins the standings after ten votes."
-            : " This clip has enough votes for the standings."}
+          divided by the number of valid votes; GP is 1000 plus ten times that
+          score. A clip receives its class and joins the standings after ten
+          votes.
+          {!revealPublicResults &&
+            " The current result stays covered until you enter your own ruling."}
         </p>
       </details>
 
@@ -1107,13 +1130,32 @@ export default function StatementVotingPanel({
         )}
       </div>
 
-      {rating.validVoteCount > 0 && (
+      {revealPublicResults && rating.validVoteCount > 0 && (
         <div className="vote-distribution" aria-label="Public vote distribution">
           {BALLOT_OPTIONS.map((option) => {
             const count = rating.distribution?.[option.value] ?? emptyDistribution()[option.value];
             const width = rating.validVoteCount > 0 ? (count / rating.validVoteCount) * 100 : 0;
             return <i key={option.value} style={{ width: `${width}%` }} title={`${option.label}: ${count}`} />;
           })}
+        </div>
+      )}
+
+      {revealPublicResults && resultAward && (
+        <div className="ruling-award-reveal">
+          <ClassAward
+            gp={rating.gp}
+            validVoteCount={rating.validVoteCount}
+            performance={rating.performance}
+            rank={resultAward.publicRank}
+            hallOfFame={resultAward.hallOfFame}
+            variant="hero"
+            signature={sarcasmSignature(resultAward.axes)}
+          />
+          <SarcasmProfile
+            axes={resultAward.axes}
+            compact
+            headingLevel={3}
+          />
         </div>
       )}
     </section>

@@ -1,16 +1,18 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import ClassAward from "@/components/ClassAward";
 import EntryTitle from "@/components/EntryTitle";
 import Guilloche from "@/components/Guilloche";
-import Medal from "@/components/Medal";
+import SarcasmProfile, {
+  sarcasmSignature,
+} from "@/components/SarcasmProfile";
 import ScreeningFrame from "@/components/ScreeningFrame";
 import StatementFooterNav from "@/components/StatementFooterNav";
 import StatementVotingPanel from "@/components/StatementVotingPanel";
 import { cloudinaryVideoUrl } from "@/lib/cloudinary";
 import { getData } from "@/lib/data";
 import { statementRatingMaturity } from "@/lib/public-inventory";
-import { tierOf } from "@/lib/tiers";
 
 export async function generateMetadata({
   params,
@@ -81,7 +83,6 @@ export default async function StatementPage({
   const maturity = statementRatingMaturity(statement);
   const isLiveScreening = statement.publicationEligible && hasVideo;
   const isRanked = isLiveScreening && maturity === "ranked";
-  const tier = tierOf(statement.gp);
   const rank = isRanked ? data.publicRankOf(statement.slug) : null;
   const evidenceState = evidenceStateLabel({
     hasVideo,
@@ -118,7 +119,13 @@ export default async function StatementPage({
         ) : (
           "Unknown"
         )}
-        {[statement.office, party?.name, statement.venue]
+        {[
+          statement.office,
+          party?.name,
+          statement.venue,
+          statement.category,
+          statement.language,
+        ]
           .filter(Boolean)
           .map((detail) => (
             <span key={detail}> · {detail}</span>
@@ -147,20 +154,13 @@ export default async function StatementPage({
             </div>
 
             {isRanked ? (
-              <div
-                className="statement-placement-seal"
-                style={{ color: tier.colour, textAlign: "center" }}
-              >
-                <svg
-                  className="medal"
-                  style={{ width: 54, height: 54, margin: "0 auto" }}
-                  aria-hidden="true"
-                >
-                  <use href="#g-seal" />
-                </svg>
-                <div className="lbl" style={{ color: "inherit", marginTop: 3 }}>
-                  {tier.name}
-                </div>
+              <div className="statement-file-mark" aria-label="Public standing">
+                <span className="lbl">
+                  {statement.hallOfFame ? "Hall of Fame" : "Class conferred"}
+                </span>
+                <strong>
+                  {rank ? `Public rank #${rank}` : "Publicly ranked"}
+                </strong>
               </div>
             ) : (
               <div className="statement-file-mark" aria-label={evidenceState}>
@@ -261,46 +261,25 @@ export default async function StatementPage({
             <p className="quote-note">{statement.quoteNote}</p>
           )}
 
-          {isRanked ? (
-            <div className="verdict statement-verdict">
-              <div>
-                <span className="lbl">Public GP</span>
-                <b>{statement.gp.toLocaleString("en-IN")}</b>
-              </div>
-              <div>
-                <span className="lbl">Votes</span>
-                <b>
-                  {statement.rating.validVoteCount.toLocaleString("en-IN")}
-                </b>
-              </div>
-              <div>
-                <span className="lbl">Standings</span>
-                <b>{rank ? `#${rank}` : "—"}</b>
-              </div>
-              <div>
-                <span className="lbl">Sarcasm score</span>
-                <b>{Math.round(statement.rating.performance)}/100</b>
-              </div>
-              <div>
-                <span className="lbl">Category</span>
-                <b
-                  style={{
-                    fontFamily: "var(--font-display)",
-                    fontSize: 17,
-                  }}
-                >
-                  {statement.category}
-                </b>
-              </div>
-              <div>
-                <span className="lbl">Class</span>
-                <div className="tier-line" style={{ color: tier.colour }}>
-                  <Medal tier={tier.key} title={false} />
-                  <span>{tier.name}</span>
-                </div>
-              </div>
-            </div>
-          ) : (
+          {isLiveScreening && (
+            <section
+              className="statement-award-stack"
+              aria-label="Class and sarcasm profile"
+            >
+              <ClassAward
+                gp={statement.gp}
+                validVoteCount={statement.rating.validVoteCount}
+                performance={statement.rating.performance}
+                rank={rank ?? 0}
+                hallOfFame={statement.hallOfFame}
+                variant="hero"
+                signature={sarcasmSignature(statement.axes)}
+              />
+              <SarcasmProfile axes={statement.axes} />
+            </section>
+          )}
+
+          {!isLiveScreening && (
             <dl className="statement-record-facts record-state">
               <div>
                 <dt className="lbl">Video</dt>
@@ -405,12 +384,14 @@ export default async function StatementPage({
           <div className="stamps statement-stamps">
             {isRanked ? (
               <span className="stamp foil">
-                Certified organic gyan &middot; no AI
+                {statement.hallOfFame
+                  ? "Hall of Fame · permanently on the Board"
+                  : "Class conferred · entirely by public vote"}
               </span>
             ) : (
               <span className="stamp foil">
                 {isLiveScreening
-                  ? "Live clip · voting open"
+                  ? "On the road to a class · voting open"
                   : hasVideo
                     ? "Clip added · backstage"
                     : "Clip wanted"}

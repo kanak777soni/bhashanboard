@@ -308,18 +308,19 @@ export default function EntryForm({
       </details>
 
       <details className="admin-optional">
-        <summary>Optional internal score notes</summary>
+        <summary>Sarcasm Profile</summary>
         <fieldset>
-          <legend>Starter notes</legend>
+          <legend>Comic anatomy</legend>
           <p className="rail-note">
-            These private 0&ndash;5 notes do not decide GP or rank. The public
-            score comes only from valid one-person, one-vote ratings.
+            These 0&ndash;5 editorial marks appear publicly as the clip&rsquo;s
+            Sarcasm Profile. They describe the moment but never decide GP,
+            class or rank; those come only from equal public votes.
           </p>
           <div className="axis-editor">
             {Object.keys(AXIS_WEIGHTS).map((key) => (
               <label className="field" key={key}>
                 <span className="lbl">
-                  {AXIS_LABELS[key]} &middot; internal weight {AXIS_WEIGHTS[key]}
+                  {AXIS_LABELS[key]}
                 </span>
                 <select name={key} defaultValue={entry?.axes?.[key] ?? 3}>
                   {[0, 1, 2, 3, 4, 5].map((score) => (

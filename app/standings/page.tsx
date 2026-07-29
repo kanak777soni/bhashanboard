@@ -1,8 +1,10 @@
 import Link from "next/link";
+import ClassAward from "@/components/ClassAward";
+import ClassLadder from "@/components/ClassLadder";
+import EntryTitle from "@/components/EntryTitle";
 import SiteFrame from "@/components/SiteFrame";
 import QueryForm from "@/components/QueryForm";
 import StandingsTable from "@/components/StandingsTable";
-import TierLegend from "@/components/TierLegend";
 import CoverageNote from "@/components/CoverageNote";
 import { CATEGORIES, getData } from "@/lib/data";
 import { parseQuery, runQuery } from "@/lib/query";
@@ -39,9 +41,74 @@ export default async function StandingsPage({
       statement.rating.validVoteCount > 0 &&
       statement.rating.validVoteCount < 10
   ).length;
+  const podium = inventory.rankedVideos.slice(0, 3);
 
   return (
     <SiteFrame>
+      <section className="standings-ceremony" aria-labelledby="standings-title">
+        <header className="standings-ceremony-head">
+          <span className="lbl">The public honours board</span>
+          <h1 id="standings-title">The Standings</h1>
+          <p>
+            Every class here was conferred on a clip by public vote. The
+            grandest nonsense rises; the person does not receive the label.
+          </p>
+        </header>
+
+        {podium.length > 0 ? (
+          <div className="standings-podium">
+            {podium.map((statement, index) => {
+              const neta = data.netaBySlug(statement.neta);
+              return (
+                <article className="podium-entry" key={statement.slug}>
+                  <span className="podium-rank num">#{index + 1}</span>
+                  <Link
+                    className="podium-title"
+                    href={`/statement/${statement.slug}`}
+                  >
+                    <EntryTitle statement={statement} />
+                  </Link>
+                  <p className="entry-sub">
+                    {neta?.name ?? "Representative"} &middot;{" "}
+                    {statement.partyAtTime}
+                  </p>
+                  <ClassAward
+                    gp={statement.gp}
+                    validVoteCount={statement.rating.validVoteCount}
+                    performance={statement.rating.performance}
+                    rank={index + 1}
+                    hallOfFame={statement.hallOfFame}
+                    signature={{
+                      label: "Logic Break",
+                      value: statement.axes.logic,
+                    }}
+                  />
+                </article>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="standings-ceremony-empty">
+            <span className="lbl">No class conferred yet</span>
+            <p>
+              {inventory.liveVideos.length > 0
+                ? `${inventory.liveVideos.length} ${
+                    inventory.liveVideos.length === 1 ? "clip is" : "clips are"
+                  } collecting the ten public rulings needed to enter this Board.`
+                : "The honours board is ready. Its first live clip is still waiting backstage."}
+            </p>
+            <Link className="btn seal" href="/watch">
+              Take your seat
+            </Link>
+          </div>
+        )}
+      </section>
+
+      <ClassLadder
+        statements={inventory.rankedVideos}
+        selectedTier={query.tier}
+      />
+
       <QueryForm
         query={query}
         resultCount={rows.length}
@@ -59,7 +126,7 @@ export default async function StandingsPage({
       <div className="columns">
         <div>
           <div className="sec-head">
-            <h1>The Standings</h1>
+            <h2>Complete standings</h2>
             <span className="lbl">Ten votes to enter the table</span>
           </div>
           <StandingsTable rows={rows} term={query.q} />
@@ -89,8 +156,6 @@ export default async function StandingsPage({
           </section>
 
           <CoverageNote />
-
-          {inventory.rankedVideos.length > 0 && <TierLegend compact />}
 
           <section className="rail-block">
             <h2>State of the public board</h2>

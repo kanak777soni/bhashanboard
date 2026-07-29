@@ -182,15 +182,17 @@ export default async function AdminOverview() {
         <div className="guard clear">
           <span className="lbl">One person, one equal vote</span>
           <p>
-            Private score notes do not create a rank, GP or starting advantage.
-            Each verified account can vote once per statement, every vote has
-            equal strength, and a live entry reaches Standings after ten votes.
+            Sarcasm Profile marks describe the comic anatomy but do not create
+            a rank, GP or starting advantage. Each verified account can vote
+            once per statement, every vote has equal strength, and a live entry
+            reaches Standings after ten votes.
           </p>
         </div>
         <p className="rail-note">
           Use <Link href="/admin/entries">Entries</Link> to move clips from
           Draft to Live. Once an entry has ten votes, its public rank and GP
-          appear in <Link href="/admin/hall">Hall candidates</Link>.
+          appear in Standings; Hall eligibility requires 25 votes and Kohinoor
+          Class. Manage it in <Link href="/admin/hall">Hall of Fame</Link>.
         </p>
       </section>
     </>

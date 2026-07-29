@@ -1,0 +1,453 @@
+.award {
+  --award-colour: var(--foil);
+  position: relative;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  color: var(--ink);
+}
+
+.awardHero {
+  grid-template-columns: auto minmax(180px, 1fr);
+  gap: clamp(14px, 2.2vw, 24px);
+  padding: clamp(16px, 2.4vw, 24px);
+  border: 1px solid var(--rule-hard);
+  border-top: 3px solid var(--award-colour);
+  background:
+    radial-gradient(circle at 12% 50%, color-mix(in srgb, var(--award-colour) 12%, transparent), transparent 28%),
+    var(--ground-2);
+}
+
+.awardCompact {
+  gap: 9px;
+}
+
+.medallion {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  flex: none;
+  border: 1px solid color-mix(in srgb, var(--award-colour) 70%, var(--rule-hard));
+  border-radius: 50%;
+  color: var(--award-colour);
+  background:
+    radial-gradient(circle, var(--ground-3) 0 47%, transparent 48%),
+    repeating-conic-gradient(
+      from 0deg,
+      color-mix(in srgb, var(--award-colour) 22%, transparent) 0 5deg,
+      transparent 5deg 10deg
+    );
+}
+
+.awardHero .medallion {
+  width: clamp(82px, 11vw, 118px);
+  height: clamp(82px, 11vw, 118px);
+}
+
+.medallion::after {
+  position: absolute;
+  inset: 6px;
+  border: 1px solid currentColor;
+  border-radius: inherit;
+  content: "";
+  opacity: .44;
+}
+
+.pendingMedallion {
+  border-style: dashed;
+  color: var(--ink-45);
+  background: var(--ground);
+  font-family: var(--font-data);
+  font-size: 13px;
+}
+
+.awardHero .pendingMedallion {
+  font-size: 18px;
+}
+
+.copy {
+  min-width: 0;
+}
+
+.kicker,
+.meta,
+.hallRibbon,
+.profileKicker,
+.ladderKicker,
+.classRange,
+.classCount,
+.signature {
+  font-family: var(--font-util);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+}
+
+.kicker {
+  display: block;
+  color: var(--award-colour);
+}
+
+.className {
+  display: block;
+  margin-top: 2px;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1.08;
+}
+
+.awardHero .className {
+  font-size: clamp(28px, 4vw, 46px);
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 13px;
+  margin-top: 7px;
+  color: var(--ink-45);
+  line-height: 1.4;
+}
+
+.meta strong {
+  color: var(--ink);
+  font-family: var(--font-data);
+  font-size: 1.08em;
+  font-weight: 400;
+  letter-spacing: .04em;
+}
+
+.hallRibbon {
+  width: max-content;
+  max-width: 100%;
+  margin: 0 0 7px;
+  padding: 4px 7px;
+  color: var(--on-seal);
+  background: var(--seal);
+  letter-spacing: .16em;
+}
+
+.signature {
+  width: max-content;
+  max-width: 100%;
+  display: inline-flex;
+  gap: 7px;
+  align-items: baseline;
+  margin-top: 9px;
+  padding: 4px 7px;
+  color: var(--seal);
+  border: 1px solid color-mix(in srgb, var(--seal) 54%, var(--rule-hard));
+  background: var(--ground);
+}
+
+.signature strong {
+  font-family: var(--font-data);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.profile {
+  min-width: 0;
+  padding: clamp(15px, 2.2vw, 22px);
+  border: 1px solid var(--rule-hard);
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent 0 30px,
+      color-mix(in srgb, var(--rule) 62%, transparent) 30px 31px
+    ),
+    var(--ground);
+}
+
+.profileHeader {
+  display: flex;
+  gap: 15px;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--ink);
+}
+
+.profileHeader h2,
+.profileHeader h3 {
+  margin: 4px 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(23px, 3vw, 31px);
+  font-weight: 400;
+  line-height: 1.05;
+}
+
+.profileKicker {
+  color: var(--seal);
+}
+
+.profileNote {
+  max-width: 34ch;
+  margin: 0;
+  color: var(--ink-45);
+  font-size: 12px;
+  line-height: 1.4;
+  text-align: right;
+}
+
+.profileGrid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0;
+  margin-top: 12px;
+  border: 1px solid var(--rule-hard);
+  border-left: 0;
+  background: var(--ground-2);
+}
+
+.profileAxis {
+  min-width: 0;
+  padding: 11px 10px;
+  border-left: 1px solid var(--rule-hard);
+}
+
+.profileAxisHead {
+  min-height: 34px;
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+  justify-content: space-between;
+  color: var(--ink);
+  font-family: var(--font-util);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  line-height: 1.25;
+  text-transform: uppercase;
+}
+
+.profileAxisHead strong {
+  flex: none;
+  color: var(--seal);
+  font-family: var(--font-data);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.profileTrack {
+  position: relative;
+  height: 7px;
+  margin-top: 8px;
+  border: 1px solid var(--rule-hard);
+  background: var(--ground);
+}
+
+.profileFill {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--foil), var(--seal));
+}
+
+.profileCompact {
+  padding: 12px;
+}
+
+.profileCompact .profileHeader {
+  align-items: baseline;
+}
+
+.profileCompact .profileHeader h2,
+.profileCompact .profileHeader h3 {
+  font-size: 22px;
+}
+
+.profileCompact .profileNote {
+  display: none;
+}
+
+.ladder {
+  min-width: 0;
+  padding: 16px 0 0;
+  border-top: 2px solid var(--ink);
+}
+
+.ladderHead {
+  display: flex;
+  gap: 18px;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.ladderHead h2,
+.ladderHead h3 {
+  margin: 3px 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(24px, 3.2vw, 34px);
+  font-weight: 400;
+}
+
+.ladderKicker {
+  color: var(--seal);
+}
+
+.ladderNote {
+  max-width: 42ch;
+  margin: 0;
+  color: var(--ink-45);
+  font-size: 12px;
+  text-align: right;
+}
+
+.ladderRail {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  border: 1px solid var(--rule-hard);
+  border-left: 0;
+}
+
+.classCard {
+  min-width: 0;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 7px;
+  padding: 11px 9px;
+  color: var(--ink);
+  border-left: 1px solid var(--rule-hard);
+  background: var(--ground-2);
+  text-decoration: none;
+}
+
+.classCard:hover,
+.classCard:focus-visible,
+.classCardActive {
+  color: var(--ink);
+  background: var(--foil-soft);
+}
+
+.classCardActive {
+  box-shadow: inset 0 -3px 0 var(--seal);
+}
+
+.classMedal {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.classMedal strong {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.08;
+}
+
+.classFoot {
+  display: flex;
+  gap: 7px;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.classRange {
+  color: var(--ink-45);
+  font-size: 8.5px;
+  letter-spacing: .09em;
+}
+
+.classCount {
+  color: var(--seal);
+  font-family: var(--font-data);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: .03em;
+}
+
+@media (max-width: 900px) {
+  .profileGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .profileAxis:nth-child(n + 4) {
+    border-top: 1px solid var(--rule-hard);
+  }
+
+  .ladderRail {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .classCard:nth-child(n + 4) {
+    border-top: 1px solid var(--rule-hard);
+  }
+}
+
+@media (max-width: 620px) {
+  .awardHero {
+    grid-template-columns: auto minmax(0, 1fr);
+    padding: 14px;
+  }
+
+  .awardHero .medallion {
+    width: 72px;
+    height: 72px;
+  }
+
+  .awardHero .className {
+    font-size: 28px;
+  }
+
+  .profileHeader,
+  .ladderHead {
+    display: block;
+  }
+
+  .profileNote,
+  .ladderNote {
+    margin-top: 7px;
+    text-align: left;
+  }
+
+  .profileGrid {
+    grid-template-columns: 1fr;
+    border-top: 0;
+  }
+
+  .profileAxis,
+  .profileAxis:nth-child(n + 4) {
+    display: grid;
+    grid-template-columns: minmax(116px, .58fr) minmax(0, 1fr);
+    gap: 10px;
+    align-items: center;
+    padding: 9px 10px;
+    border-top: 1px solid var(--rule-hard);
+  }
+
+  .profileAxisHead {
+    min-height: 0;
+    align-items: baseline;
+  }
+
+  .profileTrack {
+    margin-top: 0;
+  }
+
+  .ladderRail {
+    grid-template-columns: repeat(6, minmax(128px, 1fr));
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scrollbar-width: thin;
+  }
+
+  .classCard:nth-child(n + 4) {
+    border-top: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .award,
+  .medallion {
+    scroll-behavior: auto;
+  }
+}

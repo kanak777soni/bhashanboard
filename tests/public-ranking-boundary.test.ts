@@ -3,6 +3,11 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import test from "node:test";
 import { DEFAULTS } from "../lib/query";
+import {
+  HALL_MIN_GP,
+  HALL_MIN_VALID_VOTES,
+  hallEligibility,
+} from "../lib/hall";
 import { mergeQueryUpdate } from "../components/QueryForm";
 
 function source(file: string): string {
@@ -60,6 +65,25 @@ test("Hall induction is gated by public maturity and current hosted evidence", (
   assert.match(hall, /statementReadiness\(s\)\.key\s*===\s*"live"/);
   assert.match(actions, /publicData\.publicRankOf\(publicStatement\.slug\)/);
   assert.match(actions, /verifyExistingCloudinaryVideo\(storedVideo\)/);
+  assert.match(actions, /hallEligibility\(publicStatement\)/);
+  assert.match(hall, /eligibility\.eligible/);
+});
+
+test("Hall eligibility requires both Kohinoor GP and twenty-five votes", () => {
+  assert.equal(HALL_MIN_GP, 1875);
+  assert.equal(HALL_MIN_VALID_VOTES, 25);
+  assert.deepEqual(
+    hallEligibility({ gp: 1874, rating: { validVoteCount: 24 } }),
+    {
+      eligible: false,
+      remainingVotes: 1,
+      remainingGp: 1,
+    },
+  );
+  assert.equal(
+    hallEligibility({ gp: 1875, rating: { validVoteCount: 25 } }).eligible,
+    true,
+  );
 });
 
 test("new filings and in-placement filings remain distinct in public copy", () => {

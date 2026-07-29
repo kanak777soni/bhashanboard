@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import ClassAward from "@/components/ClassAward";
+import EntryTitle from "@/components/EntryTitle";
 import RecordList from "@/components/public/RecordList";
 import SiteFrame from "@/components/SiteFrame";
 import StandingsTable from "@/components/StandingsTable";
@@ -47,6 +49,25 @@ export default async function NetaPage({
     rank: data.publicRankOf(statement.slug),
     delta: 0,
   }));
+  const bestClip = rankedVideos[0];
+  const leadingPlacement = [...liveVideos]
+    .filter((statement) => statement.rating.validVoteCount < 10)
+    .sort(
+      (a, b) =>
+        b.rating.validVoteCount - a.rating.validVoteCount ||
+        a.slug.localeCompare(b.slug),
+    )[0];
+  const cabinetClip = bestClip ?? leadingPlacement;
+  const hallMoments = rankedVideos.filter(
+    (statement) => statement.hallOfFame,
+  ).length;
+  const averageGp =
+    rankedVideos.length > 0
+      ? Math.round(
+          rankedVideos.reduce((sum, statement) => sum + statement.gp, 0) /
+            rankedVideos.length,
+        )
+      : null;
   const categories = [...new Set(records.map((entry) => entry.category))].sort();
 
   const rivals = data.NETAS.filter(
@@ -123,6 +144,63 @@ export default async function NetaPage({
           </div>
         </div>
       </div>
+
+      <section className="neta-award-cabinet" aria-labelledby="clip-cabinet">
+        <div className="sec-head">
+          <h2 id="clip-cabinet">Clip cabinet</h2>
+          <span className="lbl">Honours belong to individual moments</span>
+        </div>
+        {cabinetClip ? (
+          <div className="neta-cabinet-grid">
+            <article className="neta-cabinet-feature">
+              <span className="lbl">
+                {bestClip ? "Best-performing public clip" : "Closest to a class"}
+              </span>
+              <Link
+                className="neta-cabinet-title"
+                href={`/statement/${cabinetClip.slug}`}
+              >
+                <EntryTitle statement={cabinetClip} />
+              </Link>
+              <ClassAward
+                gp={cabinetClip.gp}
+                validVoteCount={cabinetClip.rating.validVoteCount}
+                performance={cabinetClip.rating.performance}
+                rank={data.publicRankOf(cabinetClip.slug)}
+                hallOfFame={cabinetClip.hallOfFame}
+                signature={{
+                  label: "Logic Break",
+                  value: cabinetClip.axes.logic,
+                }}
+              />
+            </article>
+            <dl className="neta-cabinet-stats">
+              <div>
+                <dt className="lbl">Classes conferred</dt>
+                <dd className="num">{rankedVideos.length}</dd>
+              </div>
+              <div>
+                <dt className="lbl">Hall moments</dt>
+                <dd className="num">{hallMoments}</dd>
+              </div>
+              <div>
+                <dt className="lbl">Average clip GP</dt>
+                <dd className="num">
+                  {averageGp?.toLocaleString("en-IN") ?? "—"}
+                </dd>
+              </div>
+            </dl>
+          </div>
+        ) : (
+          <div className="erratum">
+            <span className="lbl">No live clip yet</span>
+            <p>
+              The archive below remains available, but no moment can receive a
+              class until its video goes live and collects ten public votes.
+            </p>
+          </div>
+        )}
+      </section>
 
       <div className="erratum" style={{ marginTop: 30 }}>
         <span className="lbl">Right of reply</span>

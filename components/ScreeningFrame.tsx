@@ -25,7 +25,7 @@ export default function ScreeningFrame({
               <Link href="/">The Bhashan Board</Link>
             </p>
             <p className="motto screening-motto">
-              Watch the clip &middot; vote once &middot; see where it lands
+              Watch the moment &middot; rule once &middot; see which class it earns
             </p>
           </div>
           <div className="screening-tools">

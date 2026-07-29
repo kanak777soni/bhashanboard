@@ -133,6 +133,43 @@
   margin-top: 28px;
 }
 
+.awardSection {
+  margin-top: 28px;
+}
+
+.hallCallout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 22px;
+  align-items: center;
+  margin-top: 22px;
+  padding: 18px 20px;
+  border: 1px solid var(--foil);
+  border-left: 4px solid var(--seal);
+  background:
+    repeating-linear-gradient(
+      135deg,
+      transparent 0 10px,
+      color-mix(in srgb, var(--foil) 7%, transparent) 10px 11px
+    ),
+    var(--ground-2);
+}
+
+.hallCallout h2 {
+  margin: 3px 0 4px;
+  font-family: var(--font-display);
+  font-size: clamp(26px, 3.2vw, 38px);
+  font-weight: 400;
+  line-height: 1;
+}
+
+.hallCallout p {
+  max-width: 68ch;
+  margin: 0;
+  color: var(--ink-70);
+  font-size: 14px;
+}
+
 .sectionHead {
   display: flex;
   gap: 16px;
@@ -307,6 +344,16 @@
   justify-content: space-between;
   padding-top: 12px;
   border-top: 1px solid var(--rule);
+}
+
+.cardAward {
+  padding-top: 13px;
+  border-top: 1px solid var(--rule);
+}
+
+.cardAward + .cardFoot {
+  padding-top: 0;
+  border-top: 0;
 }
 
 .score {
@@ -552,8 +599,13 @@
   .frontIntro,
   .videoCardFeatured,
   .emptyState,
-  .howItWorks {
+  .howItWorks,
+  .hallCallout {
     grid-template-columns: 1fr;
+  }
+
+  .hallCallout .btn {
+    width: max-content;
   }
 
   .howSteps {
@@ -617,6 +669,18 @@
 
   .emptyState {
     padding: 20px;
+  }
+
+  .hallCallout {
+    padding: 16px;
+  }
+
+  .hallCallout .btn {
+    width: 100%;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .recordRow {

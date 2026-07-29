@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { CorpusStatement } from "@/lib/corpus";
 import type { Neta } from "@/lib/types";
 import { statementRatingMaturity } from "@/lib/public-inventory";
+import ClassAward from "@/components/ClassAward";
 import EntryTitle from "@/components/EntryTitle";
 import styles from "./PublicInventory.module.css";
 
@@ -54,9 +55,8 @@ export default function VideoEntryCard({
       <div className={styles.videoBody}>
         <div>
           <div className={styles.eyebrow}>
-            <span>Watch &amp; vote</span>
+            <span>Now showing</span>
             <span>{maturityLabel}</span>
-            {rank > 0 && <span>Public rank #{rank}</span>}
           </div>
           <Link className={styles.videoTitle} href={href}>
             <EntryTitle statement={statement} />
@@ -67,14 +67,28 @@ export default function VideoEntryCard({
           </div>
         </div>
 
+        <div className={styles.cardAward}>
+          <ClassAward
+            gp={statement.gp}
+            validVoteCount={statement.rating.validVoteCount}
+            performance={statement.rating.performance}
+            rank={rank}
+            hallOfFame={statement.hallOfFame}
+            signature={{
+              label: "Logic Break",
+              value: statement.axes.logic,
+            }}
+          />
+        </div>
+
         <div className={styles.cardFoot}>
           <span className={styles.score}>
             {showResult
-              ? `Sarcasm score ${Math.round(statement.rating.performance)}/100`
-              : `${statement.rating.validVoteCount}/10 votes`}
+              ? `Public score ${Math.round(statement.rating.performance)}/100`
+              : "The class is still forming"}
           </span>
           <Link className={styles.watchLink} href={href}>
-            Play clip &rarr;
+            Watch the moment &rarr;
           </Link>
         </div>
       </div>

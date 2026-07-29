@@ -74,16 +74,26 @@ export default function RulesPage() {
           The performance bar, vote count, distribution, GP and rank come only from valid public ballots.
         </p>
         <p>
-          The five editorial axes—logic damage, straight face, rewatch value, crowd complicity, and
-          consequence—remain internal research notes and never alter the public score. Aamne-Saamne remains
-          a playful, non-scoring exhibition; picks made there never alter the ladder.
+          The five editorial axes—Logic Break, Straight-Face Delivery, Replay
+          Value, Crowd Complicity, and No Consequence—appear publicly as the
+          Sarcasm Profile. They describe the comic anatomy of the moment but
+          never alter GP, class or rank. Aamne-Saamne remains a playful,
+          non-scoring exhibition; picks made there never alter the standings.
         </p>
 
-        <h2>What a tier means</h2>
+        <h2>What a class means</h2>
         <p>
           A class attaches to <strong>a statement</strong>, never to a person.
           The Board scores one public moment, not somebody&rsquo;s entire
           career or character.
+        </p>
+
+        <h2>How the Hall of Fame works</h2>
+        <p>
+          Kohinoor Class is conferred automatically by the public score. The
+          Hall of Fame is a separate permanent honour. A clip becomes eligible
+          for formal induction only after reaching at least 1,875 GP and 25
+          valid public votes. Induction never changes its score, class or rank.
         </p>
 
         <h2>How a clip goes live</h2>

@@ -611,11 +611,11 @@ export const AXIS_WEIGHTS: Record<string, number> = {
 };
 
 export const AXIS_LABELS: Record<string, string> = {
-  logic_damage: "Logic damage",
-  straight_face: "Straight face",
-  rewatch_value: "Rewatch value",
-  crowd_complicity: "Crowd complicity",
-  consequence: "Consequence (5 = nothing happened)",
+  logic_damage: "Logic Break",
+  straight_face: "Straight-Face Delivery",
+  rewatch_value: "Replay Value",
+  crowd_complicity: "Crowd Complicity",
+  consequence: "No Consequence",
 };
 
 export function coverage(statements: StoredStatement[]): { party: string; count: number; pct: number }[] {

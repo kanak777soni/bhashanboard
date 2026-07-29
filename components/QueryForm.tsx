@@ -213,8 +213,8 @@ export default function QueryForm({
           ...parties.map((p) => ({ value: p.code, label: `${p.code} — ${p.name}` })),
         ])}
         {mode === "standings" &&
-          select("tier", "Tier", [
-            { value: "all", label: "All tiers" },
+          select("tier", "Class", [
+            { value: "all", label: "All classes" },
             ...TIERS.map((t) => ({ value: t.key, label: t.name })),
           ])}
         {select("sort", "Sort by", sortOptions, "field-sort-desktop")}

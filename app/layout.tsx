@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     template: "%s — The Bhashan Board",
   },
   description:
-    "Watch public statements, score the sarcasm, and follow the Bhashan Board standings.",
+    "Public speeches, public sarcasm: watch the moments, enter one ruling, and see which class each clip earns.",
   robots: PRELAUNCH
     ? { index: false, follow: false }
     : { index: true, follow: true },

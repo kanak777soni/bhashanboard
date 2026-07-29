@@ -12,6 +12,10 @@ const routeSource = fs.readFileSync(
   path.join(root, "app", "watch", "page.tsx"),
   "utf8"
 );
+const votingPanelSource = fs.readFileSync(
+  path.join(root, "components", "StatementVotingPanel.tsx"),
+  "utf8"
+);
 
 test("the watch route uses the compact screening shell", () => {
   assert.match(routeSource, /import ScreeningFrame/);
@@ -29,6 +33,8 @@ test("the watch feed mounts exactly one voting player for its active filing", ()
     feedSource,
     /entries\.map\([^)]*StatementVotingPanel/s
   );
+  assert.match(feedSource, /resultsMode="after-vote"/);
+  assert.match(feedSource, /resultAward=\{\{/);
 });
 
 test("feed shortcuts stay scoped away from media and interactive controls", () => {
@@ -44,5 +50,20 @@ test("the active heading receives focus only after user navigation", () => {
   assert.match(
     feedSource,
     /if \(!userNavigatedRef\.current\) return;\s*headingRef\.current\?\.focus/
+  );
+});
+
+test("Watch keeps aggregate results covered until the member has voted", () => {
+  assert.match(
+    votingPanelSource,
+    /resultsMode === "always" \|\| Boolean\(currentVote\)/
+  );
+  assert.match(
+    votingPanelSource,
+    /revealPublicResults && rating\.validVoteCount > 0/
+  );
+  assert.match(
+    votingPanelSource,
+    /Results reveal after your vote/
   );
 });

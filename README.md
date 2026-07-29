@@ -173,7 +173,7 @@ A **Party Parity Meter** on the homepage, source standards, identical vote stren
 TEXT-SOURCED → VIDEO VERIFIED → COMMITTEE-PASSED → WATCH 90% + END → ONE FINAL RULING
 ```
 
-| Tier | Name | Public GP band |
+| Class | Name | Public GP band |
 |---|---|---|
 | 🪵 | Participation Certificate | 1000–1299 |
 | 🥉 | Bronze Bhashan | 1300–1449 |
@@ -181,7 +181,7 @@ TEXT-SOURCED → VIDEO VERIFIED → COMMITTEE-PASSED → WATCH 90% + END → ONE
 | 🥇 | Gold Standard | 1600–1749 |
 | 💎 | Diamond Gyan | 1750–1874 |
 | 👑 | **Kohinoor Class** | 1875–2000 |
-| 🏛 | Hall of Fame | Separate Committee induction after public maturity |
+| 🏛 | Hall of Fame | Formal induction after 25 votes and Kohinoor Class |
 
 *Kohinoor Class: so valuable it had to be kept abroad.*
 
@@ -190,7 +190,9 @@ chosen from 0, 25, 50, 75, or 100 after qualifying playback. Every valid ballot
 has exactly equal strength. `performance = ballot sum / valid ballot count` and
 `GP = round(1000 + 10 × performance)`. A clip can collect provisional rulings
 immediately, but it does not enter public Standings until ten valid rulings
-exist. Editorial research axes never alter its public score or starting place.
+exist. The public Sarcasm Profile describes Logic Break, Straight-Face
+Delivery, Replay Value, Crowd Complicity and No Consequence; these editorial
+marks never alter public GP, class, rank or starting place.
 
 **Why the watch gate:** the evidence stays public, but a ballot counts only after
 the verified bounded excerpt produces a qualifying playback receipt. The standard
@@ -236,8 +238,9 @@ artificial rarity distribution or move to force a preferred outcome.
 **Settled:** registered and verified accounts; equal-strength five-position
 ballots; one immutable vote per statement; server-timed playback receipts;
 exact arithmetic-mean performance with no editorial prior; a ten-ruling public
-rank threshold; audited admin exclusions; medal tiers as the satirical
-presentation; Aamne-Saamne as a non-scoring exhibition.
+rank threshold; audited admin exclusions; medal classes as the satirical
+presentation; 25-vote Kohinoor eligibility for Hall induction; Aamne-Saamne as
+a non-scoring exhibition.
 
 ---
 

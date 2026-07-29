@@ -466,7 +466,8 @@ async function main() {
               statement.document,
               false
             )
-            OR coalesce(aggregate.valid_vote_count, 0) < 10
+            OR coalesce(aggregate.valid_vote_count, 0) < 25
+            OR coalesce(aggregate.gp, 0) < 1875
           )
         ORDER BY statement.id
       `),
@@ -960,7 +961,7 @@ async function main() {
   const invalidHallIds = rowsOf(hallIntegrityRows).map((row) => String(row.id));
   if (invalidHallIds.length > 0) {
     errors.push(
-      `Hall of Fame statements fail the live maturity bar: ${conciseIds(
+      `Hall of Fame statements fail the 25-vote Kohinoor eligibility bar: ${conciseIds(
         invalidHallIds
       )}`
     );

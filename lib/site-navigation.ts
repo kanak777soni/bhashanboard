@@ -13,6 +13,7 @@ export const PRIMARY_SITE_LINKS: SiteNavigationLink[] = [
     activePrefixes: ["/statement"],
   },
   { href: "/standings", label: "Standings" },
+  { href: "/hall", label: "Hall of Fame" },
   {
     href: "/netas",
     label: "Netas",
@@ -28,7 +29,6 @@ export const ARCHIVE_SITE_LINKS: SiteNavigationLink[] = [
     label: "The Record",
     activePrefixes: ["/category", "/party"],
   },
-  { href: "/hall", label: "Hall of Fame" },
   { href: "/ledger", label: "Ledger" },
   { href: "/rejected", label: "Refused" },
   { href: "/rules", label: "Rules" },

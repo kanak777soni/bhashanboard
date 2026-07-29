@@ -20,6 +20,9 @@ export default async function Ticker() {
   ).length;
   const researchFiles =
     inventory.videoUnderReview.length + inventory.researchOnly.length;
+  const hallCount = inventory.rankedVideos.filter(
+    (statement) => statement.hallOfFame
+  ).length;
   const items = [
     {
       href: "/watch",
@@ -28,6 +31,15 @@ export default async function Ticker() {
     {
       href: "/record",
       text: `${researchFiles} entries on deck · ${inventory.videoUnderReview.length} clips backstage · ${inventory.researchOnly.length} still need a clip`,
+    },
+    {
+      href: "/hall",
+      text:
+        hallCount > 0
+          ? `${hallCount} ${
+              hallCount === 1 ? "moment" : "moments"
+            } permanently in the Hall of Fame`
+          : "The Hall awaits its first induction · follow the road to Kohinoor",
     },
     {
       href: "/duel",

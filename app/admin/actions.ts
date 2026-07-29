@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/require-admin";
 import { getData } from "@/lib/data";
+import { hallEligibility } from "@/lib/hall";
 import {
   createPoliticianRecord,
   createStatementRecord,
@@ -609,7 +610,25 @@ export async function toggleHallOfFame(fd: FormData) {
       publicData.publicRankOf(publicStatement.slug) <= 0
     ) {
       throw new Error(
-        "A clip must be live and have at least ten user votes before it can enter the Hall of Fame."
+        "A clip must be live and publicly ranked before Hall of Fame eligibility can be checked."
+      );
+    }
+    const eligibility = hallEligibility(publicStatement);
+    if (!eligibility.eligible) {
+      const needs = [
+        eligibility.remainingVotes > 0
+          ? `${eligibility.remainingVotes} more valid public ${
+              eligibility.remainingVotes === 1 ? "vote" : "votes"
+            }`
+          : "",
+        eligibility.remainingGp > 0
+          ? `${eligibility.remainingGp} more GP to reach Kohinoor Class`
+          : "",
+      ].filter(Boolean);
+      throw new Error(
+        `Hall of Fame induction requires 25 valid public votes and Kohinoor Class. Still needed: ${needs.join(
+          " and ",
+        )}.`,
       );
     }
     const storedVideo = normalizeStatementVideo(before.video);

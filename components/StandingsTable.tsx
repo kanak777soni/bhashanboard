@@ -3,6 +3,7 @@ import Medal from "./Medal";
 import { getData } from "@/lib/data";
 import { slugify } from "@/lib/corpus";
 import { languageTag } from "@/lib/language";
+import { tierOf } from "@/lib/tiers";
 import type { Row } from "@/lib/query";
 
 /** Wraps the first case-insensitive hit so a search shows why it matched. */
@@ -37,7 +38,7 @@ export default async function StandingsTable({
         <thead>
           <tr>
             <th className="c-rank">#</th>
-            <th className="c-medal"><span className="lbl" style={{ position: "absolute", left: -9999 }}>Tier</span></th>
+            <th className="c-class">Class</th>
             <th>Entry</th>
             {!hideNeta && <th className="c-meta">Representative</th>}
             <th className="c-gp">GP</th>
@@ -55,10 +56,19 @@ export default async function StandingsTable({
           {rows.map(({ statement: s, rank }) => {
             const neta = data.netaBySlug(s.neta);
             const party = data.partyByCode(s.partyAtTime);
+            const tier = tierOf(s.gp);
             return (
               <tr key={s.slug}>
                 <td className="c-rank">{rank}</td>
-                <td className="c-medal"><Medal gp={s.gp} /></td>
+                <td className="c-class">
+                  <div className="table-class">
+                    <Medal tier={tier.key} />
+                    <span className="table-class-name">{tier.name}</span>
+                    {s.hallOfFame && (
+                      <span className="table-hall-tag">Hall</span>
+                    )}
+                  </div>
+                </td>
                 <td>
                   <Link className="entry-quote" href={`/statement/${s.slug}`}>
                     {s.hasVerbatimQuote ? (
@@ -79,7 +89,14 @@ export default async function StandingsTable({
                     <span className="only-narrow">
                       {neta?.name} &middot; {s.partyAtTime} &middot;{" "}
                     </span>
-                    <Link href={`/category/${slugify(s.category)}`}>{s.category}</Link> &middot; {s.language}
+                    <Link href={`/category/${slugify(s.category)}`}>{s.category}</Link>{" "}
+                    &middot; {s.language} &middot; Logic Break{" "}
+                    <span className="num">{Math.round(s.axes.logic)}</span>{" "}
+                    &middot;{" "}
+                    <span className="num">
+                      {s.rating.validVoteCount.toLocaleString("en-IN")}
+                    </span>{" "}
+                    votes
                   </div>
                 </td>
                 {!hideNeta && (

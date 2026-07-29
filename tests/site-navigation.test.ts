@@ -13,6 +13,7 @@ test("primary navigation leads with the public watch journey", () => {
     [
       { href: "/watch", label: "Watch" },
       { href: "/standings", label: "Standings" },
+      { href: "/hall", label: "Hall of Fame" },
       { href: "/netas", label: "Netas" },
       { href: "/submit", label: "Submit" },
     ],
@@ -27,7 +28,6 @@ test("secondary institutional pages stay available under archive and more", () =
       label: "The Record",
       activePrefixes: ["/category", "/party"],
     },
-    { href: "/hall", label: "Hall of Fame" },
     { href: "/ledger", label: "Ledger" },
     { href: "/rejected", label: "Refused" },
     { href: "/rules", label: "Rules" },

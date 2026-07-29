@@ -352,6 +352,29 @@ test("rating v2 is canonically rebuilt and enforced while Hall maturity stays li
   }
 });
 
+test("Hall eligibility migration enforces twenty-five votes and Kohinoor GP in Postgres", async () => {
+  const migrationSource = await readFile(
+    new URL(
+      "../db/migrations/0012_hall_of_fame_eligibility.sql",
+      import.meta.url
+    ),
+    "utf8"
+  );
+
+  assert.match(
+    migrationSource,
+    /aggregate\.valid_vote_count >= 25[\s\S]*?aggregate\.gp >= 1875/
+  );
+  assert.match(
+    migrationSource,
+    /target_valid_vote_count >= 25 AND target_gp >= 1875/
+  );
+  assert.match(
+    migrationSource,
+    /coalesce\(valid_vote_count, 0\) < 25 OR coalesce\(rating_gp, 0\) < 1875/
+  );
+});
+
 test("Cloudinary migration and corpus import fail closed on non-canonical evidence", async () => {
   const [migrationSource, importSource, storeSource] = await Promise.all([
     readFile(new URL("../db/migrations/0008_cloudinary_video.sql", import.meta.url), "utf8"),

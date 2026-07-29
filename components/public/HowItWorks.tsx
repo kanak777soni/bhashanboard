@@ -16,28 +16,28 @@ export default function HowItWorks({ compact = false }: { compact?: boolean }) {
       aria-labelledby={compact ? "watch-how-it-works" : "home-how-it-works"}
     >
       <div className={styles.howIntro}>
-        <span className="lbl">Three steps, no homework</span>
+        <span className="lbl">The Board&rsquo;s sitting</span>
         <h2 id={compact ? "watch-how-it-works" : "home-how-it-works"}>
-          Watch. Vote. See where it lands.
+          Watch. Rule. Confer the class.
         </h2>
-        <p>The clip plays first. Your score comes after.</p>
+        <p>See the whole moment before deciding how hard it lands.</p>
       </div>
 
       <ol className={styles.howSteps}>
         <li>
           <b className="num">01</b>
-          <strong>Play the clip</strong>
-          <span>Watch at least 90% and stay through the end.</span>
+          <strong>Watch the moment</strong>
+          <span>Stay for at least 90% of the clip and see it through.</span>
         </li>
         <li>
           <b className="num">02</b>
-          <strong>Pick how it lands</strong>
+          <strong>Enter one ruling</strong>
           <span>Flat, Wry, Sharp, Savage or Historic. One vote per account.</span>
         </li>
         <li>
           <b className="num">03</b>
-          <strong>Watch the Board move</strong>
-          <span>Every vote weighs the same. Ten votes open a place in the standings.</span>
+          <strong>Confer the class</strong>
+          <span>Every vote weighs the same. Ten rulings place the clip on the Board.</span>
         </li>
       </ol>
 
@@ -52,7 +52,7 @@ export default function HowItWorks({ compact = false }: { compact?: boolean }) {
 
       {!compact && (
         <p className={styles.howFoot}>
-          <Link href="/watch">Open the clips</Link>
+          <Link href="/watch">Take your seat</Link>
           <span aria-hidden="true">&middot;</span>
           <Link href="/rules">How GP and voting work</Link>
         </p>

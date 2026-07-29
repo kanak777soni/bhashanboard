@@ -12,7 +12,7 @@ import EntryTitle from "@/components/EntryTitle";
 import StatementVotingPanel, {
   type PublicRatingSnapshot,
 } from "@/components/StatementVotingPanel";
-import type { StatementVideo } from "@/lib/types";
+import type { Axes, StatementVideo } from "@/lib/types";
 import styles from "./PublicInventory.module.css";
 
 export interface WatchFeedEntry {
@@ -32,6 +32,8 @@ export interface WatchFeedEntry {
   initialRating: PublicRatingSnapshot;
   maturityLabel: string;
   publicRank: number;
+  axes: Axes;
+  hallOfFame: boolean;
 }
 
 export default function WatchScreeningFeed({
@@ -131,8 +133,7 @@ export default function WatchScreeningFeed({
       <header className={styles.watchFeedHead}>
         <div>
           <span className={styles.eyebrow}>
-            Watch &amp; vote &middot; {active.maturityLabel}
-            {active.publicRank > 0 ? ` · Public rank #${active.publicRank}` : ""}
+            Public screening &middot; your ruling comes first
           </span>
           <h1 ref={headingRef} tabIndex={-1}>
             <EntryTitle statement={active} />
@@ -162,6 +163,12 @@ export default function WatchScreeningFeed({
         publicationEligible={active.publicationEligible}
         initialRating={active.initialRating}
         authCallbackPath={`/statement/${active.slug}`}
+        resultsMode="after-vote"
+        resultAward={{
+          axes: active.axes,
+          hallOfFame: active.hallOfFame,
+          publicRank: active.publicRank,
+        }}
       />
 
       <div className={styles.watchControls}>
