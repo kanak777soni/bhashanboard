@@ -59,7 +59,7 @@
 
 .pendingMedallion {
   border-style: dashed;
-  color: var(--ink-45);
+  color: var(--ink-70);
   background: var(--ground);
   font-family: var(--font-data);
   font-size: 13px;
@@ -82,15 +82,15 @@
 .classCount,
 .signature {
   font-family: var(--font-util);
-  font-size: 9.5px;
+  font-size: 10.5px;
   font-weight: 700;
-  letter-spacing: .13em;
+  letter-spacing: .1em;
   text-transform: uppercase;
 }
 
 .kicker {
   display: block;
-  color: var(--award-colour);
+  color: var(--ink-70);
 }
 
 .className {
@@ -112,7 +112,7 @@
   flex-wrap: wrap;
   gap: 5px 13px;
   margin-top: 7px;
-  color: var(--ink-45);
+  color: var(--ink-70);
   line-height: 1.4;
 }
 
@@ -129,8 +129,8 @@
   max-width: 100%;
   margin: 0 0 7px;
   padding: 4px 7px;
-  color: var(--on-seal);
-  background: var(--seal);
+  color: var(--action-on);
+  background: var(--action-primary);
   letter-spacing: .16em;
 }
 
@@ -142,7 +142,7 @@
   align-items: baseline;
   margin-top: 9px;
   padding: 4px 7px;
-  color: var(--seal);
+  color: var(--ink-70);
   border: 1px solid color-mix(in srgb, var(--seal) 54%, var(--rule-hard));
   background: var(--ground);
 }
@@ -191,8 +191,8 @@
 .profileNote {
   max-width: 34ch;
   margin: 0;
-  color: var(--ink-45);
-  font-size: 12px;
+  color: var(--ink-70);
+  font-size: 13px;
   line-height: 1.4;
   text-align: right;
 }
@@ -221,7 +221,7 @@
   justify-content: space-between;
   color: var(--ink);
   font-family: var(--font-util);
-  font-size: 9px;
+  font-size: 10.5px;
   font-weight: 700;
   letter-spacing: .08em;
   line-height: 1.25;
@@ -296,8 +296,8 @@
 .ladderNote {
   max-width: 42ch;
   margin: 0;
-  color: var(--ink-45);
-  font-size: 12px;
+  color: var(--ink-70);
+  font-size: 13px;
   text-align: right;
 }
 
@@ -339,7 +339,7 @@
 
 .classMedal strong {
   font-family: var(--font-display);
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 400;
   line-height: 1.08;
 }
@@ -352,8 +352,8 @@
 }
 
 .classRange {
-  color: var(--ink-45);
-  font-size: 8.5px;
+  color: var(--ink-70);
+  font-size: 10px;
   letter-spacing: .09em;
 }
 

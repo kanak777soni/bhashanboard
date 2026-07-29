@@ -258,7 +258,7 @@ export default async function EntriesPage({
                             name="status"
                             value="held_review"
                           />
-                          <button className="linkbtn" type="submit">
+                          <button className="linkbtn warning" type="submit">
                             Take offline
                           </button>
                         </form>
@@ -289,7 +289,7 @@ export default async function EntriesPage({
                             name="id"
                             value={statement.id}
                           />
-                          <button className="linkbtn" type="submit">
+                          <button className={`linkbtn${statement.hall_of_fame ? " danger" : ""}`} type="submit">
                             {statement.hall_of_fame
                               ? "Remove HOF"
                               : "Add to HOF"}

@@ -64,7 +64,7 @@ export default async function EditEntry({
               <form action={setStatus}>
                 <input type="hidden" name="id" value={entry.id} />
                 <input type="hidden" name="status" value="held_review" />
-                <button className="btn ghost" type="submit">
+                <button className="btn warning" type="submit">
                   Take offline
                 </button>
               </form>

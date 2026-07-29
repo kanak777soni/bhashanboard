@@ -49,10 +49,10 @@ export default function AccountControls({ newsletterOptIn }: { newsletterOptIn: 
           </label>
         </fieldset>
         {message && <p role="status" className="rail-note" style={{ marginBottom: 10 }}>{message}</p>}
-        <button className="btn" type="submit" disabled={pending}>Save preference</button>
+        <button className="btn seal" type="submit" disabled={pending}>Save preference</button>
       </form>
       <div>
-        <button className="btn seal" type="button" onClick={leave} disabled={pending}>
+        <button className="btn ghost" type="button" onClick={leave} disabled={pending}>
           Sign out
         </button>
       </div>

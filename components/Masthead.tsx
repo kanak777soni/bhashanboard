@@ -13,9 +13,9 @@ export default async function Masthead() {
         <Guilloche variant="band" />
         <div className="mast-inner">
           <div>
-            <h1 className="nameplate">
+            <p className="nameplate">
               <Link href="/">The Bhashan Board</Link>
-            </h1>
+            </p>
             <p className="tagline">
               Public speeches. Public sarcasm. Independently ranked.
             </p>

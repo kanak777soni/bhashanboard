@@ -18,7 +18,7 @@ export default function AuthPanel({
       <span className="lbl" style={{ color: "var(--seal)" }}>
         {eyebrow}
       </span>
-      <h1 style={{ margin: "8px 0 12px" }}>{title}</h1>
+      <h1 className="auth-title" style={{ margin: "8px 0 12px" }}>{title}</h1>
       <p className="prose" style={{ margin: "0 0 22px" }}>
         {introduction}
       </p>

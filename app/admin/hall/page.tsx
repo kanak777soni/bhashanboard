@@ -87,7 +87,7 @@ export default async function AdminHall() {
           {action ? (
             <form action={toggleHallOfFame}>
               <input type="hidden" name="id" value={s.id} />
-              <button className="linkbtn" type="submit">{action}</button>
+              <button className={`linkbtn${action.startsWith("Remove") ? " danger" : ""}`} type="submit">{action}</button>
             </form>
           ) : (
             <span className="entry-sub">Waiting</span>

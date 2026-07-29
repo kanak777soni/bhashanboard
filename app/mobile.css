@@ -63,6 +63,11 @@
     --page-gutter: clamp(14px, 4vw, 18px);
   }
 
+  html,
+  body {
+    overflow-x: clip;
+  }
+
   :root[data-theme="dark"] {
     --ink-45: rgba(220, 227, 212, .64);
   }
@@ -88,8 +93,8 @@
 
   .lbl {
     color: var(--ink-70);
-    font-size: 11px;
-    letter-spacing: .11em;
+    font-size: 11.5px;
+    letter-spacing: .1em;
   }
 
   /* Masthead: one deliberate column, followed by a compact metadata grid. */
@@ -302,8 +307,8 @@
   }
 
   .nav-mobile-auth .nav-register {
-    color: var(--on-seal);
-    background: var(--seal);
+    color: var(--action-on);
+    background: var(--action-primary);
   }
 
   /* The phone receives one complete status sentence, not a clipped marquee. */

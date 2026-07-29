@@ -204,7 +204,7 @@ export default async function AdminSubmissionDetail({
                     placeholder="Why this suggestion was closed"
                   />
                 </label>
-                <button className="btn ghost" type="submit">
+                <button className="btn danger" type="submit">
                   Record decision
                 </button>
               </fieldset>

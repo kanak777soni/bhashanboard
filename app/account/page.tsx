@@ -19,7 +19,7 @@ export default async function AccountPage({
   return (
     <section className="admin-section" style={{ maxWidth: 760, margin: "28px auto 60px" }}>
       <span className="lbl" style={{ color: "var(--seal)" }}>Registered member</span>
-      <h1 style={{ margin: "8px 0 22px" }}>{user.name}</h1>
+      <h1 className="account-title" style={{ margin: "8px 0 22px" }}>{user.name}</h1>
       {notice === "admin-required" && (
         <div className="erratum" role="status" style={{ marginBottom: 22 }}>
           <p>This account is signed in, but it does not have administrator access.</p>
@@ -60,7 +60,7 @@ export default async function AccountPage({
               aria-describedby="account-danger-description"
             />
           </label>
-          <button className="btn seal" type="submit">
+          <button className="btn danger" type="submit">
             Anonymize account permanently
           </button>
         </form>

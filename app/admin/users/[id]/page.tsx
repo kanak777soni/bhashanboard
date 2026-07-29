@@ -156,7 +156,7 @@ export default async function AdminUserDetailPage({
                             required
                           />
                         </label>
-                        <button className="btn seal" type="submit">
+                        <button className="btn danger" type="submit">
                           Confirm exclusion
                         </button>
                       </form>

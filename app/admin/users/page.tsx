@@ -67,7 +67,7 @@ export default async function AdminUsersPage({
             <span className="lbl">Name or email</span>
             <input name="q" defaultValue={search} placeholder="Search the register" />
           </label>
-          <button className="btn" type="submit">Search</button>
+          <button className="btn ghost" type="submit">Search</button>
         </form>
       </div>
 
@@ -150,7 +150,7 @@ export default async function AdminUsersPage({
                           <form action={setUserRole}>
                             <input type="hidden" name="user_id" value={user.id} />
                             <input type="hidden" name="role" value="user" />
-                            <button className="linkbtn" type="submit">Make user</button>
+                            <button className="linkbtn warning" type="submit">Make user</button>
                           </form>
                         )
                       ) : canPromote ? (
@@ -171,7 +171,7 @@ export default async function AdminUsersPage({
                       {!anonymized && !isSelf && (
                         <form action={revokeUserSessions}>
                           <input type="hidden" name="user_id" value={user.id} />
-                          <button className="linkbtn" type="submit">Revoke sessions</button>
+                          <button className="linkbtn warning" type="submit">Revoke sessions</button>
                         </form>
                       )}
                       {!anonymized && (activelyBanned ? (
@@ -192,7 +192,7 @@ export default async function AdminUsersPage({
                               <span className="lbl">Days (blank = indefinite)</span>
                               <input name="days" type="number" min={1} max={365} />
                             </label>
-                            <button className="btn seal" type="submit">Confirm ban</button>
+                            <button className="btn danger" type="submit">Confirm ban</button>
                           </form>
                         </details>
                       ) : null)}

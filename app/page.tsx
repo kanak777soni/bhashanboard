@@ -106,7 +106,7 @@ export default async function FrontPage() {
               : "The gallery is waiting for its first formally inducted moment. Follow the strongest clips on their road to the Hall."}
           </p>
         </div>
-        <Link className="btn seal" href="/hall">
+        <Link className="btn ceremonial" href="/hall">
           Enter the Hall
         </Link>
       </section>

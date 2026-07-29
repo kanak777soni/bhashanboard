@@ -10,7 +10,7 @@ export default function NotFound() {
           This page does not exist. Unlike the statements on this website, which are unfortunately real.
         </p>
         <p style={{ marginTop: 22 }}>
-          <Link className="btn" href="/">
+          <Link className="btn ghost" href="/">
             Return to the front page
           </Link>
         </p>

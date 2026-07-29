@@ -622,7 +622,7 @@ export default function VerifiedVideoPlayer({
       {playing && !fallbackVisible && (
         <button
           type="button"
-          className="btn seal"
+          className="media-control"
           onClick={toggleSound}
           aria-label={muted ? "Turn video sound on" : "Mute video"}
           aria-pressed={!muted}
@@ -631,7 +631,6 @@ export default function VerifiedVideoPlayer({
             zIndex: 2,
             top: 10,
             right: 10,
-            padding: "6px 10px",
           }}
         >
           {muted ? "Tap for sound" : "Mute"}

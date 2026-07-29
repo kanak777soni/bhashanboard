@@ -436,7 +436,7 @@ export default function EntryForm({
         <div className="admin-submit">
           <div>
             <button
-              className="btn ghost"
+              className={entryIsLive ? "btn warning" : "btn ghost"}
               type="submit"
               formNoValidate
             >
