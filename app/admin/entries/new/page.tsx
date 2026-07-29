@@ -2,7 +2,10 @@ import EntryForm from "@/components/admin/EntryForm";
 import { cloudinaryConfigurationIssues } from "@/lib/cloudinary-config";
 import { requireAdmin } from "@/lib/require-admin";
 import { getParties, getPoliticians } from "@/lib/store";
-import { createStatement } from "../../actions";
+import {
+  createStatementDraft,
+  publishNewStatement,
+} from "../../actions";
 
 export default async function NewEntry() {
   await requireAdmin();
@@ -21,7 +24,8 @@ export default async function NewEntry() {
       <EntryForm
         people={people}
         parties={parties}
-        action={createStatement}
+        saveAction={createStatementDraft}
+        publishAction={publishNewStatement}
         cloudinaryConfigurationIssues={cloudinaryConfigurationIssues()}
       />
     </section>

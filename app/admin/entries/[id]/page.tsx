@@ -11,7 +11,12 @@ import {
   getStatement,
   getStatementVoteCount,
 } from "@/lib/store";
-import { setStatus, updateStatement } from "../../actions";
+import {
+  publishStatement,
+  restoreStatement,
+  saveStatementDraft,
+  setStatus,
+} from "../../actions";
 
 export default async function EditEntry({
   params,
@@ -121,7 +126,9 @@ export default async function EditEntry({
           entry={entry}
           people={people}
           parties={parties}
-          action={updateStatement}
+          saveAction={saveStatementDraft}
+          publishAction={publishStatement}
+          restoreAction={restoreStatement}
           hasVotes={voteCount > 0}
           cloudinaryConfigurationIssues={cloudinaryConfigurationIssues()}
         />

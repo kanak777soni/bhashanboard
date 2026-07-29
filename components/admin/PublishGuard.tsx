@@ -124,9 +124,11 @@ function readChecklist(form: HTMLFormElement): ChecklistItem[] {
 export default function PublishGuard({
   workflowAction,
   submitLabel,
+  submitAction,
 }: {
   workflowAction?: "publish" | "restore_live";
   submitLabel?: string;
+  submitAction?: (formData: FormData) => void | Promise<void>;
 }) {
   const guardRef = useRef<HTMLDivElement | null>(null);
   const [items, setItems] = useState<ChecklistItem[]>([]);
@@ -197,11 +199,12 @@ export default function PublishGuard({
         </ul>
       )}
 
-      {workflowAction && (
+      {workflowAction && submitAction && (
         <div className="publication-checklist-action">
           <button
             className="btn seal"
             type="submit"
+            formAction={submitAction}
             name="workflow_action"
             value={workflowAction}
             data-publish-submit

@@ -431,6 +431,16 @@ export async function createStatement(fd: FormData) {
   redirect(`/admin/entries/${created.id}`);
 }
 
+export async function createStatementDraft(fd: FormData) {
+  fd.set("workflow_action", "save_draft");
+  return createStatement(fd);
+}
+
+export async function publishNewStatement(fd: FormData) {
+  fd.set("workflow_action", "publish");
+  return createStatement(fd);
+}
+
 export async function updateStatement(fd: FormData) {
   const actor = await requireAdmin();
   const id = str(fd, "id");
@@ -530,6 +540,21 @@ export async function updateStatement(fd: FormData) {
       workflowAction === "publish" ? "live" : "saved"
     }`
   );
+}
+
+export async function saveStatementDraft(fd: FormData) {
+  fd.set("workflow_action", "save_draft");
+  return updateStatement(fd);
+}
+
+export async function publishStatement(fd: FormData) {
+  fd.set("workflow_action", "publish");
+  return updateStatement(fd);
+}
+
+export async function restoreStatement(fd: FormData) {
+  fd.set("workflow_action", "restore_live");
+  return updateStatement(fd);
 }
 
 export async function setStatus(fd: FormData) {

@@ -8,6 +8,7 @@ test("the entry editor separates draft saves from explicit publication", async (
     guardSource,
     actionSource,
     detailSource,
+    newEntrySource,
     listSource,
     overviewSource,
     storeSource,
@@ -22,16 +23,22 @@ test("the entry editor separates draft saves from explicit publication", async (
       new URL("../app/admin/entries/[id]/page.tsx", import.meta.url),
       "utf8"
     ),
+    readFile(
+      new URL("../app/admin/entries/new/page.tsx", import.meta.url),
+      "utf8"
+    ),
     readFile(new URL("../app/admin/entries/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/admin/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../lib/store.ts", import.meta.url), "utf8"),
   ]);
 
   assert.doesNotMatch(formSource, /<select name="status"/);
-  assert.match(formSource, /name="workflow_action"\s+value="save_draft"/);
+  assert.match(formSource, /<form action=\{saveAction\}/);
   assert.match(formSource, /publicationAction[\s\S]*?: "publish"/);
+  assert.match(formSource, /submitAction=\{publicationSubmitAction\}/);
   assert.match(guardSource, /name="workflow_action"/);
   assert.match(guardSource, /value=\{workflowAction\}/);
+  assert.match(guardSource, /formAction=\{submitAction\}/);
   assert.match(guardSource, /data-publish-submit/);
   assert.match(guardSource, /disabled=\{!ready\}/);
   assert.doesNotMatch(guardSource, /publishButton\.disabled|querySelector/);
@@ -47,10 +54,20 @@ test("the entry editor separates draft saves from explicit publication", async (
     actionSource,
     /submittedValues\.find\(\(item\) => item !== "save_draft"\)/
   );
+  assert.doesNotMatch(formSource, /type="hidden" name="workflow_action"/);
   assert.match(
-    formSource,
-    /name="workflow_action"\s+value="save_draft"\s*\/>\s*<\/form>/
+    actionSource,
+    /function publishStatement[\s\S]*?fd\.set\("workflow_action", "publish"\)/
   );
+  assert.match(
+    actionSource,
+    /function saveStatementDraft[\s\S]*?fd\.set\("workflow_action", "save_draft"\)/
+  );
+  assert.match(detailSource, /saveAction=\{saveStatementDraft\}/);
+  assert.match(detailSource, /publishAction=\{publishStatement\}/);
+  assert.match(detailSource, /restoreAction=\{restoreStatement\}/);
+  assert.match(newEntrySource, /saveAction=\{createStatementDraft\}/);
+  assert.match(newEntrySource, /publishAction=\{publishNewStatement\}/);
   assert.match(
     actionSource,
     /before\.status === "published"[\s\S]*?\? "held_review"[\s\S]*?: before\.status/

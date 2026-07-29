@@ -53,14 +53,18 @@ export default function EntryForm({
   entry,
   people,
   parties,
-  action,
+  saveAction,
+  publishAction,
+  restoreAction,
   hasVotes = false,
   cloudinaryConfigurationIssues,
 }: {
   entry?: StoredStatement;
   people: StoredPolitician[];
   parties: { id: string; name: string }[];
-  action: (fd: FormData) => void;
+  saveAction: (fd: FormData) => void | Promise<void>;
+  publishAction: (fd: FormData) => void | Promise<void>;
+  restoreAction?: (fd: FormData) => void | Promise<void>;
   hasVotes?: boolean;
   cloudinaryConfigurationIssues: string[];
 }) {
@@ -82,9 +86,11 @@ export default function EntryForm({
       : entryIsLive
         ? "Update live clip"
         : "Go live";
+  const publicationSubmitAction =
+    publicationAction === "restore_live" ? restoreAction : publishAction;
 
   return (
-    <form action={action} className="admin-form">
+    <form action={saveAction} className="admin-form">
       {entry && (
         <>
           <input type="hidden" name="id" value={entry.id} />
@@ -412,6 +418,7 @@ export default function EntryForm({
         <PublishGuard
           workflowAction={publicationAction}
           submitLabel={publicationLabel}
+          submitAction={publicationSubmitAction}
         />
       </fieldset>
 
@@ -430,8 +437,6 @@ export default function EntryForm({
             <button
               className="btn ghost"
               type="submit"
-              name="workflow_action"
-              value="save_draft"
               formNoValidate
             >
               {entryIsLive ? "Save draft & take offline" : "Save draft"}
@@ -443,10 +448,6 @@ export default function EntryForm({
         </div>
       )}
 
-      {/* The submitter button appears before this fallback in form-data order.
-          A click therefore keeps its explicit action, while an Enter-key
-          submission with no submitter safely becomes Save draft. */}
-      <input type="hidden" name="workflow_action" value="save_draft" />
     </form>
   );
 }
