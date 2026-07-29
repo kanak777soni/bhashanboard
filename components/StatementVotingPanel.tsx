@@ -150,6 +150,7 @@ export default function StatementVotingPanel({
   publicationEligible,
   initialRating,
   active = true,
+  authCallbackPath,
 }: {
   statementId: string;
   video?: StatementVideo;
@@ -159,9 +160,12 @@ export default function StatementVotingPanel({
   initialRating: PublicRatingSnapshot;
   /** Feed views set exactly one visible card active at a time. */
   active?: boolean;
+  /** Preserve the selected feed clip across sign-in. */
+  authCallbackPath?: string;
 }) {
   const { data: authSession, isPending: authPending } = useSession();
   const pathname = usePathname();
+  const callbackPath = authCallbackPath ?? pathname;
   const router = useRouter();
   const user = authSession?.user;
   const authContextKey = authPending
@@ -259,11 +263,11 @@ export default function StatementVotingPanel({
     : 0;
 
   const publicRulingLabel = useMemo(() => {
-    if (rating.validVoteCount === 0) return "New filing · no public score yet";
+    if (rating.validVoteCount === 0) return "Fresh clip · no votes yet";
     if (rating.validVoteCount < 10) {
-      return `${rating.validVoteCount}/10 rulings · provisional placement`;
+      return `${rating.validVoteCount}/10 votes · finding its place`;
     }
-    return `${rating.validVoteCount.toLocaleString("en-IN")} verified public ruling${
+    return `${rating.validVoteCount.toLocaleString("en-IN")} public vote${
       rating.validVoteCount === 1 ? "" : "s"
     }`;
   }, [rating.validVoteCount]);
@@ -683,7 +687,7 @@ export default function StatementVotingPanel({
       if (!response.ok || !payload?.session) {
         throw apiErrorFromPayload(
           payload,
-          "A verified watch session could not be started.",
+          "Your watch could not be started.",
           response.status
         );
       }
@@ -723,7 +727,7 @@ export default function StatementVotingPanel({
       }
       const requestError = unknownRequestError(
         error,
-        "A verified watch session could not be started."
+        "Your watch could not be started."
       );
       // Evidence remains public even when qualification infrastructure is
       // unavailable. With no session ID, this playback can never earn credit.
@@ -846,7 +850,7 @@ export default function StatementVotingPanel({
       if (!response.ok || !payload?.result) {
         throw apiErrorFromPayload(
           payload,
-          "Your final ruling could not be recorded.",
+          "Your vote could not be recorded.",
           response.status
         );
       }
@@ -889,7 +893,7 @@ export default function StatementVotingPanel({
       }
       const requestError = unknownRequestError(
         error,
-        "Your final ruling could not be recorded."
+        "Your vote could not be recorded."
       );
       setWatchErrorState({
         contextKey,
@@ -912,7 +916,7 @@ export default function StatementVotingPanel({
     <section className="ruling-panel" aria-labelledby={`ruling-${statementId}`}>
       <div className="ruling-head">
         <div>
-          <span className="lbl">Verified footage &amp; public ruling</span>
+          <span className="lbl">Clip &amp; public score</span>
           <strong
             id={`ruling-${statementId}`}
             style={{
@@ -924,7 +928,7 @@ export default function StatementVotingPanel({
               margin: "5px 0 0",
             }}
           >
-            Watch first. Rule once.
+            Watch it. Then score it.
           </strong>
         </div>
         <div
@@ -956,7 +960,7 @@ export default function StatementVotingPanel({
         />
       ) : (
         <div className="player ruling-player player-locked">
-          <span className="lbl">No verified video excerpt is attached</span>
+          <span className="lbl">No video is attached</span>
         </div>
       )}
 
@@ -975,7 +979,7 @@ export default function StatementVotingPanel({
         <span>{publicRulingLabel}</span>
         <span>Historic</span>
       </div>
-      <div className="ballot-preview" aria-label="Five public ruling choices">
+      <div className="ballot-preview" aria-label="Five public vote choices">
         {BALLOT_OPTIONS.map((option) => (
           <span key={option.value}>
             <b>{option.label}</b>
@@ -986,36 +990,36 @@ export default function StatementVotingPanel({
       <details className="rating-explainer">
         <summary>How this score works</summary>
         <p>
-          Every valid ruling has equal weight. Performance is the sum of valid
-          ballot values divided by {rating.validVoteCount || "the number of"}{" "}
-          valid rulings; GP is 1000 plus ten times that performance.
+          Every vote has equal weight. The score is the sum of vote values
+          divided by {rating.validVoteCount || "the number of"} valid votes; GP
+          is 1000 plus ten times that score.
           {rating.validVoteCount < 10
-            ? " This filing remains unranked until ten valid rulings."
-            : " This filing has reached the ten-ruling public rank boundary."}
+            ? " A clip joins the standings after ten votes."
+            : " This clip has enough votes for the standings."}
         </p>
       </details>
 
       <div className="ballot-box">
         {!votingEligible ? (
           <p className="ruling-status">
-            Voting is locked until the entry is placed, has a bounded video excerpt, and is marked committee-passed.
+            This clip is not open for voting yet.
           </p>
         ) : authPending ? (
           <p className="ruling-status">Checking your membership…</p>
         ) : !user ? (
           <p className="ruling-status">
-            The evidence is public. To enter a ruling, <Link href={`/sign-in?callbackURL=${encodeURIComponent(pathname)}`}>sign in</Link> or <Link href={`/sign-up?callbackURL=${encodeURIComponent(pathname)}`}>register</Link>.
+            The video is open to everyone. To vote, <Link href={`/sign-in?callbackURL=${encodeURIComponent(callbackPath)}`}>sign in</Link> or <Link href={`/sign-up?callbackURL=${encodeURIComponent(callbackPath)}`}>register</Link>.
           </p>
         ) : !user.emailVerified ? (
           <p className="ruling-status">
-            Verify your email before a watch session can count. <Link href="/verify-email">Open verification.</Link>
+            Verify your email before your watch can count. <Link href="/verify-email">Open verification.</Link>
           </p>
         ) : currentVote ? (
           <div className="ruling-final">
-            <span className="stamp green">Ruling entered</span>
+            <span className="stamp green">Vote recorded</span>
             <p>
-              Your final position: <strong>{BALLOT_OPTIONS.find((option) => option.value === currentVote.value)?.label}</strong> ({currentVote.value}/100)
-              {currentVote.excluded ? ". This ruling is preserved but excluded from the public calculation." : ". It cannot be edited or submitted again."}
+              You voted <strong>{BALLOT_OPTIONS.find((option) => option.value === currentVote.value)?.label}</strong> ({currentVote.value}/100)
+              {currentVote.excluded ? ". This vote is saved but excluded from the public score." : ". One clip, one vote — it cannot be changed."}
             </p>
           </div>
         ) : watchSessionUnavailable ? (
@@ -1038,29 +1042,29 @@ export default function StatementVotingPanel({
                 ? "Retrying…"
                 : voteLookupFailed
                   ? "Retry account check"
-                  : "Retry verified watch"}
+                  : "Retry watch"}
             </button>
           </div>
         ) : !watchSession ? (
           <p className="ruling-status">
             {playbackStarting || playbackGatePending
-              ? "Preparing your verified watch session…"
-              : "Playback is waiting for a verified watch session. Tap the video to retry."}
+              ? "Getting the clip ready…"
+              : "Playback is waiting. Tap the video to retry."}
           </p>
         ) : !qualified ? (
           <div className="watch-progress">
             <div className="watch-progress-copy">
-              <span className="lbl">Watch qualification</span>
+              <span className="lbl">Watch progress</span>
               <span className="num">{watchProgress}%</span>
             </div>
-            <div className="watch-progress-track" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={watchProgress} aria-label="Verified watch progress">
+            <div className="watch-progress-track" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={watchProgress} aria-label="Watch progress">
               <i style={{ width: `${watchProgress}%` }} />
             </div>
             <p>Pausing is fine. Skipped, replayed, background-tab, and seeked time does not add credit.</p>
           </div>
         ) : (
           <div className="ballot-ready">
-            <p className="ruling-status"><strong>Footage watched.</strong> Choose carefully: this is your one final ruling on this statement.</p>
+            <p className="ruling-status"><strong>You have seen it.</strong> Pick how the statement lands. This is your one vote on this clip.</p>
             <div className="ballot-options" role="radiogroup" aria-label="Statement performance">
               {BALLOT_OPTIONS.map((option, index) => (
                 <button
@@ -1088,7 +1092,7 @@ export default function StatementVotingPanel({
               ))}
             </div>
             <button type="button" className="btn seal ballot-submit" disabled={selectedVote === null || submitting} onClick={() => void submitVote()}>
-              {submitting ? "Entering ruling…" : "Enter final ruling"}
+              {submitting ? "Recording vote…" : "Lock in my vote"}
             </button>
           </div>
         )}
@@ -1104,7 +1108,7 @@ export default function StatementVotingPanel({
       </div>
 
       {rating.validVoteCount > 0 && (
-        <div className="vote-distribution" aria-label="Public ruling distribution">
+        <div className="vote-distribution" aria-label="Public vote distribution">
           {BALLOT_OPTIONS.map((option) => {
             const count = rating.distribution?.[option.value] ?? emptyDistribution()[option.value];
             const width = rating.validVoteCount > 0 ? (count / rating.validVoteCount) * 100 : 0;

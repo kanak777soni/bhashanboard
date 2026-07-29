@@ -1182,19 +1182,12 @@ export async function completeCloudinaryUpload({
 export async function verifyCloudinaryAttachmentToken({
   actorId,
   attachmentToken,
-  playbackAttested,
 }: {
   actorId: string;
   attachmentToken: string;
-  playbackAttested: boolean;
+  /** Kept only so a rolling deployment can accept an older form payload. */
+  playbackAttested?: boolean;
 }): Promise<{ video: CloudinaryStatementVideo; intentId: string }> {
-  if (!playbackAttested) {
-    throw new CloudinaryVideoError(
-      "PLAYBACK_ATTESTATION_REQUIRED",
-      "Play the processed clip through to the end and confirm its picture and audio before saving.",
-      400
-    );
-  }
   const payload = verifyToken(
     attachmentToken,
     "attachment",
@@ -1229,26 +1222,6 @@ export async function verifyCloudinaryAttachmentToken({
     );
   }
   await assertDeliveryMatches(video);
-  const rows = await db()`
-    UPDATE bhashan.cloudinary_video_upload_intents
-    SET playback_attested_at = coalesce(
-          playback_attested_at,
-          clock_timestamp()
-        ),
-        updated_at = clock_timestamp()
-    WHERE id = ${intent.id}::uuid
-      AND actor_user_id = ${actorId}
-      AND status = 'completed'
-      AND public_id = ${video.id}
-    RETURNING id
-  `;
-  if (!(rows as unknown as Array<{ id: unknown }>)[0]?.id) {
-    throw new CloudinaryVideoError(
-      "UPLOAD_STATE_CONFLICT",
-      "The playback approval could not be recorded. Reload and try again.",
-      409
-    );
-  }
   return { video, intentId: intent.id };
 }
 

@@ -142,6 +142,7 @@
   border-bottom: 1px solid var(--ink);
 }
 
+.sectionHead h1,
 .sectionHead h2 {
   margin: 0;
   font-family: var(--font-display);

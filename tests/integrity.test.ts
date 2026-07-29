@@ -160,6 +160,113 @@ test("rating v2 migration demotes incomplete publications and enforces the same 
   );
 });
 
+test("sarcasm publication migration removes editorial gates without weakening media integrity", async () => {
+  const [
+    migrationSource,
+    storeSource,
+    verifierSource,
+    cloudinarySource,
+    voteSource,
+    watchSource,
+  ] = await Promise.all([
+      readFile(
+        new URL(
+          "../db/migrations/0011_sarcasm_publication_contract.sql",
+          import.meta.url
+        ),
+        "utf8"
+      ),
+      readFile(new URL("../lib/store.ts", import.meta.url), "utf8"),
+      readFile(new URL("../scripts/db-verify.mjs", import.meta.url), "utf8"),
+      readFile(new URL("../lib/cloudinary.ts", import.meta.url), "utf8"),
+      readFile(new URL("../lib/vote-store.ts", import.meta.url), "utf8"),
+      readFile(new URL("../lib/watch-store.ts", import.meta.url), "utf8"),
+    ]);
+
+  const publicationFunction = migrationSource.slice(
+    migrationSource.indexOf(
+      "CREATE OR REPLACE FUNCTION bhashan.statement_publication_issues"
+    ),
+    migrationSource.indexOf(
+      "REVOKE ALL ON FUNCTION bhashan.statement_publication_issues"
+    )
+  );
+  for (const requiredField of [
+    "speaker_id",
+    "party_at_time",
+    "category",
+    "neutral_title",
+    "quote",
+    "language",
+  ]) {
+    assert.match(publicationFunction, new RegExp(`statement_document ->> '${requiredField}'`));
+  }
+  assert.match(
+    publicationFunction,
+    /bhashan\.statement_video_fingerprint\(statement_document\) IS NULL/
+  );
+  assert.match(publicationFunction, /jsonb_typeof\(/);
+  assert.match(publicationFunction, /\[\^\[:space:\]\]/);
+  assert.match(publicationFunction, /\^\[A-Za-z0-9_-\]\{11\}\$/);
+  for (const editorialGate of [
+    "committee-passed",
+    "best source tier",
+    "verification need",
+    "confirmed statement date",
+    "confirmed statement venue",
+    "Surrounding context",
+  ]) {
+    assert.doesNotMatch(publicationFunction, new RegExp(editorialGate, "i"));
+  }
+
+  const attachmentFunction = migrationSource.slice(
+    migrationSource.indexOf(
+      "CREATE OR REPLACE FUNCTION bhashan.statement_cloudinary_attachment_ready"
+    ),
+    migrationSource.indexOf(
+      "REVOKE ALL ON FUNCTION\n  bhashan.statement_cloudinary_attachment_ready"
+    )
+  );
+  assert.match(attachmentFunction, /upload\.rights_attested_at IS NOT NULL/);
+  assert.doesNotMatch(attachmentFunction, /upload\.playback_attested_at IS NOT NULL/);
+  assert.match(
+    migrationSource,
+    /ADD CONSTRAINT cloudinary_video_attachment_lifecycle_check[\s\S]*?status = 'completed'[\s\S]*?rights_attested_at IS NOT NULL/
+  );
+  assert.match(
+    migrationSource,
+    /version = statement\.version \+ 1[\s\S]*?updated_at = clock_timestamp\(\)/
+  );
+  assert.match(storeSource, /upload\.rights_attested_at IS NOT NULL/);
+  assert.doesNotMatch(storeSource, /upload\.playback_attested_at IS NOT NULL/);
+  assert.doesNotMatch(
+    cloudinarySource.slice(
+      cloudinarySource.indexOf("export async function verifyCloudinaryAttachmentToken"),
+      cloudinarySource.indexOf("export async function verifyExistingCloudinaryVideo")
+    ),
+    /PLAYBACK_ATTESTATION_REQUIRED|playback_attested_at/
+  );
+  assert.doesNotMatch(
+    voteSource.slice(
+      voteSource.indexOf("WITH current_statement AS"),
+      voteSource.indexOf("eligible_receipt AS")
+    ),
+    /verification,stage|committee_passed/
+  );
+  assert.doesNotMatch(
+    watchSource.slice(
+      watchSource.indexOf("export function parseVoteEligibleStatement"),
+      watchSource.indexOf("export async function getVoteEligibleStatement")
+    ),
+    /normalizeVerificationStage|committee_passed/
+  );
+  assert.match(verifierSource, /cloudinary_video_attachment_lifecycle_check/);
+  assert.match(verifierSource, /upload\.rights_attested_at IS NOT NULL/);
+  assert.match(verifierSource, /rejects_non_string/);
+  assert.match(verifierSource, /rejects_whitespace/);
+  assert.match(verifierSource, /rejects_bad_youtube_id/);
+});
+
 test("rating v2 is canonically rebuilt and enforced while Hall maturity stays live", async () => {
   const [
     migrationSource,

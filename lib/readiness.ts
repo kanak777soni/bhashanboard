@@ -1,7 +1,6 @@
 import {
   committeePublicationIssues,
   normalizeStatementEvidenceVideo,
-  normalizeVerificationStage,
 } from "./video";
 
 export type StatementReadinessKey =
@@ -16,6 +15,10 @@ export type StatementReadinessKey =
 
 export interface ReadinessStatement {
   status?: unknown;
+  speaker_id?: unknown;
+  party_at_time?: unknown;
+  category?: unknown;
+  neutral_title?: unknown;
   quote?: unknown;
   language?: unknown;
   quote_translation?: unknown;
@@ -37,9 +40,9 @@ export interface StatementReadiness {
 }
 
 const READINESS_LABELS: Record<StatementReadinessKey, string> = {
-  source_review: "Quote & source review",
+  source_review: "Finish the basics",
   needs_video: "Needs video",
-  production_review: "Transcript, context & sign-off",
+  production_review: "Finish the entry",
   ready: "Ready to publish",
   live: "Live · ready to rule",
   private_draft: "Private submission draft",
@@ -72,15 +75,13 @@ export function statementReadiness(
     key = "ready";
   } else if (!normalizeStatementEvidenceVideo(statement)) {
     key = "needs_video";
-  } else if (
-    normalizeVerificationStage(statement.verification?.stage) !==
-    "committee_passed"
-  ) {
+  } else if (!publicationReady) {
     key = "production_review";
-  } else if (status === "held_review" || status === "held_parity") {
-    key = "held";
   } else {
-    key = "source_review";
+    key =
+      status === "held_review" || status === "held_parity"
+        ? "held"
+        : "source_review";
   }
 
   return {

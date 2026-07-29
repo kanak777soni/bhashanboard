@@ -37,6 +37,10 @@ function validCloudinaryVideo() {
 function eligibleCommitteeDocument() {
   return {
     status: "published",
+    speaker_id: "rahul-gandhi",
+    party_at_time: "INC",
+    category: "History",
+    neutral_title: "On a soft-drink founder",
     date: "2026-07-29",
     venue: "Public meeting, New Delhi",
     language: "Hindi",
@@ -74,6 +78,11 @@ test("YouTube inputs and strict timestamps produce a canonical excerpt", () => {
     platform: "youtube",
     id: "abcDEF_1234",
   });
+  assert.equal(parseYouTubeVideo("too-short"), undefined);
+  assert.equal(
+    parseYouTubeVideo("https://youtube.com/watch?v=too-short"),
+    undefined
+  );
   assert.equal(parseVideoTimestamp("01:05"), 65);
   assert.equal(parseVideoTimestamp("1:60"), undefined);
   assert.deepEqual(
@@ -190,52 +199,52 @@ test("voting excerpts must be bounded and no longer than three minutes", () => {
   );
 });
 
-test("committee publication eligibility requires complete evidence and original text", () => {
+test("publication eligibility requires the sarcasm entry essentials", () => {
   const eligible = eligibleCommitteeDocument();
   assert.deepEqual(committeePublicationIssues(eligible), []);
   assert.equal(isCommitteePublicationEligible(eligible), true);
 
   const incomplete = {
     ...eligible,
-    date: " ",
-    venue: "",
+    speaker_id: "",
+    party_at_time: "",
+    category: "",
+    neutral_title: " ",
     quote: " ",
     quote_translation: "",
-    context: "",
-    verification: {
-      ...eligible.verification,
-      best_source_tier: "B",
-    },
   };
   const issues = committeePublicationIssues(incomplete);
-  assert.ok(issues.includes("A confirmed statement date is required."));
-  assert.ok(issues.includes("A confirmed statement venue is required."));
-  assert.ok(issues.includes("An original-language verbatim quote is required."));
+  assert.ok(issues.includes("Choose the speaker."));
+  assert.ok(issues.includes("Choose the speaker's party."));
+  assert.ok(issues.includes("Choose a category."));
+  assert.ok(issues.includes("Add a short title."));
+  assert.ok(issues.includes("Add the original-language quote."));
   assert.ok(
     issues.includes("A faithful English translation is required for a non-English quote.")
   );
-  assert.ok(issues.includes("Surrounding context is required."));
-  assert.ok(issues.includes("A matching Tier A/B HTTP(S) source is required."));
   assert.equal(isCommitteePublicationEligible(incomplete), false);
 });
 
-test("committee evidence requires the matching best-tier HTTP(S) source", () => {
+test("YouTube is its own footage provenance and research sources are optional", () => {
   const eligible = eligibleCommitteeDocument();
-  const invalidSource = {
+  const withoutResearchSources = {
     ...eligible,
+    date: "",
+    venue: "",
+    context: "",
     verification: {
       ...eligible.verification,
-      sources: [{ tier: "A", url: "ftp://example.com/source" }],
+      stage: "text_sourced",
+      best_source_tier: "C",
+      sources: [],
+      needs: ["Optional note to revisit the surrounding context"],
     },
   };
-  assert.ok(
-    committeePublicationIssues(invalidSource).includes(
-      "A matching Tier A/B HTTP(S) source is required."
-    )
-  );
+  assert.deepEqual(committeePublicationIssues(withoutResearchSources), []);
+  assert.equal(isCommitteePublicationEligible(withoutResearchSources), true);
 });
 
-test("unresolved verification needs hard-block publication", () => {
+test("internal research notes never become publication blockers", () => {
   const eligible = eligibleCommitteeDocument();
   const issues = committeePublicationIssues({
     ...eligible,
@@ -245,9 +254,7 @@ test("unresolved verification needs hard-block publication", () => {
     },
   });
 
-  assert.ok(
-    issues.includes("All outstanding verification needs must be resolved.")
-  );
+  assert.deepEqual(issues, []);
   assert.equal(
     isCommitteePublicationEligible({
       ...eligible,
@@ -256,11 +263,11 @@ test("unresolved verification needs hard-block publication", () => {
         needs: ["Confirm the exact end timestamp"],
       },
     }),
-    false
+    true
   );
 });
 
-test("committee publication accepts a verified Cloudinary MP4 as video evidence", () => {
+test("publication accepts a canonical Cloudinary MP4 as video evidence", () => {
   const eligible = {
     ...eligibleCommitteeDocument(),
     video: { ...validCloudinaryVideo(), durationMs: 30_000, end: 30 },

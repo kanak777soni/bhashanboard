@@ -23,19 +23,22 @@ export default async function Ticker() {
   const items = [
     {
       href: "/watch",
-      text: `${inventory.liveVideos.length} verified video screenings open · ${newFilings} new · ${placement} in placement · ${inventory.rankedVideos.length} ranked`,
+      text: `${inventory.liveVideos.length} clips live · ${newFilings} fresh · ${placement} finding a place · ${inventory.rankedVideos.length} on the standings`,
     },
     {
       href: "/record",
-      text: `${researchFiles} research files · ${inventory.videoUnderReview.length} clips under review · ${inventory.researchOnly.length} awaiting verified footage`,
+      text: `${researchFiles} entries on deck · ${inventory.videoUnderReview.length} clips backstage · ${inventory.researchOnly.length} still need a clip`,
     },
     {
-      href: "/record",
-      text: `${data.STATS.withVerbatimQuote} of ${data.STATS.indexed} searchable entries carry an established verbatim quote — the rest use a neutral subject line`,
+      href: "/duel",
+      text:
+        inventory.liveVideos.length >= 2
+          ? "Aamne-Saamne is open · two statements enter · you pick the more magnificent one"
+          : "Aamne-Saamne opens as soon as two clips are live",
     },
     {
-      href: "/rejected",
-      text: `${data.REJECTED.length} proposed statements refused under the Rules, each recorded with the rule that killed it`,
+      href: "/submit",
+      text: "Found a speech that belongs here? Send a YouTube, Facebook or Instagram link",
     },
   ];
 
@@ -57,19 +60,19 @@ export default async function Ticker() {
     <>
       <Link
         className="ticker-mobile"
-        href="/record"
-        aria-label={`Record status: ${inventory.liveVideos.length} verified videos ready to rule; ${inventory.rankedVideos.length} ranked; ${researchFiles} research files`}
+        href="/watch"
+        aria-label={`Board status: ${inventory.liveVideos.length} live clips; ${inventory.rankedVideos.length} on the standings; ${researchFiles} entries on deck`}
       >
-        <span className="ticker-mobile-label">Record status</span>
+        <span className="ticker-mobile-label">Board status</span>
         <span className="ticker-mobile-counts" aria-hidden="true">
-          <span className="num">{inventory.liveVideos.length}</span> ready &middot;{" "}
+          <span className="num">{inventory.liveVideos.length}</span> live &middot;{" "}
           <span className="num">{inventory.rankedVideos.length}</span> ranked &middot;{" "}
-          <span className="num">{researchFiles}</span> research
+          <span className="num">{researchFiles}</span> on deck
         </span>
       </Link>
 
       <div className="ticker ticker-desktop">
-        <span className="ticker-tag">State of the record</span>
+        <span className="ticker-tag">On the Board</span>
         <div className="ticker-viewport">
           <div className="ticker-track">
             {tickerGroup()}

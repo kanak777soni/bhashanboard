@@ -207,6 +207,46 @@ export async function getStatement(id: string): Promise<StoredStatement | undefi
   return row ? mapStatement(row) : undefined;
 }
 
+export async function getStatementVoteCounts(): Promise<Map<string, number>> {
+  noStore();
+  const rows = await db()`
+    SELECT
+      statement.id,
+      count(vote.id)::integer AS vote_count
+    FROM bhashan.statements AS statement
+    LEFT JOIN bhashan.statement_votes AS vote
+      ON vote.statement_id = statement.id
+    GROUP BY statement.id
+  `;
+  return new Map(
+    (
+      rows as unknown as Array<{ id: unknown; vote_count: unknown }>
+    ).map((row) => {
+      const count = Number(row.vote_count);
+      if (!Number.isSafeInteger(count) || count < 0) {
+        throw new Error(`Statement ${String(row.id)} has an invalid vote count.`);
+      }
+      return [String(row.id), count] as const;
+    })
+  );
+}
+
+export async function getStatementVoteCount(id: string): Promise<number> {
+  noStore();
+  const rows = await db()`
+    SELECT count(*)::integer AS vote_count
+    FROM bhashan.statement_votes
+    WHERE statement_id = ${id}
+  `;
+  const count = Number(
+    (rows as unknown as Array<{ vote_count: unknown }>)[0]?.vote_count ?? 0
+  );
+  if (!Number.isSafeInteger(count) || count < 0) {
+    throw new Error(`Statement ${id} has an invalid vote count.`);
+  }
+  return count;
+}
+
 export async function getPoliticians(): Promise<StoredPolitician[]> {
   noStore();
   const rows = await db()`
@@ -293,7 +333,7 @@ export async function createStatementRecord(
         WHERE upload.id = ${cloudinaryAttachment?.uploadIntentId ?? null}::uuid
           AND upload.actor_user_id = ${cloudinaryAttachment?.actorId ?? null}
           AND upload.status = 'completed'
-          AND upload.playback_attested_at IS NOT NULL
+          AND upload.rights_attested_at IS NOT NULL
           AND upload.public_id = inserted.document #>> '{video,id}'
           AND upload.asset_id = inserted.document #>> '{video,assetId}'
           AND upload.version::text = inserted.document #>> '{video,version}'
@@ -401,7 +441,7 @@ export async function updateStatementRecord(
         WHERE upload.id = ${cloudinaryAttachment?.uploadIntentId ?? null}::uuid
           AND upload.actor_user_id = ${cloudinaryAttachment?.actorId ?? null}
           AND upload.status = 'completed'
-          AND upload.playback_attested_at IS NOT NULL
+          AND upload.rights_attested_at IS NOT NULL
           AND upload.public_id = updated.document #>> '{video,id}'
           AND upload.asset_id = updated.document #>> '{video,assetId}'
           AND upload.version::text = updated.document #>> '{video,version}'
@@ -423,7 +463,7 @@ export async function updateStatementRecord(
         FROM bhashan.cloudinary_video_upload_intents AS upload
         JOIN updated ON upload.attached_statement_id = updated.id
         WHERE upload.status = 'completed'
-          AND upload.playback_attested_at IS NOT NULL
+          AND upload.rights_attested_at IS NOT NULL
           AND upload.public_id = updated.document #>> '{video,id}'
           AND upload.asset_id = updated.document #>> '{video,assetId}'
           AND upload.version::text = updated.document #>> '{video,version}'

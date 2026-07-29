@@ -54,26 +54,25 @@ export default async function AdminHall() {
       <section className="admin-section">
         <h2>Hall of Fame</h2>
         <p className="rail-note" style={{ marginBottom: 14 }}>
-          Induction places an entry in the permanent gallery without changing its rating. It is a deliberate
-          editorial act, so it remains manual and every change is written to the audit log.
+          The Hall is for crowd favourites worth keeping on permanent display.
+          Adding or removing an entry never changes its votes, rank or GP.
         </p>
         <div className="tablewrap">
           <table className="ledger">
-            <thead><tr><th style={{ width: 44 }}>#</th><th style={{ width: 60 }}>GP</th><th>Inducted</th><th style={{ width: 100 }} /></tr></thead>
+            <thead><tr><th style={{ width: 44 }}>#</th><th style={{ width: 60 }}>GP</th><th>Entry</th><th style={{ width: 100 }} /></tr></thead>
             <tbody>
-              {inducted.length === 0 && <tr><td colSpan={4} className="empty">No inductions yet. The first is below.</td></tr>}
-              {inducted.map((s) => row(s, "Remove"))}
+              {inducted.length === 0 && <tr><td colSpan={4} className="empty">The Hall is empty for now.</td></tr>}
+              {inducted.map((s) => row(s, "Remove from Hall"))}
             </tbody>
           </table>
         </div>
       </section>
 
       <section className="admin-section">
-        <h2>Standing candidates</h2>
+        <h2>Crowd favourites</h2>
         <p className="rail-note" style={{ marginBottom: 14 }}>
-          A candidate must be live, video-backed, and publicly ranked after at
-          least ten valid rulings. Editorial seed order is not a Hall
-          qualification.
+          Live clips appear here after ten user votes. Their rank and GP come
+          entirely from those votes.
         </p>
         <div className="tablewrap">
           <table className="ledger">
@@ -82,11 +81,11 @@ export default async function AdminHall() {
               {candidates.length === 0 && (
                 <tr>
                   <td colSpan={4} className="empty">
-                    No live entry has reached the public Hall threshold yet.
+                    No live clip has ten votes yet.
                   </td>
                 </tr>
               )}
-              {candidates.map((s) => row(s, "Induct"))}
+              {candidates.map((s) => row(s, "Add to Hall"))}
             </tbody>
           </table>
         </div>

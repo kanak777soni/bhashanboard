@@ -22,10 +22,20 @@ export default async function StatementFooterNav({ slug }: { slug: string }) {
     ? data.statementsByNeta(neta.slug).filter((s) => s.slug !== slug).slice(0, 4)
     : [];
 
-  const citation = current && neta
-    ? `${neta.name}, ${neta.office}. ${current.hasVerbatimQuote ? `"${current.quote}"` : `[${current.neutralTitle}] — exact wording not established.`} ${current.venue}. ` +
-      `The Bhashan Board, Entry No. ${current.corpusId}, publicly ranked #${i + 1}.`
-    : "";
+  const citation =
+    current && neta
+      ? [
+          `${neta.name}${neta.office ? `, ${neta.office}` : ""}.`,
+          current.hasVerbatimQuote
+            ? `"${current.quote}"`
+            : `[${current.neutralTitle}] — exact wording not established.`,
+          current.venue ? `${current.venue}.` : "",
+          current.eventDate ? `${current.eventDate}.` : "",
+          `The Bhashan Board, Entry No. ${current.corpusId}, publicly ranked #${i + 1}.`,
+        ]
+          .filter(Boolean)
+          .join(" ")
+      : "";
 
   return (
     <>
@@ -71,7 +81,7 @@ export default async function StatementFooterNav({ slug }: { slug: string }) {
                   )}
                   <Link href={`/statement/${s.slug}`}><EntryTitle statement={s} /></Link>
                   <span className="num">
-                    {publicRank ? `#${publicRank} · ${s.gp.toLocaleString("en-IN")} GP` : "Research file"}
+                    {publicRank ? `#${publicRank} · ${s.gp.toLocaleString("en-IN")} GP` : "In the archive"}
                   </span>
                 </li>
               );
@@ -84,8 +94,8 @@ export default async function StatementFooterNav({ slug }: { slug: string }) {
         <h2 className="lbl">Cite this entry</h2>
         <p className="cite-text">{citation}</p>
         <p className="legend-foot">
-          Cite the record with attribution. Source-footage rights remain with
-          their owners whether the evidence is embedded or hosted with clearance.
+          Cite the entry with attribution. Video rights remain with their
+          owners whether a clip is embedded or hosted with clearance.
         </p>
       </section>
     </>

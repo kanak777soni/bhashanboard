@@ -13,7 +13,6 @@ test("primary navigation leads with the public watch journey", () => {
     [
       { href: "/watch", label: "Watch" },
       { href: "/standings", label: "Standings" },
-      { href: "/record", label: "Record" },
       { href: "/netas", label: "Netas" },
       { href: "/submit", label: "Submit" },
     ],
@@ -22,6 +21,12 @@ test("primary navigation leads with the public watch journey", () => {
 
 test("secondary institutional pages stay available under archive and more", () => {
   assert.deepEqual(ARCHIVE_SITE_LINKS, [
+    { href: "/duel", label: "Aamne-Saamne" },
+    {
+      href: "/record",
+      label: "The Record",
+      activePrefixes: ["/category", "/party"],
+    },
     { href: "/hall", label: "Hall of Fame" },
     { href: "/ledger", label: "Ledger" },
     { href: "/rejected", label: "Refused" },
@@ -30,9 +35,9 @@ test("secondary institutional pages stay available under archive and more", () =
 });
 
 test("navigation destinations own their related detail routes without partial matches", () => {
-  const watch = PRIMARY_SITE_LINKS[0];
-  const record = PRIMARY_SITE_LINKS[2];
-  const netas = PRIMARY_SITE_LINKS[3];
+  const watch = PRIMARY_SITE_LINKS.find((link) => link.href === "/watch")!;
+  const record = ARCHIVE_SITE_LINKS.find((link) => link.href === "/record")!;
+  const netas = PRIMARY_SITE_LINKS.find((link) => link.href === "/netas")!;
 
   assert.equal(isSiteNavigationLinkActive("/statement/example", watch), true);
   assert.equal(isSiteNavigationLinkActive("/party/BJP", record), true);

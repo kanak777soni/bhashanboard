@@ -108,17 +108,20 @@ test("QueryForm stages router destinations before later debounced updates", () =
   assert.match(queryForm, /push\(\{ \[id\]: e\.target\.value \}[\s\S]*true/);
 });
 
-test("admin task links and research cards preserve the state they describe", () => {
+test("admin task links and research cards follow the clip-first workflow", () => {
   const overview = source("app/admin/page.tsx");
   const entries = source("app/admin/entries/page.tsx");
   const researchCard = source("components/public/ResearchEntryCard.tsx");
 
-  assert.match(overview, /filter=unverified/);
+  assert.match(overview, /filter=ready/);
+  assert.match(overview, /filter=novideo/);
   assert.match(
     entries,
-    /unverified:\s*\{[^}]*verification\.stage\s*===\s*"text_sourced"/s
+    /ready:\s*\{[^}]*statementReadiness\(statement\)\.key\s*===\s*"ready"/s
   );
+  assert.doesNotMatch(overview, /filter=unverified/);
+  assert.doesNotMatch(entries, /verification\.stage\s*===\s*"text_sourced"/);
   assert.doesNotMatch(researchCard, /if\s*\(\s*statement\.held\s*\)/);
   assert.match(researchCard, /if\s*\(\s*statement\.video\s*\)/);
-  assert.match(researchCard, /Awaiting verified footage/);
+  assert.match(researchCard, /Clip wanted/);
 });

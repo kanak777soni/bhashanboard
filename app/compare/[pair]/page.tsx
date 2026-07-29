@@ -28,7 +28,7 @@ export async function generateMetadata({
   if (!first || !second) return { title: "Comparison not found" };
   return {
     title: `${first.name} vs ${second.name}`,
-    description: `Compare the Bhashan Board research coverage for ${first.name} and ${second.name}. Public ranking is shown only for mature verified-video filings.`,
+    description: `Compare clips, archive entries and public standings for ${first.name} and ${second.name}.`,
   };
 }
 
@@ -79,8 +79,8 @@ function entryState(data: PublicData, statement: CorpusStatement): string {
     }
     return ratingMaturityLabel(maturity);
   }
-  if (statement.video) return "Evidence under review";
-  return "Research file";
+  if (statement.video) return "Clip on deck";
+  return "Clip wanted";
 }
 
 export default async function ComparePage({
@@ -97,12 +97,12 @@ export default async function ComparePage({
 
   const rows: [string, string, string][] = [
     [
-      "Research records",
+      "Archive entries",
       String(first.entries.length),
       String(second.entries.length),
     ],
     [
-      "Ready video screenings",
+      "Live clips",
       String(first.liveVideos.length),
       String(second.liveVideos.length),
     ],
@@ -182,7 +182,7 @@ export default async function ComparePage({
         {[first, second].map((profileData) => (
           <div key={profileData.neta.slug}>
             <span className="lbl">
-              Research file &mdash; {profileData.neta.name}
+              Archive &mdash; {profileData.neta.name}
             </span>
             {profileData.entries.length > 0 ? (
               <ul className="also-list" style={{ marginTop: 8 }}>
@@ -199,17 +199,16 @@ export default async function ComparePage({
                 ))}
               </ul>
             ) : (
-              <p className="empty">No research records have been indexed.</p>
+              <p className="empty">No entries are in the archive yet.</p>
             )}
           </div>
         ))}
       </div>
 
       <p className="legend-foot" style={{ marginTop: 24 }}>
-        This compares archive coverage, not people. Counts depend on where the
-        research has looked. Rank appears only when a publication-ready video
-        has ten valid public rulings; unfinished files receive no borrowed GP or
-        medal. <Link href="/rules">The rubric is published.</Link>
+        This compares what is in the archive, not the people. Rank appears only
+        after a live clip receives ten public votes; entries without a live clip
+        receive no GP or medal. <Link href="/rules">See how scoring works.</Link>
       </p>
     </SiteFrame>
   );

@@ -14,11 +14,6 @@ export const PRIMARY_SITE_LINKS: SiteNavigationLink[] = [
   },
   { href: "/standings", label: "Standings" },
   {
-    href: "/record",
-    label: "Record",
-    activePrefixes: ["/category", "/party"],
-  },
-  {
     href: "/netas",
     label: "Netas",
     activePrefixes: ["/neta"],
@@ -27,6 +22,12 @@ export const PRIMARY_SITE_LINKS: SiteNavigationLink[] = [
 ];
 
 export const ARCHIVE_SITE_LINKS: SiteNavigationLink[] = [
+  { href: "/duel", label: "Aamne-Saamne" },
+  {
+    href: "/record",
+    label: "The Record",
+    activePrefixes: ["/category", "/party"],
+  },
   { href: "/hall", label: "Hall of Fame" },
   { href: "/ledger", label: "Ledger" },
   { href: "/rejected", label: "Refused" },

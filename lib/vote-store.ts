@@ -144,7 +144,6 @@ interface ReceiptDiagnosticRow {
 
 interface StatementDiagnosticRow {
   status: unknown;
-  verification_stage: unknown;
 }
 
 interface HistoryRow {
@@ -265,7 +264,6 @@ export async function submitStatementVote(
       WHERE id = ${input.statementId}
         AND version = ${eligibleStatement.recordVersion}
         AND status = 'published'
-        AND document #>> '{verification,stage}' IN ('verified', 'committee_passed')
     ),
     eligible_receipt AS (
       SELECT receipt.id
@@ -392,20 +390,20 @@ export async function submitStatementVote(
   if (!receipt || String(receipt.statement_id) !== input.statementId) {
     throw new VoteStoreError(
       "WATCH_REQUIRED",
-      "Watch the verified excerpt before entering a ruling.",
+      "Watch the clip before voting.",
       403
     );
   }
   if (String(receipt.video_fingerprint) !== currentVideoFingerprint) {
     throw new VoteStoreError(
       "VIDEO_CHANGED",
-      "The verified excerpt changed. Watch the current footage before voting.",
+      "The clip changed. Watch the current version before voting.",
       409
     );
   }
 
   const statementRows = await db()`
-    SELECT status, document #>> '{verification,stage}' AS verification_stage
+    SELECT status
     FROM bhashan.statements
     WHERE id = ${input.statementId}
     LIMIT 1
@@ -413,8 +411,7 @@ export async function submitStatementVote(
   const statement = (statementRows as unknown as StatementDiagnosticRow[])[0];
   if (
     !statement ||
-    statement.status !== "published" ||
-    !["verified", "committee_passed"].includes(String(statement.verification_stage))
+    statement.status !== "published"
   ) {
     throw new VoteStoreError(
       "STATEMENT_NOT_ELIGIBLE",

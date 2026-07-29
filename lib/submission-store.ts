@@ -216,7 +216,7 @@ export async function createPublicSubmission(
         submission_id, event, actor, detail
       ) VALUES (
         ${id}::uuid, 'submitted', 'Public submission form',
-        'Evidence lead entered the private moderation queue.'
+        'Clip suggestion entered the private moderation queue.'
       )
     `,
   ]);

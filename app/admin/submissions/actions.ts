@@ -40,7 +40,7 @@ function sourcePublisher(sourceUrl: string): string {
   try {
     return new URL(sourceUrl).hostname.replace(/^www\./, "");
   } catch {
-    return "Reader-submitted source";
+    return "Reader link";
   }
 }
 
@@ -109,13 +109,11 @@ export async function acceptSubmissionToDraft(
     .filter(Boolean)
     .join("\n\n");
   const needs = [
-    "Establish and transcribe the exact original-language quote.",
-    "Review at least 60 seconds of surrounding context.",
-    "Confirm source tier and corroborate the claim.",
+    "Card: add the exact original quote and an English translation if needed.",
     video
-      ? "Preview the YouTube excerpt and confirm its exact boundaries."
-      : "Attach a rights-cleared Cloudinary clip or bounded YouTube excerpt.",
-    "Complete event date, venue, office and state metadata.",
+      ? "Clip: check the suggested start and end points."
+      : "Clip: add a YouTube excerpt or upload a video.",
+    "Optional: add date, venue and background when they help the viewer.",
   ];
   const document: StatementDocument = {
     status: "private_draft",
@@ -131,7 +129,7 @@ export async function acceptSubmissionToDraft(
     neutral_title: submission.claim.slice(0, 220),
     quote: null,
     quote_note:
-      "Exact verbatim wording has not yet been established from the submitted evidence.",
+      "Created from a reader suggestion; add the original quote before going live.",
     claim: submission.claim,
     context,
     hall_of_fame: false,
@@ -151,7 +149,7 @@ export async function acceptSubmissionToDraft(
         {
           tier: "C",
           publisher: sourcePublisher(submission.sourceUrl),
-          title: "Reader-submitted evidence lead",
+          title: "Reader-submitted clip suggestion",
           url: submission.sourceUrl,
           role: "footage",
         },

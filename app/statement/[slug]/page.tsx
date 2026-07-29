@@ -9,12 +9,8 @@ import StatementFooterNav from "@/components/StatementFooterNav";
 import StatementVotingPanel from "@/components/StatementVotingPanel";
 import { cloudinaryVideoUrl } from "@/lib/cloudinary";
 import { getData } from "@/lib/data";
-import {
-  ratingMaturityLabel,
-  statementRatingMaturity,
-} from "@/lib/public-inventory";
+import { statementRatingMaturity } from "@/lib/public-inventory";
 import { tierOf } from "@/lib/tiers";
-import type { VerificationStage } from "@/lib/types";
 
 export async function generateMetadata({
   params,
@@ -29,7 +25,12 @@ export async function generateMetadata({
   const title = statement.hasVerbatimQuote
     ? `“${statement.quote}”`
     : statement.neutralTitle;
-  const description = `${neta?.name ?? "Unknown"} · ${statement.venue}, ${statement.daysAgo} days ago. Indexed by the Bhashan Board.`;
+  const metadataDetails = [
+    neta?.name ?? "Unknown",
+    statement.venue,
+    statement.eventDate,
+  ].filter(Boolean);
+  const description = `${metadataDetails.join(" · ")}. Watch and score this clip on The Bhashan Board.`;
 
   return {
     title,
@@ -39,7 +40,7 @@ export async function generateMetadata({
       : { index: false, follow: false },
     openGraph: {
       title,
-      description: `${neta?.name ?? "Unknown"} · ${statement.venue}`,
+      description: metadataDetails.join(" · "),
     },
   };
 }
@@ -53,54 +54,15 @@ function evidenceStateLabel({
   publicationEligible: boolean;
   maturity: ReturnType<typeof statementRatingMaturity>;
 }) {
-  if (!hasVideo) return "Awaiting verified footage";
-  if (publicationEligible) return ratingMaturityLabel(maturity);
-  return "Evidence under review";
-}
-
-function ProvisionalNotice({
-  stage,
-  needs,
-}: {
-  stage: VerificationStage;
-  needs: string[];
-}) {
-  return (
-    <aside className="provisional statement-review-notice">
-      <span className="lbl">Not yet verified for publication</span>
-      <p>
-        {stage === "text_sourced" ? (
-          <>
-            This entry is <strong>text-sourced</strong>: a named
-            representative, a reported remark, and at least one attributable
-            outlet. Publication and voting still require a bounded Tier A or B
-            video excerpt, original-language wording, context review, and human
-            sign-off.
-          </>
-        ) : stage === "av_verified" ? (
-          <>
-            A bounded source excerpt is attached, but the wording, context,
-            source record, or human review is not complete. It cannot receive
-            public rulings until the Committee signs off.
-          </>
-        ) : (
-          <>
-            This entry is marked committee-passed but does not satisfy the
-            complete publication bar. It remains provisional until its status,
-            original wording, translation, context, source tier, and bounded
-            video evidence all pass validation.
-          </>
-        )}
-      </p>
-      {needs.length > 0 && (
-        <ul className="needs">
-          {needs.map((need) => (
-            <li key={need}>{need}</li>
-          ))}
-        </ul>
-      )}
-    </aside>
-  );
+  if (!hasVideo) return "Clip wanted";
+  if (publicationEligible) {
+    return maturity === "new"
+      ? "Fresh clip"
+      : maturity === "placement"
+        ? "Finding its place"
+        : "Ranked";
+  }
+  return "Clip on deck";
 }
 
 export default async function StatementPage({
@@ -145,7 +107,7 @@ export default async function StatementPage({
   const statementIntro = (
     <section className="statement-intro">
       <span className="lbl">
-        {isLiveScreening ? "Statement on screen" : "Research file"}
+        {isLiveScreening ? "Now playing" : "In the archive"}
       </span>
       <h1 className="cert-title">
         <EntryTitle statement={statement} />
@@ -156,8 +118,11 @@ export default async function StatementPage({
         ) : (
           "Unknown"
         )}
-        {statement.office && ` · ${statement.office}`}
-        {party && ` · ${party.name}`} · {statement.venue}
+        {[statement.office, party?.name, statement.venue]
+          .filter(Boolean)
+          .map((detail) => (
+            <span key={detail}> · {detail}</span>
+          ))}
       </p>
     </section>
   );
@@ -201,17 +166,17 @@ export default async function StatementPage({
               <div className="statement-file-mark" aria-label={evidenceState}>
                 <span className="lbl">
                   {isLiveScreening
-                    ? "Live screening"
+                    ? "Live clip"
                     : hasVideo
-                      ? "Committee review"
-                      : "Research file"}
+                      ? "Backstage"
+                      : "In the archive"}
                 </span>
                 <strong>
                   {isLiveScreening
                     ? evidenceState
                     : hasVideo
-                      ? "Screening pending"
-                      : "Footage wanted"}
+                      ? "Clip on deck"
+                      : "Clip wanted"}
                 </strong>
               </div>
             )}
@@ -221,7 +186,7 @@ export default async function StatementPage({
             <>
               <section
                 className="statement-screening"
-                aria-label="Verified footage and public ruling"
+                aria-label="Video and public vote"
               >
                 <StatementVotingPanel
                   key={statement.corpusId}
@@ -249,38 +214,31 @@ export default async function StatementPage({
               >
                 <span className="lbl">
                   {hasVideo
-                    ? "Research file · footage under review"
-                    : "Research file · awaiting footage"}
+                    ? "Clip added · not live yet"
+                    : "Clip wanted"}
                 </span>
                 <h2 id={`research-file-${statement.corpusId}`}>
                   {hasVideo
-                    ? "A clip is attached, but this is not a public screening yet."
-                    : "This record is documented, but it is not a screening yet."}
+                    ? "This one is waiting backstage."
+                    : "This statement still needs its video."}
                 </h2>
                 {hasVideo ? (
                   <p>
-                    The attached media remains off the public player until its
-                    wording, context, evidence and excerpt pass review and an
-                    administrator explicitly publishes it. Until then, this
-                    record carries no public rank, medal, GP score, or ballot.
+                    The clip has been added but is not live on Watch yet. Once
+                    it is published, the player, vote bar and GP will appear
+                    right here.
                   </p>
                 ) : (
                   <p>
-                    No verified video excerpt is attached. The statement
-                    therefore carries no public rank, medal, GP score, or ballot.
-                    The sourced record remains available while the Committee
-                    looks for the original footage and enough surrounding
-                    context to review it honestly.
+                    Know where the original clip lives? Send the link. Until a
+                    video goes live, this entry stays off the vote and the
+                    standings.
                   </p>
                 )}
                 <Link href="/submit" className="btn ghost research-file-submit">
-                  Submit better evidence
+                  {hasVideo ? "Send another clip" : "Send the clip"}
                 </Link>
               </section>
-              <ProvisionalNotice
-                stage={statement.verificationStage}
-                needs={statement.needs}
-              />
             </>
           )}
 
@@ -295,10 +253,8 @@ export default async function StatementPage({
 
           {!statement.hasVerbatimQuote && (
             <p className="quote-note">
-              The exact wording of this remark has not been established. The
-              subject heading above was written by the Committee and is not a
-              quotation. It will be replaced by the representative&rsquo;s own
-              words, or the entry will be withdrawn.
+              The original wording is not available yet, so the heading above
+              is a subject line, not a quotation.
             </p>
           )}
           {statement.quoteNote && statement.hasVerbatimQuote && (
@@ -312,18 +268,18 @@ export default async function StatementPage({
                 <b>{statement.gp.toLocaleString("en-IN")}</b>
               </div>
               <div>
-                <span className="lbl">Public rulings</span>
+                <span className="lbl">Votes</span>
                 <b>
                   {statement.rating.validVoteCount.toLocaleString("en-IN")}
                 </b>
               </div>
               <div>
-                <span className="lbl">Ladder rank</span>
+                <span className="lbl">Standings</span>
                 <b>{rank ? `#${rank}` : "—"}</b>
               </div>
               <div>
-                <span className="lbl">Source tier</span>
-                <b>{statement.bestSourceTier}</b>
+                <span className="lbl">Sarcasm score</span>
+                <b>{Math.round(statement.rating.performance)}/100</b>
               </div>
               <div>
                 <span className="lbl">Category</span>
@@ -337,7 +293,7 @@ export default async function StatementPage({
                 </b>
               </div>
               <div>
-                <span className="lbl">Tier</span>
+                <span className="lbl">Class</span>
                 <div className="tier-line" style={{ color: tier.colour }}>
                   <Medal tier={tier.key} title={false} />
                   <span>{tier.name}</span>
@@ -347,12 +303,12 @@ export default async function StatementPage({
           ) : (
             <dl className="statement-record-facts record-state">
               <div>
-                <dt className="lbl">Evidence state</dt>
-                <dd>{evidenceState}</dd>
+                <dt className="lbl">Video</dt>
+                <dd>{isLiveScreening ? "Live" : hasVideo ? "On deck" : "Wanted"}</dd>
               </div>
               <div>
-                <dt className="lbl">Source tier</dt>
-                <dd>Tier {statement.bestSourceTier}</dd>
+                <dt className="lbl">Board status</dt>
+                <dd>{isLiveScreening ? "Voting open" : "Not live yet"}</dd>
               </div>
               <div>
                 <dt className="lbl">Category</dt>
@@ -365,25 +321,27 @@ export default async function StatementPage({
             </dl>
           )}
 
-          <div className="claim-block">
-            <span className="lbl">The indexed claim</span>
-            <p>{statement.claim}</p>
-          </div>
-
-          {(statement.counterpoint ||
+          {(statement.claim ||
+            statement.counterpoint ||
             statement.contextNote ||
             statement.policyNote) && (
             <details
               className="statement-disclosure statement-context-disclosure"
-              open={!isLiveScreening}
             >
               <summary>
-                <span className="lbl">Context &amp; scope</span>
+                <span className="lbl">More about this clip</span>
                 <span className="statement-disclosure-prompt">
-                  Read the surrounding record
+                  Context, claim and notes
                 </span>
               </summary>
               <div className="statement-disclosure-body">
+                {statement.claim && (
+                  <div className="claim-block">
+                    <span className="lbl">What this is about</span>
+                    <p>{statement.claim}</p>
+                  </div>
+                )}
+
                 {statement.counterpoint && (
                   <div className="counterpoint">
                     <span className="lbl">Counterpoint</span>
@@ -400,7 +358,7 @@ export default async function StatementPage({
 
                 {statement.policyNote && (
                   <div className="erratum">
-                    <span className="lbl">Ruling on scope</span>
+                    <span className="lbl">Scope note</span>
                     <p>{statement.policyNote}</p>
                   </div>
                 )}
@@ -408,39 +366,41 @@ export default async function StatementPage({
             </details>
           )}
 
-          <details
-            className="statement-disclosure statement-sources-disclosure"
-            open={!isLiveScreening}
-          >
-            <summary>
-              <span className="lbl">Sources</span>
-              <span className="statement-disclosure-prompt">
-                {statement.sources.length} recorded · go and check
-              </span>
-            </summary>
-            <div className="sources-block statement-sources">
-              <ul className="sources-list">
-                {statement.sources.map((source, index) => (
-                  <li key={`${source.outlet}-${index}`}>
-                    <span className={`tierpip tier-${source.tier}`}>
-                      {source.tier}
-                    </span>
-                    {source.url && source.url !== "#" ? (
-                      <a
-                        href={source.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {source.outlet}
-                      </a>
-                    ) : (
-                      <span>{source.outlet}</span>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </details>
+          {statement.sources.length > 0 && (
+            <details
+              className="statement-disclosure statement-sources-disclosure"
+            >
+              <summary>
+                <span className="lbl">Sources &amp; receipts</span>
+                <span className="statement-disclosure-prompt">
+                  {statement.sources.length}{" "}
+                  {statement.sources.length === 1 ? "link" : "links"}
+                </span>
+              </summary>
+              <div className="sources-block statement-sources">
+                <ul className="sources-list">
+                  {statement.sources.map((source, index) => (
+                    <li key={`${source.outlet}-${index}`}>
+                      <span className={`tierpip tier-${source.tier}`}>
+                        {source.tier}
+                      </span>
+                      {source.url && source.url !== "#" ? (
+                        <a
+                          href={source.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {source.outlet}
+                        </a>
+                      ) : (
+                        <span>{source.outlet}</span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </details>
+          )}
 
           <div className="stamps statement-stamps">
             {isRanked ? (
@@ -449,18 +409,13 @@ export default async function StatementPage({
               </span>
             ) : (
               <span className="stamp foil">
-                {hasVideo
-                  ? "Evidence attached · review pending"
-                  : "Research in progress · footage wanted"}
+                {isLiveScreening
+                  ? "Live clip · voting open"
+                  : hasVideo
+                    ? "Clip added · backstage"
+                    : "Clip wanted"}
               </span>
             )}
-            <span
-              className={`stamp${
-                statement.bestSourceTier === "A" ? " green" : ""
-              }`}
-            >
-              Best source &middot; Tier {statement.bestSourceTier}
-            </span>
           </div>
 
         </div>
@@ -469,17 +424,21 @@ export default async function StatementPage({
       {isRanked ? (
         <StatementFooterNav slug={statement.slug} />
       ) : (
-        <nav className="statement-file-nav" aria-label="Research file actions">
-          <Link href="/record" className="btn ghost">
-            Return to the Record
+        <nav className="statement-file-nav" aria-label="Clip actions">
+          <Link href={isLiveScreening ? "/watch" : "/record"} className="btn ghost">
+            {isLiveScreening ? "Back to Watch" : "Browse the archive"}
           </Link>
-          {!hasVideo ? (
+          {isLiveScreening ? (
+            <Link href="/standings" className="btn seal">
+              See the Standings
+            </Link>
+          ) : !hasVideo ? (
             <Link href="/submit" className="btn seal">
-              Submit footage
+              Send the clip
             </Link>
           ) : (
             <Link href="/watch" className="btn seal">
-              Watch live screenings
+              Watch live clips
             </Link>
           )}
         </nav>

@@ -6,17 +6,14 @@ import WatchScreeningFeed, {
 import styles from "@/components/public/PublicInventory.module.css";
 import { cloudinaryVideoUrl } from "@/lib/cloudinary";
 import { getData } from "@/lib/data";
-import {
-  ratingMaturityLabel,
-  statementRatingMaturity,
-} from "@/lib/public-inventory";
+import { statementRatingMaturity } from "@/lib/public-inventory";
 
 const PAGE_SIZE = 12;
 
 export const metadata = {
   title: "Watch",
   description:
-    "Watch publication-ready source clips and rule on each statement once.",
+    "Play a public statement, score the sarcasm, and move to the next clip.",
 };
 
 function pageNumber(value: string | string[] | undefined): number {
@@ -43,6 +40,7 @@ export default async function WatchPage({
 
   const entries: WatchFeedEntry[] = statements.flatMap((statement) => {
     if (!statement.video) return [];
+    const maturity = statementRatingMaturity(statement);
     let videoUrl: string | undefined;
     if (statement.video.platform === "cloudinary") {
       try {
@@ -64,6 +62,7 @@ export default async function WatchPage({
         quote: statement.quote,
         neutralTitle: statement.neutralTitle,
         hasVerbatimQuote: statement.hasVerbatimQuote,
+        quoteTranslation: statement.quoteTranslation,
         language: statement.language,
         speakerName:
           data.netaBySlug(statement.neta)?.name ?? "Representative",
@@ -78,9 +77,12 @@ export default async function WatchPage({
           validVoteCount: statement.rating.validVoteCount,
           distribution: statement.rating.distribution,
         },
-        maturityLabel: ratingMaturityLabel(
-          statementRatingMaturity(statement)
-        ),
+        maturityLabel:
+          maturity === "new"
+            ? "Fresh clip"
+            : maturity === "placement"
+              ? "Finding its place"
+              : "Ranked",
         publicRank: data.publicRankOf(statement.slug),
       },
     ];
@@ -91,20 +93,19 @@ export default async function WatchPage({
       {entries.length === 0 ? (
         <section className={styles.emptyState}>
           <div>
-            <span className="lbl">No publication-ready video</span>
-            <h1>No verified screening is live yet.</h1>
+            <span className="lbl">The projector is quiet</span>
+            <h1>No clips are live just yet.</h1>
             <p>
-              Watch contains only reviewed, bounded source clips. Research
-              records remain available, but they cannot accept a ruling until
-              their footage and context pass verification.
+              The first one is still backstage. Know a speech that belongs
+              here? Send the link and give the Board something to argue about.
             </p>
           </div>
           <div className={styles.emptyActions}>
-            <Link className="btn seal" href="/record">
-              Open the complete record
+            <Link className="btn seal" href="/submit">
+              Send a clip
             </Link>
-            <Link className="btn ghost" href="/submit">
-              Submit a source clip
+            <Link className="btn ghost" href="/record">
+              Browse the archive
             </Link>
           </div>
         </section>

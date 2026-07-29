@@ -14,6 +14,7 @@ export const MAX_CLOUDINARY_DERIVED_VIDEO_BYTES = 100 * 1024 * 1024;
 const CLOUDINARY_VIDEO_ID_PATTERN =
   /^bhashanboard\/statement-videos\/[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 const CLOUDINARY_ASSET_ID_PATTERN = /^[A-Za-z0-9_-]{16,128}$/;
+const YOUTUBE_VIDEO_ID_PATTERN = /^[A-Za-z0-9_-]{11}$/;
 
 const LEGACY_VERIFICATION_STAGES: Record<string, VerificationStage> = {
   lead: "text_sourced",
@@ -45,19 +46,6 @@ function wholeSecond(value: unknown): number | undefined {
 
 function nonBlank(value: unknown): value is string {
   return typeof value === "string" && value.trim().length > 0;
-}
-
-function isHttpUrl(value: unknown): boolean {
-  if (!nonBlank(value)) return false;
-  try {
-    const url = new URL(value);
-    return (
-      (url.protocol === "http:" || url.protocol === "https:") &&
-      url.hostname.length > 0
-    );
-  } catch {
-    return false;
-  }
 }
 
 export function verificationStageOf(value: unknown): VerificationStage | undefined {
@@ -105,7 +93,7 @@ export function parseYouTubeVideo(
   const value = input.trim();
   if (!value) return undefined;
 
-  if (/^[A-Za-z0-9_-]{6,20}$/.test(value)) {
+  if (YOUTUBE_VIDEO_ID_PATTERN.test(value)) {
     return { platform: "youtube", id: value };
   }
 
@@ -123,7 +111,7 @@ export function parseYouTubeVideo(
       if (url.pathname === "/watch") id = url.searchParams.get("v") ?? undefined;
       else id = /^\/(?:embed|shorts|live)\/([^/?#]+)/.exec(url.pathname)?.[1];
     }
-    return id && /^[A-Za-z0-9_-]{6,20}$/.test(id)
+    return id && YOUTUBE_VIDEO_ID_PATTERN.test(id)
       ? { platform: "youtube", id }
       : undefined;
   } catch {
@@ -143,7 +131,7 @@ export function normalizeCloudinaryAssetId(value: unknown): string | undefined {
 
 export function assertVideoExcerpt(video: StatementVideo): void {
   if (video.platform === "youtube") {
-    if (!/^[A-Za-z0-9_-]{6,20}$/.test(video.id)) {
+    if (!YOUTUBE_VIDEO_ID_PATTERN.test(video.id)) {
       throw new Error("The YouTube video ID is invalid.");
     }
   } else if (video.platform === "cloudinary") {
@@ -185,7 +173,7 @@ export function assertVideoExcerpt(video: StatementVideo): void {
       throw new Error("An uploaded Cloudinary excerpt must begin at zero seconds.");
     }
     if (video.end !== Math.ceil(video.durationMs / 1000)) {
-      throw new Error("The hosted video end must match its verified duration.");
+      throw new Error("The hosted video end must match its provider-confirmed duration.");
     }
   } else {
     throw new Error("The video platform is not supported.");
@@ -290,33 +278,38 @@ export function normalizeStatementEvidenceVideo(
 /**
  * One fail-closed publication rule shared by admin writes, corpus projection,
  * UI eligibility and the server-side vote gate.
+ *
+ * Publication is intentionally a product/identity check, not a fact-checking
+ * workflow. Research metadata (date, venue, context, source tier, internal
+ * needs and verification stage) may enrich an entry, but it does not keep a
+ * playable sarcasm entry off the Board.
+ *
+ * A canonical YouTube ID is its footage provenance. A canonical Cloudinary
+ * video is additionally bound to its rights-attested upload intent by the
+ * database, where that private provenance can be checked atomically.
  */
 export function committeePublicationIssues(rawDocument: unknown): string[] {
   const document = record(rawDocument);
   if (!document) return ["The statement document is invalid."];
 
   const issues: string[] = [];
-  const verification = record(document.verification);
   if (document.status !== "published") {
     issues.push("The statement must be published.");
   }
-  if (normalizeVerificationStage(verification?.stage) !== "committee_passed") {
-    issues.push("The statement must be committee-passed.");
+  if (!nonBlank(document.speaker_id)) {
+    issues.push("Choose the speaker.");
   }
-  const outstandingNeeds = Array.isArray(verification?.needs)
-    ? verification.needs.filter(nonBlank)
-    : [];
-  if (outstandingNeeds.length > 0) {
-    issues.push("All outstanding verification needs must be resolved.");
+  if (!nonBlank(document.party_at_time)) {
+    issues.push("Choose the speaker's party.");
   }
-  if (!nonBlank(document.date)) {
-    issues.push("A confirmed statement date is required.");
+  if (!nonBlank(document.category)) {
+    issues.push("Choose a category.");
   }
-  if (!nonBlank(document.venue)) {
-    issues.push("A confirmed statement venue is required.");
+  if (!nonBlank(document.neutral_title)) {
+    issues.push("Add a short title.");
   }
   if (!nonBlank(document.quote)) {
-    issues.push("An original-language verbatim quote is required.");
+    issues.push("Add the original-language quote.");
   }
 
   const language = nonBlank(document.language) ? document.language.trim() : "";
@@ -329,33 +322,9 @@ export function committeePublicationIssues(rawDocument: unknown): string[] {
     issues.push("A faithful English translation is required for a non-English quote.");
   }
 
-  if (!nonBlank(document.context)) {
-    issues.push("Surrounding context is required.");
-  }
-
-  const bestSourceTier = verification?.best_source_tier;
-  if (bestSourceTier !== "A" && bestSourceTier !== "B") {
-    issues.push("The best source tier must be A or B.");
-  }
-  const sources = Array.isArray(verification?.sources)
-    ? verification.sources
-    : [];
-  const hasMatchingSource = sources.some((value) => {
-    const source = record(value);
-    if (!source) return false;
-    return (
-      source.tier === bestSourceTier &&
-      (source.tier === "A" || source.tier === "B") &&
-      isHttpUrl(source.url)
-    );
-  });
-  if (!hasMatchingSource) {
-    issues.push("A matching Tier A/B HTTP(S) source is required.");
-  }
-
   const video = normalizeStatementEvidenceVideo(document);
   if (!video) {
-    issues.push("A valid bounded source-video excerpt is required.");
+    issues.push("Add a playable video with valid start and end times.");
   }
 
   return issues;

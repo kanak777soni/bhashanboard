@@ -23,14 +23,14 @@ export default function SignInForm({ callbackURL }: { callbackURL: string }) {
       if (result.error) {
         setError(
           result.error.code === "BANNED_USER"
-            ? "This account is currently restricted. Contact the Committee if you believe this is an error."
+            ? "This account is currently restricted. Contact support if you believe this is an error."
             : "Those credentials were not accepted, or the email is not yet verified."
         );
         return;
       }
       window.location.assign(callbackURL);
     } catch {
-      setError("The Committee Room could not be reached. Please try again.");
+      setError("The Board could not be reached. Please try again.");
     } finally {
       setPending(false);
     }

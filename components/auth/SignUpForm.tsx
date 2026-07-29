@@ -46,7 +46,7 @@ export default function SignUpForm({ callbackURL }: { callbackURL: string }) {
       }
       window.location.assign(`/verify-email?email=${encodeURIComponent(email)}`);
     } catch {
-      setError("The Committee Room could not be reached. Please try again.");
+      setError("The Board could not be reached. Please try again.");
     } finally {
       setPending(false);
     }

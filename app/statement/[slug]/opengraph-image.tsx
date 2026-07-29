@@ -2,7 +2,6 @@ import { ImageResponse } from "next/og";
 import { getData } from "@/lib/data";
 import {
   buildPublicInventory,
-  ratingMaturityLabel,
   statementRatingMaturity,
 } from "@/lib/public-inventory";
 import { tierOf } from "@/lib/tiers";
@@ -64,20 +63,31 @@ export default async function Image({ params }: { params: Promise<{ slug: string
   const maturity = statementRatingMaturity(s);
   const evidenceLabel = s.video
     ? s.publicationEligible
-      ? "Verified video"
-      : "Video in review"
-    : "Video needed";
+      ? "Live clip"
+      : "Clip on deck"
+    : "Clip wanted";
   const statusLabel = !s.video
-    ? "Research file"
+    ? "In the archive"
     : !s.publicationEligible
-      ? "Evidence review"
-      : ratingMaturityLabel(maturity);
+      ? "Backstage"
+      : maturity === "new"
+        ? "Fresh clip"
+        : maturity === "placement"
+          ? "Finding its place"
+          : "Ranked";
   const translatedQuote = s.language !== "English" ? s.quoteTranslation : undefined;
   const shareText = s.quote || s.neutralTitle;
   const translationExcerpted =
     Boolean(translatedQuote) && translatedQuote!.length > CARD_QUOTE_LIMIT;
   const headline = s.hasVerbatimQuote ? `“${cardExcerpt(shareText)}”` : s.neutralTitle;
   const headlineSize = headline.length > 190 ? 38 : headline.length > 110 ? 46 : 58;
+  const attribution = [
+    neta?.name ?? "Unknown",
+    s.office || s.partyAtTime,
+    s.venue,
+  ]
+    .filter(Boolean)
+    .join(" · ");
 
   return new ImageResponse(
     (
@@ -109,7 +119,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
             </div>
           )}
           <div style={{ fontSize: 26, color: "#4a5450", marginTop: 22, fontStyle: "italic" }}>
-            {`${neta?.name ?? "Unknown"} · ${s.office || s.partyAtTime} · ${s.venue}`}
+            {attribution}
           </div>
         </div>
 
@@ -132,7 +142,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
           ) : (
             <div style={{ display: "flex", gap: 46 }}>
               <div style={{ display: "flex", flexDirection: "column" }}>
-                <span style={{ fontSize: 15, letterSpacing: 3, color: "#5c6660", textTransform: "uppercase" }}>Evidence</span>
+                <span style={{ fontSize: 15, letterSpacing: 3, color: "#5c6660", textTransform: "uppercase" }}>Video</span>
                 <span style={{ fontSize: 32 }}>{evidenceLabel}</span>
               </div>
               <div style={{ display: "flex", flexDirection: "column" }}>
@@ -140,13 +150,13 @@ export default async function Image({ params }: { params: Promise<{ slug: string
                 <span style={{ fontSize: 32, color: FOIL }}>{statusLabel}</span>
               </div>
               <div style={{ display: "flex", flexDirection: "column" }}>
-                <span style={{ fontSize: 15, letterSpacing: 3, color: "#5c6660", textTransform: "uppercase" }}>Rulings</span>
+                <span style={{ fontSize: 15, letterSpacing: 3, color: "#5c6660", textTransform: "uppercase" }}>Votes</span>
                 <span style={{ fontSize: 32 }}>{s.rating.validVoteCount.toLocaleString("en-IN")}</span>
               </div>
             </div>
           )}
           <div style={{ fontSize: 17, letterSpacing: 2, color: "#5c6660", textTransform: "uppercase" }}>
-            {isRanked ? "Publicly ranked" : "Source-led research archive"}
+            {isRanked ? "Publicly ranked" : "The Bhashan Board archive"}
           </div>
         </div>
       </div>

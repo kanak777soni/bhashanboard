@@ -162,6 +162,11 @@ const getDataCached = cache(async (): Promise<PublicData> => {
 
   const canonicalLedger: LedgerEntry[] = [
     {
+      date: "2026-07-30",
+      kind: "correction",
+      detail: `Publishing was simplified to match the Board's actual purpose. A live card now needs a playable bounded clip, speaker, party, category, title, original-language quote and translation where needed. Date, venue, extra links, context notes and old verification-stage fields remain useful archive material but no longer form a hidden second approval system.`,
+    },
+    {
       date: "2026-07-29",
       kind: "integrity",
       detail: `Neutrality and evidence audit: source quality was applied without regard to party. Every still-published Tier C-only card was moved to review (BJP, INC and TMC alike). Five additional BJP cards with missing original wording or material metadata/context gaps were moved to review; the rain-god figure of speech and the duplicate pakoda card were withdrawn on their merits, not to force a party percentage.`,

@@ -47,10 +47,10 @@ export default async function AdminSubmissionsPage({
     <section className="admin-section">
       <div className="admin-section-head">
         <div>
-          <h2>Public submissions</h2>
+          <h2>Reader suggestions</h2>
           <p className="rail-note">
-            Evidence leads are private until an administrator accepts one into
-            a private draft. Nothing here can publish directly.
+            New suggestions stay private. Accepting one creates a draft that
+            you can finish in the same Draft &rarr; Preview &rarr; Live editor.
           </p>
         </div>
         <span className="stamp">{counts.pending ?? 0} pending</span>
@@ -80,9 +80,9 @@ export default async function AdminSubmissionsPage({
           <thead>
             <tr>
               <th style={{ width: 120 }}>Received</th>
-              <th>Evidence lead</th>
+              <th>Suggested moment</th>
               <th style={{ width: 130 }}>Speaker</th>
-              <th style={{ width: 100 }}>Source</th>
+              <th style={{ width: 100 }}>Clip link</th>
               <th style={{ width: 96 }}>Status</th>
             </tr>
           </thead>

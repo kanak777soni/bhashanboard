@@ -32,24 +32,25 @@ export default async function AccountVotesPage({
   return (
     <section className="admin-section" style={{ maxWidth: 760, margin: "28px auto 60px" }}>
       <span className="lbl" style={{ color: "var(--seal)" }}>Your record</span>
-      <h1 style={{ margin: "8px 0 16px" }}>Your rulings</h1>
+      <h1 style={{ margin: "8px 0 16px" }}>Your votes</h1>
       {history.items.length === 0 ? (
         <div className="committee-note">
-          <span className="lbl">No rulings entered yet</span>
+          <span className="lbl">No votes yet</span>
           <p>
-            Once you finish a verified clip and submit a ruling, it will appear here. Each statement
-            accepts one final ruling from this account. <Link href="/standings">Browse the standings.</Link>
+            Finish a clip and vote; it will appear here. Each statement accepts
+            one final vote from this account. <Link href="/watch">Open the clips.</Link>
           </p>
         </div>
       ) : (
         <>
           <p className="rail-note" style={{ marginBottom: 14 }}>
-            {history.total.toLocaleString("en-IN")} final ruling{history.total === 1 ? "" : "s"}. Ballots
-            are immutable; an excluded ballot remains visible here for auditability.
+            {history.total.toLocaleString("en-IN")} final vote{history.total === 1 ? "" : "s"}.
+            Votes cannot be changed; an excluded vote remains visible here for
+            auditability.
           </p>
           <table className="ledger">
             <thead>
-              <tr><th>Statement</th><th>Ruling</th><th>Entered</th><th>Status</th></tr>
+              <tr><th>Statement</th><th>Vote</th><th>Entered</th><th>Status</th></tr>
             </thead>
             <tbody>
               {history.items.map((item) => {
@@ -69,7 +70,7 @@ export default async function AccountVotesPage({
             </tbody>
           </table>
           {pageCount > 1 && (
-            <nav className="compare-links" aria-label="Ruling history pages">
+            <nav className="compare-links" aria-label="Vote history pages">
               {page > 1 && <Link className="token" href={`/account/votes?page=${page - 1}`}>Previous</Link>}
               <span className="lbl">Page {Math.min(page, pageCount)} of {pageCount}</span>
               {page < pageCount && <Link className="token" href={`/account/votes?page=${page + 1}`}>Next</Link>}

@@ -171,19 +171,19 @@ export default function QueryForm({
     mode === "record"
       ? [
           { value: "new", label: "Newest" },
-          { value: "rulings", label: "Most public rulings" },
+          { value: "rulings", label: "Most public votes" },
         ]
       : [
           { value: "gp", label: "Rating (GP)" },
           { value: "new", label: "Newest" },
-          { value: "rulings", label: "Most public rulings" },
+          { value: "rulings", label: "Most public votes" },
         ];
 
   return (
     <section className="query" aria-label="Query the record">
       <div className="query-head">
         <span className="query-title">
-          {mode === "record" ? "Search the record" : "Query the standings"}
+          {mode === "record" ? "Search the archive" : "Search the standings"}
         </span>
         <span className="lbl">
           <span className="num">{resultCount}</span> {resultCount === 1 ? "entry" : "entries"} of{" "}
@@ -196,7 +196,7 @@ export default function QueryForm({
       <div className="query-primary">
         <label className="field field-search">
           <span className="lbl">
-            {mode === "record" ? "Search every filing" : "Search the standings"}{" "}
+            {mode === "record" ? "Search every entry" : "Search the standings"}{" "}
             <span className="query-shortcut">&mdash; press /</span>
           </span>
           <input
@@ -204,7 +204,7 @@ export default function QueryForm({
             type="search"
             value={term}
             onChange={(e) => setTerm(e.target.value)}
-            placeholder="Try &ldquo;monsoon&rdquo;, &ldquo;committee&rdquo;, or a name&hellip;"
+            placeholder="Try &ldquo;monsoon&rdquo;, a party, or a name&hellip;"
             autoComplete="off"
           />
         </label>

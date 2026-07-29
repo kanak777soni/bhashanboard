@@ -4,6 +4,10 @@ import { statementReadiness } from "../lib/readiness";
 
 const complete = {
   status: "held_review",
+  speaker_id: "test-speaker",
+  party_at_time: "TST",
+  category: "Wordplay",
+  neutral_title: "A test statement",
   date: "2026-07-29",
   venue: "Public meeting, New Delhi",
   quote: "A verified quotation.",
@@ -63,7 +67,7 @@ test("text-only records stay in the needs-video lane even if historically publis
   assert.equal(readiness.publicationReady, false);
 });
 
-test("an attached clip awaiting sign-off is production review", () => {
+test("an attached clip does not need a separate committee sign-off", () => {
   const readiness = statementReadiness({
     ...complete,
     verification: {
@@ -71,10 +75,11 @@ test("an attached clip awaiting sign-off is production review", () => {
       stage: "av_verified",
     },
   });
-  assert.equal(readiness.key, "production_review");
+  assert.equal(readiness.key, "ready");
+  assert.equal(readiness.publicationReady, true);
 });
 
-test("committee sign-off cannot become ready while verification needs remain", () => {
+test("internal research notes remain optional backstage history", () => {
   const readiness = statementReadiness({
     ...complete,
     verification: {
@@ -83,12 +88,8 @@ test("committee sign-off cannot become ready while verification needs remain", (
     },
   });
 
-  assert.equal(readiness.publicationReady, false);
-  assert.ok(
-    readiness.blockers.includes(
-      "All outstanding verification needs must be resolved."
-    )
-  );
+  assert.equal(readiness.publicationReady, true);
+  assert.deepEqual(readiness.blockers, []);
 });
 
 test("withdrawn remains a decision state even if the document is otherwise complete", () => {

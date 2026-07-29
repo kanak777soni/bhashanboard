@@ -5,7 +5,7 @@ export interface AdminActor {
   id: string;
   /** Pseudonymous label safe for the permanent public audit ledger. */
   label: string;
-  /** Request-local label for the private Committee Room only. */
+  /** Request-local label for the private Board Desk only. */
   displayLabel: string;
   email: string;
 }

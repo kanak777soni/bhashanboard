@@ -16,7 +16,7 @@ export async function generateMetadata({
   return party
     ? {
         title: party.name,
-        description: `Every indexed research record involving representatives of the ${party.name}.`,
+        description: `Every Bhashan Board entry involving representatives of the ${party.name}.`,
       }
     : { title: "Party not found" };
 }
@@ -59,12 +59,12 @@ export default async function PartyPage({
       <h1 className="page-title">{party.name}</h1>
       <p className="lbl">
         <i className="swatch" style={{ background: party.ink }} />
-        {party.code} &middot; {records.length} records in the research archive
+        {party.code} &middot; {records.length} entries in the archive
       </p>
 
       <div className="statgrid" style={{ marginTop: 18 }}>
         <div>
-          <span className="lbl">Research records</span>
+          <span className="lbl">Archive entries</span>
           <b>{records.length}</b>
         </div>
         <div>
@@ -108,14 +108,14 @@ export default async function PartyPage({
         <div>
           <span className="lbl">Coverage, not a verdict</span>
           <p className="rail-note" style={{ marginTop: 8 }}>
-            Party and record counts describe where the research has looked.
+            Party and entry counts describe what the archive contains.
             They do not measure the party or its representatives.
           </p>
         </div>
       </div>
 
       <p className="legend-foot" style={{ marginTop: 18 }}>
-        Archive share changes when the research desk finds evidence. It is
+        Archive share changes when more clips and statements are added. It is
         never corrected through scores.{" "}
         <Link href="/ledger">The coverage note explains the gap.</Link>
       </p>
@@ -123,7 +123,7 @@ export default async function PartyPage({
       <div className="sec-head" style={{ marginTop: 32 }}>
         <h2>Public standings</h2>
         <span className="lbl">
-          Verified video &middot; ten public rulings required
+          Live clip &middot; ten votes to rank
         </span>
       </div>
       {rankedRows.length > 0 ? (
@@ -132,15 +132,14 @@ export default async function PartyPage({
         <div className="erratum">
           <span className="lbl">No public rank yet</span>
           <p>
-            No qualifying video filing from this party has ten valid public
-            rulings. The archive remains browsable without seed ranks, GP, or
-            medals.
+            No live clip from this party has ten public votes yet. The archive
+            remains browsable without rank, GP or medals.
           </p>
         </div>
       )}
 
       <div className="sec-head" style={{ marginTop: 32 }}>
-        <h2>Complete research file</h2>
+        <h2>Complete archive</h2>
         <span className="lbl">{records.length} indexed chronologically</span>
       </div>
       <RecordList statements={records} netas={data.NETAS} />

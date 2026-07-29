@@ -98,6 +98,7 @@ async function main() {
     publicationIntegrityRows,
     hallIntegrityRows,
     ratingSeedMismatchRows,
+    publicationParityRows,
   ] = await sql.transaction(
     (tx) => [
       tx.query(
@@ -303,7 +304,8 @@ async function main() {
             'statement_rating_aggregate_weighted_sum_check',
             'statement_rating_aggregate_v2_check',
             'statement_watch_sessions_video_platform_check',
-            'cloudinary_video_upload_intents_attachment_unique'
+            'cloudinary_video_upload_intents_attachment_unique',
+            'cloudinary_video_attachment_lifecycle_check'
           )
       `),
       tx.query(`
@@ -344,7 +346,7 @@ async function main() {
         LEFT JOIN bhashan.cloudinary_video_upload_intents AS upload
           ON upload.attached_statement_id = statement.id
          AND upload.status = 'completed'
-         AND upload.playback_attested_at IS NOT NULL
+         AND upload.rights_attested_at IS NOT NULL
          AND upload.public_id = statement.document #>> '{video,id}'
          AND upload.asset_id = statement.document #>> '{video,assetId}'
          AND upload.version::text = statement.document #>> '{video,version}'
@@ -369,7 +371,7 @@ async function main() {
             statement.id IS NULL
             OR statement.document #>> '{video,platform}' IS DISTINCT FROM 'cloudinary'
             OR upload.status IS DISTINCT FROM 'completed'
-            OR upload.playback_attested_at IS NULL
+            OR upload.rights_attested_at IS NULL
             OR upload.public_id IS DISTINCT FROM statement.document #>> '{video,id}'
             OR upload.asset_id IS DISTINCT FROM statement.document #>> '{video,assetId}'
             OR upload.version::text IS DISTINCT FROM statement.document #>> '{video,version}'
@@ -489,6 +491,53 @@ async function main() {
           ELSE NULL
         END
         ORDER BY statement.id
+      `),
+      tx.query(`
+        WITH fixture AS (
+          SELECT jsonb_build_object(
+            'status', 'published',
+            'speaker_id', 'speaker',
+            'party_at_time', 'PARTY',
+            'category', 'Whataboutery',
+            'neutral_title', 'Fixture',
+            'quote', 'Fixture quote',
+            'language', 'English',
+            'video', jsonb_build_object(
+              'platform', 'youtube',
+              'id', 'abcDEF_1234',
+              'start', 0,
+              'end', 10
+            )
+          ) AS document
+        )
+        SELECT
+          cardinality(
+            bhashan.statement_publication_issues(document)
+          ) = 0 AS valid_fixture,
+          cardinality(
+            bhashan.statement_publication_issues(
+              jsonb_set(document, '{speaker_id}', '42'::jsonb)
+            )
+          ) > 0 AS rejects_non_string,
+          cardinality(
+            bhashan.statement_publication_issues(
+              jsonb_set(
+                document,
+                '{neutral_title}',
+                to_jsonb(E'\\t\\n'::text)
+              )
+            )
+          ) > 0 AS rejects_whitespace,
+          cardinality(
+            bhashan.statement_publication_issues(
+              jsonb_set(
+                document,
+                '{video,id}',
+                to_jsonb('too-short'::text)
+              )
+            )
+          ) > 0 AS rejects_bad_youtube_id
+        FROM fixture
       `),
     ],
     { readOnly: true, isolationLevel: "RepeatableRead" }
@@ -697,6 +746,7 @@ async function main() {
     "statement_rating_aggregate_v2_check",
     "statement_watch_sessions_video_platform_check",
     "cloudinary_video_upload_intents_attachment_unique",
+    "cloudinary_video_attachment_lifecycle_check",
   ]);
   for (const row of rowsOf(integrityConstraintRows)) {
     if (row.convalidated === true || row.convalidated === "true") {
@@ -716,6 +766,26 @@ async function main() {
   ) {
     errors.push(
       "statement_watch_sessions_video_platform_check must allow Cloudinary and reject R2"
+    );
+  }
+  const cloudinaryLifecycleConstraint = rowsOf(integrityConstraintRows).find(
+    (row) =>
+      String(row.conname) === "cloudinary_video_attachment_lifecycle_check"
+  );
+  if (
+    !cloudinaryLifecycleConstraint ||
+    !/status = 'completed'/i.test(
+      String(cloudinaryLifecycleConstraint.definition)
+    ) ||
+    !/rights_attested_at IS NOT NULL/i.test(
+      String(cloudinaryLifecycleConstraint.definition)
+    ) ||
+    /playback_attested_at IS NOT NULL/i.test(
+      String(cloudinaryLifecycleConstraint.definition)
+    )
+  ) {
+    errors.push(
+      "Cloudinary attachment lifecycle must require completed, rights-attested media without requiring admin playback"
     );
   }
   const cloudinaryAttachmentConstraint = rowsOf(integrityConstraintRows).find(
@@ -904,6 +974,21 @@ async function main() {
         invalidRatingSeedIds
       )}`
     );
+  }
+  const publicationParity = rowsOf(publicationParityRows)[0];
+  for (const check of [
+    "valid_fixture",
+    "rejects_non_string",
+    "rejects_whitespace",
+    "rejects_bad_youtube_id",
+  ]) {
+    if (
+      !publicationParity ||
+      (publicationParity[check] !== true &&
+        publicationParity[check] !== "true")
+    ) {
+      errors.push(`publication contract parity check failed: ${check}`);
+    }
   }
 
   const authForeignKeySet = new Set(

@@ -24,7 +24,7 @@ export default async function AccountLayout({ children }: { children: React.Reac
     <SiteFrame>
       <nav className="admin-nav" aria-label="Account sections" style={{ marginTop: 24 }}>
         <Link href="/account">Account</Link>
-        <Link href="/account/votes">Your rulings</Link>
+        <Link href="/account/votes">Your votes</Link>
       </nav>
       {children}
     </SiteFrame>

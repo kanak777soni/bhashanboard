@@ -42,8 +42,8 @@ test("rating maturity uses the public ten-ruling threshold", () => {
   assert.equal(ratingMaturityForVoteCount(10), "ranked");
   assert.equal(ratingMaturityForVoteCount(500), "ranked");
 
-  assert.equal(ratingMaturityLabel("new"), "New filing");
-  assert.equal(ratingMaturityLabel("placement"), "In placement");
+  assert.equal(ratingMaturityLabel("new"), "Fresh clip");
+  assert.equal(ratingMaturityLabel("placement"), "Finding its place");
   assert.equal(ratingMaturityLabel("ranked"), "Ranked");
 });
 

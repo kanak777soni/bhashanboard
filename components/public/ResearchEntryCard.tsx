@@ -8,18 +8,15 @@ export function researchState(statement: CorpusStatement): {
   label: string;
   note: string;
 } {
-  const holdNote = statement.held
-    ? " An editorial hold is also active while the Committee reviews attribution, context, or source quality."
-    : "";
   if (statement.video) {
     return {
-      label: "Evidence under review",
-      note: `Footage is attached, but wording, context, source checks, or sign-off remain.${holdNote}`,
+      label: "Clip added",
+      note: "This one is backstage for now. When it goes live, the video and voting will appear here.",
     };
   }
   return {
-    label: "Awaiting verified footage",
-    note: `This research file stays unranked until a bounded source clip is established.${holdNote}`,
+    label: "Clip wanted",
+    note: "Know where the original video lives? Send the link and help put this one on the Board.",
   };
 }
 

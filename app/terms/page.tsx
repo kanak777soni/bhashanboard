@@ -16,15 +16,15 @@ export default function TermsPage() {
         <p className="legal-date">Last updated 28 July 2026</p>
         <p>
           These terms govern access to The Bhashan Board, including registered accounts, watched
-          source excerpts, and public rulings. By registering, you confirm that you have read and
+          video clips, and public votes. By registering, you confirm that you have read and
           accept these terms and the <Link href="/privacy">Privacy notice</Link>. If you do not agree,
-          do not create an account or enter a ruling.
+          do not create an account or vote.
         </p>
 
         <h2>What this service is</h2>
         <p>
           The Board is a sourced, satirical public-interest archive of statements made in public
-          life. It uses ceremonial presentation and community rulings, but the underlying footage
+          life. It uses ceremonial presentation and community votes, but the underlying footage
           and sourcing are treated seriously. A score applies to one published statement, not to a
           person, party, community, accent, or identity. The service is not an official record,
           endorsement, election recommendation, or substitute for the complete source.
@@ -44,11 +44,11 @@ export default function TermsPage() {
           </li>
         </ul>
 
-        <h2>Rulings and the timed clip gate</h2>
+        <h2>Votes and the timed clip gate</h2>
         <p>
           A verified member must complete the timed playback gate for the bounded source excerpt
           before entering one of the five published ballot values. One account may enter one final
-          ruling per statement. A submitted ruling cannot be edited, withdrawn, transferred, or
+          vote per statement. A submitted vote cannot be edited, withdrawn, transferred, or
           submitted twice. Every valid public ballot has the same strength.
         </p>
         <p>
@@ -56,7 +56,7 @@ export default function TermsPage() {
           evade a restriction, interfere with another member, or attempt to manipulate the tally. An
           administrator may exclude an abusive ballot without rewriting it; the exclusion and reason
           remain in the audit record. The full scoring method appears in the{" "}
-          <Link href="/rules">Rules of the Committee</Link>.
+          <Link href="/rules">Rules of the Board</Link>.
         </p>
 
         <h2>Submissions and acceptable use</h2>
@@ -76,7 +76,7 @@ export default function TermsPage() {
         <p>
           If you are authorized to provide a footage excerpt for hosting, you grant the Board a
           non-exclusive licence to store, inspect, reproduce, and deliver that excerpt for the
-          archive, its evidence player, corrections, and lawful backups. You must identify its source
+          archive, its video player, corrections, and lawful backups. You must identify its source
           honestly and remain responsible for having the permission or other lawful basis you claim.
         </p>
 
@@ -102,7 +102,7 @@ export default function TermsPage() {
           these terms, comply with law, or preserve an honest tally. You may irreversibly anonymize
           your account from the account page. Direct identifiers, credentials, active sessions, and
           optional email consent are removed or replaced. Previously counted ballots are excluded
-          from public aggregates; the original append-only watch receipts, rulings, exclusion events,
+          from public aggregates; the original append-only watch receipts, votes, exclusion events,
           and audit events remain under an opaque identifier so neither a member nor an administrator
           can silently rewrite the ballot history.
         </p>

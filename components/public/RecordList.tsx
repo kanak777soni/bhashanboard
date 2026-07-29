@@ -11,17 +11,17 @@ function recordState(statement: CorpusStatement): {
 } {
   if (statement.publicationEligible && statement.video) {
     return {
-      label: "Ready to rule",
+      label: "Live clip",
       detail:
         statement.rating.validVoteCount >= 10
-          ? "Ranked public video"
+          ? "On the standings"
           : statement.rating.validVoteCount === 0
-            ? "New video filing"
-            : `${statement.rating.validVoteCount}/10 rulings`,
+            ? "Fresh on the Board"
+            : `${statement.rating.validVoteCount}/10 votes`,
     };
   }
   const research = researchState(statement);
-  return { label: research.label, detail: "Research file · unranked" };
+  return { label: research.label, detail: "In the archive · not on the standings" };
 }
 
 export default function RecordList({
@@ -42,13 +42,20 @@ export default function RecordList({
       {statements.map((statement) => {
         const neta = netaBySlug.get(statement.neta);
         const state = recordState(statement);
+        const metadata = [
+          neta?.name ?? "Representative",
+          statement.partyAtTime,
+          statement.category,
+          statement.language,
+          statement.venue,
+        ].filter(Boolean);
         return (
           <article className={styles.recordRow} key={statement.slug}>
             <div className={styles.recordState}>
               <strong>{state.label}</strong>
               <span className={styles.count}>{state.detail}</span>
               <span className={styles.count}>
-                Entry {statement.corpusId} &middot; Tier {statement.bestSourceTier}
+                Entry {statement.corpusId}
               </span>
             </div>
             <div>
@@ -56,12 +63,8 @@ export default function RecordList({
                 <EntryTitle statement={statement} />
               </Link>
               <p className={styles.recordMeta}>
-                {neta?.name ?? "Representative"} &middot; {statement.partyAtTime} &middot;{" "}
-                {statement.category} &middot; {statement.language} &middot; {statement.venue}
+                {metadata.join(" · ")}
               </p>
-              {!statement.publicationEligible && statement.needs[0] && (
-                <p className={styles.recordNeeds}>Next: {statement.needs[0]}</p>
-              )}
             </div>
           </article>
         );

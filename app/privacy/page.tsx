@@ -23,7 +23,7 @@ export default function PrivacyPage() {
         <p>
           The Bhashan Board is a pre-launch public-interest satire and archive project. This notice
           explains what the service records when you create an account, watch a source excerpt, or
-          enter a ruling. It also explains the narrow set of records that must survive account
+          enter a vote. It also explains the narrow set of records that must survive account
           anonymization so the public tally cannot be rewritten.
         </p>
 
@@ -46,9 +46,9 @@ export default function PrivacyPage() {
             what a person understood or believed.
           </li>
           <li>
-            <strong>Rulings:</strong> the statement, fixed ballot value, watch receipt, rating-model
-            version, and submission time. Each verified account can rule only once on a statement,
-            and a submitted ruling cannot be edited.
+            <strong>Votes:</strong> the statement, fixed ballot value, watch receipt, rating-model
+            version, and submission time. Each verified account can vote only once on a statement,
+            and a submitted vote cannot be edited.
           </li>
           <li>
             <strong>Moderation and audit records:</strong> exclusions, account restrictions,
@@ -56,7 +56,7 @@ export default function PrivacyPage() {
             identifiers needed to make those actions reviewable.
           </li>
           <li>
-            <strong>Evidence submissions:</strong> the source link, proposed timestamps, speaker,
+            <strong>Clip submissions:</strong> the source link, proposed timestamps, speaker,
             event details, claim, original language, optional submitter name, contact email,
             declaration, moderation decision, and acknowledgement-delivery state. Submissions enter
             a private review queue and are not published automatically.
@@ -70,11 +70,11 @@ export default function PrivacyPage() {
         <h2>Why we use it</h2>
         <p>
           We use account data to verify membership, secure the service, send account messages, and
-          honour your communication preference. Viewing and ruling data enforce one watched excerpt
+          honour your communication preference. Viewing and voting data enforce one watched excerpt
           and one final ballot per account, calculate the published performance bar, investigate
-          abuse, and preserve an auditable public record. Submission data lets the Committee
-          investigate an evidence lead, contact the submitter about that lead, and create a private
-          research draft if it is accepted. We do not sell personal information or use private
+          abuse, and preserve an auditable public record. Submission data lets the Board
+          review a clip suggestion, contact the submitter about it, and create a private
+          draft if it is accepted. We do not sell personal information or use private
           account or submission data to rank a politician or target political advertising.
         </p>
 
@@ -94,7 +94,7 @@ export default function PrivacyPage() {
           The application uses Neon for its database, its deployment provider for hosting, Brevo for
           transactional email, YouTube for embedded source footage, and Cloudinary for short
           rights-cleared excerpts hosted by the Board. A screening page loads its video immediately
-          and attempts muted playback so the evidence is the first thing you encounter. This means
+          and attempts muted playback so the clip is the first thing you encounter. This means
           YouTube or Cloudinary can receive ordinary network and playback-request information as soon
           as you open a video page, without waiting for a player click. That information can include
           the IP address, browser headers, requested media range, and time of access, and is handled
@@ -111,14 +111,14 @@ export default function PrivacyPage() {
           provider logs follow the provider retention terms described in their own notices.
         </p>
         <p>
-          Evidence submissions and their private moderation history are retained while the lead is
+          Clip submissions and their private moderation history are retained while the suggestion is
           being investigated and afterwards as needed to document acceptance, refusal, duplication,
           abuse, or a resulting archive record. Do not include unrelated personal information in a
           claim or source. You may use the privacy contact below to ask about a submission; include
-          its <code>SUB-</code> reference so it can be located without repeating the evidence.
+          its <code>SUB-</code> reference so it can be located without repeating the clip details.
         </p>
         <p>
-          Qualified watch receipts, submitted rulings, ballot exclusions, and moderation audit
+          Qualified watch receipts, submitted votes, ballot exclusions, and moderation audit
           entries are append-only records. They are retained for the life of the public ledger
           because deleting or rewriting them would make the tally unauditable. After account
           anonymization, any previously counted ballots are excluded from the public aggregate.
@@ -163,7 +163,7 @@ export default function PrivacyPage() {
         <p>
           Material changes will be dated here and, when they affect registered members, announced
           through the service or by account email. This notice should be read with the{" "}
-          <Link href="/terms">Terms of use</Link> and <Link href="/rules">Rules of the Committee</Link>.
+          <Link href="/terms">Terms of use</Link> and <Link href="/rules">Rules of the Board</Link>.
         </p>
       </article>
     </SiteFrame>

@@ -20,25 +20,39 @@ test("the entry editor separates draft saves from explicit publication", async (
   assert.match(actionSource, /statementWorkflowAction\(fd\)/);
   assert.match(
     actionSource,
-    /before\.status === "private_draft"[\s\S]*?\? "private_draft"[\s\S]*?: "held_review"/
+    /before\.status === "published"[\s\S]*?\? "held_review"[\s\S]*?: before\.status/
   );
   assert.match(formSource, /list="statement-language-options"/);
   assert.doesNotMatch(formSource, /<select name="language"/);
-  assert.match(formSource, /Private submission drafts are excluded from every public page/);
-  assert.match(listSource, /Private submissions/);
   assert.match(
+    formSource,
+    /Research material remains[\s\S]*?not part of the publishing path/
+  );
+  assert.match(listSource, /Reader drafts/);
+  assert.doesNotMatch(
     actionSource,
     /Play the YouTube publication preview and confirm/
   );
+  assert.doesNotMatch(
+    actionSource,
+    /document\.verification\.stage = "committee_passed"/
+  );
+  assert.match(actionSource, /youtube_preview_ready/);
+  assert.match(
+    actionSource,
+    /const stage = video \? requestedStage : "text_sourced"/
+  );
+  assert.match(actionSource, /fallback\?\.needs \?\? \[\]/);
   assert.match(actionSource, /parseMediaSourceUrl\(validatedUrl\)/);
   assert.match(actionSource, /recognizedMedia\?\.canonicalUrl \?\? validatedUrl/);
   assert.match(actionSource, /isSourceRole\(roleValue\)/);
-  assert.match(formSource, /name=\{`src_role_\$\{i\}`\}/);
+  assert.match(formSource, /name=\{`src_role_\$\{index\}`\}/);
   assert.doesNotMatch(listSource, />Go live</);
-  assert.match(listSource, /Review & publish/);
+  assert.match(listSource, /Preview & go live/);
+  assert.match(listSource, /put back live/i);
   assert.doesNotMatch(listSource, /computeLadder|weightedScore|>GP</);
   assert.doesNotMatch(overviewSource, /Editorial seed order|Seed GP|computeLadder/);
-  assert.match(overviewSource, /Equal-weight public rulings only/);
+  assert.match(overviewSource, /One person, one equal vote/);
   assert.match(
     storeSource,
     /WHEN \$\{status\}::text = 'published' THEN document[\s\S]*?'\{hall_of_fame\}'[\s\S]*?'false'::jsonb/
@@ -58,9 +72,18 @@ test("video choices expose direct upload and an in-admin YouTube preview", async
   assert.match(uploadSource, />Upload video file</);
   assert.match(uploadSource, />Paste YouTube link</);
   assert.match(uploadSource, />Facebook \/ Instagram link</);
-  assert.match(uploadSource, /Accepted as source evidence/);
-  assert.match(uploadSource, /name="youtube_playback_attested"/);
-  assert.match(uploadSource, /youtube-nocookie\.com\/embed/);
+  assert.match(uploadSource, /Keep it as an optional reference/);
+  assert.doesNotMatch(uploadSource, /name="youtube_playback_attested"/);
+  assert.match(
+    uploadSource,
+    /Optional preview\. Watching it through is not required/
+  );
+  assert.match(uploadSource, /youtube\.com\/iframe_api/);
+  assert.match(uploadSource, /youtube-nocookie\.com/);
+  assert.match(uploadSource, /cueVideoById/);
+  assert.match(uploadSource, /getDuration/);
+  assert.match(uploadSource, /youtubePlayerError/);
+  assert.match(uploadSource, /name="youtube_preview_ready"/);
   assert.match(uploadSource, /Cloudinary setup incomplete/);
   assert.match(uploadSource, /configurationIssues/);
 });

@@ -13,9 +13,9 @@ export default async function SignUpPage({
   const callbackURL = safeAuthReturnPath((await searchParams).callbackURL);
   return (
     <AuthPanel
-      eyebrow="Join the Committee"
+      eyebrow="Join the Board"
       title="Take a seat"
-      introduction="Create one verified account. It will hold your viewing receipts and one final ruling per statement."
+      introduction="Create one verified account. It keeps your watch receipts and one final vote per statement."
       alternate={{ href: `/sign-in?callbackURL=${encodeURIComponent(callbackURL)}`, label: "Sign in", prompt: "Already registered?" }}
     >
       <SignUpForm callbackURL={callbackURL} />

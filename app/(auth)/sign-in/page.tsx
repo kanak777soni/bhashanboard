@@ -15,12 +15,12 @@ export default async function SignInPage({
   const accountRestricted = params.status === "account-restricted";
   return (
     <AuthPanel
-      eyebrow="Committee access"
+      eyebrow="Member access"
       title="Return to your seat"
       introduction={
         accountRestricted
-          ? "This account is currently restricted. Contact the Committee if you believe this is an error."
-          : "Sign in with the verified address attached to your rulings."
+          ? "This account is currently restricted. Contact support if you believe this is an error."
+          : "Sign in with the verified email attached to your votes."
       }
       alternate={{ href: `/sign-up?callbackURL=${encodeURIComponent(callbackURL)}`, label: "Register", prompt: "No account yet?" }}
     >

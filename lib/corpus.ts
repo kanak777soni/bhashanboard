@@ -116,6 +116,9 @@ export interface CorpusStatement extends Statement {
   held?: "parity" | "review";
   hallOfFame: boolean;
   office: string;
+  /** Original event date when known; empty drafts keep this undefined. */
+  eventDate?: string;
+  datePrecision?: string;
   /** Party affiliation on the date of the statement, not the speaker's current party. */
   partyAtTime: string;
 }
@@ -182,7 +185,7 @@ function toAxes(axes: Record<string, number>): Axes {
 function daysSince(date: string, referenceTime: number): number {
   const parsed = Date.parse(date.length === 7 ? `${date}-01` : date);
   return Number.isNaN(parsed)
-    ? 999
+    ? Number.MAX_SAFE_INTEGER
     : Math.max(0, Math.round((referenceTime - parsed) / 86_400_000));
 }
 
@@ -311,6 +314,8 @@ export function buildCorpus({
             : undefined,
       hallOfFame: raw.hall_of_fame === true,
       office: raw.office_at_time,
+      eventDate: raw.date.trim() || undefined,
+      datePrecision: raw.date_precision,
       partyAtTime: raw.party_at_time,
     };
   };

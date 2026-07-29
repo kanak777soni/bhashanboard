@@ -692,7 +692,15 @@ footer.site p { margin: 0 0 8px; font-size: 13.5px; color: var(--ink-70); max-wi
 .admin-form .field { margin-bottom: 14px; }
 .field-help { color: var(--ink-45); display: block; font-size: 12px; line-height: 1.45; margin: 4px 0 7px; }
 .admin-workflow { align-items: center; border: 1px solid var(--rule-hard); border-left: 3px solid var(--seal); display: flex; justify-content: space-between; gap: 18px; margin-bottom: 20px; padding: 13px 16px; }
-.admin-workflow p { font-family: var(--font-display); font-size: clamp(17px, 2vw, 21px); margin: 4px 0 0; }
+.admin-workflow-copy { display: grid; gap: 7px; }
+.admin-workflow-steps { align-items: center; display: flex; flex-wrap: wrap; gap: 10px; }
+.admin-workflow-steps strong { font-family: var(--font-display); font-size: clamp(18px, 2vw, 22px); font-weight: 400; }
+.admin-workflow-steps i { color: var(--seal); font-family: var(--font-util); font-size: 13px; font-style: normal; }
+.admin-optional { border: 1px solid var(--rule); margin: 0 0 20px; }
+.admin-optional > summary { cursor: pointer; font-family: var(--font-util); font-size: 10px; font-weight: 700; letter-spacing: .14em; list-style-position: inside; padding: 13px 16px; text-transform: uppercase; }
+.admin-optional > summary:hover { color: var(--seal); }
+.admin-optional[open] > summary { border-bottom: 1px solid var(--rule); }
+.admin-form .admin-optional > fieldset { border: 0; margin: 0; padding: 18px; }
 .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0 18px; }
 .admin-grid > * { min-width: 0; }
 .axis-editor { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0 18px; margin-top: 12px; }
@@ -727,8 +735,7 @@ footer.site p { margin: 0 0 8px; font-size: 13.5px; color: var(--ink-70); max-wi
 .youtube-admin-preview-head { align-items: center; display: flex; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
 .youtube-admin-frame { aspect-ratio: 16 / 9; background: #000; overflow: hidden; width: 100%; }
 .youtube-admin-frame iframe { border: 0; display: block; height: 100%; width: 100%; }
-.youtube-admin-attestation { margin: 12px 0 0 !important; }
-.youtube-admin-attestation input, .hosted-video-rights-attestation input, .hosted-video-playback-attestation input { height: auto; margin-right: 4px; width: auto; }
+.hosted-video-rights-attestation input { height: auto; margin-right: 4px; width: auto; }
 .hosted-video-upload-panel { border-top: 1px solid var(--rule); margin-top: 8px; padding-top: 14px; }
 .cloudinary-config-status { border: 1px solid var(--rule-hard); border-left-width: 3px; margin-bottom: 16px; padding: 10px 12px; }
 .cloudinary-config-status.configured { border-left-color: var(--rise); }
@@ -741,7 +748,6 @@ footer.site p { margin: 0 0 8px; font-size: 13.5px; color: var(--ink-70); max-wi
 .hosted-video-uploaded code { color: var(--ink-45); font-size: 11px; overflow-wrap: anywhere; }
 .hosted-video-playback-approval { margin-top: 14px; }
 .hosted-video-playback-approval video { background: #000; display: block; max-height: 420px; width: 100%; }
-.hosted-video-playback-attestation { margin-top: 12px; }
 .hosted-video-asset-actions { margin-top: 9px; }
 .hosted-video-file-picker { background: var(--ground-2); border: 1px dashed var(--rule-hard); cursor: not-allowed; display: grid; gap: 5px; margin-top: 16px; padding: 18px; }
 .hosted-video-file-picker.enabled { border-color: var(--seal); cursor: pointer; }
@@ -1371,7 +1377,7 @@ footer.site p { margin: 0 0 8px; font-size: 13.5px; color: var(--ink-70); max-wi
 }
 
 .research-file-notice::after {
-  content: "RESEARCH FILE";
+  content: "ARCHIVE";
   position: absolute;
   z-index: -1;
   right: -12px;

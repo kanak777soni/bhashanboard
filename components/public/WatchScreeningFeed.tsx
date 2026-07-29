@@ -21,6 +21,7 @@ export interface WatchFeedEntry {
   quote: string;
   neutralTitle: string;
   hasVerbatimQuote: boolean;
+  quoteTranslation?: string;
   language: string;
   speakerName: string;
   partyCode: string;
@@ -100,7 +101,7 @@ export default function WatchScreeningFeed({
       if (navigator.share) {
         await navigator.share({
           title: active.neutralTitle,
-          text: "Watch the source clip and enter your ruling on The Bhashan Board.",
+          text: "Watch this clip and score it on The Bhashan Board.",
           url,
         });
         setShareNotice("Shared.");
@@ -110,7 +111,7 @@ export default function WatchScreeningFeed({
       }
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") return;
-      setShareNotice("Open the filing to copy its address.");
+      setShareNotice("Open the clip page to copy its address.");
     }
   }, [active]);
 
@@ -123,19 +124,25 @@ export default function WatchScreeningFeed({
   return (
     <section
       className={styles.watchFeed}
-      aria-label="One-video screening feed"
+      aria-label="One-video voting feed"
       tabIndex={0}
       onKeyDown={handleFeedKeyDown}
     >
       <header className={styles.watchFeedHead}>
         <div>
           <span className={styles.eyebrow}>
-            Ready to rule &middot; {active.maturityLabel}
+            Watch &amp; vote &middot; {active.maturityLabel}
             {active.publicRank > 0 ? ` · Public rank #${active.publicRank}` : ""}
           </span>
           <h1 ref={headingRef} tabIndex={-1}>
             <EntryTitle statement={active} />
           </h1>
+          {active.quoteTranslation && (
+            <p className="quote-translation">
+              <span className="lbl">English</span>
+              {active.quoteTranslation}
+            </p>
+          )}
           <p>
             {active.speakerName} &middot; {active.partyCode} &middot;{" "}
             {active.category}
@@ -154,6 +161,7 @@ export default function WatchScreeningFeed({
         videoUrl={active.videoUrl}
         publicationEligible={active.publicationEligible}
         initialRating={active.initialRating}
+        authCallbackPath={`/statement/${active.slug}`}
       />
 
       <div className={styles.watchControls}>
@@ -164,7 +172,7 @@ export default function WatchScreeningFeed({
             </button>
           ) : previousPageHref ? (
             <Link className="btn ghost" href={previousPageHref}>
-              &larr; Earlier sitting
+              &larr; Earlier clips
             </Link>
           ) : (
             <span />
@@ -173,7 +181,7 @@ export default function WatchScreeningFeed({
 
         <div className={styles.watchUtilities}>
           <Link className="btn ghost" href={`/statement/${active.slug}`}>
-            Context &amp; sources
+            More about this clip
           </Link>
           <button className="btn ghost" type="button" onClick={() => void share()}>
             Share
@@ -183,15 +191,15 @@ export default function WatchScreeningFeed({
         <div className={styles.watchControlGroup}>
           {!atLast ? (
             <button className="btn seal" type="button" onClick={() => move(1)}>
-              Skip / next &rarr;
+              Next clip &rarr;
             </button>
           ) : nextPageHref ? (
             <Link className="btn seal" href={nextPageHref}>
-              Next sitting &rarr;
+              More clips &rarr;
             </Link>
           ) : (
             <Link className="btn seal" href="/record">
-              The Record &rarr;
+              Browse the archive &rarr;
             </Link>
           )}
         </div>
@@ -199,13 +207,13 @@ export default function WatchScreeningFeed({
 
       <div className={styles.watchFoot}>
         <span className="lbl">
-          One player only &middot; arrow keys move between filings
+          One clip at a time &middot; arrow keys move between videos
         </span>
         <span className="lbl" aria-live="polite">
           {shareNotice ||
             (atLast && !nextPageHref
-              ? "The sitting is adjourned — for now."
-              : "Watch, rule, or skip.")}
+              ? "That is the lot — for now."
+              : "Watch, vote, or skip.")}
         </span>
       </div>
     </section>

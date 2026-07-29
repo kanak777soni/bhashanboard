@@ -29,21 +29,6 @@ function value(form: HTMLFormElement, name: string): string {
   return "";
 }
 
-function publicHttpUrl(input: string): boolean {
-  if (!input) return false;
-  try {
-    const url = new URL(input);
-    return (
-      (url.protocol === "http:" || url.protocol === "https:") &&
-      Boolean(url.hostname) &&
-      !url.username &&
-      !url.password
-    );
-  } catch {
-    return false;
-  }
-}
-
 function hasBoundedYouTubeExcerpt(form: HTMLFormElement): boolean {
   const parsed = parseYouTubeVideo(value(form, "video"));
   const start = parseVideoTimestamp(value(form, "video_start"));
@@ -57,158 +42,105 @@ function hasBoundedYouTubeExcerpt(form: HTMLFormElement): boolean {
   }
 }
 
-function readChecklist(form: HTMLFormElement): {
-  items: ChecklistItem[];
-  warnings: string[];
-} {
+function readChecklist(form: HTMLFormElement): ChecklistItem[] {
   const language = value(form, "language");
   const quote = value(form, "quote");
   const translation = value(form, "quote_translation");
-  const date = value(form, "date");
-  const venue = value(form, "venue");
-  const context = value(form, "context");
-  const bestTier = value(form, "best_source_tier");
-  const needs = value(form, "needs")
-    .split("\n")
-    .map((need) => need.trim())
-    .filter(Boolean);
   const platform = value(form, "video_platform");
-
-  let sourceCount = 0;
-  let matchingSource = false;
-  for (let index = 0; index < 4; index += 1) {
-    const publisher = value(form, `src_publisher_${index}`);
-    const url = value(form, `src_url_${index}`);
-    const tier = value(form, `src_tier_${index}`);
-    if (publisher || url) sourceCount += 1;
-    if (
-      (bestTier === "A" || bestTier === "B") &&
-      tier === bestTier &&
-      Boolean(publisher) &&
-      publicHttpUrl(url)
-    ) {
-      matchingSource = true;
-    }
-  }
 
   const youtubeExcerpt =
     platform === "youtube" && hasBoundedYouTubeExcerpt(form);
+  const youtubePlayerReady =
+    youtubeExcerpt && value(form, "youtube_preview_ready") === "true";
   const cloudinaryExcerpt =
     platform === "cloudinary" &&
     Boolean(value(form, "video")) &&
     value(form, "video_admin_ready") === "true";
-  const validVideo = youtubeExcerpt || cloudinaryExcerpt;
-  const previewApproved =
-    platform === "youtube"
-      ? value(form, "youtube_playback_attested") === "true"
-      : cloudinaryExcerpt;
+  const validVideo = youtubePlayerReady || cloudinaryExcerpt;
+  const provenanceReady =
+    youtubeExcerpt ||
+    (cloudinaryExcerpt && value(form, "video_rights_attested") === "true");
 
-  const items: ChecklistItem[] = [
+  return [
     {
-      key: "event",
-      label: "Confirmed date and venue",
-      detail: "Identify when and where the statement was made.",
-      complete: Boolean(date) && Boolean(venue),
+      key: "speaker",
+      label: "Speaker and party",
+      detail: "Choose who appears in the clip and their party at the time.",
+      complete:
+        Boolean(value(form, "speaker_id")) &&
+        Boolean(value(form, "party_at_time")),
     },
     {
-      key: "quote",
-      label: "Original-language quote",
-      detail: "Enter the exact sourced wording, not a paraphrase.",
-      complete: Boolean(quote),
+      key: "card",
+      label: "Title and original quote",
+      detail: "Give the moment a short title and write the words as spoken.",
+      complete: Boolean(value(form, "neutral_title")) && Boolean(quote),
     },
     {
-      key: "translation",
-      label: "Faithful English translation",
+      key: "language",
+      label: "Language",
       detail:
         language.toLowerCase() === "english"
           ? "The original quote is already in English."
-          : "Required whenever the original quote is not English.",
+          : "Add an English translation for a non-English quote.",
       complete:
         Boolean(language) &&
         (language.toLowerCase() === "english" || Boolean(translation)),
     },
     {
-      key: "context",
-      label: "Surrounding context",
-      detail: "Record what happened around the excerpt.",
-      complete: Boolean(context),
-    },
-    {
-      key: "source",
-      label: "Matching Tier A or B source",
-      detail: "The selected best tier must have a publisher and public HTTP(S) URL.",
-      complete: matchingSource,
+      key: "category",
+      label: "Category",
+      detail: "Choose where this moment belongs in the standings.",
+      complete: Boolean(value(form, "category")),
     },
     {
       key: "video",
-      label: "Playable bounded video",
-      detail: "Use a valid YouTube excerpt or an approved Cloudinary upload.",
+      label: "Clip ready",
+      detail:
+        platform === "cloudinary"
+          ? "Finish the upload and provider processing."
+          : youtubeExcerpt
+            ? "Wait for the automatic player and timestamp check."
+            : "Use a valid YouTube link with start and end points.",
       complete: validVideo,
     },
     {
-      key: "preview",
-      label: "Admin playback approval",
+      key: "provenance",
+      label: "Source covered",
       detail:
-        platform === "youtube"
-          ? "Play the YouTube preview, then confirm picture, audio and timestamps."
-          : "Uploaded clips must pass server checks and full playback approval.",
-      complete: validVideo && previewApproved,
-    },
-    {
-      key: "needs",
-      label: "No outstanding verification work",
-      detail:
-        needs.length > 0
-          ? `${needs.length} unresolved item${needs.length === 1 ? "" : "s"} remain.`
-          : "The outstanding-needs box is clear.",
-      complete: needs.length === 0,
-    },
-    {
-      key: "committee",
-      label: "Committee sign-off",
-      detail: "Select Committee passed only after transcript and context review.",
-      complete: value(form, "stage") === "committee_passed",
+        platform === "cloudinary"
+          ? "Rights confirmation is stored with the signed upload."
+          : "The pasted YouTube URL identifies the source.",
+      complete: provenanceReady,
     },
   ];
-
-  const warnings: string[] = [];
-  if (sourceCount < 2 && bestTier !== "A") {
-    warnings.push("Below Tier A, add a second independent source for corroboration.");
-  }
-  if (!value(form, "counterpoint")) {
-    warnings.push("Add a counterpoint so the record explains what the evidence establishes.");
-  }
-
-  return { items, warnings };
 }
 
 /**
- * A live mirror of the fail-closed publication rules. The server action
- * remains authoritative; this component explains blockers before submission
- * and keeps the explicit Publish button unavailable until the form is ready.
+ * Mirrors the small publishing contract in the form. The server remains
+ * authoritative, while this client-side view makes the remaining essentials
+ * obvious and keeps the explicit Go live action deliberate.
  */
 export default function PublishGuard() {
   const guardRef = useRef<HTMLDivElement | null>(null);
   const [items, setItems] = useState<ChecklistItem[]>([]);
-  const [warnings, setWarnings] = useState<string[]>([]);
 
   const recompute = useCallback(() => {
     const form = guardRef.current?.closest("form");
     if (!form) return;
-    const next = readChecklist(form);
-    setItems(next.items);
-    setWarnings(next.warnings);
+    const nextItems = readChecklist(form);
+    setItems(nextItems);
 
     const publishButton = form.querySelector<HTMLButtonElement>(
       "[data-publish-submit]"
     );
     if (publishButton) {
-      const ready = next.items.every((item) => item.complete);
+      const ready = nextItems.every((item) => item.complete);
       publishButton.disabled = !ready;
       publishButton.setAttribute("aria-disabled", String(!ready));
       publishButton.title = ready
-        ? "Publish this video now"
-        : "Complete every publication check first";
+        ? "Put this clip live"
+        : "Add the remaining essentials first";
     }
   }, []);
 
@@ -238,12 +170,14 @@ export default function PublishGuard() {
       <div className="publication-checklist-head">
         <div>
           <span className="lbl">
-            {ready ? "Ready to publish" : "Publication checklist"}
+            {ready ? "Ready to go live" : "Before it goes live"}
           </span>
           <p>
             {items.length === 0
-              ? "Checking this entry..."
-              : `${completeCount} of ${items.length} required checks complete.`}
+              ? "Reading the card..."
+              : ready
+                ? "Everything essential is in place. Go live when you are happy with the preview."
+                : `${completeCount} of ${items.length} essentials are ready.`}
           </p>
         </div>
         {items.length > 0 && (
@@ -258,7 +192,7 @@ export default function PublishGuard() {
           {items.map((item) => (
             <li key={item.key} className={item.complete ? "complete" : "block"}>
               <span className="guard-pip">
-                {item.complete ? "DONE" : "BLOCK"}
+                {item.complete ? "READY" : "ADD"}
               </span>
               <span>
                 <strong>{item.label}</strong>
@@ -267,17 +201,6 @@ export default function PublishGuard() {
             </li>
           ))}
         </ul>
-      )}
-
-      {warnings.length > 0 && (
-        <div className="publication-warnings">
-          {warnings.map((warning) => (
-            <p key={warning}>
-              <span className="guard-pip">NOTE</span>
-              {warning}
-            </p>
-          ))}
-        </div>
       )}
     </div>
   );

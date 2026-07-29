@@ -16,35 +16,32 @@ export default function HowItWorks({ compact = false }: { compact?: boolean }) {
       aria-labelledby={compact ? "watch-how-it-works" : "home-how-it-works"}
     >
       <div className={styles.howIntro}>
-        <span className="lbl">How the Board works</span>
+        <span className="lbl">Three steps, no homework</span>
         <h2 id={compact ? "watch-how-it-works" : "home-how-it-works"}>
-          Watch. Rule once. Rank together.
+          Watch. Vote. See where it lands.
         </h2>
-        <p>
-          The verification desk checks the clip and context. Verified members
-          decide how the statement lands.
-        </p>
+        <p>The clip plays first. Your score comes after.</p>
       </div>
 
       <ol className={styles.howSteps}>
         <li>
           <b className="num">01</b>
-          <strong>Watch the exact clip</strong>
-          <span>Original footage, exact bounds, source and context attached.</span>
+          <strong>Play the clip</strong>
+          <span>Watch at least 90% and stay through the end.</span>
         </li>
         <li>
           <b className="num">02</b>
-          <strong>Enter one ruling</strong>
-          <span>Watch 90% and reach the end. One verified account, one final vote.</span>
+          <strong>Pick how it lands</strong>
+          <span>Flat, Wry, Sharp, Savage or Historic. One vote per account.</span>
         </li>
         <li>
           <b className="num">03</b>
-          <strong>Reach the Standings</strong>
-          <span>Every vote has equal weight. Public rank begins after ten rulings.</span>
+          <strong>Watch the Board move</strong>
+          <span>Every vote weighs the same. Ten votes open a place in the standings.</span>
         </li>
       </ol>
 
-      <div className={styles.howScale} aria-label="The five public ruling choices">
+      <div className={styles.howScale} aria-label="The five public vote choices">
         {SCALE.map(([label, value]) => (
           <span key={value}>
             <b>{label}</b>
@@ -55,9 +52,9 @@ export default function HowItWorks({ compact = false }: { compact?: boolean }) {
 
       {!compact && (
         <p className={styles.howFoot}>
-          <Link href="/watch">Start watching</Link>
-          <span aria-hidden="true">·</span>
-          <Link href="/rules">Read the evidence and voting rules</Link>
+          <Link href="/watch">Open the clips</Link>
+          <span aria-hidden="true">&middot;</span>
+          <Link href="/rules">How GP and voting work</Link>
         </p>
       )}
     </section>

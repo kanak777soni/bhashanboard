@@ -101,7 +101,7 @@ export default async function AdminUserDetailPage({
           <thead>
             <tr>
               <th>Statement</th>
-              <th>Ruling</th>
+              <th>Vote</th>
               <th>Entered</th>
               <th>Status and moderation</th>
             </tr>
@@ -109,7 +109,7 @@ export default async function AdminUserDetailPage({
           <tbody>
             {history.items.length === 0 && (
               <tr>
-                <td colSpan={4} className="empty">This account has not entered a ruling.</td>
+                <td colSpan={4} className="empty">This account has not voted yet.</td>
               </tr>
             )}
             {history.items.map((item) => (

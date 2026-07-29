@@ -6,7 +6,7 @@ import { getData } from "@/lib/data";
 export const metadata: Metadata = {
   title: "Netas",
   description:
-    "Every representative in the Bhashan Board research archive, with record and verified-video counts.",
+    "Every representative in The Bhashan Board archive, with clip and entry counts.",
 };
 
 export default async function NetasPage() {
@@ -38,13 +38,12 @@ export default async function NetasPage() {
     <SiteFrame>
       <div className="sec-head" style={{ marginTop: 26 }}>
         <h1>Representatives on record</h1>
-        <span className="lbl">{roster.length} research files</span>
+        <span className="lbl">{roster.length} on the Board</span>
       </div>
 
       <p className="legend-foot" style={{ margin: "0 0 18px" }}>
-        This directory is alphabetical, not a league table. Record counts show
-        where the archive has looked; only publication-ready videos with ten
-        valid public rulings can enter the Standings.
+        This directory is alphabetical, not a league table. Only live clips
+        with ten public votes enter the Standings.
       </p>
 
       <div className="tablewrap">
@@ -63,7 +62,7 @@ export default async function NetasPage() {
             {rows.length === 0 && (
               <tr>
                 <td colSpan={6} className="empty">
-                  No representatives have a visible research record yet.
+                  No representatives are in the archive yet.
                 </td>
               </tr>
             )}

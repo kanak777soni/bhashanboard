@@ -219,6 +219,6 @@ test("database and moderation paths fail closed against auto-publication", async
     /if \(isLiveScreening && video\?\.platform === "cloudinary"\)/
   );
   assert.match(statementPage, /\{isLiveScreening && video \? \(/);
-  assert.match(form, /Public file uploads are disabled/);
+  assert.match(form, /Nothing goes live automatically/);
   assert.doesNotMatch(form, /type="file"/);
 });

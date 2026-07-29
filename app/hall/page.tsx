@@ -27,8 +27,9 @@ export default async function HallPage() {
       </div>
 
       <p className="prose" style={{ marginTop: 16 }}>
-        Once a year the Committee inducts roughly five all-time entries from the live standings into a
-        permanent gallery. The rating record remains intact; induction is an editorial honour, not a vote.
+        Once a year, roughly five all-time entries from the live standings join
+        this permanent gallery. The score stays untouched; induction is an
+        honour, not another vote.
       </p>
       <p className="prose">
         {inducted.length
@@ -40,8 +41,8 @@ export default async function HallPage() {
         {inducted.length === 0 && (
           <div className="empty">
             No Hall of Fame entry is public yet.{" "}
-            <Link href="/watch">Watch the live screening docket</Link> or{" "}
-            <Link href="/record">browse the research record</Link>.
+            <Link href="/watch">Watch the live clips</Link> or{" "}
+            <Link href="/record">browse the archive</Link>.
           </div>
         )}
         {inducted.map((s) => {
@@ -66,7 +67,7 @@ export default async function HallPage() {
                 )}
                 <div className="entry-sub" style={{ marginTop: 4 }}>
                   {neta?.name} &middot; {s.partyAtTime} &middot; {neta?.state} &middot;{" "}
-                  <span className="num">{s.rating.validVoteCount.toLocaleString("en-IN")}</span> public rulings
+                  <span className="num">{s.rating.validVoteCount.toLocaleString("en-IN")}</span> public votes
                 </div>
               </div>
               <div className="hall-gp">{s.gp.toLocaleString("en-IN")}</div>

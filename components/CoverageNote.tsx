@@ -35,17 +35,16 @@ export default async function CoverageNote() {
         {headOfLadder.length > 0 ? (
           <> and {topShare} of the current top ten public places.</>
         ) : (
-          <>. No video entry has reached the ten-ruling rank threshold yet.</>
+          <>. No clip has reached the ten-vote mark yet.</>
         )}
       </p>
       <p className="rail-note" style={{ marginTop: 8 }}>
-        This measures <em>where we have looked</em>, not what anyone said. The corpus leans on claims
-        about science and history, and has barely searched economics or deflection. Nothing is held
-        back to make the split look even &mdash; that would edit the board instead of the research.
+        This shows what is in the archive, not who is more or less sarcastic.
+        Nothing is hidden just to make the party split look tidy.
       </p>
       <p className="rail-note" style={{ marginTop: 8 }}>
-        It is closed by sourcing more from under-covered parties. Never by adjusting a rating.{" "}
-        <Link href="/ledger">The ledger records it.</Link>
+        The only fix is adding more clips from under-covered parties &mdash;
+        never adjusting a score. <Link href="/ledger">The ledger records it.</Link>
       </p>
     </section>
   );

@@ -31,13 +31,13 @@ export default async function DuelPage() {
       <SiteFrame>
         <div className="sec-head" style={{ marginTop: 26 }}>
           <h1>Aamne-Saamne</h1>
-          <span className="lbl">The Committee is waiting</span>
+          <span className="lbl">Waiting for a challenger</span>
         </div>
         <p className="prose" style={{ marginTop: 16 }}>
-          At least two publication-ready video entries are required before an
-          exhibition can be convened. Editorial seed scores and text-only
-          research files are never used here.{" "}
-          <Link href="/watch">Return to the screening room.</Link>
+          One live clip is a monologue; two make a duel. Aamne-Saamne opens as
+          soon as the Board has a pair.{" "}
+          <Link href="/watch">See what is live</Link> or{" "}
+          <Link href="/submit">send the next clip.</Link>
         </p>
       </SiteFrame>
     );

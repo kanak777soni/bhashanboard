@@ -316,7 +316,7 @@ export default function VerifiedVideoPlayer({
             },
             onError: () => {
               if (!disposed) {
-                reportError("YouTube could not play this verified excerpt.");
+                reportError("YouTube could not play this clip.");
               }
             },
           },
@@ -423,7 +423,7 @@ export default function VerifiedVideoPlayer({
         Math.abs(actualDurationMs - video.durationMs) > 1_500
       ) {
         element.pause();
-        reportError("The hosted video does not match its verified duration.");
+        reportError("The hosted video does not match the saved clip length.");
         return;
       }
       element.currentTime = video.start;
@@ -551,8 +551,8 @@ export default function VerifiedVideoPlayer({
   const fallbackVisible = gateVisible || autoplayBlocked;
   const fallbackLabel = gateVisible
     ? playbackPending
-      ? "Preparing verified watch\u2026"
-      : "Tap to prepare verified playback"
+      ? "Preparing your watch\u2026"
+      : "Tap to prepare playback"
     : "Tap to play";
 
   return (
@@ -580,7 +580,7 @@ export default function VerifiedVideoPlayer({
           preload={active ? "auto" : "metadata"}
           disablePictureInPicture
           disableRemotePlayback
-          aria-label="Verified source excerpt"
+          aria-label="Statement clip"
           style={{
             position: "absolute",
             inset: 0,

@@ -50,7 +50,7 @@ export default function SubmissionForm() {
           kind: "error",
           message:
             result.message ??
-            "The evidence could not be queued. Check the form and try again.",
+            "The clip could not be sent. Check the form and try again.",
         });
         return;
       }
@@ -75,9 +75,9 @@ export default function SubmissionForm() {
       aria-busy={state.kind === "submitting"}
     >
       <fieldset disabled={state.kind === "submitting"}>
-        <legend>1 · Send the evidence</legend>
+        <legend>1 · Send the clip</legend>
         <label className="field">
-          <span className="lbl">Evidence URL</span>
+          <span className="lbl">Video or post URL</span>
           <input
             name="sourceUrl"
             type="url"
@@ -88,8 +88,8 @@ export default function SubmissionForm() {
             required
           />
           <small>
-            Facebook and Instagram links are accepted as evidence, but not
-            automatically used as voting players.
+            Facebook and Instagram links are accepted. YouTube and direct
+            video sources are usually easiest to play on the Board.
           </small>
         </label>
         <div className="submit-timestamps">
@@ -121,7 +121,7 @@ export default function SubmissionForm() {
       </fieldset>
 
       <fieldset disabled={state.kind === "submitting"}>
-        <legend>2 · Identify the statement</legend>
+        <legend>2 · Tell us what we are watching</legend>
         <label className="field">
           <span className="lbl">Who said it</span>
           <input
@@ -141,10 +141,10 @@ export default function SubmissionForm() {
           />
         </label>
         <label className="field">
-          <span className="lbl">What was claimed · neutrally worded</span>
+          <span className="lbl">Why it belongs on the Board</span>
           <textarea
             name="claim"
-            placeholder="State what was asserted—not a verdict on the person."
+            placeholder="What was said, and what makes the moment worth watching?"
             minLength={10}
             maxLength={1200}
             required
@@ -218,12 +218,12 @@ export default function SubmissionForm() {
           disabled={state.kind === "submitting"}
         >
           {state.kind === "submitting"
-            ? "Entering the queue…"
-            : "Submit for review"}
+            ? "Sending clip…"
+            : "Send to the Board"}
         </button>
         <p className="rail-note">
-          Nothing publishes automatically. Public file uploads are disabled;
-          administrators attach a rights-cleared playable copy after review.
+          Nothing goes live automatically. A submission lands backstage for an
+          admin to open and publish.
         </p>
       </div>
       <div className="submission-response" aria-live="polite">
@@ -234,10 +234,10 @@ export default function SubmissionForm() {
         )}
         {state.kind === "success" && (
           <div className="submission-success">
-            <span className="stamp green">Evidence received</span>
+            <span className="stamp green">Clip received</span>
             <p>
-              Keep reference <strong>{state.reference}</strong>. The Committee
-              will verify it before creating a private draft.
+              Keep reference <strong>{state.reference}</strong>. We will take
+              it from here.
             </p>
           </div>
         )}

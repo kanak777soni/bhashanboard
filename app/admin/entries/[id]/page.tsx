@@ -5,16 +5,29 @@ import { cloudinaryConfigurationIssues } from "@/lib/cloudinary-config";
 import { slugify } from "@/lib/corpus";
 import { statementReadiness } from "@/lib/readiness";
 import { requireAdmin } from "@/lib/require-admin";
-import { getParties, getPoliticians, getStatement } from "@/lib/store";
-import { updateStatement } from "../../actions";
+import {
+  getParties,
+  getPoliticians,
+  getStatement,
+  getStatementVoteCount,
+} from "@/lib/store";
+import { setStatus, updateStatement } from "../../actions";
 
-export default async function EditEntry({ params }: { params: Promise<{ id: string }> }) {
+export default async function EditEntry({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   await requireAdmin();
   const { id } = await params;
   const entry = await getStatement(id);
   if (!entry) notFound();
 
-  const [people, parties] = await Promise.all([getPoliticians(), getParties()]);
+  const [people, parties, voteCount] = await Promise.all([
+    getPoliticians(),
+    getParties(),
+    getStatementVoteCount(id),
+  ]);
   const readiness = statementReadiness(entry);
 
   return (
@@ -22,22 +35,57 @@ export default async function EditEntry({ params }: { params: Promise<{ id: stri
       <section className="admin-section">
         <div className="admin-section-head">
           <h2>{entry.neutral_title}</h2>
-          <Link className="btn ghost" href="/admin/entries">Back to entries</Link>
+          <div className="admin-actions">
+            {readiness.key === "live" && (
+              <form action={setStatus}>
+                <input type="hidden" name="id" value={entry.id} />
+                <input type="hidden" name="status" value="held_review" />
+                <button className="btn ghost" type="submit">
+                  Take offline
+                </button>
+              </form>
+            )}
+            <Link className="btn ghost" href="/admin/entries">
+              Back to entries
+            </Link>
+          </div>
         </div>
         <div className="admin-cards">
-          <div className="admin-card"><span className="lbl">Entry</span><b className="num">{entry.id}</b></div>
-          <div className="admin-card"><span className="lbl">Public state</span><b>{readiness.label}</b></div>
-          <div className="admin-card"><span className="lbl">Video</span><b>{entry.video?.platform ?? "none"}</b></div>
-          <div className="admin-card"><span className="lbl">Verification</span><b>{entry.verification.stage.replaceAll("_", " ")}</b></div>
-          <div className="admin-card"><span className="lbl">Outstanding</span><b className="num">{entry.verification.needs?.length ?? 0}</b></div>
-          <div className="admin-card"><span className="lbl">Quote</span><b className="num">{entry.quote ? "yes" : "none"}</b></div>
+          <div className="admin-card">
+            <span className="lbl">Entry</span>
+            <b className="num">{entry.id}</b>
+          </div>
+          <div className="admin-card">
+            <span className="lbl">Workflow</span>
+            <b>{readiness.key === "live" ? "Live" : "Draft"}</b>
+          </div>
+          <div className="admin-card">
+            <span className="lbl">Clip</span>
+            <b>{entry.video?.platform ?? "missing"}</b>
+          </div>
+          <div className="admin-card">
+            <span className="lbl">Category</span>
+            <b>{entry.category || "missing"}</b>
+          </div>
+          <div className="admin-card">
+            <span className="lbl">Votes</span>
+            <b className="num">{voteCount}</b>
+          </div>
+          <div className="admin-card">
+            <span className="lbl">Quote</span>
+            <b className="num">{entry.quote ? "added" : "missing"}</b>
+          </div>
         </div>
         <p className="rail-note" style={{ marginTop: 12 }}>
-          {entry.status === "private_draft" ? (
-            "Private submission draft — no public URL exists until publication."
+          {readiness.key !== "live" ? (
+            "This is a draft. Its public video page appears when you choose Go live."
           ) : (
-            <Link href={`/statement/${slugify(`${entry.neutral_title}-${entry.id}`)}`}>
-              View this entry on the public site ↗
+            <Link
+              href={`/statement/${slugify(
+                `${entry.neutral_title}-${entry.id}`
+              )}`}
+            >
+              View this live entry on the public site &rarr;
             </Link>
           )}
         </p>
@@ -49,6 +97,7 @@ export default async function EditEntry({ params }: { params: Promise<{ id: stri
           people={people}
           parties={parties}
           action={updateStatement}
+          hasVotes={voteCount > 0}
           cloudinaryConfigurationIssues={cloudinaryConfigurationIssues()}
         />
       </section>

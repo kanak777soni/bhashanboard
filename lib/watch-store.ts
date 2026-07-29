@@ -14,7 +14,6 @@ import {
   MAX_VIDEO_EXCERPT_SECONDS,
   MIN_VIDEO_EXCERPT_SECONDS,
   normalizeStatementEvidenceVideo,
-  normalizeVerificationStage,
 } from "./video";
 
 export const WATCH_SESSION_MINUTES = 30;
@@ -81,7 +80,6 @@ export type VideoFingerprintInput =
 
 export interface VoteEligibleStatement {
   statementId: string;
-  verificationStage: "committee_passed";
   video: VoteEligibleVideo;
 }
 
@@ -155,13 +153,6 @@ function objectValue(value: unknown): Record<string, unknown> | undefined {
   return parsed && typeof parsed === "object" && !Array.isArray(parsed)
     ? (parsed as Record<string, unknown>)
     : undefined;
-}
-
-function nestedObject(
-  value: Record<string, unknown> | undefined,
-  key: string
-): Record<string, unknown> | undefined {
-  return objectValue(value?.[key]);
 }
 
 function integer(value: unknown): number | undefined {
@@ -244,16 +235,6 @@ export function parseVoteEligibleStatement(
     );
   }
 
-  const verification = nestedObject(document, "verification");
-  const stage = normalizeVerificationStage(verification?.stage);
-  if (stage !== "committee_passed") {
-    throw new WatchStoreError(
-      "STATEMENT_NOT_ELIGIBLE",
-      "Voting opens after the statement and its footage are fully verified.",
-      409
-    );
-  }
-
   const normalizedVideo = normalizeStatementEvidenceVideo(document);
   if (!normalizedVideo) {
     throw new WatchStoreError(
@@ -299,7 +280,6 @@ export function parseVoteEligibleStatement(
         };
   return {
     statementId,
-    verificationStage: stage,
     video,
   };
 }
@@ -360,6 +340,12 @@ function mapSession(row: WatchSessionRow, receiptId: string | null): WatchSessio
   const creditedWatchMs = requiredInteger(row.credited_watch_ms, "credited watch time");
   const requiredWatchMs = requiredInteger(row.required_watch_ms, "required watch time");
   const durationMs = clipEndMs - clipStartMs;
+  const reachedEnd = booleanValue(row.reached_end);
+  const qualified = row.qualified_at != null;
+  const creditedProgress =
+    requiredWatchMs > 0
+      ? Math.min(1, creditedWatchMs / requiredWatchMs)
+      : 0;
   const platform = row.video_platform;
   if (platform !== "youtube" && platform !== "cloudinary") {
     throw new Error("Invalid video platform returned by the database.");
@@ -388,10 +374,11 @@ function mapSession(row: WatchSessionRow, receiptId: string | null): WatchSessio
     creditedWatchMs,
     requiredWatchMs,
     watchedShare: durationMs > 0 ? Math.min(1, creditedWatchMs / durationMs) : 0,
-    qualificationProgress:
-      requiredWatchMs > 0 ? Math.min(1, creditedWatchMs / requiredWatchMs) : 0,
-    reachedEnd: booleanValue(row.reached_end),
-    qualified: row.qualified_at != null,
+    // Ninety-percent coverage is only one half of the rule; reaching the end
+    // is the other. Never show a misleading 100% while the ballot is locked.
+    qualificationProgress: qualified ? 1 : Math.min(0.99, creditedProgress),
+    reachedEnd,
+    qualified,
     watchReceiptId: receiptId,
     expiresAt: dateValue(row.expires_at, "watch-session expiry").toISOString(),
   };
@@ -716,7 +703,7 @@ export async function recordWatchHeartbeat({
       if (statement.video.fingerprint !== String(current.video_fingerprint)) {
         throw new WatchStoreError(
           "VIDEO_CHANGED",
-          "The verified excerpt changed. Watch the current footage before voting.",
+          "The clip changed. Watch the current version before voting.",
           409
         );
       }

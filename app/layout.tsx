@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     template: "%s — The Bhashan Board",
   },
   description:
-    "An archive of public wisdom. Sourced statements by elected representatives, ranked by verified one-time public rulings.",
+    "Watch public statements, score the sarcasm, and follow the Bhashan Board standings.",
   robots: PRELAUNCH
     ? { index: false, follow: false }
     : { index: true, follow: true },
@@ -43,10 +43,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {PRELAUNCH && (
           <div className="specimen">
             <span className="specimen-wide">
-              Pre-launch &middot; research records remain provisional until committee-passed
+              Pre-launch &middot; clips, votes and scores are still being tested
             </span>
             <span className="specimen-mobile">
-              Pre-launch &middot; records not yet verified
+              Pre-launch &middot; test Board
             </span>
           </div>
         )}

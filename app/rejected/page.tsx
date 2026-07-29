@@ -6,7 +6,7 @@ import { getData } from "@/lib/data";
 export const metadata: Metadata = {
   title: "Refused",
   description:
-    "Statements proposed for the archive and refused under the Rules of the Committee, each recorded with the rule that killed it.",
+    "Statements proposed for the archive and refused under the Rules of the Board, each recorded with the rule that killed it.",
 };
 
 export default async function RejectedPage() {
@@ -77,7 +77,7 @@ export default async function RejectedPage() {
       <p className="legend-foot" style={{ marginTop: 18 }}>
         Refusals are per statement, not per speech. A refused line does not taint the entry beside it,
         and an indexed entry does not launder the line beside it.{" "}
-        <Link href="/rules">The Rules of the Committee</Link>.
+        <Link href="/rules">The Rules of the Board</Link>.
       </p>
     </SiteFrame>
   );

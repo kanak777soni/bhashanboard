@@ -16,7 +16,7 @@ export async function generateMetadata({
   if (!neta) return { title: "Representative not found" };
   return {
     title: neta.name,
-    description: `${neta.office} · ${neta.party} · ${neta.state}. Research record on the Bhashan Board.`,
+    description: `${neta.office} · ${neta.party} · ${neta.state}. Clips and entries on The Bhashan Board.`,
   };
 }
 
@@ -74,7 +74,7 @@ export default async function NetaPage({
         <div>
           <div className="statgrid">
             <div>
-              <span className="lbl">Research records</span>
+              <span className="lbl">Archive entries</span>
               <b>{records.length}</b>
             </div>
             <div>
@@ -116,9 +116,8 @@ export default async function NetaPage({
             <div>
               <span className="lbl">How to read this page</span>
               <p className="rail-note" style={{ marginTop: 8 }}>
-                A research record is not a score. Rank, GP, and medals appear
-                only for a publication-ready video after ten valid public
-                rulings.
+                An archive entry is not automatically a score. Rank, GP and
+                medals appear after a live clip receives ten public votes.
               </p>
             </div>
           </div>
@@ -137,7 +136,7 @@ export default async function NetaPage({
       <div className="sec-head" style={{ marginTop: 34 }}>
         <h2>Public standings</h2>
         <span className="lbl">
-          Verified video &middot; ten public rulings required
+          Live clip &middot; ten votes to rank
         </span>
       </div>
       {rankedRows.length > 0 ? (
@@ -146,15 +145,14 @@ export default async function NetaPage({
         <div className="erratum">
           <span className="lbl">No public rank yet</span>
           <p>
-            None of this representative&rsquo;s video filings has reached the
-            ten-ruling threshold. Research records remain available below
-            without borrowing the editorial seed score.
+            None of this representative&rsquo;s clips has reached ten votes.
+            The rest of the archive remains available below.
           </p>
         </div>
       )}
 
       <div className="sec-head" style={{ marginTop: 34 }}>
-        <h2>Complete research file</h2>
+        <h2>Complete archive</h2>
         <span className="lbl">{records.length} indexed chronologically</span>
       </div>
       <RecordList statements={records} netas={data.NETAS} />

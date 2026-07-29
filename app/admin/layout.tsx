@@ -5,7 +5,7 @@ import { AuthGuardError } from "@/lib/auth-guards";
 import { requireAdmin } from "@/lib/require-admin";
 
 export const metadata: Metadata = {
-  title: "The Committee Room",
+  title: "Board Desk",
   robots: { index: false, follow: false },
 };
 
@@ -47,7 +47,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     <div className="wrap admin">
       <header className="admin-head">
         <div>
-          <h1 className="admin-title">The Committee Room</h1>
+          <h1 className="admin-title">Board Desk</h1>
           <p className="lbl">Everything on the board is editable here. Everything you change is logged.</p>
         </div>
         <span className="stamp green">{actor.displayLabel}</span>

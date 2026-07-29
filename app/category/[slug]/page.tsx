@@ -71,7 +71,7 @@ export default async function CategoryPage({
 
       <div className="statgrid" style={{ marginTop: 18 }}>
         <div>
-          <span className="lbl">Research records</span>
+          <span className="lbl">Archive entries</span>
           <b>{records.length}</b>
         </div>
         <div>
@@ -91,7 +91,7 @@ export default async function CategoryPage({
       <div className="sec-head" style={{ marginTop: 28 }}>
         <h2>Public standings</h2>
         <span className="lbl">
-          Verified video &middot; ten public rulings required
+          Live clip &middot; ten votes to rank
         </span>
       </div>
       {rankedRows.length > 0 ? (
@@ -100,9 +100,8 @@ export default async function CategoryPage({
         <div className="erratum">
           <span className="lbl">No public rank yet</span>
           <p>
-            This category has no publication-ready video with ten valid public
-            rulings. Its research files remain visible below without rank, GP,
-            or medals.
+            This category has no live clip with ten public votes yet. Its
+            archive entries remain visible below without rank, GP or medals.
           </p>
         </div>
       )}

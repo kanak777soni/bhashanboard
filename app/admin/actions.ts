@@ -8,6 +8,7 @@ import {
   createPoliticianRecord,
   createStatementRecord,
   getStatement,
+  getStatementVoteCount,
   setStatementHallOfFame,
   setStatementStatus,
   updateStatementRecord,
@@ -41,7 +42,11 @@ const STATUSES: readonly StatementStatus[] = [
 ];
 const SOURCE_TIERS = ["A", "B", "C"] as const;
 type SourceTier = (typeof SOURCE_TIERS)[number];
-const STATEMENT_WORKFLOW_ACTIONS = ["save_draft", "publish"] as const;
+const STATEMENT_WORKFLOW_ACTIONS = [
+  "save_draft",
+  "publish",
+  "restore_live",
+] as const;
 type StatementWorkflowAction = (typeof STATEMENT_WORKFLOW_ACTIONS)[number];
 
 function str(fd: FormData, key: string): string {
@@ -70,7 +75,7 @@ function statementWorkflowAction(fd: FormData): StatementWorkflowAction {
   if (
     !STATEMENT_WORKFLOW_ACTIONS.includes(value as StatementWorkflowAction)
   ) {
-    throw new Error("Choose Save draft or Publish video.");
+    throw new Error("Choose Save draft, Go live, or Put back live.");
   }
   return value as StatementWorkflowAction;
 }
@@ -109,7 +114,6 @@ async function collectVideo(
       const verified = await verifyCloudinaryAttachmentToken({
         actorId,
         attachmentToken,
-        playbackAttested: str(fd, "video_playback_attested") === "true",
       });
       if (verified.video.id !== input) {
         throw new Error("The uploaded video does not match this form. Upload it again.");
@@ -195,7 +199,28 @@ function sourceUrl(value: string, index: number): string {
   return value;
 }
 
-function collectSources(fd: FormData) {
+function collectSources(
+  fd: FormData,
+  fallback: StoredStatement["verification"]["sources"] | undefined
+) {
+  const hasSourceFields = Array.from({ length: 4 }, (_, index) => index).some(
+    (index) =>
+      fd.has(`src_publisher_${index}`) ||
+      fd.has(`src_title_${index}`) ||
+      fd.has(`src_url_${index}`) ||
+      fd.has(`src_tier_${index}`) ||
+      fd.has(`src_role_${index}`)
+  );
+  if (!hasSourceFields) {
+    return (fallback ?? []).map((source) => ({
+      tier: sourceTier(String(source.tier ?? "C"), "Saved source"),
+      publisher: String(source.publisher ?? ""),
+      title: String(source.title ?? ""),
+      url: String(source.url ?? ""),
+      role: isSourceRole(source.role) ? source.role : "reporting",
+    }));
+  }
+
   const sources: {
     tier: SourceTier;
     publisher: string;
@@ -231,12 +256,10 @@ function assertQuoteIntegrity({
   language,
   quote,
   quoteTranslation,
-  quoteNote,
 }: {
   language: string;
   quote: string | null;
   quoteTranslation?: string;
-  quoteNote?: string;
 }) {
   const isEnglish = language.trim().toLowerCase() === "english";
   if (quote && !isEnglish && !quoteTranslation?.trim()) {
@@ -244,9 +267,6 @@ function assertQuoteIntegrity({
   }
   if (quoteTranslation?.trim() && (!quote || isEnglish)) {
     throw new Error("English translations are only valid alongside a non-English verbatim quote.");
-  }
-  if (!quote && !quoteNote?.trim()) {
-    throw new Error("An entry without an established quote requires a note explaining what is missing.");
   }
 }
 
@@ -260,7 +280,6 @@ function collectQuoteFields(fd: FormData) {
     language,
     quote: quote || null,
     quoteTranslation: suppliedTranslation || undefined,
-    quoteNote: quoteNote || undefined,
   });
 
   return {
@@ -279,16 +298,18 @@ function collectVerification(
   fallback: StoredStatement["verification"] | undefined,
   video: StatementVideo | undefined
 ): StoredStatement["verification"] {
-  const needs = str(fd, "needs")
+  const needs = fd.has("needs")
     ? str(fd, "needs")
-        .split("\n")
-        .map((need) => need.trim())
-        .filter(Boolean)
-    : [];
-  const stage = requireVerificationStage(str(fd, "stage") || fallback?.stage || "text_sourced");
-  if (stage !== "text_sourced" && !video) {
-    throw new Error(`${stage} requires a video with valid start and end timestamps.`);
-  }
+      ? str(fd, "needs")
+          .split("\n")
+          .map((need) => need.trim())
+          .filter(Boolean)
+      : []
+    : [...(fallback?.needs ?? [])];
+  const requestedStage = requireVerificationStage(
+    str(fd, "stage") || fallback?.stage || "text_sourced"
+  );
+  const stage = video ? requestedStage : "text_sourced";
   const bestSourceTier = sourceTier(
     str(fd, "best_source_tier") || fallback?.best_source_tier || "C",
     "Best source"
@@ -297,7 +318,7 @@ function collectVerification(
     stage,
     best_source_tier: bestSourceTier,
     needs,
-    sources: collectSources(fd),
+    sources: collectSources(fd, fallback?.sources),
   };
 }
 
@@ -349,25 +370,16 @@ async function statementDocument(
   if (
     document.status === "published" &&
     document.video?.platform === "youtube" &&
-    str(fd, "youtube_playback_attested") !== "true"
+    str(fd, "youtube_preview_ready") !== "true"
   ) {
     throw new Error(
-      "Play the YouTube publication preview and confirm its picture, audio and timestamps before publishing."
+      "Wait for the automatic YouTube player and timestamp check before going live."
     );
-  }
-  if (document.verification.stage === "committee_passed") {
-    // Committee sign-off describes the evidence package, independently of
-    // whether an administrator has made the final "Go live" placement.
-    if (publicationIssues.length > 0) {
-      throw new Error(
-        `Committee-passed publication requirements are not met: ${publicationIssues.join(" ")}`
-      );
-    }
   }
   if (document.hall_of_fame) {
     if (document.status !== "published" || publicationIssues.length > 0) {
       throw new Error(
-        "Hall of Fame induction requires a fully reviewed live statement."
+        "Only a live clip can be added to the Hall of Fame."
       );
     }
   }
@@ -381,8 +393,11 @@ async function statementDocument(
 
 export async function createStatement(fd: FormData) {
   const actor = await requireAdmin();
-  const quoteFields = collectQuoteFields(fd);
   const workflowAction = statementWorkflowAction(fd);
+  if (workflowAction === "restore_live") {
+    throw new Error("A new entry cannot be restored.");
+  }
+  const quoteFields = collectQuoteFields(fd);
   const status: StatementStatus =
     workflowAction === "publish" ? "published" : "held_review";
   const collected = await statementDocument(fd, quoteFields, status, actor.id);
@@ -412,14 +427,52 @@ export async function updateStatement(fd: FormData) {
     throw new Error(`Statement ${id} was changed by another admin. Reload and try again.`);
   }
 
-  const quoteFields = collectQuoteFields(fd);
   const workflowAction = statementWorkflowAction(fd);
+  if (workflowAction === "restore_live") {
+    if (!before.status.startsWith("held")) {
+      throw new Error("Only an unchanged offline clip can be put back live.");
+    }
+    const voteCount = await getStatementVoteCount(id);
+    if (voteCount < 1) {
+      throw new Error("Use Go live for a clip that has no votes yet.");
+    }
+    const publicationIssues = committeePublicationIssues({
+      ...before,
+      status: "published",
+    });
+    if (publicationIssues.length > 0) {
+      throw new Error(
+        `This clip cannot be put back live: ${publicationIssues.join(" ")}`
+      );
+    }
+    const existingVideo = normalizeStatementVideo(before.video);
+    if (
+      existingVideo?.platform === "youtube" &&
+      str(fd, "youtube_preview_ready") !== "true"
+    ) {
+      throw new Error(
+        "Wait for the automatic YouTube player and timestamp check before putting this clip back live."
+      );
+    }
+    if (existingVideo?.platform === "cloudinary") {
+      await verifyExistingCloudinaryVideo(existingVideo);
+    }
+    await setStatementStatus(id, "published", expectedVersion, {
+      actor: actor.label,
+      action: "status",
+      detail: `"${before.neutral_title}" — put the unchanged voted clip back live.`,
+    });
+    refresh();
+    return;
+  }
+
+  const quoteFields = collectQuoteFields(fd);
   const status: StatementStatus =
     workflowAction === "publish"
       ? "published"
-      : before.status === "private_draft"
-        ? "private_draft"
-        : "held_review";
+      : before.status === "published"
+        ? "held_review"
+        : before.status;
   const collected = await statementDocument(fd, quoteFields, status, actor.id, before);
   const entry = collected.document;
   const axes = entry.axes;
@@ -466,14 +519,13 @@ export async function setStatus(fd: FormData) {
   const status = statementStatus(fd);
   const before = await getStatement(id);
   if (!before) throw new Error(`Statement ${id} no longer exists.`);
+  if (status === before.status) return;
 
   if (status === "published") {
     throw new Error(
-      "Open the entry and use Publish video after completing its live checklist and playback preview."
+      "Open the entry and use Go live or Put back live after the automatic clip preview is ready."
     );
   }
-  if (status === before.status) return;
-
   await setStatementStatus(id, status, before.version, {
     actor: actor.label,
     action: status === "withdrawn" ? "withdraw" : "status",
@@ -498,7 +550,7 @@ export async function toggleHallOfFame(fd: FormData) {
     : [];
   if (desired && (before.status !== "published" || publicationIssues.length > 0)) {
     throw new Error(
-      `Only a fully reviewed live statement can enter the Hall of Fame.${
+      `Only a live clip can enter the Hall of Fame.${
         publicationIssues.length > 0 ? ` ${publicationIssues.join(" ")}` : ""
       }`
     );
@@ -513,7 +565,7 @@ export async function toggleHallOfFame(fd: FormData) {
       publicData.publicRankOf(publicStatement.slug) <= 0
     ) {
       throw new Error(
-        "Hall of Fame induction requires a live video entry with at least ten valid public rulings."
+        "A clip must be live and have at least ten user votes before it can enter the Hall of Fame."
       );
     }
     const storedVideo = normalizeStatementVideo(before.video);

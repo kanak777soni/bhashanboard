@@ -1,56 +1,37 @@
 import Link from "next/link";
 
-const PRELAUNCH = process.env.SITE_PRELAUNCH !== "false";
-
-/** Shared institutional colophon for both the full and screening shells. */
+/** Shared colophon for both the full and compact public shells. */
 export default function SiteFooter() {
   return (
     <footer className="site">
       <div className="colophon-block">
         <div>
-          <span className="lbl">The Committee</span>
+          <span className="lbl">The Board</span>
           <p className="colophon-note">
-            Established 2026. Sits weekly. Rules on statements, never on
-            persons. Declines to comment on anything else.
+            Public statements, played back and scored for sarcasm. The vote is
+            on the clip, never the person.
           </p>
         </div>
         <div>
-          <span className="lbl">Correspondence</span>
+          <span className="lbl">Found a better clip?</span>
           <p className="colophon-note">
-            To the Registrar. Offices wishing to exercise the right of reply
-            are answered in order of receipt, and always answered.
+            <Link href="/submit">Send it in.</Link> Corrections, context and
+            replies stay attached to the entry.
           </p>
         </div>
         <div>
-          <span className="lbl">Standing orders</span>
+          <span className="lbl">On the record</span>
           <p className="colophon-note">
-            <Link href="/rules">The Rules</Link> &middot;{" "}
-            <Link href="/ledger">The Ledger</Link> &middot;{" "}
-            <Link href="/submit">Submissions</Link> &middot;{" "}
+            <Link href="/watch">Watch</Link> &middot;{" "}
+            <Link href="/duel">Aamne-Saamne</Link> &middot;{" "}
+            <Link href="/standings">Standings</Link> &middot;{" "}
+            <Link href="/record">Archive</Link> &middot;{" "}
+            <Link href="/rules">Rules</Link> &middot;{" "}
             <Link href="/privacy">Privacy</Link> &middot;{" "}
             <Link href="/terms">Terms</Link>
           </p>
         </div>
       </div>
-      {PRELAUNCH && (
-        <p>
-          <strong>This is a pre-launch build.</strong> Each record states its
-          own verification status; public rulings open only after the complete
-          publication bar is met. Where exact wording could not be established,
-          no quotation is shown &mdash; a neutral subject line stands in its
-          place.
-        </p>
-      )}
-      <p>
-        Type is currently rendering in system fallbacks. Production self-hosts
-        Libre Caslon Display, Source Serif&nbsp;4, Archivo and Tiro Devanagari
-        Hindi via <code>next/font</code>.
-      </p>
-      <p>
-        Guilloch&eacute; engraving is drawn live on canvas from hypotrochoid
-        curves &mdash; no image assets. Medals and the wax seal are eight
-        hand-drawn marks; no icon library is used.
-      </p>
     </footer>
   );
 }

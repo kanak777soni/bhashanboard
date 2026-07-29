@@ -2,8 +2,8 @@ import type { CorpusStatement } from "./corpus";
 
 export type RatingMaturity = "new" | "placement" | "ranked";
 export type RatingMaturityLabel =
-  | "New filing"
-  | "In placement"
+  | "Fresh clip"
+  | "Finding its place"
   | "Ranked";
 export type FrontPageInventoryBand = "empty" | "sparse" | "growing" | "full";
 
@@ -31,9 +31,9 @@ export function ratingMaturityLabel(
 ): RatingMaturityLabel {
   switch (maturity) {
     case "new":
-      return "New filing";
+      return "Fresh clip";
     case "placement":
-      return "In placement";
+      return "Finding its place";
     case "ranked":
       return "Ranked";
   }
@@ -76,6 +76,7 @@ export function isResearchOnlyStatement(
 
 function byFeedPriority(a: CorpusStatement, b: CorpusStatement): number {
   return (
+    Number(!a.eventDate) - Number(!b.eventDate) ||
     a.daysAgo - b.daysAgo ||
     b.rating.validVoteCount - a.rating.validVoteCount ||
     a.corpusId.localeCompare(b.corpusId) ||

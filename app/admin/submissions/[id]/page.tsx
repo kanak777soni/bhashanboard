@@ -59,14 +59,14 @@ export default async function AdminSubmissionDetail({
         <div className="admin-section-head">
           <div>
             <p className="lbl">{reference}</p>
-            <h2>Review submitted evidence</h2>
+            <h2>Review reader suggestion</h2>
           </div>
           <Link href="/admin/submissions">← Back to queue</Link>
         </div>
 
         <div className="submission-review-grid">
           <div>
-            <span className="lbl">Claim</span>
+            <span className="lbl">Suggested caption</span>
             <p className="submission-claim">{submission.claim}</p>
           </div>
           <dl className="submission-facts">
@@ -111,13 +111,13 @@ export default async function AdminSubmissionDetail({
             </div>
           </dl>
           <div className="submission-source">
-            <span className="lbl">{submission.sourcePlatform} evidence</span>
+            <span className="lbl">{submission.sourcePlatform} clip link</span>
             <a
               href={submission.sourceUrl}
               target="_blank"
               rel="noreferrer noopener"
             >
-              Open original source ↗
+              Open submitted link &rarr;
             </a>
             <code>{submission.sourceUrl}</code>
           </div>
@@ -138,11 +138,11 @@ export default async function AdminSubmissionDetail({
               <fieldset>
                 <legend>Accept into a private draft</legend>
                 <p className="rail-note">
-                  This creates a held-review entry with zero scores and an
-                  explicit verification checklist. It cannot go live.
+                  Choose the speaker, party and category now. We will open the
+                  result as a private draft; nothing goes live automatically.
                 </p>
                 <label className="field">
-                  <span className="lbl">Registered representative</span>
+                  <span className="lbl">Speaker</span>
                   <select name="speaker_id" required defaultValue="">
                     <option value="">Select…</option>
                     {people.map((person) => (
@@ -164,7 +164,7 @@ export default async function AdminSubmissionDetail({
                   </select>
                 </label>
                 <label className="field">
-                  <span className="lbl">Working category</span>
+                  <span className="lbl">Category</span>
                   <select name="category" required defaultValue="">
                     <option value="">Select…</option>
                     {CATEGORIES.map((category) => (
@@ -190,18 +190,18 @@ export default async function AdminSubmissionDetail({
                 <label className="field">
                   <span className="lbl">Decision</span>
                   <select name="disposition" defaultValue="rejected">
-                    <option value="rejected">Reject evidence lead</option>
+                    <option value="rejected">Decline suggestion</option>
                     <option value="spam">Mark as spam</option>
                   </select>
                 </label>
                 <label className="field">
-                  <span className="lbl">Private review note</span>
+                  <span className="lbl">Private note</span>
                   <textarea
                     name="note"
                     minLength={3}
                     maxLength={1000}
                     required
-                    placeholder="Why this lead was closed"
+                    placeholder="Why this suggestion was closed"
                   />
                 </label>
                 <button className="btn ghost" type="submit">
@@ -227,7 +227,7 @@ export default async function AdminSubmissionDetail({
       )}
 
       <section className="admin-section">
-        <h2>Submission history</h2>
+        <h2>Activity</h2>
         <table className="ledger">
           <thead>
             <tr>

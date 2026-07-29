@@ -25,11 +25,11 @@ export default function ScreeningFrame({
               <Link href="/">The Bhashan Board</Link>
             </p>
             <p className="motto screening-motto">
-              Committee screening &middot; watch first, rule once
+              Watch the clip &middot; vote once &middot; see where it lands
             </p>
           </div>
           <div className="screening-tools">
-            <span className="lbl">Screening room</span>
+            <span className="lbl">Now watching</span>
             <ThemeToggle />
           </div>
         </div>
