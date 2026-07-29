@@ -56,6 +56,12 @@ export default function PrivacyPage() {
             identifiers needed to make those actions reviewable.
           </li>
           <li>
+            <strong>Evidence submissions:</strong> the source link, proposed timestamps, speaker,
+            event details, claim, original language, optional submitter name, contact email,
+            declaration, moderation decision, and acknowledgement-delivery state. Submissions enter
+            a private review queue and are not published automatically.
+          </li>
+          <li>
             <strong>Operational logs:</strong> limited request, error, and delivery logs maintained
             by the application and its hosting, database, video, and email providers.
           </li>
@@ -66,15 +72,18 @@ export default function PrivacyPage() {
           We use account data to verify membership, secure the service, send account messages, and
           honour your communication preference. Viewing and ruling data enforce one watched excerpt
           and one final ballot per account, calculate the published performance bar, investigate
-          abuse, and preserve an auditable public record. We do not sell personal information or use
-          private account data to rank a politician or target political advertising.
+          abuse, and preserve an auditable public record. Submission data lets the Committee
+          investigate an evidence lead, contact the submitter about that lead, and create a private
+          research draft if it is accepted. We do not sell personal information or use private
+          account or submission data to rank a politician or target political advertising.
         </p>
 
         <h2>Email and Brevo</h2>
         <p>
-          Brevo delivers verification, password-reset, and welcome messages. When one of those
-          messages is sent, Brevo receives the recipient name and email, message content, and an
-          expiring action link, and may keep delivery and security logs under its own terms.
+          Brevo delivers verification, password-reset, welcome, and evidence-receipt messages. When
+          one of those messages is sent, Brevo receives the recipient name and email, message
+          content, and—where applicable—an expiring action link, and may keep delivery and security
+          logs under its own terms.
           Occasional Board updates are optional: the choice is off by default, stored in our
           database, and can be changed at any time on the <Link href="/account">account page</Link>.
           The application does not copy your subscription state into a Brevo marketing contact list.
@@ -100,6 +109,13 @@ export default function PrivacyPage() {
           removes expired application sessions and verification records, rate-limit buckets after
           24 hours, and unfinished watch sessions seven days after expiry. Hosting, email, and video
           provider logs follow the provider retention terms described in their own notices.
+        </p>
+        <p>
+          Evidence submissions and their private moderation history are retained while the lead is
+          being investigated and afterwards as needed to document acceptance, refusal, duplication,
+          abuse, or a resulting archive record. Do not include unrelated personal information in a
+          claim or source. You may use the privacy contact below to ask about a submission; include
+          its <code>SUB-</code> reference so it can be located without repeating the evidence.
         </p>
         <p>
           Qualified watch receipts, submitted rulings, ballot exclusions, and moderation audit
@@ -135,9 +151,10 @@ export default function PrivacyPage() {
             <p>
               A public privacy inbox has not yet been configured. Signed-in testers can use the
               account anonymization control directly. For any other private request, contact the
-              person who invited you to this test; do not place personal information in the public
-              submission form. The operator must configure and publish a monitored privacy address
-              before opening general registration.
+              person who invited you to this test. The evidence form asks only for a contact email;
+              do not place unrelated personal information in its claim or source fields. The
+              operator must configure and publish a monitored privacy address before opening
+              general registration.
             </p>
           </div>
         )}

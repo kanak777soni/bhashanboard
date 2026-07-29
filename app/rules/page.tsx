@@ -61,21 +61,20 @@ export default function RulesPage() {
         </p>
         <p>
           Every valid public ballot has equal strength: one ballot, one value. There are no secret party,
-          subscription, or popularity multipliers. New entries begin with a ten-vote editorial prior derived
-          from the five published seed axes. If <em>p</em> is that seed performance, <em>n</em> is the number
-          of valid public rulings, and <em>s</em> is their sum, the live performance is
-          <code> (10p + s) / (10 + n)</code>. GP is <code>round(1000 + 10 × performance)</code>.
+          subscription, editorial, or popularity multipliers. If <em>n</em> is the number of valid public
+          rulings and <em>s</em> is their sum, performance is simply <code>s / n</code>. GP is{" "}
+          <code>round(1000 + 10 × performance)</code>.
         </p>
         <p>
-          The prior prevents one early ballot from throwing an entry across the ladder; its influence fades
-          predictably as public rulings accumulate. Raw ballots, watch receipts, and exclusions are immutable.
-          An administrator may exclude a ballot for abuse, but cannot rewrite it, and the action remains in
-          the audit record. The public performance bar, vote count, and distribution come from valid ballots.
+          A statement stays in placement and receives no public rank until ten valid rulings have been
+          recorded. Raw ballots, watch receipts, and exclusions are immutable. An administrator may exclude
+          a ballot for documented abuse, but cannot rewrite it, and the action remains in the audit record.
+          The performance bar, vote count, distribution, GP and rank come only from valid public ballots.
         </p>
         <p>
           The five editorial axes—logic damage, straight face, rewatch value, crowd complicity, and
-          consequence—establish only the seed prior. Aamne-Saamne remains a playful, non-scoring exhibition;
-          picks made there never alter the ladder.
+          consequence—remain internal research notes and never alter the public score. Aamne-Saamne remains
+          a playful, non-scoring exhibition; picks made there never alter the ladder.
         </p>
 
         <h2>What a tier means</h2>

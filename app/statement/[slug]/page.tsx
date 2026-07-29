@@ -14,7 +14,7 @@ import {
   statementRatingMaturity,
 } from "@/lib/public-inventory";
 import { tierOf } from "@/lib/tiers";
-import type { Axes, VerificationStage } from "@/lib/types";
+import type { VerificationStage } from "@/lib/types";
 
 export async function generateMetadata({
   params,
@@ -43,14 +43,6 @@ export async function generateMetadata({
     },
   };
 }
-
-const AXIS_LABELS: [keyof Axes, string][] = [
-  ["logic", "Logic damage"],
-  ["straightFace", "Straight face"],
-  ["rewatch", "Rewatch value"],
-  ["crowd", "Crowd complicity"],
-  ["consequence", "Consequence"],
-];
 
 function evidenceStateLabel({
   hasVideo,
@@ -136,7 +128,7 @@ export default async function StatementPage({
   });
 
   let hostedVideoUrl: string | undefined;
-  if (video?.platform === "cloudinary") {
+  if (isLiveScreening && video?.platform === "cloudinary") {
     try {
       // Authenticated Cloudinary media has no unsigned public URL. Generate
       // the signed, versioned MP4 derivative only on the server.
@@ -153,7 +145,7 @@ export default async function StatementPage({
   const statementIntro = (
     <section className="statement-intro">
       <span className="lbl">
-        {hasVideo ? "Statement on screen" : "Research file"}
+        {isLiveScreening ? "Statement on screen" : "Research file"}
       </span>
       <h1 className="cert-title">
         <EntryTitle statement={statement} />
@@ -174,7 +166,7 @@ export default async function StatementPage({
     <ScreeningFrame>
       <article
         className={`certificate statement-certificate ${
-          hasVideo ? "statement-has-video" : "statement-research-file"
+          isLiveScreening ? "statement-has-video" : "statement-research-file"
         }`}
       >
         <Guilloche variant="frame" />
@@ -225,7 +217,7 @@ export default async function StatementPage({
             )}
           </header>
 
-          {video ? (
+          {isLiveScreening && video ? (
             <>
               <section
                 className="statement-screening"
@@ -247,13 +239,6 @@ export default async function StatementPage({
               </section>
 
               {statementIntro}
-
-              {!statement.publicationEligible && (
-                <ProvisionalNotice
-                  stage={statement.verificationStage}
-                  needs={statement.needs}
-                />
-              )}
             </>
           ) : (
             <>
@@ -262,28 +247,40 @@ export default async function StatementPage({
                 className="research-file-notice"
                 aria-labelledby={`research-file-${statement.corpusId}`}
               >
-                <span className="lbl">Research file · awaiting footage</span>
+                <span className="lbl">
+                  {hasVideo
+                    ? "Research file · footage under review"
+                    : "Research file · awaiting footage"}
+                </span>
                 <h2 id={`research-file-${statement.corpusId}`}>
-                  This record is documented, but it is not a screening yet.
+                  {hasVideo
+                    ? "A clip is attached, but this is not a public screening yet."
+                    : "This record is documented, but it is not a screening yet."}
                 </h2>
-                <p>
-                  No verified video excerpt is attached. The statement therefore
-                  carries no public rank, medal, GP score, or ballot. The sourced
-                  record remains available while the Committee looks for the
-                  original footage and enough surrounding context to review it
-                  honestly.
-                </p>
-                {statement.needs.length > 0 && (
-                  <ul className="needs">
-                    {statement.needs.map((need) => (
-                      <li key={need}>{need}</li>
-                    ))}
-                  </ul>
+                {hasVideo ? (
+                  <p>
+                    The attached media remains off the public player until its
+                    wording, context, evidence and excerpt pass review and an
+                    administrator explicitly publishes it. Until then, this
+                    record carries no public rank, medal, GP score, or ballot.
+                  </p>
+                ) : (
+                  <p>
+                    No verified video excerpt is attached. The statement
+                    therefore carries no public rank, medal, GP score, or ballot.
+                    The sourced record remains available while the Committee
+                    looks for the original footage and enough surrounding
+                    context to review it honestly.
+                  </p>
                 )}
                 <Link href="/submit" className="btn ghost research-file-submit">
                   Submit better evidence
                 </Link>
               </section>
+              <ProvisionalNotice
+                stage={statement.verificationStage}
+                needs={statement.needs}
+              />
             </>
           )}
 
@@ -378,7 +375,7 @@ export default async function StatementPage({
             statement.policyNote) && (
             <details
               className="statement-disclosure statement-context-disclosure"
-              open={!hasVideo}
+              open={!isLiveScreening}
             >
               <summary>
                 <span className="lbl">Context &amp; scope</span>
@@ -413,7 +410,7 @@ export default async function StatementPage({
 
           <details
             className="statement-disclosure statement-sources-disclosure"
-            open={!hasVideo}
+            open={!isLiveScreening}
           >
             <summary>
               <span className="lbl">Sources</span>
@@ -466,36 +463,6 @@ export default async function StatementPage({
             </span>
           </div>
 
-          {isRanked && (
-            <div className="axes">
-              <div className="lbl" style={{ marginBottom: 8 }}>
-                Editorial seed axes &middot; frozen when public voting begins
-              </div>
-              {AXIS_LABELS.map(([key, label]) => (
-                <div className="axis" key={key}>
-                  <span>{label}</span>
-                  <div className="bar">
-                    <i style={{ width: `${statement.axes[key]}%` }} />
-                  </div>
-                  <span className="val">
-                    {String(Math.round(statement.axes[key] / 20))}
-                  </span>
-                </div>
-              ))}
-              <p
-                style={{
-                  fontSize: 13,
-                  color: "var(--ink-45)",
-                  margin: "10px 0 0",
-                }}
-              >
-                The Committee scores each axis 0&ndash;5 to establish a
-                transparent prior. Verified public rulings then move the live
-                performance score; consequence is inverted, so 5 means nothing
-                happened, or a promotion followed.
-              </p>
-            </div>
-          )}
         </div>
       </article>
 

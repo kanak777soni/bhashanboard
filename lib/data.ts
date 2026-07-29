@@ -95,7 +95,7 @@ const getDataCached = cache(async (): Promise<PublicData> => {
       (tx) => [
         tx.query("select document from bhashan.parties order by id"),
         tx.query("select document from bhashan.politicians order by id"),
-        tx.query("select document, rating_seed_gp from bhashan.statements order by id"),
+        tx.query("select document from bhashan.statements order by id"),
         tx.query("select document from bhashan.rejections order by position, id"),
         tx.query("select key, document from bhashan.settings"),
         tx.query(
@@ -125,7 +125,7 @@ const getDataCached = cache(async (): Promise<PublicData> => {
     rows as unknown as [
       { document: unknown }[],
       { document: unknown }[],
-      { document: unknown; rating_seed_gp: unknown }[],
+      { document: unknown }[],
       { document: unknown }[],
       { key: string; document: unknown }[],
       AuditRow[],
@@ -134,11 +134,9 @@ const getDataCached = cache(async (): Promise<PublicData> => {
 
   const parties = partyRows.map((row) => row.document as RawParty);
   const politicians = politicianRows.map((row) => row.document as RawPolitician);
-  const statements = statementRows.map((row) => ({
-    ...(row.document as RawStatement),
-    rating_seed_gp:
-      row.rating_seed_gp == null ? null : Number(row.rating_seed_gp),
-  }));
+  const statements = statementRows.map(
+    (row) => row.document as RawStatement
+  );
   const rejections = rejectionRows.map((row) => row.document as RawRejection);
   const ratingAggregates = aggregateRows.map(parseRatingAggregate);
   const settings = new Map(

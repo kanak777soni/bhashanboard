@@ -5,8 +5,14 @@ import {
   assertStatementHasNoVotes,
   statementRatingLockKey,
 } from "./statement-rating-lock";
+import type { SourceRole } from "./types";
 
-export type StatementStatus = "published" | "held_parity" | "held_review" | "withdrawn";
+export type StatementStatus =
+  | "published"
+  | "held_parity"
+  | "held_review"
+  | "private_draft"
+  | "withdrawn";
 
 export interface StoredStatement {
   id: string;
@@ -48,7 +54,13 @@ export interface StoredStatement {
     stage: string;
     best_source_tier: string;
     needs?: string[];
-    sources?: { tier?: string; publisher?: string; title?: string; url?: string }[];
+    sources?: {
+      tier?: string;
+      publisher?: string;
+      title?: string;
+      url?: string;
+      role?: SourceRole;
+    }[];
   };
 }
 
@@ -480,7 +492,15 @@ export async function setStatementStatus(
     tx`
       UPDATE bhashan.statements
       SET
-        document = jsonb_set(document, '{status}', to_jsonb(${status}::text), true),
+        document = jsonb_set(
+          CASE
+            WHEN ${status}::text = 'published' THEN document
+            ELSE jsonb_set(document, '{hall_of_fame}', 'false'::jsonb, true)
+          END,
+          '{status}',
+          to_jsonb(${status}::text),
+          true
+        ),
         version = version + 1,
         updated_at = now()
       WHERE id = ${id} AND version = ${expectedVersion}
@@ -501,6 +521,9 @@ export async function setStatementHallOfFame(
     tx`SELECT set_config('bhashan.actor', ${actor}, true)`,
     tx`SELECT set_config('bhashan.action', ${action}, true)`,
     tx`SELECT set_config('bhashan.detail', ${detail}, true)`,
+    tx`SELECT pg_advisory_xact_lock(
+      hashtextextended(${statementRatingLockKey(id)}, 0)
+    )`,
     tx`
       UPDATE bhashan.statements
       SET
@@ -511,7 +534,7 @@ export async function setStatementHallOfFame(
       RETURNING id, document, version
     `,
   ]);
-  return mapStatement(mutationRow(result[3], "Statement", id));
+  return mapStatement(mutationRow(result[4], "Statement", id));
 }
 
 export async function createPoliticianRecord(
@@ -554,38 +577,6 @@ export const AXIS_LABELS: Record<string, string> = {
   crowd_complicity: "Crowd complicity",
   consequence: "Consequence (5 = nothing happened)",
 };
-
-export function weightedScore(axes: Record<string, number>): number {
-  return Object.entries(AXIS_WEIGHTS).reduce((sum, [key, weight]) => sum + (axes[key] ?? 0) * weight, 0);
-}
-
-const BANDS: [number, number, number][] = [
-  [0.025, 1875, 1960],
-  [0.08, 1750, 1868],
-  [0.16, 1600, 1742],
-  [0.21, 1450, 1590],
-  [0.24, 1300, 1440],
-  [1, 1150, 1290],
-];
-
-export function computeLadder(statements: StoredStatement[]): { id: string; gp: number; rank: number }[] {
-  const live = statements.filter((statement) => statement.status === "published");
-  const ordered = [...live].sort((a, b) => weightedScore(b.axes) - weightedScore(a.axes));
-  const out: { id: string; gp: number; rank: number }[] = [];
-  let index = 0;
-  for (const [share, low, high] of BANDS) {
-    const wanted = share === 1 ? ordered.length - index : Math.round(ordered.length * share);
-    const count = Math.min(Math.max(wanted, 0), ordered.length - index);
-    for (let offset = 0; offset < count; offset++) {
-      const gp =
-        count === 1 ? high : Math.round(high - ((high - low) * offset) / Math.max(count - 1, 1));
-      out.push({ id: ordered[index + offset].id, gp, rank: index + offset + 1 });
-    }
-    index += count;
-    if (index >= ordered.length) break;
-  }
-  return out;
-}
 
 export function coverage(statements: StoredStatement[]): { party: string; count: number; pct: number }[] {
   const live = statements.filter((statement) => statement.status === "published");

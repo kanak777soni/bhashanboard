@@ -7,9 +7,10 @@ const TRANSACTIONAL_TEMPLATE_ENV_NAMES = [
   "BREVO_VERIFY_TEMPLATE_ID",
   "BREVO_RESET_TEMPLATE_ID",
   "BREVO_WELCOME_TEMPLATE_ID",
+  "BREVO_SUBMISSION_TEMPLATE_ID",
 ] as const;
 
-type TemplateKind = "verify" | "reset" | "welcome";
+type TemplateKind = "verify" | "reset" | "welcome" | "submission";
 
 interface MessageInput {
   to: string;
@@ -66,6 +67,7 @@ export function transactionalMailConfigurationIssues(): string[] {
     BREVO_VERIFY_TEMPLATE_ID: process.env.BREVO_VERIFY_TEMPLATE_ID,
     BREVO_RESET_TEMPLATE_ID: process.env.BREVO_RESET_TEMPLATE_ID,
     BREVO_WELCOME_TEMPLATE_ID: process.env.BREVO_WELCOME_TEMPLATE_ID,
+    BREVO_SUBMISSION_TEMPLATE_ID: process.env.BREVO_SUBMISSION_TEMPLATE_ID,
   });
 }
 
@@ -78,6 +80,7 @@ function templateId(kind: TemplateKind): number | undefined {
     verify: "BREVO_VERIFY_TEMPLATE_ID",
     reset: "BREVO_RESET_TEMPLATE_ID",
     welcome: "BREVO_WELCOME_TEMPLATE_ID",
+    submission: "BREVO_SUBMISSION_TEMPLATE_ID",
   };
   return positiveInteger(names[kind]);
 }
@@ -264,6 +267,31 @@ export async function sendWelcomeMessage({
     text: `Your seat is ready\n\nHello ${name || "there"},\n\nYour email is verified. Watch the evidence, then enter one ruling for each statement.\n\n${siteUrl}`,
     template: "welcome",
     params: { name, siteUrl },
+  });
+}
+
+export async function sendSubmissionAcknowledgement({
+  email,
+  name,
+  reference,
+  siteUrl,
+}: {
+  email: string;
+  name: string;
+  reference: string;
+  siteUrl: string;
+}): Promise<void> {
+  const safeName = escapeHtml(name || "there");
+  const safeReference = escapeHtml(reference);
+  const safeSiteUrl = escapeHtml(siteUrl);
+  await sendTransactional({
+    to: email,
+    name,
+    subject: `Evidence received · ${reference}`,
+    html: `<!doctype html><html><body style="margin:0;background:#eef0e7;color:#101813;font-family:Georgia,serif"><div style="max-width:620px;margin:0 auto;padding:40px 24px"><p style="font:700 11px Arial,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#9d1f31">The Bhashan Board</p><h1 style="font-size:34px;font-weight:400">Your evidence is in the queue</h1><p>Hello ${safeName},</p><p style="line-height:1.65">Thank you for sending a lead. Its private reference is <strong>${safeReference}</strong>. The Committee will check the original wording, surrounding context, source and footage before deciding whether to create a draft.</p><p style="line-height:1.65">Nothing is published automatically, and an acknowledgement is not an endorsement of the claim.</p><p style="margin:30px 0"><a href="${safeSiteUrl}" style="display:inline-block;background:#9d1f31;color:#fff;padding:13px 20px;text-decoration:none;font:700 12px Arial,sans-serif;letter-spacing:.1em;text-transform:uppercase">Visit the Board</a></p></div></body></html>`,
+    text: `Your evidence is in the queue\n\nHello ${name || "there"},\n\nThank you for sending a lead. Its private reference is ${reference}. The Committee will check the wording, context, source and footage before deciding whether to create a draft.\n\nNothing is published automatically, and this acknowledgement is not an endorsement.\n\n${siteUrl}`,
+    template: "submission",
+    params: { name, reference, siteUrl },
   });
 }
 

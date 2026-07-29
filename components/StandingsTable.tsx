@@ -19,12 +19,6 @@ function Highlight({ text, term }: { text: string; term: string }) {
   );
 }
 
-function Movement({ delta }: { delta: number }) {
-  if (delta > 0) return <span className="mv up">&#9650;{delta}</span>;
-  if (delta < 0) return <span className="mv down">&#9660;{Math.abs(delta)}</span>;
-  return <span className="mv flat">&mdash;</span>;
-}
-
 export default async function StandingsTable({
   rows,
   term = "",
@@ -36,7 +30,6 @@ export default async function StandingsTable({
   hideNeta?: boolean;
 }) {
   const data = await getData();
-  const showMovement = rows.some(({ delta }) => delta !== 0);
 
   return (
     <div className="tablewrap">
@@ -44,7 +37,6 @@ export default async function StandingsTable({
         <thead>
           <tr>
             <th className="c-rank">#</th>
-            {showMovement && <th className="c-move">&plusmn;</th>}
             <th className="c-medal"><span className="lbl" style={{ position: "absolute", left: -9999 }}>Tier</span></th>
             <th>Entry</th>
             {!hideNeta && <th className="c-meta">Representative</th>}
@@ -54,24 +46,18 @@ export default async function StandingsTable({
         <tbody>
           {rows.length === 0 && (
             <tr>
-              <td
-                colSpan={4 + (hideNeta ? 0 : 1) + (showMovement ? 1 : 0)}
-                className="empty"
-              >
+              <td colSpan={hideNeta ? 4 : 5} className="empty">
                 No entries match this query. Rare, but it happens.
               </td>
             </tr>
           )}
 
-          {rows.map(({ statement: s, rank, delta }) => {
+          {rows.map(({ statement: s, rank }) => {
             const neta = data.netaBySlug(s.neta);
             const party = data.partyByCode(s.partyAtTime);
             return (
               <tr key={s.slug}>
                 <td className="c-rank">{rank}</td>
-                {showMovement && (
-                  <td className="c-move"><Movement delta={delta} /></td>
-                )}
                 <td className="c-medal"><Medal gp={s.gp} /></td>
                 <td>
                   <Link className="entry-quote" href={`/statement/${s.slug}`}>

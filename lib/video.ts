@@ -303,6 +303,18 @@ export function committeePublicationIssues(rawDocument: unknown): string[] {
   if (normalizeVerificationStage(verification?.stage) !== "committee_passed") {
     issues.push("The statement must be committee-passed.");
   }
+  const outstandingNeeds = Array.isArray(verification?.needs)
+    ? verification.needs.filter(nonBlank)
+    : [];
+  if (outstandingNeeds.length > 0) {
+    issues.push("All outstanding verification needs must be resolved.");
+  }
+  if (!nonBlank(document.date)) {
+    issues.push("A confirmed statement date is required.");
+  }
+  if (!nonBlank(document.venue)) {
+    issues.push("A confirmed statement venue is required.");
+  }
   if (!nonBlank(document.quote)) {
     issues.push("An original-language verbatim quote is required.");
   }

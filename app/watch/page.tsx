@@ -92,11 +92,11 @@ export default async function WatchPage({
         <section className={styles.emptyState}>
           <div>
             <span className="lbl">No publication-ready video</span>
-            <h1>The Committee has footage to find.</h1>
+            <h1>No verified screening is live yet.</h1>
             <p>
-              Text reports remain at the Research Desk, but Watch contains only
-              bounded, reviewed source clips. Nothing is repeated to make the
-              screening room appear fuller than it is.
+              Watch contains only reviewed, bounded source clips. Research
+              records remain available, but they cannot accept a ruling until
+              their footage and context pass verification.
             </p>
           </div>
           <div className={styles.emptyActions}>

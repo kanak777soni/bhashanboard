@@ -1,4 +1,5 @@
 import EntryForm from "@/components/admin/EntryForm";
+import { cloudinaryConfigurationIssues } from "@/lib/cloudinary-config";
 import { requireAdmin } from "@/lib/require-admin";
 import { getParties, getPoliticians } from "@/lib/store";
 import { createStatement } from "../../actions";
@@ -17,7 +18,12 @@ export default async function NewEntry() {
         neutral title unquoted rather than presenting a paraphrase as a quotation. Store a sourced remark in
         its original language and put the faithful English rendering in the separate translation field.
       </p>
-      <EntryForm people={people} parties={parties} action={createStatement} submitLabel="Create entry" />
+      <EntryForm
+        people={people}
+        parties={parties}
+        action={createStatement}
+        cloudinaryConfigurationIssues={cloudinaryConfigurationIssues()}
+      />
     </section>
   );
 }

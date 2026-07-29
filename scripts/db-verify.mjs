@@ -95,7 +95,9 @@ async function main() {
     cloudinaryUploadColumnRows,
     cloudinaryConsistencyRows,
     ownershipMismatchRows,
-    publicationSeedRows,
+    publicationIntegrityRows,
+    hallIntegrityRows,
+    ratingSeedMismatchRows,
   ] = await sql.transaction(
     (tx) => [
       tx.query(
@@ -143,13 +145,17 @@ async function main() {
       ),
       tx.query(
         `
-          SELECT relation.relname AS table_name, trigger.tgname AS trigger_name
+          SELECT
+            relation.relname AS table_name,
+            trigger.tgname AS trigger_name,
+            trigger.tgdeferrable,
+            trigger.tginitdeferred
           FROM pg_trigger AS trigger
           JOIN pg_class AS relation ON relation.oid = trigger.tgrelid
           JOIN pg_namespace AS namespace ON namespace.oid = relation.relnamespace
           WHERE namespace.nspname = 'bhashan'
             AND NOT tgisinternal
-            AND trigger.tgenabled <> 'D'
+            AND trigger.tgenabled IN ('O', 'A')
         `
       ),
       tx.query(`
@@ -162,6 +168,7 @@ async function main() {
           'statement_watch_sessions', 'statement_watch_receipts',
           'statement_votes', 'statement_vote_exclusions',
           'statement_rating_aggregates', 'cloudinary_video_upload_intents',
+          'public_submissions', 'public_submission_events',
           'r2_video_upload_intents',
           'r2_object_deletion_intents'
         ))
@@ -211,21 +218,17 @@ async function main() {
         WITH calculated AS (
           SELECT
             aggregate.*,
-            aggregate.prior_strength + aggregate.valid_vote_count AS denominator,
-            (
-              aggregate.prior_strength * aggregate.prior_performance
-              + aggregate.valid_vote_sum
-            )::numeric / nullif(
-              aggregate.prior_strength + aggregate.valid_vote_count,
-              0
-            ) AS expected_performance
+            CASE
+              WHEN aggregate.valid_vote_count = 0 THEN 50::numeric
+              ELSE aggregate.valid_vote_sum::numeric / aggregate.valid_vote_count
+            END AS expected_performance
           FROM bhashan.statement_rating_aggregates AS aggregate
         )
         SELECT statement_id
         FROM calculated
-        WHERE denominator <= 0
-          OR model_version <> 1
-          OR prior_strength <> 10
+        WHERE model_version <> 2
+          OR prior_strength <> 0
+          OR prior_performance <> 50
           OR valid_vote_sum <> (
             vote_25_count * 25
             + vote_50_count * 50
@@ -298,6 +301,7 @@ async function main() {
             'statement_watch_receipts_session_identity_fkey',
             'statement_votes_receipt_identity_fkey',
             'statement_rating_aggregate_weighted_sum_check',
+            'statement_rating_aggregate_v2_check',
             'statement_watch_sessions_video_platform_check',
             'cloudinary_video_upload_intents_attachment_unique'
           )
@@ -427,10 +431,64 @@ async function main() {
       `),
       tx.query(`
         SELECT id
-        FROM bhashan.statements
-        WHERE status = 'published'
-          AND document #>> '{verification,stage}' IN ('verified', 'committee_passed')
-          AND rating_seed_gp IS NULL
+        FROM bhashan.statements AS statement
+        WHERE statement.status = 'published'
+          AND (
+            cardinality(
+              bhashan.statement_publication_issues(statement.document)
+            ) > 0
+            OR NOT bhashan.statement_cloudinary_attachment_ready(
+              statement.id,
+              statement.document,
+              false
+            )
+          )
+        ORDER BY id
+      `),
+      tx.query(`
+        SELECT statement.id
+        FROM bhashan.statements AS statement
+        LEFT JOIN bhashan.statement_rating_aggregates AS aggregate
+          ON aggregate.statement_id = statement.id
+        WHERE coalesce(
+            (statement.document ->> 'hall_of_fame')::boolean,
+            false
+          )
+          AND (
+            statement.status <> 'published'
+            OR cardinality(
+              bhashan.statement_publication_issues(statement.document)
+            ) > 0
+            OR NOT bhashan.statement_cloudinary_attachment_ready(
+              statement.id,
+              statement.document,
+              false
+            )
+            OR coalesce(aggregate.valid_vote_count, 0) < 10
+          )
+        ORDER BY statement.id
+      `),
+      tx.query(`
+        SELECT statement.id
+        FROM bhashan.statements AS statement
+        WHERE statement.rating_seed_gp IS DISTINCT FROM CASE
+          WHEN EXISTS (
+            SELECT 1
+            FROM bhashan.statement_votes AS vote
+            WHERE vote.statement_id = statement.id
+          ) THEN 1500
+          WHEN cardinality(
+            bhashan.statement_publication_issues(statement.document)
+          ) = 0
+            AND bhashan.statement_cloudinary_attachment_ready(
+              statement.id,
+              statement.document,
+              false
+            )
+          THEN 1500
+          ELSE NULL
+        END
+        ORDER BY statement.id
       `),
     ],
     { readOnly: true, isolationLevel: "RepeatableRead" }
@@ -551,6 +609,8 @@ async function main() {
     "bhashan.statement_vote_exclusions",
     "bhashan.statement_rating_aggregates",
     "bhashan.cloudinary_video_upload_intents",
+    "bhashan.public_submissions",
+    "bhashan.public_submission_events",
   ]) {
     if (!extensionTableSet.has(table)) errors.push(`missing table ${table}`);
   }
@@ -634,6 +694,7 @@ async function main() {
     "statement_watch_receipts_session_identity_fkey",
     "statement_votes_receipt_identity_fkey",
     "statement_rating_aggregate_weighted_sum_check",
+    "statement_rating_aggregate_v2_check",
     "statement_watch_sessions_video_platform_check",
     "cloudinary_video_upload_intents_attachment_unique",
   ]);
@@ -816,11 +877,31 @@ async function main() {
   if (ownershipMismatches.length > 0) {
     errors.push(`receipt/vote ownership mismatch for ${conciseIds(ownershipMismatches)}`);
   }
-  const missingPublicationSeeds = rowsOf(publicationSeedRows).map((row) => String(row.id));
-  if (missingPublicationSeeds.length > 0) {
+  const invalidPublicationIds = rowsOf(publicationIntegrityRows).map((row) =>
+    String(row.id)
+  );
+  if (invalidPublicationIds.length > 0) {
     errors.push(
-      `committee-passed published statements lack frozen seeds: ${conciseIds(
-        missingPublicationSeeds
+      `published statements fail the publication bar: ${conciseIds(
+        invalidPublicationIds
+      )}`
+    );
+  }
+  const invalidHallIds = rowsOf(hallIntegrityRows).map((row) => String(row.id));
+  if (invalidHallIds.length > 0) {
+    errors.push(
+      `Hall of Fame statements fail the live maturity bar: ${conciseIds(
+        invalidHallIds
+      )}`
+    );
+  }
+  const invalidRatingSeedIds = rowsOf(ratingSeedMismatchRows).map((row) =>
+    String(row.id)
+  );
+  if (invalidRatingSeedIds.length > 0) {
+    errors.push(
+      `statement rating seed markers are not neutral model-v2 values: ${conciseIds(
+        invalidRatingSeedIds
       )}`
     );
   }
@@ -849,6 +930,13 @@ async function main() {
   for (const trigger of [
     "statements:prepare_statement_rating_seed",
     "statements:protect_statement_rating_inputs",
+    "statements:enforce_statement_publication_integrity",
+    "statements:enforce_statement_cloudinary_attachment",
+    "cloudinary_video_upload_intents:enforce_cloudinary_upload_statement_attachment",
+    "statement_rating_aggregates:enforce_statement_rating_aggregate_v2",
+    "statement_rating_aggregates:clear_immature_statement_hall_of_fame",
+    "public_submission_events:prevent_public_submission_event_mutation",
+    "public_submission_events:prevent_public_submission_event_truncate",
     "audit_events:prevent_audit_event_mutation",
     "audit_events:prevent_audit_event_truncate",
     "corpus_imports:prevent_history_mutation",
@@ -865,6 +953,34 @@ async function main() {
     "statement_vote_exclusions:prevent_vote_exclusion_truncate",
   ]) {
     if (!triggerSet.has(trigger)) errors.push(`missing trigger ${trigger}`);
+  }
+  for (const [tableName, triggerName] of [
+    ["statements", "enforce_statement_cloudinary_attachment"],
+    [
+      "cloudinary_video_upload_intents",
+      "enforce_cloudinary_upload_statement_attachment",
+    ],
+  ]) {
+    const deferredCloudinaryTrigger = rowsOf(triggerRows).find(
+      (row) =>
+        String(row.table_name) === tableName &&
+        String(row.trigger_name) === triggerName
+    );
+    if (
+      !deferredCloudinaryTrigger ||
+      !(
+        deferredCloudinaryTrigger.tgdeferrable === true ||
+        deferredCloudinaryTrigger.tgdeferrable === "true"
+      ) ||
+      !(
+        deferredCloudinaryTrigger.tginitdeferred === true ||
+        deferredCloudinaryTrigger.tginitdeferred === "true"
+      )
+    ) {
+      errors.push(
+        `${tableName}.${triggerName} must be deferrable and initially deferred`
+      );
+    }
   }
 
   if (snapshot.legacyAuditRows.length > 0) {

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { requireAdmin } from "@/lib/require-admin";
 import { statementReadiness } from "@/lib/readiness";
-import { computeLadder, getStatements, weightedScore } from "@/lib/store";
+import { getStatements } from "@/lib/store";
 
 export default async function AdminOverview() {
   await requireAdmin();
@@ -10,16 +10,18 @@ export default async function AdminOverview() {
     statement,
     readiness: statementReadiness(statement),
   }));
-  const liveStatements = inventory
-    .filter(({ readiness }) => readiness.key === "live")
-    .map(({ statement }) => statement);
-  const ladder = computeLadder(liveStatements);
-  const gpById = new Map(ladder.map((l) => [l.id, l]));
   const readinessCounts = inventory.reduce<Record<string, number>>((acc, item) => {
     acc[item.readiness.key] = (acc[item.readiness.key] ?? 0) + 1;
     return acc;
   }, {});
-  const researchStatements = statements.filter((statement) => statement.status !== "withdrawn");
+  const privateDrafts = statements.filter(
+    (statement) => statement.status === "private_draft"
+  );
+  const researchStatements = statements.filter(
+    (statement) =>
+      statement.status !== "withdrawn" &&
+      statement.status !== "private_draft"
+  );
   const researchPartyCounts = researchStatements.reduce<Map<string, number>>((counts, statement) => {
     counts.set(statement.party_at_time, (counts.get(statement.party_at_time) ?? 0) + 1);
     return counts;
@@ -44,10 +46,6 @@ export default async function AdminOverview() {
   ).length;
   const noVideo = researchStatements.filter((s) => !s.video?.id).length;
 
-  const top = ladder.slice(0, 10).map((l) => ({ ...l, s: statements.find((x) => x.id === l.id)! }));
-  const headParty = cov[0];
-  const headShare = top.filter((t) => t.s.party_at_time === headParty?.party).length;
-
   return (
     <>
       <section className="admin-cards">
@@ -62,6 +60,10 @@ export default async function AdminOverview() {
         <div className="admin-card">
           <span className="lbl">Ready</span>
           <b className="num">{readinessCounts.ready ?? 0}</b>
+        </div>
+        <div className="admin-card">
+          <span className="lbl">Private submissions</span>
+          <b className="num">{privateDrafts.length}</b>
         </div>
         <div className="admin-card">
           <span className="lbl">Production / needs video</span>
@@ -82,6 +84,14 @@ export default async function AdminOverview() {
         </p>
         <table className="ledger">
           <tbody>
+            <tr>
+              <td className="num">{privateDrafts.length}</td>
+              <td>
+                accepted reader submissions are <strong>private drafts</strong>
+                {" "}until you explicitly publish them
+              </td>
+              <td><Link href="/admin/entries?filter=private">Review privately</Link></td>
+            </tr>
             <tr>
               <td className="num">{readinessCounts.ready ?? 0}</td>
               <td>
@@ -132,8 +142,9 @@ export default async function AdminOverview() {
       <section className="admin-section">
         <h2>Coverage</h2>
         <p className="rail-note" style={{ marginBottom: 12 }}>
-          Party share of the indexed research record, excluding withdrawn files. This measures where
-          the research has looked; it is not a score or a live-ladder result.
+          Party share of the public research record, excluding private submissions and withdrawn
+          files. This measures where the research has looked; it is not a score or a live-ladder
+          result.
         </p>
         <table className="ledger">
           <thead>
@@ -157,56 +168,22 @@ export default async function AdminOverview() {
             ))}
           </tbody>
         </table>
-        {headParty && top.length > 0 && (
-          <p className="rail-note" style={{ marginTop: 12 }}>
-            <strong>{headParty.party}</strong> accounts for {headParty.pct}% of the indexed research
-            record and {headShare} of the first ten positions in the administrative seed order.
-          </p>
-        )}
       </section>
 
       <section className="admin-section">
-        <h2>Editorial seed order</h2>
-        <div className="tablewrap">
-          <table className="ledger">
-            <thead>
-              <tr>
-                <th style={{ width: 44 }}>Seed</th>
-                <th style={{ width: 64 }}>Seed GP</th>
-                <th style={{ width: 58 }}>Score</th>
-                <th>Entry</th>
-                <th style={{ width: 64 }}>Party</th>
-                <th style={{ width: 60 }}>Edit</th>
-              </tr>
-            </thead>
-            <tbody>
-              {top.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="empty">
-                    No statement has completed publication review yet.
-                  </td>
-                </tr>
-              )}
-              {top.map((t) => (
-                <tr key={t.id}>
-                  <td className="num">{t.rank}</td>
-                  <td className="num">{t.gp}</td>
-                  <td className="num">{weightedScore(t.s.axes).toFixed(2)}</td>
-                  <td>
-                    {t.s.neutral_title}
-                    {t.s.hall_of_fame && <span className="tag-new" style={{ marginLeft: 6 }}>HOF</span>}
-                  </td>
-                  <td>{t.s.party_at_time}</td>
-                  <td><Link href={`/admin/entries/${t.id}`}>Edit</Link></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <h2>How public ranking works</h2>
+        <div className="guard clear">
+          <span className="lbl">Equal-weight public rulings only</span>
+          <p>
+            Internal research axes do not create a rank, GP or starting advantage. Every valid
+            user ruling has equal strength, each verified account can rule once per statement,
+            and a live entry reaches Standings only after ten real rulings.
+          </p>
         </div>
-        <p className="rail-note" style={{ marginTop: 12 }}>
-          This is an administrative prior, not a public rank. A live statement displays no public
-          rank or class until ten valid rulings exist; {gpById.size} entries currently have a frozen
-          editorial starting position.
+        <p className="rail-note">
+          Use <Link href="/admin/entries">Entries</Link> to finish publication work. Once an entry
+          has ten rulings, its real public rank and GP are available in{" "}
+          <Link href="/admin/hall">Hall candidates</Link>.
         </p>
       </section>
     </>

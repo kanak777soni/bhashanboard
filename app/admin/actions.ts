@@ -16,11 +16,12 @@ import {
   type StatementStatus,
   type StoredStatement,
 } from "@/lib/store";
-import type { StatementVideo } from "@/lib/types";
 import {
   verifyCloudinaryAttachmentToken,
   verifyExistingCloudinaryVideo,
 } from "@/lib/cloudinary";
+import { parseMediaSourceUrl } from "@/lib/media-source";
+import { isSourceRole, type SourceRole, type StatementVideo } from "@/lib/types";
 import {
   assertVideoExcerpt,
   committeePublicationIssues,
@@ -35,10 +36,13 @@ const STATUSES: readonly StatementStatus[] = [
   "published",
   "held_parity",
   "held_review",
+  "private_draft",
   "withdrawn",
 ];
 const SOURCE_TIERS = ["A", "B", "C"] as const;
 type SourceTier = (typeof SOURCE_TIERS)[number];
+const STATEMENT_WORKFLOW_ACTIONS = ["save_draft", "publish"] as const;
+type StatementWorkflowAction = (typeof STATEMENT_WORKFLOW_ACTIONS)[number];
 
 function str(fd: FormData, key: string): string {
   return String(fd.get(key) ?? "").trim();
@@ -59,6 +63,16 @@ function statementStatus(fd: FormData, fallback?: StatementStatus): StatementSta
     throw new Error(`Invalid statement status "${String(value ?? "")}".`);
   }
   return value as StatementStatus;
+}
+
+function statementWorkflowAction(fd: FormData): StatementWorkflowAction {
+  const value = str(fd, "workflow_action");
+  if (
+    !STATEMENT_WORKFLOW_ACTIONS.includes(value as StatementWorkflowAction)
+  ) {
+    throw new Error("Choose Save draft or Publish video.");
+  }
+  return value as StatementWorkflowAction;
 }
 
 function formVersion(fd: FormData): number {
@@ -182,7 +196,13 @@ function sourceUrl(value: string, index: number): string {
 }
 
 function collectSources(fd: FormData) {
-  const sources: { tier: SourceTier; publisher: string; title: string; url: string }[] = [];
+  const sources: {
+    tier: SourceTier;
+    publisher: string;
+    title: string;
+    url: string;
+    role: SourceRole;
+  }[] = [];
   for (let index = 0; index < 4; index++) {
     const publisher = str(fd, `src_publisher_${index}`);
     const title = str(fd, `src_title_${index}`);
@@ -190,11 +210,18 @@ function collectSources(fd: FormData) {
     if (!publisher && !title && !url) continue;
     if (!publisher) throw new Error(`Source ${index + 1} requires a publisher.`);
     if (!url) throw new Error(`Source ${index + 1} requires a URL.`);
+    const roleValue = str(fd, `src_role_${index}`) || "reporting";
+    if (!isSourceRole(roleValue)) {
+      throw new Error(`Source ${index + 1} has an invalid evidence role.`);
+    }
+    const validatedUrl = sourceUrl(url, index);
+    const recognizedMedia = parseMediaSourceUrl(validatedUrl);
     sources.push({
       tier: sourceTier(str(fd, `src_tier_${index}`), `Source ${index + 1}`),
       publisher,
       title,
-      url: sourceUrl(url, index),
+      url: recognizedMedia?.canonicalUrl ?? validatedUrl,
+      role: roleValue,
     });
   }
   return sources;
@@ -211,10 +238,11 @@ function assertQuoteIntegrity({
   quoteTranslation?: string;
   quoteNote?: string;
 }) {
-  if (quote && language !== "English" && !quoteTranslation?.trim()) {
+  const isEnglish = language.trim().toLowerCase() === "english";
+  if (quote && !isEnglish && !quoteTranslation?.trim()) {
     throw new Error("A non-English verbatim quote requires a faithful English translation.");
   }
-  if (quoteTranslation?.trim() && (!quote || language === "English")) {
+  if (quoteTranslation?.trim() && (!quote || isEnglish)) {
     throw new Error("English translations are only valid alongside a non-English verbatim quote.");
   }
   if (!quote && !quoteNote?.trim()) {
@@ -239,7 +267,9 @@ function collectQuoteFields(fd: FormData) {
     language,
     quote: quote || null,
     quoteTranslation:
-      quote && language !== "English" ? suppliedTranslation || undefined : undefined,
+      quote && language.toLowerCase() !== "english"
+        ? suppliedTranslation || undefined
+        : undefined,
     quoteNote: quoteNote || undefined,
   };
 }
@@ -302,7 +332,7 @@ async function statementDocument(
     context: str(fd, "context") || undefined,
     counterpoint: str(fd, "counterpoint") || undefined,
     policy_note: fallback?.policy_note,
-    hall_of_fame: fallback ? fd.get("hall_of_fame") === "on" : false,
+    hall_of_fame: status === "published" ? !!fallback?.hall_of_fame : false,
     video,
     axes: collectAxes(fd),
     verification: collectVerification(fd, fallback?.verification, video),
@@ -314,6 +344,15 @@ async function statementDocument(
   if (document.status === "published" && publicationIssues.length > 0) {
     throw new Error(
       `This entry cannot go live: ${publicationIssues.join(" ")}`
+    );
+  }
+  if (
+    document.status === "published" &&
+    document.video?.platform === "youtube" &&
+    str(fd, "youtube_playback_attested") !== "true"
+  ) {
+    throw new Error(
+      "Play the YouTube publication preview and confirm its picture, audio and timestamps before publishing."
     );
   }
   if (document.verification.stage === "committee_passed") {
@@ -343,7 +382,9 @@ async function statementDocument(
 export async function createStatement(fd: FormData) {
   const actor = await requireAdmin();
   const quoteFields = collectQuoteFields(fd);
-  const status = statementStatus(fd, "held_review");
+  const workflowAction = statementWorkflowAction(fd);
+  const status: StatementStatus =
+    workflowAction === "publish" ? "published" : "held_review";
   const collected = await statementDocument(fd, quoteFields, status, actor.id);
   const entry = collected.document;
 
@@ -372,7 +413,13 @@ export async function updateStatement(fd: FormData) {
   }
 
   const quoteFields = collectQuoteFields(fd);
-  const status = statementStatus(fd, before.status);
+  const workflowAction = statementWorkflowAction(fd);
+  const status: StatementStatus =
+    workflowAction === "publish"
+      ? "published"
+      : before.status === "private_draft"
+        ? "private_draft"
+        : "held_review";
   const collected = await statementDocument(fd, quoteFields, status, actor.id, before);
   const entry = collected.document;
   const axes = entry.axes;
@@ -421,22 +468,9 @@ export async function setStatus(fd: FormData) {
   if (!before) throw new Error(`Statement ${id} no longer exists.`);
 
   if (status === "published") {
-    assertQuoteIntegrity({
-      language: before.language,
-      quote: before.quote,
-      quoteTranslation: before.quote_translation,
-      quoteNote: before.quote_note,
-    });
-    const issues = committeePublicationIssues({ ...before, status });
-    if (issues.length > 0) {
-      throw new Error(
-        `This entry is not ready to go live: ${issues.join(" ")}`
-      );
-    }
-    const storedVideo = normalizeStatementVideo(before.video);
-    if (storedVideo?.platform === "cloudinary") {
-      await verifyExistingCloudinaryVideo(storedVideo);
-    }
+    throw new Error(
+      "Open the entry and use Publish video after completing its live checklist and playback preview."
+    );
   }
   if (status === before.status) return;
 

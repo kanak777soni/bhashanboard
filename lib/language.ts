@@ -14,5 +14,11 @@ export const LANGUAGE_TAGS: Record<string, string> = {
 };
 
 export function languageTag(language: string): string {
-  return LANGUAGE_TAGS[language] ?? "und";
+  const normalizedLanguage = language.trim().toLocaleLowerCase("en");
+  const canonicalLanguage = Object.keys(LANGUAGE_TAGS).find(
+    (candidate) =>
+      candidate.toLocaleLowerCase("en") === normalizedLanguage
+  );
+
+  return canonicalLanguage ? LANGUAGE_TAGS[canonicalLanguage] : "und";
 }

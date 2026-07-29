@@ -1,36 +1,49 @@
 import { AXIS_LABELS, AXIS_WEIGHTS, type StoredPolitician, type StoredStatement } from "@/lib/store";
+import { SOURCE_ROLES, type SourceRole } from "@/lib/types";
 import {
+  committeePublicationIssues,
   MAX_VIDEO_EXCERPT_SECONDS,
   normalizeStatementVideo,
   normalizeVerificationStage,
 } from "@/lib/video";
 import CloudinaryVideoUploadField from "./CloudinaryVideoUploadField";
+import PublishGuard from "./PublishGuard";
 
 const CATEGORIES = ["Science & Reason", "History", "Economics", "Whataboutery", "Standing Ovation"];
-const LANGUAGES = ["Hindi", "English", "Bengali", "Tamil", "Telugu", "Marathi", "Kannada", "Malayalam", "Gujarati", "Punjabi", "Odia", "Assamese"];
+const LANGUAGES = ["Hindi", "English", "Urdu", "Bengali", "Tamil", "Telugu", "Marathi", "Kannada", "Malayalam", "Gujarati", "Punjabi", "Odia", "Assamese", "Nepali", "Konkani"];
+const SOURCE_ROLE_LABELS: Record<SourceRole, string> = {
+  footage: "Original footage",
+  reporting: "Reporting",
+  context: "Surrounding context",
+  fact_check: "Fact-check",
+};
 
 /**
- * The full editor. Every field the corpus carries is here, including the
- * axis scores that determine rank — editing those is how you move an entry
- * up or down the board, and each edit is written to the audit log.
+ * The full editor. Every evidence field the corpus carries is here. Internal
+ * axes remain editable for research continuity and audit history, but public
+ * ranking is derived only from equal-weight community rulings.
  */
 export default function EntryForm({
   entry,
   people,
   parties,
   action,
-  submitLabel,
+  cloudinaryConfigurationIssues,
 }: {
   entry?: StoredStatement;
   people: StoredPolitician[];
   parties: { id: string; name: string }[];
   action: (fd: FormData) => void;
-  submitLabel: string;
+  cloudinaryConfigurationIssues: string[];
 }) {
   const v = entry?.verification;
   const sources = v?.sources ?? [];
   const verificationStage = normalizeVerificationStage(v?.stage);
   const initialVideo = normalizeStatementVideo(entry?.video);
+  const entryIsLive = Boolean(
+    entry && committeePublicationIssues(entry).length === 0
+  );
+  const entryIsPrivate = entry?.status === "private_draft";
 
   return (
     <form action={action} className="admin-form">
@@ -40,6 +53,24 @@ export default function EntryForm({
           <input type="hidden" name="version" value={entry.version} />
         </>
       )}
+
+      <div className="admin-workflow">
+        <div>
+          <span className="lbl">Publication workflow</span>
+          <p>Draft &rarr; add video &rarr; verify evidence &rarr; preview &rarr; publish</p>
+        </div>
+        <span className={`stamp ${entryIsLive ? "green" : "foil"}`}>
+          {entryIsLive
+            ? "Currently live"
+            : entryIsPrivate
+              ? "Private submission draft · not public"
+            : entry?.status === "published"
+              ? "Stored as published · blocked from public"
+            : entry?.status === "withdrawn"
+              ? "Currently withdrawn"
+              : "Currently a research draft"}
+        </span>
+      </div>
 
       <fieldset>
         <legend>The statement</legend>
@@ -135,11 +166,22 @@ export default function EntryForm({
           </label>
           <label className="field">
             <span className="lbl">Language</span>
-            <select name="language" defaultValue={entry?.language ?? "Hindi"}>
+            <input
+              name="language"
+              list="statement-language-options"
+              defaultValue={entry?.language ?? "Hindi"}
+              placeholder="Hindi, Urdu, Tamil…"
+              required
+            />
+            <datalist id="statement-language-options">
               {LANGUAGES.map((l) => (
-                <option key={l}>{l}</option>
+                <option key={l} value={l} />
               ))}
-            </select>
+            </datalist>
+            <small className="field-help">
+              Enter the source language exactly; the list is only a suggestion
+              and will not replace another language.
+            </small>
           </label>
           <label className="field">
             <span className="lbl">Category</span>
@@ -154,30 +196,32 @@ export default function EntryForm({
       </fieldset>
 
       <fieldset>
-        <legend>The video</legend>
+        <legend>1. Add the video</legend>
         <p className="rail-note">
-          Prefer a source-platform embed when it is stable. For rights-cleared evidence, upload a
-          video directly to authenticated Cloudinary storage. Cloudinary accepts MP4, MOV or WebM
-          and produces one browser-ready H.264/AAC MP4. A trusted administrator must play that
-          processed clip through once before attaching it. Every excerpt may be at most{" "}
+          Upload a rights-cleared clip directly, or use a stable YouTube source with exact
+          timestamps. The public Watch page only receives a video after the final publication
+          checklist passes. Every voting excerpt may be at most{" "}
           {MAX_VIDEO_EXCERPT_SECONDS / 60} minutes.
         </p>
-        <CloudinaryVideoUploadField initialVideo={initialVideo} />
+        <CloudinaryVideoUploadField
+          initialVideo={initialVideo}
+          configurationIssues={cloudinaryConfigurationIssues}
+        />
       </fieldset>
 
       <fieldset>
-        <legend>Scoring — this is what sets the rank</legend>
+        <legend>Internal research notes — not public scoring</legend>
         <p className="rail-note">
-          Each axis is 0&ndash;5. The weighted total orders the whole board, and GP is then fitted to the
-          tier bands. <strong>Consequence is inverted</strong>: 5 means nothing happened or a promotion
-          followed; 0 means they resigned. Changes here are recorded in the audit log with the old and new
-          values.
+          These 0&ndash;5 axes preserve the committee&apos;s internal research notes and audit
+          history. <strong>They do not set public rank or GP.</strong> Public performance is the
+          equal-weight mean of valid one-person, one-vote rulings; an entry reaches Standings after
+          ten rulings.
         </p>
         <div className="axis-editor">
           {Object.keys(AXIS_WEIGHTS).map((k) => (
             <label className="field" key={k}>
               <span className="lbl">
-                {AXIS_LABELS[k]} &middot; weight {AXIS_WEIGHTS[k]}
+                {AXIS_LABELS[k]} &middot; internal weight {AXIS_WEIGHTS[k]}
               </span>
               <select name={k} defaultValue={entry?.axes?.[k] ?? 3}>
                 {[0, 1, 2, 3, 4, 5].map((n) => (
@@ -191,8 +235,16 @@ export default function EntryForm({
         </div>
       </fieldset>
 
-      <fieldset>
-        <legend>Sources and verification</legend>
+      <fieldset id="source-evidence">
+        <legend>2. Verify the evidence</legend>
+        <div className="social-evidence-note">
+          <span className="lbl">Facebook and Instagram links are welcome here</span>
+          <p>
+            Add a public Reel, post or video as <strong>Original footage</strong> evidence.
+            Social embeds do not provide dependable watch-progress proof, so the entry still
+            needs a bounded YouTube excerpt or rights-cleared Cloudinary upload before voting.
+          </p>
+        </div>
         <div className="admin-grid">
           <label className="field">
             <span className="lbl">Verification stage</span>
@@ -230,6 +282,19 @@ export default function EntryForm({
               </select>
             </label>
             <label className="field">
+              <span className="lbl">Role</span>
+              <select
+                name={`src_role_${i}`}
+                defaultValue={sources[i]?.role ?? "reporting"}
+              >
+                {SOURCE_ROLES.map((role) => (
+                  <option key={role} value={role}>
+                    {SOURCE_ROLE_LABELS[role]}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="field">
               <span className="lbl">Publisher</span>
               <input name={`src_publisher_${i}`} defaultValue={sources[i]?.publisher ?? ""} />
             </label>
@@ -246,42 +311,52 @@ export default function EntryForm({
 
         <label className="field">
           <span className="lbl">Outstanding needs — one per line</span>
+          <small className="field-help">
+            Every line here blocks publication. Delete an item only after the work is complete.
+          </small>
           <textarea name="needs" defaultValue={(v?.needs ?? []).join("\n")} />
         </label>
       </fieldset>
 
       <fieldset>
-        <legend>Placement</legend>
-        <div className="admin-grid">
-          <label className="field">
-            <span className="lbl">Status</span>
-            <select name="status" defaultValue={entry?.status ?? "held_review"}>
-              <option value="published">
-                Live — only valid after every publication check passes
-              </option>
-              <option value="held_review">
-                Research file — indexed and awaiting review
-              </option>
-              <option value="held_parity">
-                Legacy parity hold — do not use for new work
-              </option>
-              <option value="withdrawn">
-                Withdrawn — retained in the audit record
-              </option>
-            </select>
-          </label>
-          {entry && (
-            <label className="field checkbox">
-              <input type="checkbox" name="hall_of_fame" defaultChecked={entry.hall_of_fame} />
-              <span>Induct into the Hall of Fame</span>
-            </label>
-          )}
-        </div>
+        <legend>3. Preview and publish</legend>
+        <p className="rail-note">
+          {entryIsPrivate
+            ? "This accepted submission stays private until Publish passes every server check. When publication succeeds, its research record and video become public together."
+            : "Saving keeps this as a non-votable research file. Publishing is a separate server-checked action; when it succeeds, the video appears in Watch immediately without a Git push or Vercel deployment."}
+        </p>
+        <PublishGuard />
       </fieldset>
 
       <div className="admin-submit">
-        <button className="btn seal" type="submit">
-          {submitLabel}
+        <div>
+          <button
+            className="btn ghost"
+            type="submit"
+            name="workflow_action"
+            value="save_draft"
+          >
+            {entryIsLive
+              ? "Save as draft (take offline)"
+              : entryIsPrivate
+                ? "Save private draft"
+                : "Save draft"}
+          </button>
+          <span className="admin-submit-note">
+            {entryIsPrivate
+              ? "Private submission drafts are excluded from every public page."
+              : "Research drafts stay in the Record and cannot receive votes."}
+          </span>
+        </div>
+        <button
+          className="btn seal"
+          type="submit"
+          name="workflow_action"
+          value="publish"
+          data-publish-submit
+          disabled
+        >
+          {entryIsLive ? "Update live video" : "Publish video"}
         </button>
       </div>
     </form>

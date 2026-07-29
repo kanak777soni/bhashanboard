@@ -1,5 +1,6 @@
 import Link from "next/link";
 import SiteFrame from "@/components/SiteFrame";
+import HowItWorks from "@/components/public/HowItWorks";
 import ResearchEntryCard from "@/components/public/ResearchEntryCard";
 import VideoEntryCard from "@/components/public/VideoEntryCard";
 import styles from "@/components/public/PublicInventory.module.css";
@@ -36,12 +37,15 @@ export default async function FrontPage() {
   return (
     <SiteFrame>
       <section className={styles.frontIntro}>
-        <h1>Watch what was said. Then place it.</h1>
+        <h1>The clip is the evidence. The public score comes next.</h1>
         <p>
-          The source clip comes first. Context and evidence remain attached to
-          every filing; public standing begins only after ten valid rulings.
+          A video-first archive of remarkable public statements. We verify the
+          footage and context; members watch before rating the statement—not
+          the person.
         </p>
       </section>
+
+      <HowItWorks />
 
       {inventory.frontPageBand === "empty" ? (
         <section className={styles.emptyState} aria-labelledby="first-screening">

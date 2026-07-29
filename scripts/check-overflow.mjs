@@ -12,9 +12,25 @@
  * Exits non-zero if any route overflows.
  */
 import { chromium } from "playwright-core";
+import { existsSync } from "node:fs";
 
 const BASE = process.env.BASE ?? "http://localhost:3000";
-const EXECUTABLE = process.env.CHROME ?? "/opt/pw-browsers/chromium-1194/chrome-linux/chrome";
+const EXECUTABLE_CANDIDATES =
+  process.platform === "win32"
+    ? [
+        "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+        "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+      ]
+    : process.platform === "darwin"
+      ? [
+          "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+          "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
+        ]
+      : ["/opt/pw-browsers/chromium-1194/chrome-linux/chrome"];
+const EXECUTABLE =
+  process.env.CHROME ??
+  EXECUTABLE_CANDIDATES.find((candidate) => existsSync(candidate)) ??
+  chromium.executablePath();
 const DEFAULT_WIDTHS = [320, 360, 390, 430, 640, 768, 1400];
 const WIDTHS = process.env.WIDTHS
   ? process.env.WIDTHS.split(",").map((value) => Number.parseInt(value.trim(), 10))

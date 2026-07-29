@@ -88,8 +88,6 @@ export interface VoteEligibleStatement {
 export interface PersistedVoteEligibleStatement extends VoteEligibleStatement {
   /** Optimistic snapshot bound to the complete publication-policy check. */
   recordVersion: number;
-  /** Editorial Bayesian prior frozen when this version became vote-eligible. */
-  seedGp: number;
 }
 
 export interface WatchSessionView {
@@ -116,7 +114,6 @@ interface DocumentRow {
   id: unknown;
   document: unknown;
   version: unknown;
-  rating_seed_gp: unknown;
 }
 
 interface WatchSessionRow {
@@ -318,7 +315,7 @@ export async function getVoteEligibleStatement(
     );
   }
   const rows = await db()`
-    SELECT id, document, version, rating_seed_gp
+    SELECT id, document, version
     FROM bhashan.statements
     WHERE id = ${statementId}
     LIMIT 1
@@ -326,14 +323,6 @@ export async function getVoteEligibleStatement(
   const row = (rows as unknown as DocumentRow[])[0];
   if (!row) {
     throw new WatchStoreError("STATEMENT_NOT_FOUND", "Statement not found.", 404);
-  }
-  const seedGp = requiredInteger(row.rating_seed_gp, "statement rating seed");
-  if (seedGp < 1000 || seedGp > 2000) {
-    throw new WatchStoreError(
-      "STATEMENT_NOT_ELIGIBLE",
-      "Voting is locked until the editorial rating seed is frozen.",
-      409
-    );
   }
   const eligible = parseVoteEligibleStatement(String(row.id), row.document);
   if (eligible.video.platform === "cloudinary") {
@@ -362,7 +351,6 @@ export async function getVoteEligibleStatement(
   return {
     ...eligible,
     recordVersion: requiredInteger(row.version, "statement version"),
-    seedGp,
   };
 }
 

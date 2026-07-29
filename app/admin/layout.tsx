@@ -14,6 +14,7 @@ export const dynamic = "force-dynamic";
 const LINKS = [
   { href: "/admin", label: "Overview" },
   { href: "/admin/entries", label: "Entries" },
+  { href: "/admin/submissions", label: "Submissions" },
   { href: "/admin/entries/new", label: "Add entry" },
   { href: "/admin/hall", label: "Hall of Fame" },
   { href: "/admin/people", label: "Representatives" },

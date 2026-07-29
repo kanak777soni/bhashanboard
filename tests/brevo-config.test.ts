@@ -37,4 +37,12 @@ test("Brevo templates are optional but positive when present", () => {
     }),
     ["BREVO_RESET_TEMPLATE_ID"]
   );
+  assert.deepEqual(
+    mailConfigurationIssues({
+      BREVO_API_KEY: "xkeysib-realistic-secret-material",
+      BREVO_SENDER_EMAIL: "mail@example.com",
+      BREVO_SUBMISSION_TEMPLATE_ID: "-4",
+    }),
+    ["BREVO_SUBMISSION_TEMPLATE_ID"]
+  );
 });

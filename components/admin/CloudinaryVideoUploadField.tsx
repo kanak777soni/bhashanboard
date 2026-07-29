@@ -1,11 +1,14 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { CloudinaryStatementVideo, StatementVideo } from "@/lib/types";
 import {
+  assertVideoExcerpt,
   MAX_HOSTED_VIDEO_BYTES,
   MAX_VIDEO_EXCERPT_SECONDS,
   MIN_VIDEO_EXCERPT_SECONDS,
+  parseVideoTimestamp,
+  parseYouTubeVideo,
 } from "@/lib/video";
 
 type VideoMode = "none" | "youtube" | "cloudinary";
@@ -157,14 +160,30 @@ function uploadWithProgress(
 
 export default function CloudinaryVideoUploadField({
   initialVideo,
+  configurationIssues,
 }: {
   initialVideo?: StatementVideo;
+  configurationIssues: string[];
 }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const [mode, setMode] = useState<VideoMode>(initialVideo?.platform ?? "youtube");
+  const uploadsConfigured = configurationIssues.length === 0;
+  const [mode, setMode] = useState<VideoMode>(
+    initialVideo?.platform ?? (uploadsConfigured ? "cloudinary" : "youtube")
+  );
   const [asset, setAsset] = useState<CloudinaryStatementVideo | null>(
     initialVideo?.platform === "cloudinary" ? initialVideo : null
   );
+  const [youtubeInput, setYoutubeInput] = useState(
+    initialVideo?.platform === "youtube" ? initialVideo.id : ""
+  );
+  const [youtubeStart, setYoutubeStart] = useState(
+    initialVideo?.platform === "youtube" ? String(initialVideo.start) : ""
+  );
+  const [youtubeEnd, setYoutubeEnd] = useState(
+    initialVideo?.platform === "youtube" ? String(initialVideo.end) : ""
+  );
+  const [youtubePreviewLoaded, setYoutubePreviewLoaded] = useState(false);
+  const [youtubePlaybackAttested, setYoutubePlaybackAttested] = useState(false);
   const [attachmentToken, setAttachmentToken] = useState("");
   const [playbackUrl, setPlaybackUrl] = useState("");
   const [previewReachedEnd, setPreviewReachedEnd] = useState(false);
@@ -177,6 +196,48 @@ export default function CloudinaryVideoUploadField({
   const [error, setError] = useState<string | null>(null);
   const [rightsAttested, setRightsAttested] = useState(false);
   const busy = uploading || completing;
+  const cloudinaryReady = Boolean(
+    uploadsConfigured &&
+      asset &&
+      !pendingCompletion?.uploadCompleted &&
+      (!attachmentToken || playbackAttested)
+  );
+
+  const youtubePreview = useMemo(() => {
+    if (!youtubeInput.trim() && !youtubeStart.trim() && !youtubeEnd.trim()) {
+      return { src: "", issue: "" };
+    }
+    const parsed = parseYouTubeVideo(youtubeInput);
+    const start = parseVideoTimestamp(youtubeStart);
+    const end = parseVideoTimestamp(youtubeEnd);
+    if (!parsed) {
+      return { src: "", issue: "Enter a valid YouTube URL or video ID." };
+    }
+    if (start === undefined || end === undefined) {
+      return { src: "", issue: "Enter a valid start and end timestamp." };
+    }
+    try {
+      assertVideoExcerpt({ ...parsed, start, end });
+    } catch (previewError) {
+      return {
+        src: "",
+        issue:
+          previewError instanceof Error
+            ? previewError.message
+            : "The YouTube excerpt is invalid.",
+      };
+    }
+    const query = new URLSearchParams({
+      start: String(start),
+      end: String(end),
+      rel: "0",
+      modestbranding: "1",
+    });
+    return {
+      src: `https://www.youtube-nocookie.com/embed/${encodeURIComponent(parsed.id)}?${query}`,
+      issue: "",
+    };
+  }, [youtubeEnd, youtubeInput, youtubeStart]);
 
   useEffect(() => {
     try {
@@ -189,6 +250,24 @@ export default function CloudinaryVideoUploadField({
       // Recovery is optional when browser storage is disabled.
     }
   }, []);
+
+  useEffect(() => {
+    setYoutubePreviewLoaded(false);
+    setYoutubePlaybackAttested(false);
+  }, [youtubePreview.src]);
+
+  useEffect(() => {
+    const form = containerRef.current?.closest("form");
+    form?.dispatchEvent(new Event("admin-video-change"));
+  }, [
+    asset,
+    cloudinaryReady,
+    mode,
+    youtubeEnd,
+    youtubeInput,
+    youtubePlaybackAttested,
+    youtubeStart,
+  ]);
 
   useEffect(() => {
     const needsCompletion =
@@ -391,63 +470,192 @@ export default function CloudinaryVideoUploadField({
 
   return (
     <div className="admin-video-field" ref={containerRef} aria-busy={busy}>
-      <label className="field">
-        <span className="lbl">Video source</span>
-        <select
-          name="video_platform"
-          value={mode}
-          disabled={busy}
-          onChange={(event) => {
-            setMode(event.target.value as VideoMode);
-            setError(null);
-          }}
+      <div className="media-source-cards" role="radiogroup" aria-label="Video source">
+        <label className={`media-source-card${mode === "cloudinary" ? " selected" : ""}`}>
+          <input
+            type="radio"
+            name="video_platform"
+            value="cloudinary"
+            checked={mode === "cloudinary"}
+            disabled={busy}
+            onChange={() => {
+              setMode("cloudinary");
+              setError(null);
+            }}
+          />
+          <span className="media-source-number">01</span>
+          <strong>Upload video file</strong>
+          <small>Recommended · MP4, MOV or WebM · up to 50 MiB</small>
+          <span className={`media-source-status ${uploadsConfigured ? "ready" : "blocked"}`}>
+            {uploadsConfigured ? "Cloudinary configured" : "Setup required"}
+          </span>
+        </label>
+
+        <label className={`media-source-card${mode === "youtube" ? " selected" : ""}`}>
+          <input
+            type="radio"
+            name="video_platform"
+            value="youtube"
+            checked={mode === "youtube"}
+            disabled={busy}
+            onChange={() => {
+              setMode("youtube");
+              setError(null);
+            }}
+          />
+          <span className="media-source-number">02</span>
+          <strong>Paste YouTube link</strong>
+          <small>Watch, Shorts, Live, embed and youtu.be links</small>
+          <span className="media-source-status ready">No upload required</span>
+        </label>
+
+        <div className="media-source-card media-source-card-evidence">
+          <span className="media-source-number">03</span>
+          <strong>Facebook / Instagram link</strong>
+          <small>
+            Accepted as source evidence, but not as the verified voting player
+          </small>
+          <a className="media-source-status" href="#source-evidence">
+            Add under Sources &darr;
+          </a>
+        </div>
+
+        <label
+          className={`media-source-card media-source-card-quiet${mode === "none" ? " selected" : ""}`}
         >
-          <option value="youtube">YouTube excerpt</option>
-          <option value="cloudinary">Upload a video to Cloudinary</option>
-          <option value="none">No video</option>
-        </select>
-      </label>
+          <input
+            type="radio"
+            name="video_platform"
+            value="none"
+            checked={mode === "none"}
+            disabled={busy}
+            onChange={() => {
+              setMode("none");
+              setError(null);
+            }}
+          />
+          <span className="media-source-number">04</span>
+          <strong>Save without video</strong>
+          <small>Research draft only; it cannot be published or voted on</small>
+        </label>
+      </div>
 
       {mode === "youtube" && (
-        <div className="admin-grid">
-          <label className="field" style={{ gridColumn: "1 / -1" }}>
-            <span className="lbl">YouTube URL or ID</span>
-            <input
-              name="video"
-              defaultValue={initialVideo?.platform === "youtube" ? initialVideo.id : ""}
-              placeholder="https://youtu.be/… or the bare id"
-            />
-          </label>
-          <label className="field">
-            <span className="lbl">Start</span>
-            <input
-              name="video_start"
-              inputMode="numeric"
-              defaultValue={initialVideo?.platform === "youtube" ? initialVideo.start : ""}
-              placeholder="00:41 or 41"
-            />
-          </label>
-          <label className="field">
-            <span className="lbl">End</span>
-            <input
-              name="video_end"
-              inputMode="numeric"
-              defaultValue={initialVideo?.platform === "youtube" ? initialVideo.end : ""}
-              placeholder="01:03 or 63"
-            />
-          </label>
+        <div className="youtube-admin-panel">
+          <div className="admin-grid">
+            <label className="field" style={{ gridColumn: "1 / -1" }}>
+              <span className="lbl">YouTube URL or ID</span>
+              <input
+                name="video"
+                value={youtubeInput}
+                onChange={(event) => setYoutubeInput(event.target.value)}
+                placeholder="https://youtu.be/... or the bare ID"
+              />
+            </label>
+            <label className="field">
+              <span className="lbl">Start</span>
+              <input
+                name="video_start"
+                inputMode="numeric"
+                value={youtubeStart}
+                onChange={(event) => setYoutubeStart(event.target.value)}
+                placeholder="00:41 or 41"
+              />
+            </label>
+            <label className="field">
+              <span className="lbl">End</span>
+              <input
+                name="video_end"
+                inputMode="numeric"
+                value={youtubeEnd}
+                onChange={(event) => setYoutubeEnd(event.target.value)}
+                placeholder="01:03 or 63"
+              />
+            </label>
+          </div>
+
+          <input
+            type="hidden"
+            name="youtube_playback_attested"
+            value={youtubePlaybackAttested ? "true" : "false"}
+          />
+          {youtubePreview.src ? (
+            <div className="youtube-admin-preview">
+              <div className="youtube-admin-preview-head">
+                <span className="lbl">Publication preview</span>
+                <span className="stamp foil">
+                  {youtubePlaybackAttested ? "Playback approved" : "Approval required"}
+                </span>
+              </div>
+              <div className="youtube-admin-frame">
+                <iframe
+                  key={youtubePreview.src}
+                  src={youtubePreview.src}
+                  title="YouTube excerpt publication preview"
+                  allow="accelerometer; autoplay; encrypted-media; picture-in-picture"
+                  allowFullScreen
+                  onLoad={() => setYoutubePreviewLoaded(true)}
+                />
+              </div>
+              <label className="field youtube-admin-attestation">
+                <span>
+                  <input
+                    type="checkbox"
+                    checked={youtubePlaybackAttested}
+                    disabled={!youtubePreviewLoaded}
+                    onChange={(event) => {
+                      setYoutubePlaybackAttested(event.target.checked);
+                      setError(null);
+                    }}
+                  />{" "}
+                  I played this excerpt and confirm that the picture, audio, start and end
+                  timestamps are correct.
+                </span>
+              </label>
+              {!youtubePreviewLoaded && (
+                <p className="rail-note">Loading the privacy-enhanced YouTube preview...</p>
+              )}
+            </div>
+          ) : (
+            <p className="ruling-alert" role="status">
+              {youtubePreview.issue ||
+                "Paste a YouTube link and enter start and end timestamps to preview it."}
+            </p>
+          )}
         </div>
       )}
 
       {mode === "cloudinary" && (
         <div className="hosted-video-upload-panel">
           <input type="hidden" name="video" value={asset?.id ?? ""} />
+          <input
+            type="hidden"
+            name="video_admin_ready"
+            value={cloudinaryReady ? "true" : "false"}
+          />
           <input type="hidden" name="video_attachment_token" value={attachmentToken} />
           <input
             type="hidden"
             name="video_playback_attested"
             value={attachmentToken && playbackAttested ? "true" : "false"}
           />
+          <div
+            className={`cloudinary-config-status ${
+              uploadsConfigured ? "configured" : "missing"
+            }`}
+            role="status"
+          >
+            <span className="lbl">
+              {uploadsConfigured ? "Cloudinary ready" : "Cloudinary setup incomplete"}
+            </span>
+            <p>
+              {uploadsConfigured
+                ? "The server-side keys are present. The dedicated signed preset is checked securely when an upload starts."
+                : `Direct upload is unavailable on this deployment. Add ${configurationIssues.join(
+                    ", "
+                  )} in Vercel Environment Variables, then redeploy. No key value is exposed here.`}
+            </p>
+          </div>
           {asset ? (
             <div className="hosted-video-uploaded">
               <span className="stamp green">
@@ -460,6 +668,24 @@ export default function CloudinaryVideoUploadField({
                 &middot; {formatBytes(asset.derivedBytes)}
               </p>
               <code>{asset.id}</code>
+              <div className="hosted-video-asset-actions">
+                <button
+                  className="linkbtn danger"
+                  type="button"
+                  disabled={busy}
+                  onClick={() => {
+                    setAsset(null);
+                    setAttachmentToken("");
+                    setPlaybackUrl("");
+                    setPreviewReachedEnd(false);
+                    setPlaybackAttested(false);
+                    setMode("none");
+                    setError(null);
+                  }}
+                >
+                  Remove video
+                </button>
+              </div>
               {playbackUrl && (
                 <div className="hosted-video-playback-approval">
                   <video
@@ -526,14 +752,41 @@ export default function CloudinaryVideoUploadField({
               publisher/source provenance is recorded in this entry.
             </span>
           </label>
-          <label className="field hosted-video-file-picker">
+          <label
+            className={`field hosted-video-file-picker ${
+              rightsAttested && uploadsConfigured ? "enabled" : ""
+            }`}
+            onDragOver={(event) => {
+              event.preventDefault();
+            }}
+            onDrop={(event) => {
+              event.preventDefault();
+              if (busy) return;
+              if (!uploadsConfigured) {
+                setError("Configure Cloudinary on this deployment before uploading.");
+                return;
+              }
+              if (!rightsAttested) {
+                setError("Confirm the rights and provenance attestation before uploading.");
+                return;
+              }
+              const file = event.dataTransfer.files?.[0];
+              if (file) void upload(file);
+            }}
+          >
             <span className="lbl">
               {asset ? "Replace with another video" : "Choose a video"}
             </span>
+            <strong>
+              {rightsAttested
+                ? "Select or drop a video file"
+                : "Confirm rights above, then select the file"}
+            </strong>
+            <small>MP4, MOV or WebM · 3 seconds to 3 minutes · maximum 50 MiB</small>
             <input
               type="file"
               accept="video/mp4,video/quicktime,video/webm,.mp4,.mov,.webm"
-              disabled={busy || !rightsAttested}
+              disabled={busy || !rightsAttested || !uploadsConfigured}
               onChange={(event) => {
                 const file = event.target.files?.[0];
                 event.currentTarget.value = "";

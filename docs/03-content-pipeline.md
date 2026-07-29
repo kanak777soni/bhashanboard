@@ -1,6 +1,6 @@
 # 03 — Content Pipeline
 
-> **Current scoring note (July 2026).** References in this design document to pairwise duels, Elo, weighted memberships, or internal placement votes are historical. The implemented authority is `/rules`: one equal-strength, immutable ruling per verified account and statement, after qualifying playback, with a published Bayesian seed prior. Aamne-Saamne is a non-scoring exhibition.
+> **Current scoring note (July 2026).** References in this design document to pairwise duels, Elo, weighted memberships, seed placements, or internal placement votes are historical. The implemented authority is `/rules`: after qualifying playback, each verified account may enter one immutable ruling per statement; every ruling has equal weight and performance is their arithmetic mean. There is no editorial prior. Aamne-Saamne is a non-scoring exhibition.
 
 Your plan says *"whenever any politician gives a new foolish speech we rank that speech."* That sentence hides the hardest unsolved problem in the whole idea: **how does a statement get from a rally stage in Gorakhpur into your database within 24 hours, with a source, a transcript, and a translation?**
 

@@ -7,7 +7,7 @@
   "statements": [
     {
       "id": "IN-0001",
-      "status": "published",
+      "status": "held_review",
       "speaker_id": "narendra-modi",
       "party_at_time": "BJP",
       "office_at_time": "Prime Minister of India",
@@ -68,7 +68,7 @@
     },
     {
       "id": "IN-0002",
-      "status": "published",
+      "status": "held_review",
       "speaker_id": "narendra-modi",
       "party_at_time": "BJP",
       "office_at_time": "Prime Minister of India",
@@ -129,7 +129,7 @@
     },
     {
       "id": "IN-0003",
-      "status": "published",
+      "status": "held_review",
       "speaker_id": "satyapal-singh",
       "party_at_time": "BJP",
       "office_at_time": "Union Minister of State for Human Resource Development",
@@ -189,7 +189,7 @@
     },
     {
       "id": "IN-0004",
-      "status": "published",
+      "status": "held_review",
       "speaker_id": "harsh-vardhan",
       "party_at_time": "BJP",
       "office_at_time": "Union Minister for Science and Technology",
@@ -243,7 +243,7 @@
     },
     {
       "id": "IN-0005",
-      "status": "published",
+      "status": "held_review",
       "speaker_id": "biplab-kumar-deb",
       "party_at_time": "BJP",
       "office_at_time": "Chief Minister of Tripura",
@@ -297,7 +297,7 @@
     },
     {
       "id": "IN-0006",
-      "status": "published",
+      "status": "held_review",
       "speaker_id": "vasudev-devnani",
       "party_at_time": "BJP",
       "office_at_time": "Education Minister, Rajasthan",
@@ -359,7 +359,7 @@
     },
     {
       "id": "IN-0007",
-      "status": "published",
+      "status": "held_review",
       "speaker_id": "piyush-goyal",
       "party_at_time": "BJP",
       "office_at_time": "Union Minister of Commerce and Industry",
@@ -412,7 +412,7 @@
     },
     {
       "id": "IN-0008",
-      "status": "published",
+      "status": "held_review",
       "speaker_id": "nirmala-sitharaman",
       "party_at_time": "BJP",
       "office_at_time": "Union Finance Minister",
@@ -466,7 +466,7 @@
     },
     {
       "id": "IN-0009",
-      "status": "published",
+      "status": "held_review",
       "speaker_id": "rahul-gandhi",
       "party_at_time": "INC",
       "office_at_time": "Vice-President, Indian National Congress",
@@ -587,7 +587,7 @@
     },
     {
       "id": "IN-0011",
-      "status": "published",
+      "status": "held_review",
       "speaker_id": "beni-prasad-verma",
       "party_at_time": "INC",
       "office_at_time": "Union Minister of Steel",
@@ -635,7 +635,7 @@
     },
     {
       "id": "IN-0012",
-      "status": "published",
+      "status": "held_review",
       "speaker_id": "mb-patil",
       "party_at_time": "INC",
       "office_at_time": "Water Resources Minister, Karnataka",
@@ -690,7 +690,7 @@
     },
     {
       "id": "IN-0013",
-      "status": "published",
+      "status": "held_review",
       "speaker_id": "shivanand-patil",
       "party_at_time": "INC",
       "office_at_time": "Minister for Textiles and Sugar, Karnataka",
@@ -743,7 +743,7 @@
     },
     {
       "id": "IN-0014",
-      "status": "published",
+      "status": "held_review",
       "speaker_id": "kr-ramesh-kumar",
       "party_at_time": "INC",
       "office_at_time": "Former Speaker, Karnataka Legislative Assembly",
@@ -785,7 +785,7 @@
     },
     {
       "id": "IN-0015",
-      "status": "published",
+      "status": "held_review",
       "speaker_id": "digvijaya-singh",
       "party_at_time": "INC",
       "office_at_time": "Member of Parliament, Rajya Sabha",
@@ -887,7 +887,7 @@
     },
     {
       "id": "IN-0017",
-      "status": "published",
+      "status": "held_review",
       "speaker_id": "akhilesh-yadav",
       "party_at_time": "SP",
       "office_at_time": "President, Samajwadi Party; former Chief Minister of Uttar Pradesh",
@@ -947,7 +947,7 @@
     },
     {
       "id": "IN-0018",
-      "status": "published",
+      "status": "held_review",
       "speaker_id": "akhilesh-yadav",
       "party_at_time": "SP",
       "office_at_time": "President, Samajwadi Party",
@@ -990,7 +990,7 @@
     },
     {
       "id": "IN-0019",
-      "status": "published",
+      "status": "held_review",
       "speaker_id": "ajit-pawar",
       "party_at_time": "NCP",
       "office_at_time": "Deputy Chief Minister of Maharashtra",
@@ -1050,7 +1050,7 @@
     },
     {
       "id": "IN-0020",
-      "status": "published",
+      "status": "held_review",
       "speaker_id": "k-chandrashekar-rao",
       "party_at_time": "BRS",
       "office_at_time": "Chief Minister of Telangana",
@@ -1157,7 +1157,7 @@
     },
     {
       "id": "IN-0022",
-      "status": "published",
+      "status": "held_review",
       "speaker_id": "k-chandrashekar-rao",
       "party_at_time": "BRS",
       "office_at_time": "Chief Minister of Telangana",
@@ -1198,7 +1198,7 @@
     },
     {
       "id": "IN-0023",
-      "status": "published",
+      "status": "held_review",
       "speaker_id": "arvind-kejriwal",
       "party_at_time": "AAP",
       "office_at_time": "Chief Minister of Delhi",
@@ -1251,7 +1251,7 @@
     },
     {
       "id": "IN-0024",
-      "status": "published",
+      "status": "held_review",
       "speaker_id": "saji-cheriyan",
       "party_at_time": "CPIM",
       "office_at_time": "Minister for Fisheries and Culture, Kerala",
@@ -1348,7 +1348,7 @@
     },
     {
       "id": "IN-0026",
-      "status": "published",
+      "status": "held_review",
       "speaker_id": "sobhandeb-chattopadhyay",
       "party_at_time": "TMC",
       "office_at_time": "Minister, Government of West Bengal",
@@ -1390,7 +1390,7 @@
     },
     {
       "id": "IN-0027",
-      "status": "published",
+      "status": "held_review",
       "speaker_id": "n-chandrababu-naidu",
       "party_at_time": "TDP",
       "office_at_time": "Leader of the Opposition, Andhra Pradesh",
@@ -1431,7 +1431,7 @@
     },
     {
       "id": "IN-0028",
-      "status": "published",
+      "status": "held_review",
       "speaker_id": "sanjay-raut",
       "party_at_time": "SHSUBT",
       "office_at_time": "Member of Parliament, Rajya Sabha",
@@ -1473,7 +1473,7 @@
     },
     {
       "id": "IN-0029",
-      "status": "published",
+      "status": "held_review",
       "speaker_id": "narendra-modi",
       "party_at_time": "BJP",
       "office_at_time": "Prime Minister of India",
@@ -1526,7 +1526,7 @@
     },
     {
       "id": "IN-0030",
-      "status": "published",
+      "status": "held_review",
       "speaker_id": "trivendra-singh-rawat",
       "party_at_time": "BJP",
       "office_at_time": "Chief Minister of Uttarakhand",
@@ -1580,7 +1580,7 @@
     },
     {
       "id": "IN-0031",
-      "status": "published",
+      "status": "held_review",
       "speaker_id": "dilip-ghosh",
       "party_at_time": "BJP",
       "office_at_time": "President, BJP West Bengal",
@@ -1634,7 +1634,7 @@
     },
     {
       "id": "IN-0032",
-      "status": "published",
+      "status": "held_review",
       "speaker_id": "suman-haripriya",
       "party_at_time": "BJP",
       "office_at_time": "Member of the Legislative Assembly, Hajo",
@@ -1781,7 +1781,7 @@
     },
     {
       "id": "IN-0035",
-      "status": "published",
+      "status": "held_review",
       "speaker_id": "ramesh-pokhriyal",
       "party_at_time": "BJP",
       "office_at_time": "Member of Parliament, Haridwar",
@@ -1876,7 +1876,7 @@
     },
     {
       "id": "IN-0037",
-      "status": "published",
+      "status": "held_review",
       "speaker_id": "shripad-naik",
       "party_at_time": "BJP",
       "office_at_time": "Union Minister of State for AYUSH",
@@ -2112,7 +2112,7 @@
     },
     {
       "id": "IN-0042",
-      "status": "published",
+      "status": "held_review",
       "speaker_id": "rahul-gandhi",
       "party_at_time": "INC",
       "office_at_time": "President, Indian National Congress",
@@ -2173,7 +2173,7 @@
     },
     {
       "id": "IN-0043",
-      "status": "published",
+      "status": "held_review",
       "speaker_id": "rahul-gandhi",
       "party_at_time": "INC",
       "office_at_time": "Member of Parliament, Amethi",
@@ -2222,7 +2222,7 @@
     },
     {
       "id": "IN-0044",
-      "status": "published",
+      "status": "held_review",
       "speaker_id": "rahul-gandhi",
       "party_at_time": "INC",
       "office_at_time": "President, Indian National Congress",
@@ -2271,7 +2271,7 @@
     },
     {
       "id": "IN-0045",
-      "status": "published",
+      "status": "held_review",
       "speaker_id": "rahul-gandhi",
       "party_at_time": "INC",
       "office_at_time": "President, Indian National Congress",

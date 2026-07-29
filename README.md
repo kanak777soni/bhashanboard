@@ -4,7 +4,7 @@
 
 India first. Then the world.
 
-**Status:** pre-launch application with a 45-entry source corpus, registered accounts, verified-email authentication, server-timed video-gated one-time public rulings, an auditable Bayesian rating model, and administrator user controls. Every current corpus entry is still text-sourced, so public voting remains correctly locked until verified excerpts are attached.
+**Status:** pre-launch application with a 45-entry source corpus, registered accounts, verified-email authentication, server-timed video-gated one-time public rulings, an auditable equal-weight public rating model, reader evidence submissions, and administrator user controls. Every current corpus entry is still text-sourced, so public voting remains correctly locked until verified excerpts are attached.
 
 ---
 
@@ -21,10 +21,13 @@ npm run db:setup
 ```
 
 That command applies checksum-protected migrations, validates and imports the
-current JSON corpus without deleting remote rows, and verifies document hashes,
-foreign-key-backed records, exact source artifacts, the statement ID sequence,
-and the append-only audit ledger. It is safe to run again: unchanged rows are
-not rewritten. A row edited through the admin is protected from later seed
+current JSON corpus without deleting remote rows, and then verifies document
+hashes, foreign-key-backed records, exact source artifacts, the statement ID
+sequence, rating aggregates, publication guards, submission tables, and the
+append-only audit ledger. Each phase commits separately, so test migrations on
+a disposable Neon branch and take a production backup before running the
+command. It is safe to run again after a successful rollout: unchanged rows
+are not rewritten. A row edited through the admin is protected from later seed
 imports and must be reconciled manually if its local JSON counterpart changes.
 
 For production, copy every required value documented in `.env.example` into the
@@ -45,12 +48,15 @@ has been promoted in Neon:
    access.
 2. Set the required `BREVO_API_KEY` and `BREVO_SENDER_EMAIL` values locally and
    in Vercel. `BREVO_SENDER_NAME` is optional and defaults to
-   `The Bhashan Board`. The three `BREVO_*_TEMPLATE_ID` values are also optional;
+   `The Bhashan Board`. The four `BREVO_*_TEMPLATE_ID` values are also optional;
    when omitted, the application sends its built-in verification, reset, and
-   welcome messages. Leave them unset unless tested: verification and reset
-   templates receive `{{ params.name }}` and `{{ params.actionUrl }}` (and must
-   render `actionUrl` as a clickable link); the welcome template receives
-   `{{ params.name }}` and `{{ params.siteUrl }}`.
+   welcome messages plus evidence-submission acknowledgements. Leave them unset
+   unless tested: verification and reset templates receive
+   `{{ params.name }}` and `{{ params.actionUrl }}` (and must render
+   `actionUrl` as a clickable link); the welcome template receives
+   `{{ params.name }}` and `{{ params.siteUrl }}`; the submission template
+   receives `{{ params.name }}`, `{{ params.reference }}`, and
+   `{{ params.siteUrl }}`.
 3. Set `BETTER_AUTH_SECRET` to a stable random secret of at least 32 bytes. Set
    `BETTER_AUTH_URL` and `NEXT_PUBLIC_SITE_URL` to the deployed HTTPS origin in
    production, with no trailing slash.
@@ -142,7 +148,7 @@ in the audit ledger.
 |---|---|
 | **What it is** | A league table for public political statements. Unedited clips, community-ranked, awarded medals. |
 | **The joke** | Not the clips — the *frame*. Gold foil, wax seals, roman numerals, orchestral fanfare, a straight-faced committee awarding **Kohinoor Class** to a real quote about clouds blocking radar. |
-| **The mechanic** | Watch a verified excerpt → enter one of five fixed rulings once → transparent Bayesian performance → GP, tiers, and standings. *Aamne-Saamne* remains a non-scoring exhibition. |
+| **The mechanic** | Watch a verified excerpt → enter one of five fixed rulings once → exact equal-weight performance → GP, tiers, and standings after ten rulings. *Aamne-Saamne* remains a non-scoring exhibition. |
 | **The moat** | A structured, sourced, transcribed, translated corpus of Indian political statements. It doesn't exist today. |
 | **The constraint** | **Verbatim only.** Never edit, dub, impersonate, or AI-generate. Ever. |
 
@@ -167,24 +173,24 @@ A **Party Parity Meter** on the homepage, source standards, identical vote stren
 TEXT-SOURCED → VIDEO VERIFIED → COMMITTEE-PASSED → WATCH 90% + END → ONE FINAL RULING
 ```
 
-| Tier | Name | Rarity |
+| Tier | Name | Public GP band |
 |---|---|---|
-| 🪵 | Participation Certificate | ~28% |
-| 🥉 | Bronze Bhashan | ~24% |
-| 🥈 | Silver Tongue | ~21% |
-| 🥇 | Gold Standard | ~16% |
-| 💎 | Diamond Gyan | ~8% |
-| 👑 | **Kohinoor Class** | ~2.5% |
-| 🏛 | Hall of Fame | ~50 all-time |
+| 🪵 | Participation Certificate | 1000–1299 |
+| 🥉 | Bronze Bhashan | 1300–1449 |
+| 🥈 | Silver Tongue | 1450–1599 |
+| 🥇 | Gold Standard | 1600–1749 |
+| 💎 | Diamond Gyan | 1750–1874 |
+| 👑 | **Kohinoor Class** | 1875–2000 |
+| 🏛 | Hall of Fame | Separate Committee induction after public maturity |
 
 *Kohinoor Class: so valuable it had to be kept abroad.*
 
 **How ratings work:** each verified account has one immutable ballot per statement,
 chosen from 0, 25, 50, 75, or 100 after qualifying playback. Every valid ballot
-has equal strength. A ten-vote editorial seed prior prevents a single early vote
-from moving the ladder wildly, then fades as public ballots accumulate:
-`performance = (10 × seed + ballot sum) / (10 + ballot count)` and
-`GP = round(1000 + 10 × performance)`.
+has exactly equal strength. `performance = ballot sum / valid ballot count` and
+`GP = round(1000 + 10 × performance)`. A clip can collect provisional rulings
+immediately, but it does not enter public Standings until ten valid rulings
+exist. Editorial research axes never alter its public score or starting place.
 
 **Why the watch gate:** the evidence stays public, but a ballot counts only after
 the verified bounded excerpt produces a qualifying playback receipt. The standard
@@ -214,20 +220,24 @@ receipt ownership, publication status, and the current video revision.
 **Real names and images — yes.** The Delhi HC has held that using a public figure's name or image for commentary, satire, parody or news reporting is protected under Art. 19(1)(a) and does not infringe publicity rights. Pseudonyms would make the product *worse* — a caricature is a statement you authored; a verbatim clip is a fact you cited. Two hard limits: **no faces on merchandise** (that's the commercial-exploitation pattern that actually loses in court — sell the *quote* in typography instead), and **no AI-generated likeness, ever.**
 
 **"How do we place a new speech in the right spot?"**
-**Seed prior, then public evidence.** The five editorial axes place a new entry on
-the seed ladder. Once it is committee-passed and receives valid public rulings,
-the frozen seed becomes a ten-vote Bayesian prior and the community gradually
-takes control of its live GP.
+**Publish the evidence, then let ten public rulings establish placement.** A new
+clip starts unranked. After qualifying playback, every verified account may
+enter one final equal-strength ruling. The arithmetic mean becomes performance;
+the statement joins Standings only when it reaches ten valid rulings.
 
 **"Stars, diamond, gold — all those things?"**
-Yes, and made rigorous — fixed rating bands with calibrated rarity, so Kohinoor Class actually stays rare and therefore actually means something. Plus trophy cabinets, form guides, career-arc graphs, auto-conferred honorifics (*"Professor of Applied Physics"*), and a full promotion ceremony with confetti and orchestral sting.
+Yes. Keep the satirical names rather than generic labels such as beginner or
+legend: they are part of the joke, while the number underneath remains
+transparent. The GP bands are fixed and published; they do not promise an
+artificial rarity distribution or move to force a preferred outcome.
 
 ## Current implementation decisions
 
 **Settled:** registered and verified accounts; equal-strength five-position
 ballots; one immutable vote per statement; server-timed playback receipts;
-Bayesian shrinkage with a published prior; audited admin exclusions; medal tiers
-as the satirical presentation; Aamne-Saamne as a non-scoring exhibition.
+exact arithmetic-mean performance with no editorial prior; a ten-ruling public
+rank threshold; audited admin exclusions; medal tiers as the satirical
+presentation; Aamne-Saamne as a non-scoring exhibition.
 
 ---
 

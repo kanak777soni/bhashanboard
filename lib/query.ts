@@ -66,7 +66,6 @@ export function toSearchParams(query: Query): string {
 export interface Row {
   statement: CorpusStatement;
   rank: number;
-  delta: number;
 }
 
 export interface QueryDataset {
@@ -109,13 +108,10 @@ export function runQuery(query: Query, dataset: QueryDataset): Row[] {
     return true;
   });
 
-  const rows: Row[] = matched.map((s) => {
-    const rank = rankMap.get(s.slug) ?? 0;
-    // Public historical rank is not persisted yet. The corpus's old
-    // previousRank field belongs to the editorial seed ladder and must not be
-    // presented as community movement.
-    return { statement: s, rank, delta: 0 };
-  });
+  const rows: Row[] = matched.map((statement) => ({
+    statement,
+    rank: rankMap.get(statement.slug) ?? 0,
+  }));
 
   switch (query.sort) {
     case "new":

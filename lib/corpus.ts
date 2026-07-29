@@ -4,6 +4,7 @@ import type {
   Party,
   PersistedStatementRatingAggregate,
   Source,
+  SourceRole,
   SourceTier,
   Statement,
   StatementRating,
@@ -11,7 +12,11 @@ import type {
   VerificationStage,
   VoteDistribution,
 } from "./types";
-import { RATING_PRIOR_STRENGTH } from "./rating";
+import { isSourceRole } from "./types";
+import {
+  PUBLIC_EMPTY_PERFORMANCE,
+  RATING_PRIOR_STRENGTH,
+} from "./rating";
 import {
   isCommitteePublicationEligible,
   normalizeStatementEvidenceVideo,
@@ -30,7 +35,13 @@ export interface RawVerification {
   stage: string;
   best_source_tier: string;
   needs?: string[];
-  sources?: { tier?: string; publisher?: string; title?: string; url?: string }[];
+  sources?: {
+    tier?: string;
+    publisher?: string;
+    title?: string;
+    url?: string;
+    role?: SourceRole;
+  }[];
   embed?: {
     platform?: string;
     id?: string;
@@ -41,7 +52,12 @@ export interface RawVerification {
 
 export interface RawStatement {
   id: string;
-  status: "published" | "held_parity" | "held_review" | "withdrawn";
+  status:
+    | "published"
+    | "held_parity"
+    | "held_review"
+    | "private_draft"
+    | "withdrawn";
   speaker_id: string;
   party_at_time: string;
   office_at_time: string;
@@ -63,8 +79,6 @@ export interface RawStatement {
   video?: { platform?: string; id?: string; start?: number; end?: number };
   axes: Record<string, number>;
   verification: RawVerification;
-  /** Runtime-only publication seed stored beside, not inside, the document. */
-  rating_seed_gp?: number | null;
 }
 
 export interface RawPolitician {
@@ -123,23 +137,6 @@ export interface CorpusModel {
   };
 }
 
-const WEIGHTS: Record<string, number> = {
-  logic_damage: 0.3,
-  straight_face: 0.2,
-  rewatch_value: 0.2,
-  crowd_complicity: 0.15,
-  consequence: 0.15,
-};
-
-const BANDS: [number, number, number][] = [
-  [0.025, 1875, 1960],
-  [0.08, 1750, 1868],
-  [0.16, 1600, 1742],
-  [0.21, 1450, 1590],
-  [0.24, 1300, 1440],
-  [1, 1150, 1290],
-];
-
 export function slugify(value: string): string {
   return value
     .toLowerCase()
@@ -148,22 +145,27 @@ export function slugify(value: string): string {
     .slice(0, 72);
 }
 
-function weighted(axes: Record<string, number>): number {
-  return Object.entries(WEIGHTS).reduce((sum, [key, weight]) => sum + (axes[key] ?? 0) * weight, 0);
-}
-
 function scriptOf(language: string): Statement["script"] {
-  if (language === "English") return "latin";
-  if (["Hindi", "Marathi", "Nepali", "Konkani"].includes(language)) return "deva";
+  const normalizedLanguage = language.trim().toLowerCase();
+  if (normalizedLanguage === "english") return "latin";
+  if (
+    ["hindi", "marathi", "nepali", "konkani"].includes(normalizedLanguage)
+  ) {
+    return "deva";
+  }
   return "other";
 }
 
 function toSources(verification: RawVerification): Source[] {
-  return (verification.sources ?? []).map((source) => ({
-    tier: (["A", "B", "C"].includes(source.tier ?? "") ? source.tier : "C") as SourceTier,
-    outlet: source.publisher ?? source.title ?? "Unattributed",
-    url: source.url ?? "#",
-  }));
+  return (verification.sources ?? []).map((source) => {
+    const role = isSourceRole(source.role) ? source.role : undefined;
+    return {
+      tier: (["A", "B", "C"].includes(source.tier ?? "") ? source.tier : "C") as SourceTier,
+      outlet: source.publisher ?? source.title ?? "Unattributed",
+      url: source.url ?? "#",
+      ...(role ? { role } : {}),
+    };
+  });
 }
 
 function toAxes(axes: Record<string, number>): Axes {
@@ -188,17 +190,9 @@ function emptyVoteDistribution(): VoteDistribution {
   return { 0: 0, 25: 0, 50: 0, 75: 0, 100: 0 };
 }
 
-function seedPerformance(seedGp: number): number {
-  return Math.min(100, Math.max(0, (seedGp - 1000) / 10));
-}
-
 function publicRating(
-  seedGp: number,
   aggregate: PersistedStatementRatingAggregate | undefined
 ): { gp: number; rating: StatementRating } {
-  // An aggregate row freezes the editorial prior at the first ballot. Keep
-  // using it even if every ballot is later excluded and the valid count
-  // returns to zero; recomputing from today's ladder seed would move the score.
   if (aggregate) {
     return {
       gp: aggregate.gp,
@@ -216,16 +210,15 @@ function publicRating(
     };
   }
 
-  const performance = seedPerformance(seedGp);
   return {
-    gp: seedGp,
+    gp: 1000 + PUBLIC_EMPTY_PERFORMANCE * 10,
     rating: {
-      source: "seed",
-      performance,
+      source: "unrated",
+      performance: PUBLIC_EMPTY_PERFORMANCE,
       validVoteCount: 0,
       validVoteSum: 0,
       distribution: emptyVoteDistribution(),
-      priorPerformance: performance,
+      priorPerformance: PUBLIC_EMPTY_PERFORMANCE,
       priorStrength: RATING_PRIOR_STRENGTH,
       modelVersion: null,
       updatedAt: null,
@@ -254,30 +247,14 @@ export function buildCorpus({
     parsedReference.getUTCDate()
   );
   const ladder = statements.filter((statement) => statement.status === "published");
-  const visible = statements.filter((statement) => statement.status !== "withdrawn");
-  const ordered = [...ladder].sort((a, b) => weighted(b.axes) - weighted(a.axes));
-  const gpById = new Map<string, number>();
+  const visible = statements.filter(
+    (statement) =>
+      statement.status !== "withdrawn" &&
+      statement.status !== "private_draft"
+  );
   const ratingByStatementId = new Map(
     ratingAggregates.map((aggregate) => [aggregate.statementId, aggregate] as const)
   );
-
-  let index = 0;
-  for (const [share, low, high] of BANDS) {
-    const wanted = Math.max(
-      share === 1 ? ordered.length - index : Math.round(ordered.length * share),
-      0
-    );
-    const count = Math.min(wanted, ordered.length - index);
-    for (let offset = 0; offset < count; offset++) {
-      const gp =
-        count === 1
-          ? high
-          : Math.round(high - ((high - low) * offset) / Math.max(count - 1, 1));
-      gpById.set(ordered[index + offset].id, gp);
-    }
-    index += count;
-    if (index >= ordered.length) break;
-  }
 
   const shape = (raw: RawStatement): CorpusStatement => {
     const hasQuote = typeof raw.quote === "string" && raw.quote.trim().length > 0;
@@ -287,12 +264,7 @@ export function buildCorpus({
         : undefined;
     const video: StatementVideo | undefined =
       normalizeStatementEvidenceVideo(raw);
-    const persistedSeed = Number(raw.rating_seed_gp);
-    const seedGp =
-      Number.isSafeInteger(persistedSeed) && persistedSeed >= 1000 && persistedSeed <= 2000
-        ? persistedSeed
-        : gpById.get(raw.id) ?? 1500;
-    const effectiveRating = publicRating(seedGp, ratingByStatementId.get(raw.id));
+    const effectiveRating = publicRating(ratingByStatementId.get(raw.id));
 
     return {
       id: Number(raw.id.replace(/\D/g, "")) || 0,
@@ -311,7 +283,7 @@ export function buildCorpus({
       englishLines: hasQuote
         ? quoteTranslation
           ? [quoteTranslation]
-          : raw.language === "English"
+          : raw.language.trim().toLocaleLowerCase("en") === "english"
             ? [raw.quote as string]
             : []
         : [],
@@ -322,9 +294,7 @@ export function buildCorpus({
       venue: raw.venue,
       daysAgo: daysSince(raw.date, referenceTime),
       gp: effectiveRating.gp,
-      seedGp,
       rating: effectiveRating.rating,
-      previousRank: 0,
       duels: 0,
       video,
       sources: toSources(raw.verification),

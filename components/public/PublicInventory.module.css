@@ -23,6 +23,112 @@
   font-size: 15px;
 }
 
+.howItWorks {
+  display: grid;
+  grid-template-columns: minmax(210px, 0.72fr) minmax(0, 1.65fr);
+  gap: 18px 28px;
+  margin-top: 18px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--rule-hard);
+}
+
+.howIntro h2 {
+  margin: 4px 0 7px;
+  font-family: var(--font-display);
+  font-size: clamp(24px, 3.2vw, 36px);
+  font-weight: 400;
+  line-height: 1;
+}
+
+.howIntro p,
+.howSteps span {
+  color: var(--ink-70);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.howIntro p {
+  margin: 0;
+}
+
+.howSteps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.howSteps li {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  min-width: 0;
+  padding-left: 12px;
+  border-left: 1px solid var(--rule-hard);
+}
+
+.howSteps li > b {
+  color: var(--seal);
+  font-size: 12px;
+}
+
+.howSteps strong {
+  font-family: var(--font-util);
+  font-size: 11px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.howScale {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  border: 1px solid var(--rule-hard);
+  background: linear-gradient(90deg, var(--ground-2), var(--shade-warm));
+}
+
+.howScale span {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px;
+  padding: 8px 10px;
+  border-left: 1px solid var(--rule-soft);
+}
+
+.howScale span:first-child {
+  border-left: 0;
+}
+
+.howScale b {
+  overflow: hidden;
+  font-family: var(--font-util);
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+}
+
+.howScale small {
+  color: var(--ink-45);
+}
+
+.howFoot {
+  display: flex;
+  grid-column: 1 / -1;
+  gap: 8px;
+  margin: -6px 0 0;
+  font-size: 12px;
+}
+
+.howItWorksCompact {
+  margin-top: 10px;
+  padding-top: 14px;
+}
+
 .section {
   margin-top: 28px;
 }
@@ -444,8 +550,13 @@
 @media (max-width: 900px) {
   .frontIntro,
   .videoCardFeatured,
-  .emptyState {
+  .emptyState,
+  .howItWorks {
     grid-template-columns: 1fr;
+  }
+
+  .howSteps {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .videoCardFeatured .screen {
@@ -469,8 +580,23 @@
 
   .grid,
   .gridThree,
-  .researchGrid {
+  .researchGrid,
+  .howSteps {
     grid-template-columns: 1fr;
+  }
+
+  .howSteps li {
+    padding: 9px 0 0;
+    border-top: 1px solid var(--rule-soft);
+    border-left: 0;
+  }
+
+  .howScale {
+    grid-template-columns: repeat(5, minmax(52px, 1fr));
+  }
+
+  .howScale span {
+    padding-inline: 6px;
   }
 
   .researchCard,

@@ -1,6 +1,6 @@
 # 01 — Concept, Positioning & Name
 
-> **Current scoring note (July 2026).** References in this design document to pairwise duels, Elo, weighted memberships, or internal placement votes are historical. The implemented authority is `/rules`: one equal-strength, immutable ruling per verified account and statement, after qualifying playback, with a published Bayesian seed prior. Aamne-Saamne is a non-scoring exhibition.
+> **Current scoring note (July 2026).** References in this design document to pairwise duels, Elo, weighted memberships, seed placements, or internal placement votes are historical. The implemented authority is `/rules`: after qualifying playback, each verified account may enter one immutable ruling per statement; every ruling has equal weight and performance is their arithmetic mean. There is no editorial prior. Aamne-Saamne is a non-scoring exhibition.
 
 ## 1.1 The one-line pitch
 

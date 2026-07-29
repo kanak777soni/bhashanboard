@@ -66,8 +66,9 @@ export default async function StandingsPage({
           {inventory.rankedVideos.length === 0 && (
             <p className="rail-note" style={{ marginTop: 18 }}>
               The standings are deliberately empty. A filing receives no public
-              rank, medal, or rating display until its video is publication-ready
-              and ten valid public rulings have been recorded.{" "}
+              rank or medal until its video is publication-ready and ten valid
+              public rulings have been recorded. Its provisional performance
+              bar may appear after the first valid ruling.{" "}
               <Link href="/watch">Watch the open filings.</Link>
             </p>
           )}

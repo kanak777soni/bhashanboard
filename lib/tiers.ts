@@ -9,8 +9,8 @@ export interface Tier {
   colour: string;
 }
 
-/** Ordered high to low. Bands are fixed so rarity stays meaningful —
- *  see docs/02-ranking-system.md §2.4. */
+/** Ordered high to low. Public bands are fixed and never adjusted to force a
+ * preferred distribution. See the current rules page for the scoring model. */
 export const TIERS: Tier[] = [
   { key: "kohinoor", name: "Kohinoor Class", min: 1875, colour: "var(--foil)" },
   { key: "diamond", name: "Diamond Gyan", min: 1750, colour: "var(--facet)" },

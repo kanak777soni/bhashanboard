@@ -1,10 +1,10 @@
 # `data/` — the corpus
 
 > **Current scoring note (July 2026).** The seed-rank files and Elo references
-> below document the original cold-start design. The live application now uses
-> each entry's seed placement as a ten-vote Bayesian prior; equal-strength,
-> immutable public rulings progressively outweigh it. Aamne-Saamne is a
-> non-scoring exhibition.
+> below document the retired cold-start design. The live application has no
+> editorial prior: after qualifying playback, each verified account may enter
+> one immutable ruling per statement and performance is the arithmetic mean of
+> those equal-strength rulings. Aamne-Saamne is a non-scoring exhibition.
 
 The archive itself. `docs/09-seed-corpus.md` explains what is in here, how it was
 built, and what is missing. This file is the working reference for adding to it.
@@ -66,9 +66,10 @@ record exists in Neon.
    checks, so do not aspirationally upgrade it.
 5. **Fill `needs`** with the specific outstanding work. That array is the research
    queue; an empty one on an unverified entry is a lie to the next contributor.
-6. **Score the axes** against the rubric in §9.3. Note that **Consequence is
-   inverted**: 5 means nothing happened or the speaker was promoted since, 0 means
-   they resigned or were sacked.
+6. **Record the internal research axes** against the historical rubric in §9.3.
+   They help the desk describe and audit its research, but never set public GP,
+   tier, or rank. Note that **Consequence is inverted**: 5 means nothing happened
+   or the speaker was promoted since, 0 means they resigned or were sacked.
 7. **Set `status`.** `published` is a content/evidence decision, never a way to
    manufacture a party percentage. Use `held_review` when sourcing, context,
    duplication or a Rule remains unresolved, with a `policy_note` where a Rule is
@@ -96,18 +97,14 @@ balanced: that would turn a sampling problem into editorial scorekeeping.
 `held_parity` is retained for historical imports, but new holds must be justified
 by evidence, context, duplication or the Rules.
 
-It also warns when one party dominates the *top* of the ladder. Nobody counts a
-leaderboard; they look at the podium. **The fix for coverage imbalance is more
-corpus; the fix for a weak entry is evidence review; neither is a thumb on the
-ratings.** Re-weighting the rubric to move a party down the table is precisely
-the corruption the reproducible seed and public-vote model exists to prevent.
+Historical seed reports may still describe the old ladder for reproducibility.
+They have no authority over the live table. **The fix for coverage imbalance is
+more corpus; the fix for a weak entry is evidence review; neither is a thumb on
+the ratings.** Public placement is determined only by equal-strength rulings.
 
 ## `generated/leaderboard.json`
 
-Provisional ratings derived from the rubric so the board has a spread before any
-duels exist. Every row is `provisional: true`, `duels: 0`. When the Elo engine
-ships with real ballots, it overwrites all of this and `tools/seed-rank.mjs` gets
-deleted. It is scaffolding, and it is meant to be thrown away.
-
-Read the ladder from this file. Read everything else from `statements.json`. Join
-on `id`.
+This is a compatibility artifact retained for deterministic corpus imports and
+historical reproducibility. It is not read as the public ranking. Under the
+current fail-closed publication bar it is empty; public GP and rank come only
+from validated database ballot aggregates after the ten-ruling threshold.

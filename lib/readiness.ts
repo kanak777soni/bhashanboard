@@ -10,6 +10,7 @@ export type StatementReadinessKey =
   | "production_review"
   | "ready"
   | "live"
+  | "private_draft"
   | "held"
   | "withdrawn";
 
@@ -23,6 +24,7 @@ export interface ReadinessStatement {
   verification?: {
     stage?: unknown;
     best_source_tier?: unknown;
+    needs?: unknown;
     sources?: unknown;
   } | null;
 }
@@ -40,6 +42,7 @@ const READINESS_LABELS: Record<StatementReadinessKey, string> = {
   production_review: "Transcript, context & sign-off",
   ready: "Ready to publish",
   live: "Live · ready to rule",
+  private_draft: "Private submission draft",
   held: "Held for review",
   withdrawn: "Withdrawn",
 };
@@ -61,6 +64,8 @@ export function statementReadiness(
   let key: StatementReadinessKey;
   if (status === "withdrawn") {
     key = "withdrawn";
+  } else if (status === "private_draft") {
+    key = "private_draft";
   } else if (publicationReady && status === "published") {
     key = "live";
   } else if (publicationReady) {

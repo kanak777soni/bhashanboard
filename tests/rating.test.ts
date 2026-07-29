@@ -8,16 +8,26 @@ import {
   watchHeartbeatWriteIsDue,
 } from "../lib/rating";
 
-test("the rating model reproduces the published example", () => {
+test("the public rating is the exact equal-weight ballot mean", () => {
   const result = calculateRating({
-    priorPerformance: 60,
-    priorStrength: 10,
     validVoteCount: 3,
     validVoteSum: 75 + 100 + 50,
   });
 
-  assert.equal(result.performance, 825 / 13);
-  assert.equal(result.gp, 1635);
+  assert.equal(result.performance, 75);
+  assert.equal(result.gp, 1750);
+  assert.equal(result.modelVersion, 2);
+});
+
+test("an empty public aggregate is neutral and carries no editorial weight", () => {
+  const result = calculateRating({
+    validVoteCount: 0,
+    validVoteSum: 0,
+  });
+
+  assert.equal(result.performance, 50);
+  assert.equal(result.gp, 1500);
+  assert.equal(result.priorStrength, 0);
 });
 
 test("only the five fixed ballot positions are accepted", () => {

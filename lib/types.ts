@@ -8,6 +8,22 @@ export type TierKey =
 
 export type SourceTier = "A" | "B" | "C";
 
+export const SOURCE_ROLES = [
+  "footage",
+  "reporting",
+  "context",
+  "fact_check",
+] as const;
+
+export type SourceRole = (typeof SOURCE_ROLES)[number];
+
+export function isSourceRole(value: unknown): value is SourceRole {
+  return (
+    typeof value === "string" &&
+    (SOURCE_ROLES as readonly string[]).includes(value)
+  );
+}
+
 export interface Party {
   code: string;
   name: string;
@@ -29,6 +45,8 @@ export interface Source {
   tier: SourceTier;
   outlet: string;
   url: string;
+  /** What this citation contributes to the record. Legacy sources may omit it. */
+  role?: SourceRole;
 }
 
 export interface Axes {
@@ -81,7 +99,7 @@ export interface VoteDistribution {
   100: number;
 }
 
-export type StatementRatingSource = "community" | "seed";
+export type StatementRatingSource = "community" | "unrated";
 
 /** Rating details exposed with every public statement. */
 export interface StatementRating {
@@ -126,13 +144,9 @@ export interface Statement {
   venue: string;
   /** Days before "today" that this was said. */
   daysAgo: number;
-  /** Effective public GP: persisted community GP when votes exist, otherwise seed GP. */
+  /** Public GP, neutral at 1500 until the first valid ruling. */
   gp: number;
-  /** Frozen editorial bootstrap score, retained for transparent fallback. */
-  seedGp: number;
   rating: StatementRating;
-  /** Rank at the previous recompute, for the movement column. */
-  previousRank: number;
   duels: number;
   /** A bounded, externally hosted evidence excerpt. */
   video?: StatementVideo;

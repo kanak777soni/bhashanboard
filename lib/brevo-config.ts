@@ -7,7 +7,8 @@ export type MailEnvironment = Partial<
     | "BREVO_SENDER_EMAIL"
     | "BREVO_VERIFY_TEMPLATE_ID"
     | "BREVO_RESET_TEMPLATE_ID"
-    | "BREVO_WELCOME_TEMPLATE_ID",
+    | "BREVO_WELCOME_TEMPLATE_ID"
+    | "BREVO_SUBMISSION_TEMPLATE_ID",
     string | undefined
   >
 >;
@@ -40,6 +41,7 @@ export function mailConfigurationIssues(source: MailEnvironment): string[] {
     "BREVO_VERIFY_TEMPLATE_ID",
     "BREVO_RESET_TEMPLATE_ID",
     "BREVO_WELCOME_TEMPLATE_ID",
+    "BREVO_SUBMISSION_TEMPLATE_ID",
   ] as const) {
     const value = configuredValue(source, name);
     if (value && (!/^\d+$/.test(value) || Number(value) < 1)) issues.push(name);

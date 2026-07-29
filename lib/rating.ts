@@ -1,20 +1,21 @@
 /**
  * The public rating model.
  *
- * Raw ballots stay discrete and equally weighted. The editorial seed is a
- * frozen Bayesian prior, so a new entry cannot jump to the top after one vote
- * and the community steadily takes control as valid ballots accumulate.
+ * Raw ballots stay discrete and equally weighted. Public performance is the
+ * exact arithmetic mean of valid ballots; editorial scoring never changes a
+ * public result. Entries remain unranked until ten valid rulings, which is the
+ * stability boundary instead of a hidden prior.
  */
 
 export const VOTE_VALUES = [0, 25, 50, 75, 100] as const;
 export type VoteValue = (typeof VOTE_VALUES)[number];
 
-export const RATING_MODEL_VERSION = 1;
-export const RATING_PRIOR_STRENGTH = 10;
+export const RATING_MODEL_VERSION = 2;
+/** Retained in persisted aggregate rows for backwards-compatible shape. */
+export const RATING_PRIOR_STRENGTH = 0;
+export const PUBLIC_EMPTY_PERFORMANCE = 50;
 
 export interface RatingInput {
-  priorPerformance: number;
-  priorStrength?: number;
   validVoteCount: number;
   validVoteSum: number;
 }
@@ -46,13 +47,6 @@ export function isVoteValue(value: unknown): value is VoteValue {
   );
 }
 
-function finiteInRange(value: number, low: number, high: number, name: string): number {
-  if (!Number.isFinite(value) || value < low || value > high) {
-    throw new RatingCalculationError(`${name} must be between ${low} and ${high}.`);
-  }
-  return value;
-}
-
 function nonNegativeInteger(value: number, name: string): number {
   if (!Number.isSafeInteger(value) || value < 0) {
     throw new RatingCalculationError(`${name} must be a non-negative safe integer.`);
@@ -60,24 +54,7 @@ function nonNegativeInteger(value: number, name: string): number {
   return value;
 }
 
-export function performanceFromGp(gp: number): number {
-  if (!Number.isFinite(gp)) {
-    throw new RatingCalculationError("GP must be finite.");
-  }
-  return Math.min(100, Math.max(0, (gp - 1000) / 10));
-}
-
 export function calculateRating(input: RatingInput): RatingResult {
-  const priorPerformance = finiteInRange(
-    input.priorPerformance,
-    0,
-    100,
-    "Prior performance"
-  );
-  const priorStrength = nonNegativeInteger(
-    input.priorStrength ?? RATING_PRIOR_STRENGTH,
-    "Prior strength"
-  );
   const validVoteCount = nonNegativeInteger(input.validVoteCount, "Valid vote count");
   const validVoteSum = nonNegativeInteger(input.validVoteSum, "Valid vote sum");
 
@@ -85,18 +62,15 @@ export function calculateRating(input: RatingInput): RatingResult {
     throw new RatingCalculationError("Valid vote sum exceeds the maximum possible total.");
   }
 
-  const denominator = priorStrength + validVoteCount;
-  if (denominator <= 0) {
-    throw new RatingCalculationError("A rating needs a prior or at least one valid vote.");
-  }
-
   const performance =
-    (priorStrength * priorPerformance + validVoteSum) / denominator;
+    validVoteCount === 0
+      ? PUBLIC_EMPTY_PERFORMANCE
+      : validVoteSum / validVoteCount;
 
   return {
     modelVersion: RATING_MODEL_VERSION,
-    priorPerformance,
-    priorStrength,
+    priorPerformance: PUBLIC_EMPTY_PERFORMANCE,
+    priorStrength: RATING_PRIOR_STRENGTH,
     validVoteCount,
     validVoteSum,
     performance,

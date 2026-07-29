@@ -5,6 +5,11 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth-guards";
 import { db } from "@/lib/db";
+import {
+  PUBLIC_EMPTY_PERFORMANCE,
+  RATING_MODEL_VERSION,
+  RATING_PRIOR_STRENGTH,
+} from "@/lib/rating";
 
 function confirmation(formData: FormData): string {
   return String(formData.get("confirmation") ?? "").trim();
@@ -150,14 +155,20 @@ export async function anonymizeMyAccount(formData: FormData): Promise<void> {
           vote_50_count = totals.vote_50_count,
           vote_75_count = totals.vote_75_count,
           vote_100_count = totals.vote_100_count,
-          performance = (
-            aggregate.prior_strength * aggregate.prior_performance
-            + totals.valid_vote_sum
-          )::numeric / (aggregate.prior_strength + totals.valid_vote_count),
-          gp = round(1000 + 10 * (
-            aggregate.prior_strength * aggregate.prior_performance
-            + totals.valid_vote_sum
-          )::numeric / (aggregate.prior_strength + totals.valid_vote_count))::integer,
+          prior_performance = ${PUBLIC_EMPTY_PERFORMANCE},
+          prior_strength = ${RATING_PRIOR_STRENGTH},
+          performance = CASE
+            WHEN totals.valid_vote_count = 0 THEN ${PUBLIC_EMPTY_PERFORMANCE}
+            ELSE totals.valid_vote_sum::numeric / totals.valid_vote_count
+          END,
+          gp = CASE
+            WHEN totals.valid_vote_count = 0
+              THEN ${1000 + PUBLIC_EMPTY_PERFORMANCE * 10}
+            ELSE round(
+              1000 + 10 * totals.valid_vote_sum::numeric / totals.valid_vote_count
+            )::integer
+          END,
+          model_version = ${RATING_MODEL_VERSION},
           updated_at = clock_timestamp()
         FROM totals
         WHERE aggregate.statement_id = totals.statement_id

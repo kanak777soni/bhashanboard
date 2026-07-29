@@ -6,12 +6,13 @@ import { parseRatingAggregate } from "./rating-aggregate";
 import {
   calculateRating,
   isVoteValue,
-  performanceFromGp,
+  PUBLIC_EMPTY_PERFORMANCE,
   RATING_MODEL_VERSION,
   RATING_PRIOR_STRENGTH,
   type VoteValue,
 } from "./rating";
 import { statementRatingLockKey } from "./statement-rating-lock";
+import { committeePublicationIssues } from "./video";
 import { getVoteEligibleStatement, isUuid } from "./watch-store";
 
 export type VoteStoreErrorCode =
@@ -161,6 +162,7 @@ interface HistoryRow {
 
 interface VoteStateRow extends AggregateRow {
   record_id: unknown;
+  record_document: unknown;
   current_vote_id: unknown;
   current_vote_value: unknown;
   current_vote_excluded: unknown;
@@ -226,19 +228,16 @@ export async function submitStatementVote(
   input: SubmitStatementVoteInput
 ): Promise<SubmitStatementVoteResult> {
   validateSubmission(input);
-  // These values are deliberately derived here rather than accepted by the
-  // route or client. A caller can supply only the immutable statement path,
-  // the fixed ballot value and a receipt identifier; eligibility, the current
-  // video revision and the frozen seed all come from server-owned records.
+  // A caller can supply only the immutable statement path, the fixed ballot
+  // value and a receipt identifier; eligibility and the current video revision
+  // come from server-owned records.
   const eligibleStatement = await getVoteEligibleStatement(input.statementId);
   const currentVideoFingerprint = eligibleStatement.video.fingerprint;
-  // The editorial seed is persisted on the versioned statement at publication,
-  // rather than recalculated from a potentially changing global ladder here.
-  const priorPerformance = performanceFromGp(eligibleStatement.seedGp);
+  // Persist a neutral, zero-strength compatibility prior. It has no effect on
+  // the public arithmetic mean in rating model v2.
+  const priorPerformance = PUBLIC_EMPTY_PERFORMANCE;
   // Reuse the pure calculator's strict range checks before a value reaches SQL.
   calculateRating({
-    priorPerformance,
-    priorStrength: RATING_PRIOR_STRENGTH,
     validVoteCount: 0,
     validVoteSum: 0,
   });
@@ -267,7 +266,6 @@ export async function submitStatementVote(
         AND version = ${eligibleStatement.recordVersion}
         AND status = 'published'
         AND document #>> '{verification,stage}' IN ('verified', 'committee_passed')
-        AND rating_seed_gp = ${eligibleStatement.seedGp}
     ),
     eligible_receipt AS (
       SELECT receipt.id
@@ -327,16 +325,14 @@ export async function submitStatementVote(
         CASE WHEN vote.value = 50 THEN 1 ELSE 0 END,
         CASE WHEN vote.value = 75 THEN 1 ELSE 0 END,
         CASE WHEN vote.value = 100 THEN 1 ELSE 0 END,
-        (
-          ${RATING_PRIOR_STRENGTH} * ${priorPerformance} + vote.value
-        )::numeric / (${RATING_PRIOR_STRENGTH} + 1),
-        round(1000 + 10 * (
-          ${RATING_PRIOR_STRENGTH} * ${priorPerformance} + vote.value
-        )::numeric / (${RATING_PRIOR_STRENGTH} + 1))::integer,
+        vote.value,
+        1000 + 10 * vote.value,
         ${RATING_MODEL_VERSION},
         clock_timestamp()
       FROM inserted_vote AS vote
       ON CONFLICT (statement_id) DO UPDATE SET
+        prior_performance = ${PUBLIC_EMPTY_PERFORMANCE},
+        prior_strength = ${RATING_PRIOR_STRENGTH},
         valid_vote_count = aggregate.valid_vote_count + 1,
         valid_vote_sum = aggregate.valid_vote_sum + EXCLUDED.valid_vote_sum,
         vote_0_count = aggregate.vote_0_count + EXCLUDED.vote_0_count,
@@ -345,19 +341,11 @@ export async function submitStatementVote(
         vote_75_count = aggregate.vote_75_count + EXCLUDED.vote_75_count,
         vote_100_count = aggregate.vote_100_count + EXCLUDED.vote_100_count,
         performance = (
-          aggregate.prior_strength * aggregate.prior_performance
-          + aggregate.valid_vote_sum
-          + EXCLUDED.valid_vote_sum
-        )::numeric / (
-          aggregate.prior_strength + aggregate.valid_vote_count + 1
-        ),
+          aggregate.valid_vote_sum + EXCLUDED.valid_vote_sum
+        )::numeric / (aggregate.valid_vote_count + 1),
         gp = round(1000 + 10 * (
-          aggregate.prior_strength * aggregate.prior_performance
-          + aggregate.valid_vote_sum
-          + EXCLUDED.valid_vote_sum
-        )::numeric / (
-          aggregate.prior_strength + aggregate.valid_vote_count + 1
-        ))::integer,
+          aggregate.valid_vote_sum + EXCLUDED.valid_vote_sum
+        )::numeric / (aggregate.valid_vote_count + 1))::integer,
         model_version = ${RATING_MODEL_VERSION},
         updated_at = clock_timestamp()
       RETURNING *
@@ -466,6 +454,7 @@ export async function getStatementVoteState({
   const rows = await db()`
     SELECT
       statement.id AS record_id,
+      statement.document AS record_document,
       vote.id AS current_vote_id,
       vote.value AS current_vote_value,
       (exclusion.vote_id IS NOT NULL) AS current_vote_excluded,
@@ -480,11 +469,11 @@ export async function getStatementVoteState({
     LEFT JOIN bhashan.statement_rating_aggregates AS rating
       ON rating.statement_id = statement.id
     WHERE statement.id = ${statementId}
-      AND statement.status <> 'withdrawn'
+      AND statement.status = 'published'
     LIMIT 1
   `;
   const row = (rows as unknown as VoteStateRow[])[0];
-  if (!row) {
+  if (!row || committeePublicationIssues(row.record_document).length > 0) {
     throw new VoteStoreError("STATEMENT_NOT_FOUND", "Statement not found.", 404);
   }
 
@@ -661,6 +650,8 @@ export async function excludeStatementVote({
     updated_rating AS (
       UPDATE bhashan.statement_rating_aggregates AS aggregate
       SET
+        prior_performance = ${PUBLIC_EMPTY_PERFORMANCE},
+        prior_strength = ${RATING_PRIOR_STRENGTH},
         valid_vote_count = aggregate.valid_vote_count - 1,
         valid_vote_sum = aggregate.valid_vote_sum - vote.value,
         vote_0_count = aggregate.vote_0_count - CASE WHEN vote.value = 0 THEN 1 ELSE 0 END,
@@ -668,20 +659,19 @@ export async function excludeStatementVote({
         vote_50_count = aggregate.vote_50_count - CASE WHEN vote.value = 50 THEN 1 ELSE 0 END,
         vote_75_count = aggregate.vote_75_count - CASE WHEN vote.value = 75 THEN 1 ELSE 0 END,
         vote_100_count = aggregate.vote_100_count - CASE WHEN vote.value = 100 THEN 1 ELSE 0 END,
-        performance = (
-          aggregate.prior_strength * aggregate.prior_performance
-          + aggregate.valid_vote_sum
-          - vote.value
-        )::numeric / (
-          aggregate.prior_strength + aggregate.valid_vote_count - 1
-        ),
-        gp = round(1000 + 10 * (
-          aggregate.prior_strength * aggregate.prior_performance
-          + aggregate.valid_vote_sum
-          - vote.value
-        )::numeric / (
-          aggregate.prior_strength + aggregate.valid_vote_count - 1
-        ))::integer,
+        performance = CASE
+          WHEN aggregate.valid_vote_count = 1 THEN ${PUBLIC_EMPTY_PERFORMANCE}
+          ELSE (
+            aggregate.valid_vote_sum - vote.value
+          )::numeric / (aggregate.valid_vote_count - 1)
+        END,
+        gp = CASE
+          WHEN aggregate.valid_vote_count = 1
+            THEN ${1000 + PUBLIC_EMPTY_PERFORMANCE * 10}
+          ELSE round(1000 + 10 * (
+            aggregate.valid_vote_sum - vote.value
+          )::numeric / (aggregate.valid_vote_count - 1))::integer
+        END,
         model_version = ${RATING_MODEL_VERSION},
         updated_at = clock_timestamp()
       FROM target_vote AS vote
@@ -781,12 +771,19 @@ export async function rebuildStatementRating(
       vote_50_count = totals.vote_50_count,
       vote_75_count = totals.vote_75_count,
       vote_100_count = totals.vote_100_count,
-      performance = (
-        aggregate.prior_strength * aggregate.prior_performance + totals.valid_vote_sum
-      )::numeric / (aggregate.prior_strength + totals.valid_vote_count),
-      gp = round(1000 + 10 * (
-        aggregate.prior_strength * aggregate.prior_performance + totals.valid_vote_sum
-      )::numeric / (aggregate.prior_strength + totals.valid_vote_count))::integer,
+      prior_performance = ${PUBLIC_EMPTY_PERFORMANCE},
+      prior_strength = ${RATING_PRIOR_STRENGTH},
+      performance = CASE
+        WHEN totals.valid_vote_count = 0 THEN ${PUBLIC_EMPTY_PERFORMANCE}
+        ELSE totals.valid_vote_sum::numeric / totals.valid_vote_count
+      END,
+      gp = CASE
+        WHEN totals.valid_vote_count = 0
+          THEN ${1000 + PUBLIC_EMPTY_PERFORMANCE * 10}
+        ELSE round(
+          1000 + 10 * totals.valid_vote_sum::numeric / totals.valid_vote_count
+        )::integer
+      END,
       model_version = ${RATING_MODEL_VERSION},
       updated_at = clock_timestamp()
     FROM totals

@@ -69,7 +69,7 @@
 
         "status": {
           "enum": ["published", "held_parity", "held_review", "withdrawn"],
-          "description": "published — included on the provisional ladder; public voting still requires Stage 3. held_parity — legacy status retained for old imports and not a valid reason to hide a newly qualified record. held_review — evidence, context, duplication, or a Committee question is open; see needs and policy_note. withdrawn — retained in the audit record but removed from the public board."
+          "description": "published — live only after the complete evidence/video bar passes; public rank still requires ten valid rulings. held_parity — legacy status retained for old imports and not a valid reason to hide a newly qualified record. held_review — a public research file whose evidence, context, duplication, or Committee question is open. withdrawn — retained in the audit record but removed from the public board. Private submission drafts are database-only and must never be committed to the seed corpus."
         },
 
         "speaker_id": { "type": "string", "description": "FK to politicians.json" },
@@ -116,7 +116,7 @@
             "crowd_complicity": { "$ref": "#/$defs/axisScore" },
             "consequence":      { "$ref": "#/$defs/axisScore" }
           },
-          "description": "Seed scores only. They establish the frozen editorial prior for the public rating; equal-strength public rulings progressively outweigh it. Aamne-Saamne exhibition picks never affect this score. See docs/09-seed-corpus.md for the rubric each number is scored against."
+          "description": "Internal research notes retained for audit and historical rubric continuity. They never establish public GP, tier, rank, or a starting advantage. Public performance is the arithmetic mean of equal-strength valid rulings. Aamne-Saamne exhibition picks never affect it."
         },
 
         "verification": {
@@ -141,7 +141,11 @@
                   "tier": { "enum": ["A", "B", "C"] },
                   "publisher": { "type": "string" },
                   "title": { "type": "string" },
-                  "url": { "type": "string", "format": "uri" }
+                  "url": { "type": "string", "format": "uri" },
+                  "role": {
+                    "enum": ["footage", "reporting", "context", "fact_check"],
+                    "description": "Optional provenance role. Social-platform footage remains a source citation; it does not become a vote-eligible video."
+                  }
                 }
               }
             }

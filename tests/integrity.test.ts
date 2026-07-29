@@ -94,6 +94,157 @@ test("database guards serialize direct statement edits with the first vote", asy
   );
 });
 
+test("rating v2 migration demotes incomplete publications and enforces the same bar in Postgres", async () => {
+  const migrationSource = await readFile(
+    new URL(
+      "../db/migrations/0010_publication_and_rating_v2.sql",
+      import.meta.url
+    ),
+    "utf8"
+  );
+
+  assert.match(
+    migrationSource,
+    /CREATE OR REPLACE FUNCTION bhashan\.statement_publication_issues/
+  );
+  assert.match(
+    migrationSource,
+    /statement_document ->> 'date'[\s\S]*?confirmed statement date/
+  );
+  assert.match(
+    migrationSource,
+    /statement_document ->> 'venue'[\s\S]*?confirmed statement venue/
+  );
+  assert.match(migrationSource, /verification -> 'needs'/);
+  assert.match(
+    migrationSource,
+    /bhashan\.statement_video_fingerprint\(statement_document\) IS NULL/
+  );
+  assert.match(
+    migrationSource,
+    /SELECT set_config\(\s*'bhashan\.actor'[\s\S]*?migration:0010_publication_and_rating_v2/
+  );
+  assert.match(
+    migrationSource,
+    /UPDATE bhashan\.statements AS statement[\s\S]*?to_jsonb\('held_review'::text\)/
+  );
+  assert.match(migrationSource, /prior_strength = 0/);
+  assert.match(migrationSource, /model_version = 2/);
+  assert.match(
+    migrationSource,
+    /NEW\.rating_seed_gp := 1500/
+  );
+  assert.match(
+    migrationSource,
+    /CREATE TRIGGER enforce_statement_publication_integrity\s+BEFORE INSERT OR UPDATE OF document/
+  );
+  assert.match(
+    migrationSource,
+    /CREATE OR REPLACE FUNCTION bhashan\.valid_http_source_url/
+  );
+  assert.match(
+    migrationSource,
+    /bhashan\.valid_http_source_url\(source\.document ->> 'url'\)/
+  );
+  assert.match(
+    migrationSource,
+    /CREATE CONSTRAINT TRIGGER enforce_statement_cloudinary_attachment[\s\S]*?DEFERRABLE INITIALLY DEFERRED/
+  );
+  assert.match(
+    migrationSource,
+    /CREATE CONSTRAINT TRIGGER enforce_cloudinary_upload_statement_attachment[\s\S]*?DEFERRABLE INITIALLY DEFERRED/
+  );
+  assert.match(
+    migrationSource,
+    /bhashan\.statement_cloudinary_attachment_ready\([\s\S]*?upload\.playback_attested_at IS NOT NULL/
+  );
+});
+
+test("rating v2 is canonically rebuilt and enforced while Hall maturity stays live", async () => {
+  const [
+    migrationSource,
+    verifierSource,
+    voteStoreSource,
+    accountSource,
+    storeSource,
+  ] = await Promise.all([
+      readFile(
+        new URL(
+          "../db/migrations/0010_publication_and_rating_v2.sql",
+          import.meta.url
+        ),
+        "utf8"
+      ),
+      readFile(new URL("../scripts/db-verify.mjs", import.meta.url), "utf8"),
+      readFile(new URL("../lib/vote-store.ts", import.meta.url), "utf8"),
+      readFile(new URL("../app/account/actions.ts", import.meta.url), "utf8"),
+      readFile(new URL("../lib/store.ts", import.meta.url), "utf8"),
+    ]);
+
+  assert.match(
+    migrationSource,
+    /LOCK TABLE[\s\S]*?bhashan\.statement_votes[\s\S]*?bhashan\.statement_rating_aggregates[\s\S]*?IN SHARE ROW EXCLUSIVE MODE/
+  );
+  assert.match(
+    migrationSource,
+    /DELETE FROM bhashan\.statement_rating_aggregates AS aggregate[\s\S]*?target_statements AS MATERIALIZED[\s\S]*?LEFT JOIN bhashan\.statement_vote_exclusions[\s\S]*?ON CONFLICT \(statement_id\) DO UPDATE SET/
+  );
+  assert.match(
+    migrationSource,
+    /UPDATE bhashan\.statements AS statement[\s\S]*?rating_seed_gp = CASE[\s\S]*?THEN 1500/
+  );
+  assert.match(
+    migrationSource,
+    /CREATE TRIGGER enforce_statement_rating_aggregate_v2\s+BEFORE INSERT OR UPDATE OR DELETE/
+  );
+  assert.match(
+    migrationSource,
+    /ADD CONSTRAINT statement_rating_aggregate_v2_check[\s\S]*?prior_performance = 50[\s\S]*?prior_strength = 0[\s\S]*?model_version = 2/
+  );
+  assert.match(
+    migrationSource,
+    /CREATE TRIGGER clear_immature_statement_hall_of_fame\s+AFTER INSERT OR UPDATE OR DELETE/
+  );
+  assert.match(
+    migrationSource,
+    /'bhashan:statement-rating:' \|\| NEW\.id/
+  );
+  assert.match(
+    voteStoreSource,
+    /ON CONFLICT \(statement_id\) DO UPDATE SET\s+prior_performance = \$\{PUBLIC_EMPTY_PERFORMANCE\},\s+prior_strength = \$\{RATING_PRIOR_STRENGTH\}/
+  );
+  assert.match(
+    voteStoreSource,
+    /UPDATE bhashan\.statement_rating_aggregates AS aggregate\s+SET\s+prior_performance = \$\{PUBLIC_EMPTY_PERFORMANCE\},\s+prior_strength = \$\{RATING_PRIOR_STRENGTH\}/
+  );
+  assert.match(
+    accountSource,
+    /prior_performance = \$\{PUBLIC_EMPTY_PERFORMANCE\},\s+prior_strength = \$\{RATING_PRIOR_STRENGTH\}/
+  );
+  const hallMutationSource = storeSource.slice(
+    storeSource.indexOf("export async function setStatementHallOfFame"),
+    storeSource.indexOf(
+      "export async function createPoliticianRecord",
+      storeSource.indexOf("export async function setStatementHallOfFame")
+    )
+  );
+  assert.match(hallMutationSource, /statementRatingLockKey\(id\)/);
+  for (const expected of [
+    "public_submissions",
+    "public_submission_events",
+    "enforce_statement_publication_integrity",
+    "enforce_statement_cloudinary_attachment",
+    "enforce_cloudinary_upload_statement_attachment",
+    "enforce_statement_rating_aggregate_v2",
+    "clear_immature_statement_hall_of_fame",
+    "statement_rating_aggregate_v2_check",
+    "statement_publication_issues",
+    "rating_seed_gp IS DISTINCT FROM CASE",
+  ]) {
+    assert.match(verifierSource, new RegExp(expected));
+  }
+});
+
 test("Cloudinary migration and corpus import fail closed on non-canonical evidence", async () => {
   const [migrationSource, importSource, storeSource] = await Promise.all([
     readFile(new URL("../db/migrations/0008_cloudinary_video.sql", import.meta.url), "utf8"),
@@ -203,8 +354,8 @@ test("an invalid root video cannot hide a Cloudinary embed during JSON import", 
 test("aggregate parsing derives performance and GP instead of trusting cache columns", () => {
   const aggregate = parseRatingAggregate({
     statement_id: "IN-0044",
-    prior_performance: 60,
-    prior_strength: 10,
+    prior_performance: 50,
+    prior_strength: 0,
     valid_vote_count: 3,
     valid_vote_sum: 225,
     vote_0_count: 0,
@@ -214,18 +365,36 @@ test("aggregate parsing derives performance and GP instead of trusting cache col
     vote_100_count: 1,
     performance: 0,
     gp: 1000,
-    model_version: 1,
+    model_version: 2,
     updated_at: "2026-07-28T00:00:00.000Z",
   });
 
-  assert.equal(aggregate.performance, 825 / 13);
-  assert.equal(aggregate.gp, 1635);
+  assert.equal(aggregate.performance, 75);
+  assert.equal(aggregate.gp, 1750);
+  const transitionalLegacyAggregate = parseRatingAggregate({
+    statement_id: "IN-0044",
+    prior_performance: 86.8,
+    prior_strength: 10,
+    valid_vote_count: 2,
+    valid_vote_sum: 25,
+    vote_0_count: 1,
+    vote_25_count: 1,
+    vote_50_count: 0,
+    vote_75_count: 0,
+    vote_100_count: 0,
+    model_version: 1,
+    updated_at: "2026-07-28T00:00:00.000Z",
+  });
+  assert.equal(transitionalLegacyAggregate.performance, 12.5);
+  assert.equal(transitionalLegacyAggregate.gp, 1125);
+  assert.equal(transitionalLegacyAggregate.priorStrength, 0);
+  assert.equal(transitionalLegacyAggregate.modelVersion, 2);
   assert.throws(
     () =>
       parseRatingAggregate({
         statement_id: "IN-0044",
-        prior_performance: 60,
-        prior_strength: 10,
+        prior_performance: 50,
+        prior_strength: 1,
         valid_vote_count: 0,
         valid_vote_sum: 0,
         vote_0_count: 0,
@@ -235,30 +404,12 @@ test("aggregate parsing derives performance and GP instead of trusting cache col
         vote_100_count: 0,
         model_version: 2,
         updated_at: "2026-07-28T00:00:00.000Z",
-    }),
-    /unsupported model version 2/
-  );
-  assert.throws(
-    () =>
-      parseRatingAggregate({
-        statement_id: "IN-0044",
-        prior_performance: 60,
-        prior_strength: 9,
-        valid_vote_count: 0,
-        valid_vote_sum: 0,
-        vote_0_count: 0,
-        vote_25_count: 0,
-        vote_50_count: 0,
-        vote_75_count: 0,
-        vote_100_count: 0,
-        model_version: 1,
-        updated_at: "2026-07-28T00:00:00.000Z",
       }),
-    /unsupported prior strength 9/
+    /invalid model-v2 baseline/
   );
 });
 
-test("a stored zero-vote aggregate preserves its frozen prior in public data", () => {
+test("a stored zero-vote aggregate remains neutral in public data", () => {
   const statements: RawStatement[] = [
     {
       id: "IN-9000",
@@ -298,8 +449,8 @@ test("a stored zero-vote aggregate preserves its frozen prior in public data", (
   const parties: RawParty[] = [{ id: "TST", name: "Test Party" }];
   const frozen = parseRatingAggregate({
     statement_id: "IN-9000",
-    prior_performance: 88,
-    prior_strength: 10,
+    prior_performance: 50,
+    prior_strength: 0,
     valid_vote_count: 0,
     valid_vote_sum: 0,
     vote_0_count: 0,
@@ -309,7 +460,7 @@ test("a stored zero-vote aggregate preserves its frozen prior in public data", (
     vote_100_count: 0,
     performance: 12,
     gp: 1120,
-    model_version: 1,
+    model_version: 2,
     updated_at: "2026-07-28T00:00:00.000Z",
   });
 
@@ -323,11 +474,10 @@ test("a stored zero-vote aggregate preserves its frozen prior in public data", (
     "2026-07-28"
   );
 
-  assert.equal(model.CORPUS[0]?.seedGp, 1290);
-  assert.equal(model.CORPUS[0]?.gp, 1880);
+  assert.equal(model.CORPUS[0]?.gp, 1500);
   assert.equal(model.CORPUS[0]?.rating.source, "community");
   assert.equal(model.CORPUS[0]?.rating.validVoteCount, 0);
-  assert.equal(model.CORPUS[0]?.rating.priorPerformance, 88);
+  assert.equal(model.CORPUS[0]?.rating.priorPerformance, 50);
 });
 
 test("vote moderation is registered-admin-only and audited atomically", async () => {

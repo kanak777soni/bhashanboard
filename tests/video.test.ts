@@ -37,6 +37,8 @@ function validCloudinaryVideo() {
 function eligibleCommitteeDocument() {
   return {
     status: "published",
+    date: "2026-07-29",
+    venue: "Public meeting, New Delhi",
     language: "Hindi",
     quote: "यह मूल कथन है।",
     quote_translation: "This is the original statement.",
@@ -195,6 +197,8 @@ test("committee publication eligibility requires complete evidence and original 
 
   const incomplete = {
     ...eligible,
+    date: " ",
+    venue: "",
     quote: " ",
     quote_translation: "",
     context: "",
@@ -204,6 +208,8 @@ test("committee publication eligibility requires complete evidence and original 
     },
   };
   const issues = committeePublicationIssues(incomplete);
+  assert.ok(issues.includes("A confirmed statement date is required."));
+  assert.ok(issues.includes("A confirmed statement venue is required."));
   assert.ok(issues.includes("An original-language verbatim quote is required."));
   assert.ok(
     issues.includes("A faithful English translation is required for a non-English quote.")
@@ -226,6 +232,31 @@ test("committee evidence requires the matching best-tier HTTP(S) source", () => 
     committeePublicationIssues(invalidSource).includes(
       "A matching Tier A/B HTTP(S) source is required."
     )
+  );
+});
+
+test("unresolved verification needs hard-block publication", () => {
+  const eligible = eligibleCommitteeDocument();
+  const issues = committeePublicationIssues({
+    ...eligible,
+    verification: {
+      ...eligible.verification,
+      needs: ["Confirm the exact end timestamp"],
+    },
+  });
+
+  assert.ok(
+    issues.includes("All outstanding verification needs must be resolved.")
+  );
+  assert.equal(
+    isCommitteePublicationEligible({
+      ...eligible,
+      verification: {
+        ...eligible.verification,
+        needs: ["Confirm the exact end timestamp"],
+      },
+    }),
+    false
   );
 });
 

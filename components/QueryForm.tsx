@@ -2,9 +2,37 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import {
+  type MouseEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { DEFAULTS, activeTokens, toSearchParams, type Query } from "@/lib/query";
 import { TIERS } from "@/lib/tiers";
+
+export function mergeQueryUpdate(
+  current: Query,
+  patch: Partial<Query>,
+  pendingTerm?: string
+): Query {
+  return {
+    ...current,
+    ...patch,
+    ...(pendingTerm === undefined ? {} : { q: pendingTerm }),
+  };
+}
+
+function isModifiedClick(event: MouseEvent<HTMLAnchorElement>): boolean {
+  return (
+    event.button !== 0 ||
+    event.metaKey ||
+    event.ctrlKey ||
+    event.shiftKey ||
+    event.altKey
+  );
+}
 
 export default function QueryForm({
   query,
@@ -30,8 +58,8 @@ export default function QueryForm({
   const router = useRouter();
   const [term, setTerm] = useState(query.q);
   const first = useRef(true);
+  const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const latestQuery = useRef(query);
-  latestQuery.current = query;
   // Open by default when a secondary filter is already applied, so an
   // arriving link shows why it is filtered.
   const [open, setOpen] = useState(
@@ -41,8 +69,54 @@ export default function QueryForm({
       query.period !== DEFAULTS.period
   );
 
+  // Server props eventually confirm each navigation. Do this in an effect,
+  // rather than during render, so an unrelated local render cannot erase an
+  // optimistically staged filter while the router is still resolving it.
+  useEffect(() => {
+    latestQuery.current = query;
+  }, [query]);
+
   // Keep the field in step when the URL changes from a token being removed.
   useEffect(() => setTerm(query.q), [query.q]);
+
+  const cancelPendingSearch = useCallback(() => {
+    if (searchTimer.current === null) return;
+    clearTimeout(searchTimer.current);
+    searchTimer.current = null;
+  }, []);
+
+  const push = useCallback(
+    (patch: Partial<Query>, includePendingTerm = false) => {
+      cancelPendingSearch();
+      const nextQuery = mergeQueryUpdate(
+        latestQuery.current,
+        patch,
+        includePendingTerm ? term : undefined
+      );
+
+      // Stage the destination before asking the router to resolve it. If the
+      // user types and changes a filter inside the same 250 ms window, the
+      // second navigation now merges with the first instead of erasing it.
+      latestQuery.current = nextQuery;
+      router.push(`${basePath}${toSearchParams(nextQuery)}`, {
+        scroll: false,
+      });
+    },
+    [basePath, cancelPendingSearch, router, term]
+  );
+
+  const reset = useCallback(
+    (event: MouseEvent<HTMLAnchorElement>) => {
+      // Modified clicks open another tab and must not change this tab's
+      // optimistic state.
+      if (isModifiedClick(event)) return;
+      event.preventDefault();
+      cancelPendingSearch();
+      latestQuery.current = DEFAULTS;
+      router.push(basePath, { scroll: false });
+    },
+    [basePath, cancelPendingSearch, router]
+  );
 
   // Debounced push so typing doesn't spam history.
   useEffect(() => {
@@ -51,10 +125,10 @@ export default function QueryForm({
       return;
     }
     if (term === query.q) return;
-    const id = setTimeout(() => push({ q: term }), 250);
-    return () => clearTimeout(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [term]);
+    cancelPendingSearch();
+    searchTimer.current = setTimeout(() => push({ q: term }), 250);
+    return cancelPendingSearch;
+  }, [cancelPendingSearch, push, query.q, term]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -68,12 +142,6 @@ export default function QueryForm({
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  function push(patch: Partial<Query>) {
-    router.push(`${basePath}${toSearchParams({ ...latestQuery.current, ...patch })}`, {
-      scroll: false,
-    });
-  }
-
   const tokens = activeTokens(query);
 
   const select = (
@@ -86,7 +154,9 @@ export default function QueryForm({
       <span className="lbl">{label}</span>
       <select
         value={query[id]}
-        onChange={(e) => push({ [id]: e.target.value } as Partial<Query>)}
+        onChange={(e) =>
+          push({ [id]: e.target.value } as Partial<Query>, true)
+        }
       >
         {options.map((o) => (
           <option key={o.value} value={o.value} disabled={o.disabled}>
@@ -198,23 +268,46 @@ export default function QueryForm({
           <span className="lbl">No filters applied &middot; showing the full record</span>
         ) : (
           <>
-            {tokens.map((t) => (
-              <Link
-                key={t.key}
-                className="token"
-                href={`${basePath}${toSearchParams({
-                  ...query,
-                  [t.key]: DEFAULTS[t.key],
-                })}`}
-                scroll={false}
-              >
-                {t.label}: {t.value} <span className="x" aria-hidden="true">&times;</span>
-                <span className="lbl" style={{ position: "absolute", left: -9999 }}>
-                  Remove filter
-                </span>
-              </Link>
-            ))}
-            <Link className="token-reset" href={basePath} scroll={false}>
+            {tokens.map((t) => {
+              const patch = {
+                [t.key]: DEFAULTS[t.key],
+              } as Partial<Query>;
+              const nextQuery = mergeQueryUpdate(
+                query,
+                patch,
+                t.key === "q" ? "" : term
+              );
+              return (
+                <Link
+                  key={t.key}
+                  className="token"
+                  href={`${basePath}${toSearchParams(nextQuery)}`}
+                  onClick={(event) => {
+                    if (isModifiedClick(event)) return;
+                    event.preventDefault();
+                    push(patch, t.key !== "q");
+                  }}
+                  scroll={false}
+                >
+                  {t.label}: {t.value}{" "}
+                  <span className="x" aria-hidden="true">
+                    &times;
+                  </span>
+                  <span
+                    className="lbl"
+                    style={{ position: "absolute", left: -9999 }}
+                  >
+                    Remove filter
+                  </span>
+                </Link>
+              );
+            })}
+            <Link
+              className="token-reset"
+              href={basePath}
+              onClick={reset}
+              scroll={false}
+            >
               Reset all
             </Link>
           </>

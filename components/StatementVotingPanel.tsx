@@ -942,16 +942,6 @@ export default function StatementVotingPanel({
         </div>
       </div>
 
-      <div className="performance-track" aria-hidden="true">
-        <i style={{ width: `${displayedPerformance}%` }} />
-        {hasPublicRulings && <b style={{ left: `${displayedPerformance}%` }} />}
-      </div>
-      <div className="performance-legend lbl">
-        <span>Flat</span>
-        <span>{publicRulingLabel}</span>
-        <span>Historic</span>
-      </div>
-
       {video ? (
         <VerifiedVideoPlayer
           video={video}
@@ -975,6 +965,35 @@ export default function StatementVotingPanel({
           {playerError.message}
         </p>
       )}
+
+      <div className="performance-track" aria-hidden="true">
+        <i style={{ width: `${displayedPerformance}%` }} />
+        {hasPublicRulings && <b style={{ left: `${displayedPerformance}%` }} />}
+      </div>
+      <div className="performance-legend lbl">
+        <span>Flat</span>
+        <span>{publicRulingLabel}</span>
+        <span>Historic</span>
+      </div>
+      <div className="ballot-preview" aria-label="Five public ruling choices">
+        {BALLOT_OPTIONS.map((option) => (
+          <span key={option.value}>
+            <b>{option.label}</b>
+            <small className="num">{option.value}</small>
+          </span>
+        ))}
+      </div>
+      <details className="rating-explainer">
+        <summary>How this score works</summary>
+        <p>
+          Every valid ruling has equal weight. Performance is the sum of valid
+          ballot values divided by {rating.validVoteCount || "the number of"}{" "}
+          valid rulings; GP is 1000 plus ten times that performance.
+          {rating.validVoteCount < 10
+            ? " This filing remains unranked until ten valid rulings."
+            : " This filing has reached the ten-ruling public rank boundary."}
+        </p>
+      </details>
 
       <div className="ballot-box">
         {!votingEligible ? (

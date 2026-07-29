@@ -191,7 +191,13 @@ export function validateSnapshot(snapshot) {
   const politicianIds = uniqueIds(politicians.politicians, "politicians.json");
   uniqueIds(statements.statements, "statements.json");
   const leaderboardIds = uniqueIds(leaderboard.entries, "leaderboard.json");
-  const statuses = new Set(["published", "held_parity", "held_review", "withdrawn"]);
+  const statuses = new Set([
+    "published",
+    "held_parity",
+    "held_review",
+    "private_draft",
+    "withdrawn",
+  ]);
   const tierRank = { A: 4, B: 3, C: 2, D: 1 };
   const statementNumbers = [];
 

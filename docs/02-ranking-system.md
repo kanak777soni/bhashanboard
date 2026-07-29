@@ -3,8 +3,10 @@
 > **Historical design note.** The pairwise Elo proposal below is no longer the
 > official scoring mechanic. The implemented system uses verified-email
 > accounts, a server-timed qualifying playback receipt, one equal-strength fixed
-> ballot per statement, and a published Bayesian seed prior. Aamne-Saamne is a
-> non-scoring exhibition. See `/rules`, `lib/rating.ts`, and `lib/vote-store.ts`.
+> ballot per statement. Every valid ballot has equal weight, performance is
+> their arithmetic mean, and no editorial seed affects public GP or rank.
+> Aamne-Saamne is a non-scoring exhibition. See `/rules`, `lib/rating.ts`, and
+> `lib/vote-store.ts`.
 
 This is the core product. Everything else is packaging.
 

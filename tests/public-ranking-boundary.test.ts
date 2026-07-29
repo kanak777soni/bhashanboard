@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import test from "node:test";
+import { DEFAULTS } from "../lib/query";
+import { mergeQueryUpdate } from "../components/QueryForm";
 
 function source(file: string): string {
   return readFileSync(path.join(process.cwd(), file), "utf8");
@@ -33,6 +35,17 @@ test("public legacy surfaces cannot fall back to the editorial seed ladder", () 
   );
 });
 
+test("the public vote-state endpoint cannot resolve private or review records", () => {
+  assert.match(
+    source("lib/vote-store.ts"),
+    /WHERE statement\.id = \$\{statementId\}\s+AND statement\.status = 'published'/
+  );
+  assert.match(
+    source("lib/vote-store.ts"),
+    /committeePublicationIssues\(row\.record_document\)\.length > 0/
+  );
+});
+
 test("dormant exhibitions are omitted from discovery until two videos are live", () => {
   const sitemap = source("app/sitemap.ts");
   assert.match(sitemap, /inventory\.liveVideos\.length\s*>=\s*2/);
@@ -58,16 +71,41 @@ test("new filings and in-placement filings remain distinct in public copy", () =
   }
 });
 
-test("public movement never borrows the corpus's editorial previous rank", () => {
+test("standings omit movement until public rank history is persisted", () => {
   assert.doesNotMatch(source("lib/query.ts"), /s\.previousRank/);
   assert.doesNotMatch(source("components/QueryForm.tsx"), /Biggest climber/);
-  assert.match(source("components/StandingsTable.tsx"), /showMovement/);
+  const table = source("components/StandingsTable.tsx");
+  assert.doesNotMatch(table, /showMovement|function Movement|c-move|&plusmn;/);
 });
 
-test("debounced search merges into the latest filter state", () => {
+test("search and filter updates compose in either event order", () => {
+  const filterThenSearch = mergeQueryUpdate(
+    mergeQueryUpdate(DEFAULTS, { party: "INC" }),
+    { q: "monsoon" }
+  );
+  assert.equal(filterThenSearch.party, "INC");
+  assert.equal(filterThenSearch.q, "monsoon");
+
+  const pendingSearchThenFilter = mergeQueryUpdate(
+    DEFAULTS,
+    { party: "BJP" },
+    "committee"
+  );
+  assert.equal(pendingSearchThenFilter.party, "BJP");
+  assert.equal(pendingSearchThenFilter.q, "committee");
+});
+
+test("QueryForm stages router destinations before later debounced updates", () => {
   const queryForm = source("components/QueryForm.tsx");
-  assert.match(queryForm, /latestQuery\.current\s*=\s*query/);
-  assert.match(queryForm, /\.\.\.latestQuery\.current,\s*\.\.\.patch/);
+  assert.match(
+    queryForm,
+    /useEffect\(\(\) => \{\s*latestQuery\.current = query;\s*\}, \[query\]\)/
+  );
+  assert.match(
+    queryForm,
+    /latestQuery\.current = nextQuery;\s*router\.push/
+  );
+  assert.match(queryForm, /push\(\{ \[id\]: e\.target\.value \}[\s\S]*true/);
 });
 
 test("admin task links and research cards preserve the state they describe", () => {
