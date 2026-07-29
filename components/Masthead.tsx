@@ -24,7 +24,7 @@ export default async function Masthead() {
             <div className="lbl">Edition {EDITION.number}</div>
             <div className="lbl">{EDITION.date}</div>
             <div className="lbl">
-              <span className="num">{data.STATEMENTS.length.toLocaleString("en-IN")}</span> entries on record
+              <span className="num">{data.CORPUS.length.toLocaleString("en-IN")}</span> entries on record
             </div>
             <ThemeToggle />
           </div>

@@ -523,3 +523,314 @@
     font-size: 10.5px;
   }
 }
+
+/* Compact screening and statement-page refinements are kept here so the
+   desktop certificate remains ceremonial while the phone behaves like a
+   direct, touch-first screening surface. */
+@media (max-width: 760px) {
+  .nav-mobile-menu {
+    max-height: calc(100dvh - 112px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .nav-mobile-group-label {
+    grid-column: 1 / -1;
+    min-height: 30px;
+    display: flex;
+    align-items: center;
+    padding: 7px 10px 4px;
+    color: var(--seal);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .nav-mobile-group-label:not(:first-child) {
+    margin-top: 4px;
+  }
+
+  .nav-mobile-summary:focus-visible,
+  .nav-mobile-menu a:focus-visible,
+  .nav-mobile-auth a:focus-visible {
+    position: relative;
+    z-index: 1;
+    background: var(--foil-soft);
+  }
+
+  .screening-masthead {
+    padding: 11px 0 9px;
+  }
+
+  .screening-mast-inner {
+    min-height: 48px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px 12px;
+  }
+
+  .screening-brand {
+    min-width: 0;
+  }
+
+  .screening-nameplate {
+    overflow: hidden;
+    font-size: clamp(23px, 6.5vw, 27px);
+    line-height: 1;
+    text-overflow: ellipsis;
+  }
+
+  .screening-motto {
+    overflow: hidden;
+    margin-top: 3px;
+    font-size: 11.5px;
+    line-height: 1.3;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .screening-tools {
+    gap: 0;
+  }
+
+  .screening-tools > .lbl {
+    display: none;
+  }
+
+  .screening-tools .theme-toggle {
+    min-width: 52px;
+    min-height: 44px;
+    padding: 0 8px;
+  }
+
+  .statement-certificate {
+    width: auto;
+    margin: 12px calc(0px - var(--page-gutter)) 0;
+    padding: 15px var(--page-gutter) 22px;
+    border-right: 0;
+    border-left: 0;
+  }
+
+  .statement-certificate > .guilloche {
+    opacity: .32;
+  }
+
+  .statement-file-head {
+    min-width: 0;
+    flex-wrap: nowrap;
+    gap: 12px;
+  }
+
+  .statement-file-head > div:first-child {
+    min-width: 0;
+  }
+
+  .statement-file-mark {
+    min-width: 126px;
+    max-width: 46%;
+    padding: 7px 9px;
+  }
+
+  .statement-file-mark strong {
+    font-size: 14.5px;
+  }
+
+  .statement-intro {
+    padding-top: 12px;
+  }
+
+  .statement-intro .cert-title {
+    margin-top: 6px;
+    font-size: clamp(23px, 7.2vw, 31px);
+    line-height: 1.16;
+  }
+
+  .statement-intro .cert-attrib {
+    margin-bottom: 10px;
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  .statement-screening {
+    width: calc(100% + var(--page-gutter) + var(--page-gutter));
+    margin-right: calc(0px - var(--page-gutter));
+    margin-left: calc(0px - var(--page-gutter));
+  }
+
+  .statement-screening .ruling-panel {
+    margin: 9px 0 20px;
+    padding: 14px var(--page-gutter) 17px;
+    border-right: 0;
+    border-left: 0;
+  }
+
+  .statement-screening .ruling-head {
+    gap: 10px;
+  }
+
+  .statement-screening .ruling-head h2 {
+    font-size: clamp(21px, 6.6vw, 27px);
+  }
+
+  .statement-screening .ruling-score .num {
+    font-size: 31px;
+  }
+
+  .statement-screening .ruling-player {
+    width: calc(100% + var(--page-gutter) + var(--page-gutter));
+    max-width: none;
+    margin-right: calc(0px - var(--page-gutter));
+    margin-left: calc(0px - var(--page-gutter));
+    border-right: 0;
+    border-left: 0;
+    box-shadow: none;
+  }
+
+  .statement-screening .ballot-box {
+    padding: 13px 12px 15px;
+  }
+
+  .statement-review-notice,
+  .statement-translation {
+    margin-top: 16px;
+  }
+
+  .research-file-notice {
+    margin: 10px 0 19px;
+    padding: 18px 16px;
+  }
+
+  .research-file-notice::after {
+    right: -8px;
+    bottom: -12px;
+    font-size: clamp(36px, 15vw, 58px);
+  }
+
+  .research-file-notice h2 {
+    font-size: clamp(21px, 6.4vw, 27px);
+  }
+
+  .research-file-notice p {
+    font-size: 14.5px;
+  }
+
+  .research-file-submit {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .statement-record-facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .statement-record-facts > div,
+  .statement-record-facts > div:last-child {
+    padding: 10px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .statement-record-facts > div:nth-last-child(-n + 2) {
+    border-bottom: 0;
+  }
+
+  .statement-disclosure {
+    margin-top: 15px;
+  }
+
+  .statement-disclosure > summary {
+    min-height: 52px;
+    gap: 10px;
+    padding-right: 29px;
+  }
+
+  .statement-disclosure-prompt {
+    overflow: hidden;
+    font-size: 13px;
+    line-height: 1.35;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .statement-disclosure > summary:focus-visible {
+    outline-offset: 0;
+    background: var(--foil-soft);
+  }
+
+  .statement-sources .sources-list a {
+    overflow-wrap: anywhere;
+  }
+
+  .statement-file-nav {
+    width: auto;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin: 18px 0 0;
+  }
+
+  .statement-file-nav .btn {
+    min-height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 9px 10px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 420px) {
+  .screening-nameplate {
+    font-size: clamp(22px, 6.4vw, 24px);
+  }
+
+  .screening-motto {
+    max-width: 27ch;
+    font-size: 10.5px;
+  }
+
+  .statement-file-head {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .statement-file-mark {
+    width: 100%;
+    max-width: none;
+    grid-template-columns: auto 1fr;
+    align-items: baseline;
+    text-align: left;
+  }
+
+  .statement-file-mark strong {
+    text-align: right;
+  }
+
+  .statement-record-facts {
+    grid-template-columns: 1fr;
+  }
+
+  .statement-record-facts > div,
+  .statement-record-facts > div:nth-last-child(-n + 2),
+  .statement-record-facts > div:last-child {
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .statement-record-facts > div:last-child {
+    border-bottom: 0;
+  }
+
+  .statement-disclosure > summary {
+    align-items: flex-start;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+  }
+
+  .statement-disclosure-prompt {
+    width: 100%;
+    text-align: left;
+  }
+
+  .statement-file-nav {
+    grid-template-columns: 1fr;
+  }
+}

@@ -838,3 +838,448 @@ footer.site p { margin: 0 0 8px; font-size: 13.5px; color: var(--ink-70); max-wi
   .ballot-options { grid-template-columns: repeat(2, 1fr); }
   .ballot-options button:last-child { grid-column: 1 / -1; }
 }
+
+/* ── reorganised navigation ─────────────────────────────────────
+   The public journey stays short. Institutional archive pages live in a
+   native details disclosure, preserving keyboard and no-JavaScript access. */
+.nav-more {
+  position: relative;
+  flex: none;
+  margin-bottom: -1px;
+}
+
+.nav-more-summary {
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 15px;
+  color: var(--ink-45);
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  font-family: var(--font-util);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .15em;
+  list-style: none;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.nav-more-summary::-webkit-details-marker {
+  display: none;
+}
+
+.nav-more-summary::after {
+  content: "+";
+  color: var(--seal);
+  font-family: var(--font-data);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.nav-more[open] .nav-more-summary::after {
+  content: "\2212";
+}
+
+.nav-more-summary:hover,
+.nav-more-summary[aria-current="page"],
+.nav-more[open] .nav-more-summary {
+  color: var(--ink);
+  border-bottom-color: var(--seal);
+}
+
+.nav-more-summary:focus-visible {
+  position: relative;
+  z-index: 42;
+}
+
+.nav-more-menu {
+  position: absolute;
+  z-index: 40;
+  top: calc(100% + 1px);
+  right: 0;
+  width: max-content;
+  min-width: 218px;
+  padding: 6px;
+  background: var(--ground-3);
+  border: 1px solid var(--rule-hard);
+  box-shadow: 0 14px 32px rgba(20, 29, 24, .18);
+}
+
+.nav-more-menu a {
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding: 9px 11px;
+  border-bottom: 1px solid var(--rule);
+  border-left: 2px solid transparent;
+}
+
+.nav-more-menu a:last-child {
+  border-bottom-color: transparent;
+}
+
+.nav-more-menu a:hover,
+.nav-more-menu a:focus-visible,
+.nav-more-menu a[aria-current="page"] {
+  color: var(--ink);
+  background: var(--foil-soft);
+  border-left-color: var(--seal);
+}
+
+/* ── compact screening shell ────────────────────────────────────
+   Statement and watch surfaces keep the Board's engraving and nameplate,
+   while removing the full edition/parity ceremony above the footage. */
+.screening-shell {
+  min-width: 0;
+}
+
+.screening-masthead {
+  padding: 14px 0 11px;
+}
+
+.screening-masthead .guilloche {
+  opacity: .42;
+}
+
+.screening-mast-inner {
+  min-height: 54px;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+
+.screening-brand {
+  min-width: 0;
+}
+
+.screening-nameplate {
+  margin: 0;
+  font-size: clamp(29px, 3.8vw, 42px);
+  line-height: .96;
+  white-space: nowrap;
+}
+
+.screening-motto {
+  margin-top: 4px;
+}
+
+.screening-tools {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 13px;
+  white-space: nowrap;
+}
+
+.screening-tools > .lbl {
+  color: var(--seal);
+}
+
+.screening-main {
+  width: 100%;
+  min-width: 0;
+}
+
+/* ── screening and research files ─────────────────────────────── */
+.statement-certificate {
+  width: min(100%, 1220px);
+  margin: 18px auto 0;
+  padding: clamp(20px, 3vw, 36px);
+}
+
+.statement-certificate > .guilloche {
+  opacity: .42;
+}
+
+.statement-has-video {
+  border-top: 3px solid var(--seal);
+}
+
+.statement-research-file {
+  border-top: 3px solid var(--foil);
+}
+
+.statement-file-head {
+  align-items: center;
+  padding-bottom: 11px;
+}
+
+.statement-evidence-state {
+  margin-top: 4px;
+  color: var(--seal);
+}
+
+.statement-has-video .statement-evidence-state {
+  color: var(--rise);
+}
+
+.statement-placement-seal {
+  flex: none;
+}
+
+.statement-file-mark {
+  min-width: 154px;
+  display: grid;
+  gap: 3px;
+  padding: 8px 11px;
+  border: 1px solid var(--rule-hard);
+  border-left: 3px solid var(--foil);
+  background: var(--ground);
+  text-align: right;
+}
+
+.statement-file-mark strong {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.15;
+}
+
+.statement-has-video .statement-file-mark {
+  border-left-color: var(--rise);
+}
+
+.statement-intro {
+  padding-top: 15px;
+}
+
+.statement-intro > .lbl {
+  color: var(--seal);
+}
+
+.statement-intro .cert-title {
+  max-width: 31ch;
+  margin-top: 7px;
+}
+
+.statement-intro .cert-attrib {
+  margin-bottom: 13px;
+}
+
+.statement-screening {
+  width: 100%;
+  min-width: 0;
+}
+
+.statement-screening .ruling-panel {
+  margin: 13px 0 24px;
+  padding: clamp(14px, 2.4vw, 24px);
+  border-top: 2px solid var(--ink);
+  background:
+    linear-gradient(var(--ground), var(--ground)) padding-box,
+    linear-gradient(90deg, var(--foil), var(--seal)) border-box;
+}
+
+.statement-screening .ruling-player,
+.statement-screening .ballot-box,
+.statement-screening .ruling-alert,
+.statement-screening .vote-distribution {
+  width: 100%;
+  max-width: none;
+}
+
+.statement-screening .ruling-player {
+  border-color: rgba(220, 227, 212, .38);
+  box-shadow: 0 10px 30px rgba(11, 16, 13, .16);
+}
+
+.statement-screening .ballot-box {
+  background: var(--ground-3);
+}
+
+.statement-review-notice {
+  max-width: 82ch;
+  margin: 18px 0 22px;
+}
+
+.statement-translation {
+  margin-top: 18px;
+}
+
+.statement-verdict {
+  margin-top: 19px;
+}
+
+.statement-record-facts {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border: 1px solid var(--rule-hard);
+  border-left: 0;
+  margin: 20px 0;
+}
+
+.statement-record-facts > div,
+.statement-record-facts > div:last-child {
+  min-width: 0;
+  display: block;
+  padding: 10px 12px;
+  border-bottom: 0;
+  border-left: 1px solid var(--rule-hard);
+}
+
+.statement-record-facts dt {
+  margin-bottom: 4px;
+}
+
+.statement-record-facts dd {
+  overflow-wrap: anywhere;
+  font-family: var(--font-display);
+  font-size: 16px;
+  line-height: 1.25;
+}
+
+.research-file-notice {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  margin: 14px 0 22px;
+  padding: clamp(18px, 3vw, 28px);
+  border: 1px solid var(--rule-hard);
+  border-left: 4px solid var(--foil);
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent 0,
+      transparent 31px,
+      var(--rule) 31px,
+      var(--rule) 32px
+    ),
+    var(--ground);
+}
+
+.research-file-notice::after {
+  content: "RESEARCH FILE";
+  position: absolute;
+  z-index: -1;
+  right: -12px;
+  bottom: -25px;
+  color: var(--foil);
+  font-family: var(--font-util);
+  font-size: clamp(42px, 8vw, 88px);
+  font-weight: 700;
+  letter-spacing: .05em;
+  line-height: 1;
+  opacity: .07;
+  transform: rotate(-3deg);
+  white-space: nowrap;
+}
+
+.research-file-notice > .lbl {
+  color: var(--seal);
+}
+
+.research-file-notice h2 {
+  max-width: 25ch;
+  margin: 5px 0 8px;
+  font-family: var(--font-display);
+  font-size: clamp(22px, 3vw, 29px);
+  font-weight: 400;
+  line-height: 1.16;
+}
+
+.research-file-notice p {
+  max-width: 72ch;
+  margin: 0;
+  color: var(--ink-70);
+  font-size: 15px;
+}
+
+.research-file-submit {
+  margin-top: 16px;
+}
+
+.statement-disclosure {
+  margin-top: 18px;
+  border-top: 1px solid var(--rule-hard);
+  border-bottom: 1px solid var(--rule);
+}
+
+.statement-disclosure > summary {
+  min-height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 34px 10px 0;
+  position: relative;
+  cursor: pointer;
+  list-style: none;
+}
+
+.statement-disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+
+.statement-disclosure > summary::after {
+  content: "+";
+  position: absolute;
+  top: 50%;
+  right: 4px;
+  color: var(--seal);
+  font-family: var(--font-data);
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1;
+  transform: translateY(-50%);
+}
+
+.statement-disclosure[open] > summary::after {
+  content: "\2212";
+}
+
+.statement-disclosure > summary:hover .lbl,
+.statement-disclosure > summary:focus-visible .lbl {
+  color: var(--seal);
+}
+
+.statement-disclosure-prompt {
+  min-width: 0;
+  color: var(--ink-70);
+  font-size: 14px;
+  text-align: right;
+}
+
+.statement-disclosure-body {
+  padding: 0 0 4px;
+}
+
+.statement-disclosure-body > :first-child {
+  margin-top: 5px;
+}
+
+.statement-context-disclosure > summary .lbl {
+  color: var(--foil);
+}
+
+.statement-sources-disclosure > summary .lbl {
+  color: var(--rise);
+}
+
+.statement-sources {
+  margin: 0;
+  padding: 2px 0 16px;
+  border-top: 0;
+}
+
+.statement-stamps {
+  padding-bottom: 4px;
+}
+
+.statement-file-nav {
+  width: min(100%, 1220px);
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 20px auto 0;
+  padding-top: 14px;
+  border-top: 2px solid var(--ink);
+}
+
+@media (hover: none) {
+  .nav-more-summary:hover,
+  .statement-disclosure > summary:hover .lbl {
+    color: inherit;
+  }
+}

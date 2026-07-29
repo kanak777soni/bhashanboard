@@ -14,6 +14,8 @@ export default function QueryForm({
   states,
   categories,
   languages,
+  basePath = "/",
+  mode = "standings",
 }: {
   query: Query;
   resultCount: number;
@@ -22,10 +24,14 @@ export default function QueryForm({
   states: string[];
   categories: readonly string[];
   languages: string[];
+  basePath?: string;
+  mode?: "standings" | "record";
 }) {
   const router = useRouter();
   const [term, setTerm] = useState(query.q);
   const first = useRef(true);
+  const latestQuery = useRef(query);
+  latestQuery.current = query;
   // Open by default when a secondary filter is already applied, so an
   // arriving link shows why it is filtered.
   const [open, setOpen] = useState(
@@ -63,7 +69,9 @@ export default function QueryForm({
   }, []);
 
   function push(patch: Partial<Query>) {
-    router.push(`/${toSearchParams({ ...query, ...patch })}`, { scroll: false });
+    router.push(`${basePath}${toSearchParams({ ...latestQuery.current, ...patch })}`, {
+      scroll: false,
+    });
   }
 
   const tokens = activeTokens(query);
@@ -89,17 +97,24 @@ export default function QueryForm({
     </label>
   );
 
-  const sortOptions = [
-    { value: "gp", label: "Rating (GP)" },
-    { value: "new", label: "Newest" },
-    { value: "climb", label: "Biggest climber" },
-    { value: "rulings", label: "Most public rulings" },
-  ];
+  const sortOptions =
+    mode === "record"
+      ? [
+          { value: "new", label: "Newest" },
+          { value: "rulings", label: "Most public rulings" },
+        ]
+      : [
+          { value: "gp", label: "Rating (GP)" },
+          { value: "new", label: "Newest" },
+          { value: "rulings", label: "Most public rulings" },
+        ];
 
   return (
     <section className="query" aria-label="Query the record">
       <div className="query-head">
-        <span className="query-title">Query the record</span>
+        <span className="query-title">
+          {mode === "record" ? "Search the record" : "Query the standings"}
+        </span>
         <span className="lbl">
           <span className="num">{resultCount}</span> {resultCount === 1 ? "entry" : "entries"} of{" "}
           <span className="num">{total}</span>
@@ -111,7 +126,8 @@ export default function QueryForm({
       <div className="query-primary">
         <label className="field field-search">
           <span className="lbl">
-            Search the record <span className="query-shortcut">&mdash; press /</span>
+            {mode === "record" ? "Search every filing" : "Search the standings"}{" "}
+            <span className="query-shortcut">&mdash; press /</span>
           </span>
           <input
             id="q"
@@ -126,10 +142,11 @@ export default function QueryForm({
           { value: "all", label: "All parties" },
           ...parties.map((p) => ({ value: p.code, label: `${p.code} — ${p.name}` })),
         ])}
-        {select("tier", "Tier", [
-          { value: "all", label: "All tiers" },
-          ...TIERS.map((t) => ({ value: t.key, label: t.name })),
-        ])}
+        {mode === "standings" &&
+          select("tier", "Tier", [
+            { value: "all", label: "All tiers" },
+            ...TIERS.map((t) => ({ value: t.key, label: t.name })),
+          ])}
         {select("sort", "Sort by", sortOptions, "field-sort-desktop")}
         <button
           type="button"
@@ -185,7 +202,10 @@ export default function QueryForm({
               <Link
                 key={t.key}
                 className="token"
-                href={`/${toSearchParams({ ...query, [t.key]: DEFAULTS[t.key] })}`}
+                href={`${basePath}${toSearchParams({
+                  ...query,
+                  [t.key]: DEFAULTS[t.key],
+                })}`}
                 scroll={false}
               >
                 {t.label}: {t.value} <span className="x" aria-hidden="true">&times;</span>
@@ -194,7 +214,7 @@ export default function QueryForm({
                 </span>
               </Link>
             ))}
-            <Link className="token-reset" href="/" scroll={false}>
+            <Link className="token-reset" href={basePath} scroll={false}>
               Reset all
             </Link>
           </>

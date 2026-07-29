@@ -2,8 +2,29 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent as ReactKeyboardEvent,
+} from "react";
+import VerifiedVideoPlayer, {
+  type VerifiedVideoHeartbeat,
+  type VerifiedVideoHeartbeatReason,
+  type VerifiedVideoPlayerHandle,
+} from "@/components/VerifiedVideoPlayer";
 import { useSession } from "@/lib/auth-client";
+import {
+  createLatestTaskQueue,
+  type LatestTaskQueue,
+} from "@/lib/latest-task-queue";
+import {
+  nextBallotIndex,
+  resolvePlaybackPolicy,
+  watchSessionErrorDisposition,
+} from "@/lib/playback-policy";
 import type { StatementVideo } from "@/lib/types";
 
 const BALLOT_OPTIONS = [
@@ -40,102 +61,86 @@ interface WatchSessionView {
   watchReceiptId: string | null;
 }
 
-type WatchPlayerState = "playing" | "paused" | "ended";
-
-interface WatchPlayerController {
-  getCurrentTime(): number;
-  getPlayerState(): WatchPlayerState;
-  pause(): void;
+interface QueuedHeartbeat extends VerifiedVideoHeartbeat {
+  contextKey: string;
+  sessionId: string;
+  visible: boolean;
+  keepalive: boolean;
 }
 
-interface YoutubePlayer {
-  destroy(): void;
-  getCurrentTime(): number;
-  getPlayerState(): number;
-  pauseVideo(): void;
-  playVideo(): void;
+interface ContextError {
+  contextKey: string;
+  code: string | null;
+  message: string;
 }
 
-interface YoutubeApi {
-  Player: new (
-    element: HTMLElement,
-    options: {
-      host?: string;
-      videoId: string;
-      playerVars: Record<string, number | string>;
-      events: {
-        onReady: (event: { target: YoutubePlayer }) => void;
-        onStateChange: (event: { data: number; target: YoutubePlayer }) => void;
-        onError: () => void;
-      };
-    }
-  ) => YoutubePlayer;
-  PlayerState: {
-    ENDED: number;
-    PLAYING: number;
-    PAUSED: number;
-  };
+interface VoteLookupState {
+  contextKey: string;
+  userId: string;
+  ready: boolean;
+  failed: boolean;
+  currentVote: CurrentVote | null;
 }
 
-declare global {
-  interface Window {
-    YT?: YoutubeApi;
-    onYouTubeIframeAPIReady?: () => void;
+interface BoundWatchSession {
+  contextKey: string;
+  session: WatchSessionView;
+}
+
+interface SessionBinding {
+  contextKey: string;
+  sessionId: string;
+}
+
+interface AsyncAttempt {
+  id: number;
+  contextKey: string;
+  controller: AbortController;
+}
+
+class ApiRequestError extends Error {
+  constructor(
+    message: string,
+    readonly code: string | null,
+    readonly status: number
+  ) {
+    super(message);
+    this.name = "ApiRequestError";
   }
-}
-
-let youtubeApiPromise: Promise<YoutubeApi> | null = null;
-
-function loadYoutubeApi(): Promise<YoutubeApi> {
-  if (window.YT?.Player) return Promise.resolve(window.YT);
-  if (youtubeApiPromise) return youtubeApiPromise;
-
-  youtubeApiPromise = new Promise<YoutubeApi>((resolve, reject) => {
-    const priorReady = window.onYouTubeIframeAPIReady;
-    const timeout = window.setTimeout(() => {
-      youtubeApiPromise = null;
-      reject(new Error("The video player took too long to load."));
-    }, 15_000);
-
-    window.onYouTubeIframeAPIReady = () => {
-      priorReady?.();
-      window.clearTimeout(timeout);
-      if (window.YT?.Player) resolve(window.YT);
-      else reject(new Error("The video player could not be initialised."));
-    };
-
-    if (!document.querySelector('script[src="https://www.youtube.com/iframe_api"]')) {
-      const script = document.createElement("script");
-      script.src = "https://www.youtube.com/iframe_api";
-      script.async = true;
-      script.onerror = () => {
-        window.clearTimeout(timeout);
-        youtubeApiPromise = null;
-        reject(new Error("The video player could not be loaded."));
-      };
-      document.head.appendChild(script);
-    }
-  });
-
-  return youtubeApiPromise;
-}
-
-function playerStateName(state: number, api?: YoutubeApi): WatchPlayerState {
-  if (api && state === api.PlayerState.PLAYING) return "playing";
-  if (api && state === api.PlayerState.ENDED) return "ended";
-  return "paused";
 }
 
 function emptyDistribution(): VoteDistribution {
   return { 0: 0, 25: 0, 50: 0, 75: 0, 100: 0 };
 }
 
-function messageFromPayload(payload: unknown, fallback: string): string {
-  if (!payload || typeof payload !== "object") return fallback;
+function apiErrorFromPayload(
+  payload: unknown,
+  fallback: string,
+  status: number
+): ApiRequestError {
+  if (!payload || typeof payload !== "object") {
+    return new ApiRequestError(fallback, null, status);
+  }
   const error = (payload as { error?: unknown }).error;
-  if (!error || typeof error !== "object") return fallback;
+  if (!error || typeof error !== "object") {
+    return new ApiRequestError(fallback, null, status);
+  }
   const message = (error as { message?: unknown }).message;
-  return typeof message === "string" && message.trim() ? message : fallback;
+  const code = (error as { code?: unknown }).code;
+  return new ApiRequestError(
+    typeof message === "string" && message.trim() ? message : fallback,
+    typeof code === "string" && code.trim() ? code : null,
+    status
+  );
+}
+
+function unknownRequestError(error: unknown, fallback: string): ApiRequestError {
+  if (error instanceof ApiRequestError) return error;
+  return new ApiRequestError(
+    error instanceof Error && error.message ? error.message : fallback,
+    null,
+    0
+  );
 }
 
 export default function StatementVotingPanel({
@@ -144,6 +149,7 @@ export default function StatementVotingPanel({
   videoUrl,
   publicationEligible,
   initialRating,
+  active = true,
 }: {
   statementId: string;
   video?: StatementVideo;
@@ -151,39 +157,112 @@ export default function StatementVotingPanel({
   videoUrl?: string;
   publicationEligible: boolean;
   initialRating: PublicRatingSnapshot;
+  /** Feed views set exactly one visible card active at a time. */
+  active?: boolean;
 }) {
   const { data: authSession, isPending: authPending } = useSession();
   const pathname = usePathname();
   const router = useRouter();
-  const [playerStarted, setPlayerStarted] = useState(false);
-  const [playbackStarting, setPlaybackStarting] = useState(false);
-  const [playerError, setPlayerError] = useState<string | null>(null);
-  const [watchSession, setWatchSession] = useState<WatchSessionView | null>(null);
-  const [watchError, setWatchError] = useState<string | null>(null);
-  const [voteStateReady, setVoteStateReady] = useState(false);
-  const [currentVote, setCurrentVote] = useState<CurrentVote | null>(null);
-  const [selectedVote, setSelectedVote] = useState<VoteValue | null>(null);
-  const [rating, setRating] = useState(initialRating);
-  const [submitting, setSubmitting] = useState(false);
-
-  const playerMountRef = useRef<HTMLDivElement | null>(null);
-  const nativeVideoRef = useRef<HTMLVideoElement | null>(null);
-  const playerRef = useRef<WatchPlayerController | null>(null);
-  const nativeEndedRef = useRef(false);
-  const sessionIdRef = useRef<string | null>(null);
-  const heartbeatInFlightRef = useRef(false);
-  const sessionStartingRef = useRef(false);
-
   const user = authSession?.user;
+  const authContextKey = authPending
+    ? `pending:${user?.id ?? "guest"}:${user?.emailVerified === true ? "verified" : "unverified"}`
+    : user
+      ? `user:${user.id}:${user.emailVerified === true ? "verified" : "unverified"}`
+      : "guest";
+  const verifiedUserId =
+    !authPending && user?.emailVerified === true ? user.id : null;
+
+  const [playbackStartingContext, setPlaybackStartingContext] = useState<
+    string | null
+  >(null);
+  const [playerErrorState, setPlayerErrorState] =
+    useState<ContextError | null>(null);
+  const [watchSessionState, setWatchSessionState] =
+    useState<BoundWatchSession | null>(null);
+  const [watchSessionUnavailableContext, setWatchSessionUnavailableContext] =
+    useState<string | null>(null);
+  const [watchErrorState, setWatchErrorState] =
+    useState<ContextError | null>(null);
+  const [voteLookup, setVoteLookup] = useState<VoteLookupState | null>(null);
+  const [voteLookupRequestVersion, setVoteLookupRequestVersion] = useState(0);
+  const [selectionState, setSelectionState] = useState<{
+    contextKey: string;
+    value: VoteValue | null;
+  } | null>(null);
+  const [rating, setRating] = useState(initialRating);
+  const [submittingContext, setSubmittingContext] = useState<string | null>(
+    null
+  );
+
+  const playerRef = useRef<VerifiedVideoPlayerHandle | null>(null);
+  const sessionBindingRef = useRef<SessionBinding | null>(null);
+  const sessionStartingRef = useRef<AsyncAttempt | null>(null);
+  const voteSubmitAttemptRef = useRef<AsyncAttempt | null>(null);
+  const attemptSequenceRef = useRef(0);
+  const authContextKeyRef = useRef(authContextKey);
+  const previousAuthContextKeyRef = useRef(authContextKey);
+  const activeRef = useRef(active);
+  const playbackAllowedRef = useRef(false);
+  const mountedRef = useRef(false);
+  const ballotButtonRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const heartbeatQueueRef = useRef<LatestTaskQueue<QueuedHeartbeat> | null>(
+    null
+  );
+
+  authContextKeyRef.current = authContextKey;
+  activeRef.current = active;
   const votingEligible = publicationEligible;
-  const canTrackWatch = votingEligible && user?.emailVerified === true && !currentVote;
+  const voteLookupMatches =
+    verifiedUserId !== null &&
+    voteLookup?.contextKey === authContextKey &&
+    voteLookup.userId === verifiedUserId;
+  const voteStateReady =
+    !votingEligible || verifiedUserId === null
+      ? true
+      : Boolean(voteLookupMatches && voteLookup?.ready);
+  const currentVote = voteLookupMatches ? voteLookup?.currentVote ?? null : null;
+  const voteLookupFailed = Boolean(voteLookupMatches && voteLookup?.failed);
+  const watchSession =
+    watchSessionState?.contextKey === authContextKey
+      ? watchSessionState.session
+      : null;
+  const watchSessionUnavailable =
+    watchSessionUnavailableContext === authContextKey;
+  const playbackStarting = playbackStartingContext === authContextKey;
+  const playerError =
+    playerErrorState?.contextKey === authContextKey ? playerErrorState : null;
+  const watchError =
+    watchErrorState?.contextKey === authContextKey ? watchErrorState : null;
+  const selectedVote =
+    selectionState?.contextKey === authContextKey
+      ? selectionState.value
+      : null;
+  const submitting = submittingContext === authContextKey;
+  const playbackPolicy = resolvePlaybackPolicy({
+    publicationEligible: votingEligible,
+    authPending,
+    signedIn: Boolean(user),
+    emailVerified: user?.emailVerified === true,
+    voteStateReady,
+    hasCurrentVote: Boolean(currentVote),
+    hasWatchSession: Boolean(watchSession?.id),
+    watchSessionUnavailable,
+  });
+  const { canTrackWatch } = playbackPolicy;
   const qualified = Boolean(watchSession?.qualified && watchSession.watchReceiptId);
-  const playbackGatePending =
-    votingEligible &&
-    (authPending || (user?.emailVerified === true && !voteStateReady));
+  const playbackGatePending = playbackPolicy.gatePending;
+  const playbackAllowed = playbackPolicy.playbackAllowed;
+  playbackAllowedRef.current = playbackAllowed;
+  const hasPublicRulings = rating.validVoteCount > 0;
+  const displayedPerformance = hasPublicRulings
+    ? Math.max(0, Math.min(100, rating.performance))
+    : 0;
 
   const publicRulingLabel = useMemo(() => {
-    if (rating.validVoteCount === 0) return "Editorial seed · no public rulings yet";
+    if (rating.validVoteCount === 0) return "New filing · no public score yet";
+    if (rating.validVoteCount < 10) {
+      return `${rating.validVoteCount}/10 rulings · provisional placement`;
+    }
     return `${rating.validVoteCount.toLocaleString("en-IN")} verified public ruling${
       rating.validVoteCount === 1 ? "" : "s"
     }`;
@@ -194,259 +273,407 @@ export default function StatementVotingPanel({
   }, [initialRating]);
 
   useEffect(() => {
-    let cancelled = false;
-    if (!votingEligible || !user?.emailVerified) {
-      setVoteStateReady(true);
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+      const sessionAttempt = sessionStartingRef.current;
+      sessionStartingRef.current = null;
+      sessionAttempt?.controller.abort();
+      const voteAttempt = voteSubmitAttemptRef.current;
+      voteSubmitAttemptRef.current = null;
+      voteAttempt?.controller.abort();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (previousAuthContextKeyRef.current === authContextKey) return;
+    previousAuthContextKeyRef.current = authContextKey;
+
+    sessionStartingRef.current?.controller.abort();
+    sessionStartingRef.current = null;
+    voteSubmitAttemptRef.current?.controller.abort();
+    voteSubmitAttemptRef.current = null;
+    sessionBindingRef.current = null;
+
+    setPlaybackStartingContext(null);
+    setPlayerErrorState(null);
+    setWatchSessionState(null);
+    setWatchSessionUnavailableContext(null);
+    setWatchErrorState(null);
+    setVoteLookup(null);
+    setSelectionState(null);
+    setSubmittingContext(null);
+
+    const player = playerRef.current;
+    if (votingEligible && player) {
+      player.restart();
+      player.pause();
+      if (playbackAllowedRef.current && activeRef.current) player.play();
+    }
+  }, [authContextKey, votingEligible]);
+
+  useEffect(() => {
+    if (!votingEligible || !verifiedUserId) {
+      setVoteLookup(null);
       return;
     }
 
-    setVoteStateReady(false);
-    void fetch(`/api/statements/${encodeURIComponent(statementId)}/votes`, {
-      cache: "no-store",
-      credentials: "same-origin",
-    })
-      .then(async (response) => {
+    const contextKey = authContextKey;
+    const userId = verifiedUserId;
+    const controller = new AbortController();
+    setVoteLookup({
+      contextKey,
+      userId,
+      ready: false,
+      failed: false,
+      currentVote: null,
+    });
+
+    void (async () => {
+      try {
+        const response = await fetch(
+          `/api/statements/${encodeURIComponent(statementId)}/votes`,
+          {
+            cache: "no-store",
+            credentials: "same-origin",
+            signal: controller.signal,
+          }
+        );
         const payload = (await response.json().catch(() => null)) as
           | {
               ok?: boolean;
               state?: { currentUserVote?: CurrentVote | null; rating?: PublicRatingSnapshot | null };
             }
           | null;
-        if (!response.ok) throw new Error(messageFromPayload(payload, "Your voting record could not be loaded."));
-        if (cancelled) return;
-        setCurrentVote(payload?.state?.currentUserVote ?? null);
-        if (payload?.state?.rating) setRating(payload.state.rating);
-      })
-      .catch((error: unknown) => {
-        if (!cancelled) setWatchError(error instanceof Error ? error.message : "Your voting record could not be loaded.");
-      })
-      .finally(() => {
-        if (!cancelled) setVoteStateReady(true);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [statementId, user?.emailVerified, user?.id, votingEligible]);
-
-  const sendHeartbeat = useCallback(async () => {
-    const sessionId = sessionIdRef.current;
-    const player = playerRef.current;
-    if (!sessionId || !player || heartbeatInFlightRef.current) return;
-
-    heartbeatInFlightRef.current = true;
-    try {
-      const response = await fetch(`/api/watch-sessions/${encodeURIComponent(sessionId)}`, {
-        method: "PATCH",
-        credentials: "same-origin",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          positionSeconds: player.getCurrentTime(),
-          playerState: player.getPlayerState(),
-          visible: document.visibilityState === "visible",
-        }),
-      });
-      const payload = (await response.json().catch(() => null)) as
-        | { ok?: boolean; session?: WatchSessionView }
-        | null;
-      if (!response.ok || !payload?.session) {
-        throw new Error(messageFromPayload(payload, "Playback progress could not be recorded."));
-      }
-      setWatchSession(payload.session);
-      setWatchError(null);
-    } catch (error) {
-      setWatchError(error instanceof Error ? error.message : "Playback progress could not be recorded.");
-    } finally {
-      heartbeatInFlightRef.current = false;
-    }
-  }, []);
-
-  useEffect(() => {
-    if (
-      !playerStarted ||
-      !video ||
-      video.platform !== "youtube" ||
-      !playerMountRef.current
-    ) {
-      return;
-    }
-    let disposed = false;
-    let player: YoutubePlayer | null = null;
-    let controller: WatchPlayerController | null = null;
-
-    void loadYoutubeApi()
-      .then((api) => {
-        if (disposed || !playerMountRef.current) return;
-        player = new api.Player(playerMountRef.current, {
-          host: "https://www.youtube-nocookie.com",
-          videoId: video.id,
-          playerVars: {
-            autoplay: 1,
-            controls: 1,
-            disablekb: 0,
-            end: video.end,
-            fs: 1,
-            playsinline: 1,
-            rel: 0,
-            start: video.start,
-          },
-          events: {
-            onReady: ({ target }) => {
-              controller = {
-                getCurrentTime: () => target.getCurrentTime(),
-                getPlayerState: () => playerStateName(target.getPlayerState(), api),
-                pause: () => target.pauseVideo(),
-              };
-              playerRef.current = controller;
-              target.playVideo();
-            },
-            onStateChange: ({ data }) => {
-              if (data === api.PlayerState.ENDED) void sendHeartbeat();
-            },
-            onError: () => setPlayerError("YouTube could not play this verified excerpt."),
-          },
+        if (!response.ok) {
+          throw apiErrorFromPayload(
+            payload,
+            "Your voting record could not be loaded.",
+            response.status
+          );
+        }
+        if (
+          controller.signal.aborted ||
+          authContextKeyRef.current !== contextKey
+        ) {
+          return;
+        }
+        setVoteLookup({
+          contextKey,
+          userId,
+          ready: true,
+          failed: false,
+          currentVote: payload?.state?.currentUserVote ?? null,
         });
-      })
-      .catch((error: unknown) => {
-        if (!disposed) setPlayerError(error instanceof Error ? error.message : "The video player could not be loaded.");
-      });
+        if (payload?.state?.rating) setRating(payload.state.rating);
+      } catch (error) {
+        if (
+          controller.signal.aborted ||
+          authContextKeyRef.current !== contextKey
+        ) {
+          return;
+        }
+        const requestError = unknownRequestError(
+          error,
+          "Your voting record could not be loaded."
+        );
+        setVoteLookup({
+          contextKey,
+          userId,
+          ready: true,
+          failed: true,
+          currentVote: null,
+        });
+        // An unknown prior-vote state must never open a tracked watch. Keep
+        // evidence public, explicitly uncredited, until this lookup succeeds.
+        setWatchSessionUnavailableContext(contextKey);
+        setWatchErrorState({
+          contextKey,
+          code: requestError.code,
+          message: requestError.message,
+        });
+      }
+    })();
 
     return () => {
-      disposed = true;
-      if (playerRef.current === controller) playerRef.current = null;
-      player?.destroy();
+      controller.abort();
     };
-  }, [playerStarted, sendHeartbeat, video]);
+  }, [
+    authContextKey,
+    statementId,
+    verifiedUserId,
+    voteLookupRequestVersion,
+    votingEligible,
+  ]);
 
-  useEffect(() => {
-    if (
-      !playerStarted ||
-      !video ||
-      video.platform !== "cloudinary" ||
-      !videoUrl ||
-      !nativeVideoRef.current
-    ) {
-      return;
-    }
-
-    const element = nativeVideoRef.current;
-    nativeEndedRef.current = false;
-    const controller: WatchPlayerController = {
-      getCurrentTime: () => element.currentTime,
-      getPlayerState: () =>
-        nativeEndedRef.current || element.ended
-          ? "ended"
-          : element.paused
-            ? "paused"
-            : "playing",
-      pause: () => element.pause(),
-    };
-    playerRef.current = controller;
-
-    const onLoadedMetadata = () => {
-      const actualDurationMs = Math.round(element.duration * 1000);
+  const invalidateWatchSession = useCallback(
+    (heartbeat: QueuedHeartbeat, error: ApiRequestError) => {
+      const binding = sessionBindingRef.current;
       if (
-        !Number.isFinite(element.duration) ||
-        Math.abs(actualDurationMs - video.durationMs) > 1_500
+        !mountedRef.current ||
+        authContextKeyRef.current !== heartbeat.contextKey ||
+        binding?.contextKey !== heartbeat.contextKey ||
+        binding.sessionId !== heartbeat.sessionId
       ) {
-        element.pause();
-        setPlayerError("The hosted video does not match its verified duration.");
         return;
       }
-      element.currentTime = video.start;
-      element.playbackRate = 1;
-      void element.play().catch(() => {
-        // Autoplay can be blocked after the server creates a watch session.
-        // Native controls remain available for the user's next gesture.
+
+      // Clear authorization before resetting media so pause/seek events cannot
+      // be attached to the terminal session.
+      sessionBindingRef.current = null;
+      setWatchSessionState(null);
+      setWatchSessionUnavailableContext(heartbeat.contextKey);
+      setSelectionState(null);
+      setWatchErrorState({
+        contextKey: heartbeat.contextKey,
+        code: error.code,
+        message: error.message,
       });
-    };
-    const onPlay = () => {
-      nativeEndedRef.current = false;
-      if (element.currentTime >= element.duration) element.currentTime = video.start;
-      if (element.playbackRate !== 1) element.playbackRate = 1;
-    };
-    const onPause = () => void sendHeartbeat();
-    const onSeeking = () => {
-      nativeEndedRef.current = false;
-      void sendHeartbeat();
-    };
-    const onEnded = () => {
-      nativeEndedRef.current = true;
-      void sendHeartbeat();
-    };
-    const onRateChange = () => {
-      if (element.playbackRate !== 1) element.playbackRate = 1;
-    };
-    const onError = () => setPlayerError("The hosted MP4 could not be played.");
+      playerRef.current?.restart();
+      playerRef.current?.pause();
+    },
+    []
+  );
 
-    element.addEventListener("loadedmetadata", onLoadedMetadata);
-    element.addEventListener("play", onPlay);
-    element.addEventListener("pause", onPause);
-    element.addEventListener("seeking", onSeeking);
-    element.addEventListener("ended", onEnded);
-    element.addEventListener("ratechange", onRateChange);
-    element.addEventListener("error", onError);
+  if (!heartbeatQueueRef.current) {
+    heartbeatQueueRef.current = createLatestTaskQueue<QueuedHeartbeat>(
+      async (heartbeat) => {
+        const currentBinding = sessionBindingRef.current;
+        if (
+          authContextKeyRef.current !== heartbeat.contextKey ||
+          currentBinding?.contextKey !== heartbeat.contextKey ||
+          currentBinding.sessionId !== heartbeat.sessionId
+        ) {
+          return;
+        }
 
-    // Metadata may already be available from the browser cache before this
-    // effect attaches its listener.
-    if (element.readyState >= HTMLMediaElement.HAVE_METADATA) onLoadedMetadata();
-
-    return () => {
-      element.removeEventListener("loadedmetadata", onLoadedMetadata);
-      element.removeEventListener("play", onPlay);
-      element.removeEventListener("pause", onPause);
-      element.removeEventListener("seeking", onSeeking);
-      element.removeEventListener("ended", onEnded);
-      element.removeEventListener("ratechange", onRateChange);
-      element.removeEventListener("error", onError);
-      element.pause();
-      if (playerRef.current === controller) playerRef.current = null;
-    };
-  }, [playerStarted, sendHeartbeat, video, videoUrl]);
-
-  useEffect(() => {
-    if (!playerStarted || !canTrackWatch) return;
-    const interval = window.setInterval(() => void sendHeartbeat(), 4_000);
-    const onVisibilityChange = () => {
-      if (document.visibilityState === "hidden") {
-        playerRef.current?.pause();
-        void sendHeartbeat();
+        try {
+          const response = await fetch(
+            `/api/watch-sessions/${encodeURIComponent(heartbeat.sessionId)}`,
+            {
+              method: "PATCH",
+              credentials: "same-origin",
+              keepalive: heartbeat.keepalive,
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                positionSeconds: heartbeat.positionSeconds,
+                playerState: heartbeat.playerState,
+                visible: heartbeat.visible,
+              }),
+            }
+          );
+          const payload = (await response.json().catch(() => null)) as
+            | { ok?: boolean; session?: WatchSessionView }
+            | null;
+          if (!response.ok || !payload?.session) {
+            throw apiErrorFromPayload(
+              payload,
+              "Playback progress could not be recorded.",
+              response.status
+            );
+          }
+          const binding = sessionBindingRef.current;
+          if (
+            mountedRef.current &&
+            authContextKeyRef.current === heartbeat.contextKey &&
+            binding?.contextKey === heartbeat.contextKey &&
+            binding.sessionId === heartbeat.sessionId
+          ) {
+            setWatchSessionState({
+              contextKey: heartbeat.contextKey,
+              session: payload.session,
+            });
+            setWatchErrorState(null);
+          }
+        } catch (error) {
+          const binding = sessionBindingRef.current;
+          if (
+            !mountedRef.current ||
+            authContextKeyRef.current !== heartbeat.contextKey ||
+            binding?.contextKey !== heartbeat.contextKey ||
+            binding.sessionId !== heartbeat.sessionId
+          ) {
+            return;
+          }
+          const requestError = unknownRequestError(
+            error,
+            "Playback progress could not be recorded."
+          );
+          if (watchSessionErrorDisposition(requestError.code) === "reset") {
+            invalidateWatchSession(heartbeat, requestError);
+            return;
+          }
+          setWatchErrorState({
+            contextKey: heartbeat.contextKey,
+            code: requestError.code,
+            message: requestError.message,
+          });
+        }
       }
-    };
-    document.addEventListener("visibilitychange", onVisibilityChange);
-    return () => {
-      window.clearInterval(interval);
-      document.removeEventListener("visibilitychange", onVisibilityChange);
-    };
-  }, [canTrackWatch, playerStarted, sendHeartbeat]);
+    );
+  }
 
-  async function startPlayback() {
+  const heartbeatJob = useCallback(
+    (
+      heartbeat: VerifiedVideoHeartbeat | undefined,
+      keepalive: boolean
+    ): QueuedHeartbeat | null => {
+      const binding = sessionBindingRef.current;
+      const sample = heartbeat ?? playerRef.current?.getHeartbeat();
+      if (
+        !binding ||
+        binding.contextKey !== authContextKeyRef.current ||
+        !sample
+      ) {
+        return null;
+      }
+      return {
+        contextKey: binding.contextKey,
+        sessionId: binding.sessionId,
+        ...sample,
+        visible: document.visibilityState === "visible",
+        keepalive,
+      };
+    },
+    []
+  );
+
+  const enqueueHeartbeat = useCallback(
+    (heartbeat?: VerifiedVideoHeartbeat) => {
+      const job = heartbeatJob(heartbeat, false);
+      return job
+        ? heartbeatQueueRef.current!.enqueue(job)
+        : Promise.resolve();
+    },
+    [heartbeatJob]
+  );
+
+  const flushHeartbeat = useCallback(
+    (heartbeat?: VerifiedVideoHeartbeat) => {
+      const job = heartbeatJob(heartbeat, true);
+      return job
+        ? heartbeatQueueRef.current!.flush(job)
+        : heartbeatQueueRef.current!.flush();
+    },
+    [heartbeatJob]
+  );
+
+  const handlePlayerHeartbeat = useCallback(
+    (
+      heartbeat: VerifiedVideoHeartbeat,
+      reason: VerifiedVideoHeartbeatReason
+    ) => {
+      if (reason === "seeking") {
+        void enqueueHeartbeat(heartbeat);
+      } else {
+        // Pause, end, and unmount are terminal edges for the current playing
+        // interval. Serialize and keep them alive through navigation.
+        void flushHeartbeat(heartbeat);
+      }
+    },
+    [enqueueHeartbeat, flushHeartbeat]
+  );
+
+  const handlePlayerChange = useCallback(
+    (player: VerifiedVideoPlayerHandle | null) => {
+      playerRef.current = player;
+    },
+    []
+  );
+
+  const handlePlayerError = useCallback((message: string) => {
+    setPlayerErrorState({
+      contextKey: authContextKeyRef.current,
+      code: null,
+      message,
+    });
+  }, []);
+
+  const selectVote = useCallback((value: VoteValue) => {
+    setSelectionState({
+      contextKey: authContextKeyRef.current,
+      value,
+    });
+  }, []);
+
+  const handleBallotKeyDown = useCallback(
+    (event: ReactKeyboardEvent<HTMLButtonElement>, currentIndex: number) => {
+      const nextIndex = nextBallotIndex(
+        currentIndex,
+        event.key,
+        BALLOT_OPTIONS.length
+      );
+      if (nextIndex === null) return;
+      event.preventDefault();
+      selectVote(BALLOT_OPTIONS[nextIndex].value);
+      ballotButtonRefs.current[nextIndex]?.focus();
+    },
+    [selectVote]
+  );
+
+  const retryVoteLookup = useCallback(() => {
+    const contextKey = authContextKey;
     if (
-      playerStarted ||
-      playbackStarting ||
-      playbackGatePending ||
-      sessionStartingRef.current
+      !verifiedUserId ||
+      authContextKeyRef.current !== contextKey ||
+      !voteLookupFailed
     ) {
       return;
     }
+    playerRef.current?.pause();
+    setWatchSessionUnavailableContext(null);
+    setWatchErrorState(null);
+    setVoteLookup({
+      contextKey,
+      userId: verifiedUserId,
+      ready: false,
+      failed: false,
+      currentVote: null,
+    });
+    setVoteLookupRequestVersion((version) => version + 1);
+  }, [authContextKey, verifiedUserId, voteLookupFailed]);
 
-    setPlayerError(null);
-    setWatchError(null);
+  const startPlayback = useCallback(async () => {
+    const contextKey = authContextKey;
+    const currentBinding = sessionBindingRef.current;
+    if (
+      authContextKeyRef.current !== contextKey ||
+      playbackGatePending ||
+      sessionStartingRef.current !== null ||
+      currentBinding !== null ||
+      !canTrackWatch ||
+      voteLookupFailed ||
+      !active ||
+      !verifiedUserId
+    ) {
+      return;
+    }
+    setPlayerErrorState(null);
+    setWatchErrorState(null);
+    setWatchSessionUnavailableContext(null);
     if (video?.platform === "cloudinary" && !videoUrl) {
-      setPlayerError("The hosted video URL is not configured.");
-      return;
-    }
-    if (!canTrackWatch || sessionIdRef.current) {
-      setPlayerStarted(true);
+      setPlayerErrorState({
+        contextKey,
+        code: "VIDEO_URL_MISSING",
+        message: "The hosted video URL is not configured.",
+      });
       return;
     }
 
-    setPlaybackStarting(true);
-    sessionStartingRef.current = true;
+    if (watchSessionUnavailable) playerRef.current?.pause();
+    const controller = new AbortController();
+    const attempt: AsyncAttempt = {
+      id: ++attemptSequenceRef.current,
+      contextKey,
+      controller,
+    };
+    sessionStartingRef.current = attempt;
+    setPlaybackStartingContext(contextKey);
     try {
       const response = await fetch("/api/watch-sessions", {
         method: "POST",
         credentials: "same-origin",
+        signal: controller.signal,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ statementId }),
       });
@@ -454,38 +681,156 @@ export default function StatementVotingPanel({
         | { ok?: boolean; session?: WatchSessionView }
         | null;
       if (!response.ok || !payload?.session) {
-        throw new Error(
-          messageFromPayload(
-            payload,
-            "A verified watch session could not be started."
-          )
+        throw apiErrorFromPayload(
+          payload,
+          "A verified watch session could not be started.",
+          response.status
         );
       }
+      if (
+        controller.signal.aborted ||
+        authContextKeyRef.current !== contextKey ||
+        sessionStartingRef.current !== attempt
+      ) {
+        return;
+      }
 
-      // Establish the server clock before mounting the autoplaying iframe.
-      sessionIdRef.current = payload.session.id;
-      setWatchSession(payload.session);
-      setPlayerStarted(true);
+      if (watchSessionUnavailable && !payload.session.qualified) {
+        playerRef.current?.restart();
+      }
+      // Reset uncredited playback first, then bind the exact identity before
+      // resuming so no pre-session viewing can enter the qualification stream.
+      sessionBindingRef.current = {
+        contextKey,
+        sessionId: payload.session.id,
+      };
+      setWatchSessionState({ contextKey, session: payload.session });
+      setWatchSessionUnavailableContext(null);
+      if (
+        watchSessionUnavailable &&
+        activeRef.current &&
+        authContextKeyRef.current === contextKey
+      ) {
+        playerRef.current?.play();
+      }
     } catch (error) {
-      setWatchError(
-        error instanceof Error
-          ? error.message
-          : "A verified watch session could not be started."
+      if (
+        controller.signal.aborted ||
+        authContextKeyRef.current !== contextKey ||
+        sessionStartingRef.current !== attempt
+      ) {
+        return;
+      }
+      const requestError = unknownRequestError(
+        error,
+        "A verified watch session could not be started."
       );
+      // Evidence remains public even when qualification infrastructure is
+      // unavailable. With no session ID, this playback can never earn credit.
+      sessionBindingRef.current = null;
+      setWatchSessionState(null);
+      setWatchSessionUnavailableContext(contextKey);
+      setWatchErrorState({
+        contextKey,
+        code: requestError.code,
+        message: requestError.message,
+      });
     } finally {
-      sessionStartingRef.current = false;
-      setPlaybackStarting(false);
+      if (sessionStartingRef.current === attempt) {
+        sessionStartingRef.current = null;
+        if (authContextKeyRef.current === contextKey) {
+          setPlaybackStartingContext(null);
+        }
+      }
     }
-  }
+  }, [
+    active,
+    authContextKey,
+    canTrackWatch,
+    playbackGatePending,
+    statementId,
+    verifiedUserId,
+    video,
+    videoUrl,
+    voteLookupFailed,
+    watchSessionUnavailable,
+  ]);
+
+  useEffect(() => {
+    if (
+      !video ||
+      !active ||
+      !playbackPolicy.needsWatchSession ||
+      sessionStartingRef.current
+    ) {
+      return;
+    }
+    void startPlayback();
+  }, [active, playbackPolicy.needsWatchSession, startPlayback, video]);
+
+  useEffect(() => {
+    if (!active || !watchSession?.id || !canTrackWatch) return;
+
+    const interval = window.setInterval(
+      () => void enqueueHeartbeat(),
+      4_000
+    );
+    const pauseAndFlush = () => {
+      const player = playerRef.current;
+      if (!player) return;
+      const heartbeat = player.getHeartbeat();
+      player.pause();
+      void flushHeartbeat({
+        ...heartbeat,
+        playerState:
+          heartbeat.playerState === "ended" ? "ended" : "paused",
+      });
+    };
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "hidden") pauseAndFlush();
+    };
+    const onPageHide = () => pauseAndFlush();
+
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    window.addEventListener("pagehide", onPageHide);
+    return () => {
+      window.clearInterval(interval);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      window.removeEventListener("pagehide", onPageHide);
+    };
+  }, [
+    canTrackWatch,
+    active,
+    enqueueHeartbeat,
+    flushHeartbeat,
+    watchSession?.id,
+  ]);
 
   async function submitVote() {
-    if (selectedVote === null || !watchSession?.watchReceiptId || submitting) return;
-    setSubmitting(true);
-    setWatchError(null);
+    const contextKey = authContextKey;
+    if (
+      selectedVote === null ||
+      !watchSession?.watchReceiptId ||
+      submitting ||
+      !verifiedUserId ||
+      authContextKeyRef.current !== contextKey
+    ) {
+      return;
+    }
+    const controller = new AbortController();
+    const attempt: AsyncAttempt = {
+      id: ++attemptSequenceRef.current,
+      contextKey,
+      controller,
+    };
+    voteSubmitAttemptRef.current = attempt;
+    setSubmittingContext(contextKey);
+    setWatchErrorState(null);
     try {
       const response = await fetch(`/api/statements/${encodeURIComponent(statementId)}/votes`, {
         method: "POST",
         credentials: "same-origin",
+        signal: controller.signal,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ value: selectedVote, watchReceiptId: watchSession.watchReceiptId }),
       });
@@ -499,20 +844,65 @@ export default function StatementVotingPanel({
           }
         | null;
       if (!response.ok || !payload?.result) {
-        throw new Error(messageFromPayload(payload, "Your final ruling could not be recorded."));
+        throw apiErrorFromPayload(
+          payload,
+          "Your final ruling could not be recorded.",
+          response.status
+        );
       }
-      setCurrentVote({
-        voteId: payload.result.vote.id,
-        value: payload.result.vote.value,
-        excluded: false,
-        createdAt: payload.result.vote.createdAt,
-      });
+      if (
+        controller.signal.aborted ||
+        authContextKeyRef.current !== contextKey ||
+        voteSubmitAttemptRef.current !== attempt
+      ) {
+        return;
+      }
+      // A recorded one-time vote no longer needs a qualification channel.
+      // Detach it before an older heartbeat response can update this user.
+      sessionBindingRef.current = null;
+      setWatchSessionState(null);
+      setWatchErrorState(null);
+      setVoteLookup((previous) =>
+        previous?.contextKey === contextKey &&
+        previous.userId === verifiedUserId
+          ? {
+              ...previous,
+              ready: true,
+              currentVote: {
+                voteId: payload.result!.vote.id,
+                value: payload.result!.vote.value,
+                excluded: false,
+                createdAt: payload.result!.vote.createdAt,
+              },
+            }
+          : previous
+      );
       setRating(payload.result.rating);
       router.refresh();
     } catch (error) {
-      setWatchError(error instanceof Error ? error.message : "Your final ruling could not be recorded.");
+      if (
+        controller.signal.aborted ||
+        authContextKeyRef.current !== contextKey ||
+        voteSubmitAttemptRef.current !== attempt
+      ) {
+        return;
+      }
+      const requestError = unknownRequestError(
+        error,
+        "Your final ruling could not be recorded."
+      );
+      setWatchErrorState({
+        contextKey,
+        code: requestError.code,
+        message: requestError.message,
+      });
     } finally {
-      setSubmitting(false);
+      if (voteSubmitAttemptRef.current === attempt) {
+        voteSubmitAttemptRef.current = null;
+        if (authContextKeyRef.current === contextKey) {
+          setSubmittingContext(null);
+        }
+      }
     }
   }
 
@@ -523,17 +913,38 @@ export default function StatementVotingPanel({
       <div className="ruling-head">
         <div>
           <span className="lbl">Verified footage &amp; public ruling</span>
-          <h2 id={`ruling-${statementId}`}>Watch first. Rule once.</h2>
+          <strong
+            id={`ruling-${statementId}`}
+            style={{
+              display: "block",
+              fontFamily: "var(--font-display)",
+              fontSize: "clamp(23px, 3vw, 31px)",
+              fontWeight: 400,
+              lineHeight: 1.1,
+              margin: "5px 0 0",
+            }}
+          >
+            Watch first. Rule once.
+          </strong>
         </div>
-        <div className="ruling-score" aria-label={`Current performance ${Math.round(rating.performance)} out of 100`}>
-          <span className="num">{Math.round(rating.performance)}</span>
+        <div
+          className="ruling-score"
+          aria-label={
+            hasPublicRulings
+              ? `Current public performance ${Math.round(rating.performance)} out of 100`
+              : "No public performance yet"
+          }
+        >
+          <span className="num">
+            {hasPublicRulings ? Math.round(rating.performance) : "—"}
+          </span>
           <small>/ 100</small>
         </div>
       </div>
 
       <div className="performance-track" aria-hidden="true">
-        <i style={{ width: `${Math.max(0, Math.min(100, rating.performance))}%` }} />
-        <b style={{ left: `${Math.max(0, Math.min(100, rating.performance))}%` }} />
+        <i style={{ width: `${displayedPerformance}%` }} />
+        {hasPublicRulings && <b style={{ left: `${displayedPerformance}%` }} />}
       </div>
       <div className="performance-legend lbl">
         <span>Flat</span>
@@ -542,52 +953,28 @@ export default function StatementVotingPanel({
       </div>
 
       {video ? (
-        playerStarted ? (
-          <div className="player ruling-player">
-            {video.platform === "youtube" ? (
-              <div ref={playerMountRef} className="youtube-mount" />
-            ) : (
-              <video
-                ref={nativeVideoRef}
-                src={videoUrl}
-                controls
-                playsInline
-                preload="metadata"
-                disablePictureInPicture
-                disableRemotePlayback
-                aria-label="Verified source excerpt"
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "contain",
-                  background: "#000",
-                }}
-              />
-            )}
-          </div>
-        ) : (
-          <button
-            type="button"
-            className="player ruling-player"
-            onClick={() => void startPlayback()}
-            disabled={playbackGatePending || playbackStarting}
-            aria-label="Load and play the verified source excerpt"
-          >
-            <svg className="play-glyph" aria-hidden="true"><use href="#g-play" /></svg>
-            <span className="note">
-              Click to load · {video.platform === "cloudinary" ? "hosted MP4" : "YouTube"} excerpt {video.start}s–{video.end}s
-            </span>
-          </button>
-        )
+        <VerifiedVideoPlayer
+          video={video}
+          videoUrl={videoUrl}
+          playbackAllowed={playbackAllowed}
+          playbackPending={playbackGatePending || playbackStarting}
+          active={active}
+          onPlaybackRequest={startPlayback}
+          onControllerChange={handlePlayerChange}
+          onHeartbeat={handlePlayerHeartbeat}
+          onError={handlePlayerError}
+        />
       ) : (
         <div className="player ruling-player player-locked">
           <span className="lbl">No verified video excerpt is attached</span>
         </div>
       )}
 
-      {playerError && <p className="ruling-alert" role="alert">{playerError}</p>}
+      {playerError && (
+        <p className="ruling-alert" role="alert">
+          {playerError.message}
+        </p>
+      )}
 
       <div className="ballot-box">
         {!votingEligible ? (
@@ -612,8 +999,35 @@ export default function StatementVotingPanel({
               {currentVote.excluded ? ". This ruling is preserved but excluded from the public calculation." : ". It cannot be edited or submitted again."}
             </p>
           </div>
-        ) : !playerStarted ? (
-          <p className="ruling-status">Play the verified excerpt to begin. At least 90% must be watched in this visible tab, including the end.</p>
+        ) : watchSessionUnavailable ? (
+          <div>
+            <p className="ruling-status">
+              The video remains available, but this viewing cannot count while
+              watch qualification is unavailable.
+            </p>
+            <button
+              type="button"
+              className="btn ghost"
+              disabled={playbackStarting || !active}
+              onClick={() =>
+                voteLookupFailed
+                  ? retryVoteLookup()
+                  : void startPlayback()
+              }
+            >
+              {playbackStarting
+                ? "Retrying…"
+                : voteLookupFailed
+                  ? "Retry account check"
+                  : "Retry verified watch"}
+            </button>
+          </div>
+        ) : !watchSession ? (
+          <p className="ruling-status">
+            {playbackStarting || playbackGatePending
+              ? "Preparing your verified watch session…"
+              : "Playback is waiting for a verified watch session. Tap the video to retry."}
+          </p>
         ) : !qualified ? (
           <div className="watch-progress">
             <div className="watch-progress-copy">
@@ -629,14 +1043,24 @@ export default function StatementVotingPanel({
           <div className="ballot-ready">
             <p className="ruling-status"><strong>Footage watched.</strong> Choose carefully: this is your one final ruling on this statement.</p>
             <div className="ballot-options" role="radiogroup" aria-label="Statement performance">
-              {BALLOT_OPTIONS.map((option) => (
+              {BALLOT_OPTIONS.map((option, index) => (
                 <button
                   type="button"
                   role="radio"
                   aria-checked={selectedVote === option.value}
+                  tabIndex={
+                    selectedVote === option.value ||
+                    (selectedVote === null && index === 0)
+                      ? 0
+                      : -1
+                  }
                   className={selectedVote === option.value ? "selected" : undefined}
                   key={option.value}
-                  onClick={() => setSelectedVote(option.value)}
+                  ref={(element) => {
+                    ballotButtonRefs.current[index] = element;
+                  }}
+                  onClick={() => selectVote(option.value)}
+                  onKeyDown={(event) => handleBallotKeyDown(event, index)}
                 >
                   <b>{option.label}</b>
                   <span>{option.value}</span>
@@ -649,7 +1073,15 @@ export default function StatementVotingPanel({
             </button>
           </div>
         )}
-        {watchError && <p className="ruling-alert" role="alert">{watchError}</p>}
+        {watchError && (
+          <p
+            className="ruling-alert"
+            role="alert"
+            data-error-code={watchError.code ?? undefined}
+          >
+            {watchError.message}
+          </p>
+        )}
       </div>
 
       {rating.validVoteCount > 0 && (

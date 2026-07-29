@@ -23,7 +23,8 @@ import {
 const CLOUDINARY_VIDEO_PREFIX = "bhashanboard/statement-videos/";
 const CLOUDINARY_INTENT_ID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
-const CLOUDINARY_VIDEO_TRANSFORMATION = "ac_aac,f_mp4,q_auto:good,vc_h264";
+const CLOUDINARY_VIDEO_TRANSFORMATION =
+  "ac_aac,c_limit,f_mp4,q_auto:good,vc_h264,w_1280";
 const CLOUDINARY_ADMIN_TIMEOUT_MS = 12_000;
 const CLOUDINARY_PRESET_CACHE_MS = 5 * 60 * 1000;
 const MAX_CLOUDINARY_VIDEO_DIMENSION = 3_840;
@@ -820,9 +821,11 @@ async function requestCloudinaryDerivative(
       eager: [
         {
           audio_codec: "aac",
+          crop: "limit",
           fetch_format: "mp4",
           quality: "auto:good",
           video_codec: "h264",
+          width: 1280,
         },
       ],
       eager_async: true,
@@ -901,9 +904,11 @@ function videoDeliveryUrl(publicId: string, version: number): string {
     transformation: [
       {
         audio_codec: "aac",
+        crop: "limit",
         fetch_format: "mp4",
         quality: "auto:good",
         video_codec: "h264",
+        width: 1280,
       },
     ],
     analytics: false,

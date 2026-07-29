@@ -8,12 +8,35 @@ import { getData } from "@/lib/data";
  * than one that doesn't.
  */
 export default async function Ticker() {
-  const { REJECTED, STATS } = await getData();
+  const data = await getData();
+  const inventory = data.publicInventory();
+  const newFilings = inventory.liveVideos.filter(
+    (statement) => statement.rating.validVoteCount === 0
+  ).length;
+  const placement = inventory.liveVideos.filter(
+    (statement) =>
+      statement.rating.validVoteCount > 0 &&
+      statement.rating.validVoteCount < 10
+  ).length;
+  const researchFiles =
+    inventory.videoUnderReview.length + inventory.researchOnly.length;
   const items = [
-    { href: "/ledger", text: `${STATS.indexed} entries indexed · ${STATS.onLadder} placed on the ladder · ${STATS.heldParity} held for parity` },
-    { href: "/ledger", text: `${STATS.withVerbatimQuote} of ${STATS.indexed} entries carry an established verbatim quote — the rest await one` },
-    { href: "/rejected", text: `${REJECTED.length} proposed statements refused under the Rules, each recorded with the rule that killed it` },
-    { href: "/ledger", text: "No entry is verified for publication. Every one awaits a Tier A or B clip, a timestamp and a transcript." },
+    {
+      href: "/watch",
+      text: `${inventory.liveVideos.length} verified video screenings open · ${newFilings} new · ${placement} in placement · ${inventory.rankedVideos.length} ranked`,
+    },
+    {
+      href: "/record",
+      text: `${researchFiles} research files · ${inventory.videoUnderReview.length} clips under review · ${inventory.researchOnly.length} awaiting verified footage`,
+    },
+    {
+      href: "/record",
+      text: `${data.STATS.withVerbatimQuote} of ${data.STATS.indexed} searchable entries carry an established verbatim quote — the rest use a neutral subject line`,
+    },
+    {
+      href: "/rejected",
+      text: `${data.REJECTED.length} proposed statements refused under the Rules, each recorded with the rule that killed it`,
+    },
   ];
 
   const tickerGroup = (duplicate = false) => (
@@ -34,14 +57,14 @@ export default async function Ticker() {
     <>
       <Link
         className="ticker-mobile"
-        href="/ledger"
-        aria-label={`Record status: ${STATS.indexed} entries indexed; ${STATS.onLadder} on the ladder; ${STATS.heldParity} held for parity`}
+        href="/record"
+        aria-label={`Record status: ${inventory.liveVideos.length} verified videos ready to rule; ${inventory.rankedVideos.length} ranked; ${researchFiles} research files`}
       >
         <span className="ticker-mobile-label">Record status</span>
         <span className="ticker-mobile-counts" aria-hidden="true">
-          <span className="num">{STATS.indexed}</span> indexed &middot;{" "}
-          <span className="num">{STATS.onLadder}</span> on ladder &middot;{" "}
-          <span className="num">{STATS.heldParity}</span> held
+          <span className="num">{inventory.liveVideos.length}</span> ready &middot;{" "}
+          <span className="num">{inventory.rankedVideos.length}</span> ranked &middot;{" "}
+          <span className="num">{researchFiles}</span> research
         </span>
       </Link>
 

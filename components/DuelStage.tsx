@@ -10,7 +10,6 @@ export interface DuelEntry {
   neta: string;
   party: string;
   state: string;
-  gp: number;
   hasQuote: boolean;
   language: string;
 }
@@ -33,11 +32,12 @@ export default function DuelStage({ entries }: { entries: DuelEntry[] }) {
   const pick = useCallback(
     (list: DuelEntry[], n: number): Pair => {
       // Deterministic on first render so server and client agree, then
-      // walks the pool as duels are completed.
+      // walks the pool as duels are completed. Catalogue order is neutral;
+      // unpublished editorial seed scores never choose a pairing.
       const a = list[n % list.length];
       const near = list
         .filter((e) => e.slug !== a.slug)
-        .sort((x, y) => Math.abs(x.gp - a.gp) - Math.abs(y.gp - a.gp))
+        .sort((x, y) => x.slug.localeCompare(y.slug))
         .slice(0, 6);
       const crossParty = near.filter((e) => e.party !== a.party);
       const candidates = crossParty.length ? crossParty : near;
@@ -99,7 +99,7 @@ export default function DuelStage({ entries }: { entries: DuelEntry[] }) {
   return (
     <div className="duel-shell">
       <div className="duel-bar">
-        <Link href="/">&larr; The Standings</Link>
+        <Link href="/standings">&larr; The Standings</Link>
         <span className="duel-meta">
           {sameParty ? "Same-party exhibition" : `${pair.a.party} vs ${pair.b.party} · you decide`}
         </span>

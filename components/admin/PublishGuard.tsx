@@ -10,7 +10,10 @@ import { committeePublicationIssues } from "@/lib/video";
  */
 export default function PublishGuard({ entry }: { entry: StoredStatement }) {
   const issues: { level: "block" | "warn"; text: string }[] =
-    committeePublicationIssues(entry).map((text) => ({ level: "block", text }));
+    committeePublicationIssues({ ...entry, status: "published" }).map((text) => ({
+      level: "block",
+      text,
+    }));
   const sources = entry.verification.sources ?? [];
 
   if (sources.length < 2 && entry.verification.best_source_tier !== "A")

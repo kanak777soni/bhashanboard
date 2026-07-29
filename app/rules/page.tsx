@@ -38,8 +38,9 @@ export default function RulesPage() {
             surrounding minute.
           </li>
           <li>
-            <strong>Equal opportunity.</strong> Party balance is enforced in the queue, published on the
-            homepage, and audited monthly.
+            <strong>Equal evidentiary standard.</strong> The same source, context, and publication
+            tests apply regardless of party. Coverage imbalance is published and corrected by
+            researching under-covered parties&mdash;never by hiding entries or changing scores.
           </li>
           <li>
             <strong>Right of reply.</strong> Any verified office may respond. Their response is pinned to
@@ -87,9 +88,9 @@ export default function RulesPage() {
         <h2>How an entry is verified before publication</h2>
         <p>
           No entry is published without at least one primary or broadcast source, a confirmed date and
-          venue, an accurate transcript and translation, the surrounding sixty seconds of context, and a
-          human review against these rules. Roughly a third of submissions are rejected at that stage.
-          That is the system working.
+          venue, an accurate original-language verbatim excerpt and translation where needed, recorded
+          surrounding context, and a human review against these rules. Roughly a third of submissions
+          are rejected at that stage. That is the system working.
         </p>
       </div>
     </SiteFrame>

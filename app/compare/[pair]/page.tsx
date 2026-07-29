@@ -1,132 +1,215 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import SiteFrame from "@/components/SiteFrame";
-import Medal from "@/components/Medal";
 import EntryTitle from "@/components/EntryTitle";
+import SiteFrame from "@/components/SiteFrame";
 import { getData, type PublicData } from "@/lib/data";
-import { TIERS, tierOf } from "@/lib/tiers";
-
-/**
- * Head to head. Two stat sheets, one shared axis, a hairline down the
- * middle — the highest share-value page on the site and a large long-tail
- * search surface (docs/08 §8.3).
- */
+import {
+  ratingMaturityLabel,
+  statementRatingMaturity,
+} from "@/lib/public-inventory";
+import type { CorpusStatement } from "@/lib/corpus";
 
 function split(pair: string): [string, string] | null {
-  const i = pair.indexOf("-vs-");
-  if (i === -1) return null;
-  return [pair.slice(0, i), pair.slice(i + 4)];
+  const index = pair.indexOf("-vs-");
+  if (index === -1) return null;
+  return [pair.slice(0, index), pair.slice(index + 4)];
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ pair: string }> }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ pair: string }>;
+}): Promise<Metadata> {
   const data = await getData();
   const parts = split((await params).pair);
-  const a = parts && data.netaBySlug(parts[0]);
-  const b = parts && data.netaBySlug(parts[1]);
-  if (!a || !b) return { title: "Comparison not found" };
+  const first = parts && data.netaBySlug(parts[0]);
+  const second = parts && data.netaBySlug(parts[1]);
+  if (!first || !second) return { title: "Comparison not found" };
   return {
-    title: `${a.name} vs ${b.name}`,
-    description: `Head to head on the Bhashan Board: ${a.name} and ${b.name}, by entries indexed, best rank and grades held.`,
+    title: `${first.name} vs ${second.name}`,
+    description: `Compare the Bhashan Board research coverage for ${first.name} and ${second.name}. Public ranking is shown only for mature verified-video filings.`,
   };
 }
 
 function profile(data: PublicData, slug: string) {
   const neta = data.netaBySlug(slug);
   if (!neta) return null;
-  const entries = data.statementsByNeta(slug);
-  const best = entries.length ? Math.min(...entries.map((e) => data.rankOf(e.slug))) : null;
-  const peak = entries.length ? Math.max(...entries.map((e) => e.gp)) : 0;
-  const career = entries.reduce((n, e) => n + e.gp, 0);
-  const quoted = entries.filter((e) => e.hasVerbatimQuote).length;
-  const cabinet = TIERS.map((t) => ({ tier: t, n: entries.filter((e) => tierOf(e.gp).key === t.key).length })).filter((c) => c.n > 0);
-  return { neta, entries, best, peak, career, quoted, cabinet, party: data.partyByCode(neta.party) };
+
+  const entries = data.CORPUS.filter(
+    (statement) => statement.neta === slug
+  ).sort(
+    (a, b) =>
+      a.daysAgo - b.daysAgo || a.corpusId.localeCompare(b.corpusId)
+  );
+  const liveVideos = data
+    .liveVideoStatements()
+    .filter((statement) => statement.neta === slug);
+  const rankedVideos = data
+    .publicRankedStatements()
+    .filter((statement) => statement.neta === slug);
+  const bestPublicRank =
+    rankedVideos.length > 0
+      ? Math.min(
+          ...rankedVideos.map((statement) =>
+            data.publicRankOf(statement.slug)
+          )
+        )
+      : null;
+  const quoted = entries.filter((entry) => entry.hasVerbatimQuote).length;
+  const categories = new Set(entries.map((entry) => entry.category)).size;
+
+  return {
+    neta,
+    entries,
+    liveVideos,
+    rankedVideos,
+    bestPublicRank,
+    quoted,
+    categories,
+    party: data.partyByCode(neta.party),
+  };
 }
 
-export default async function ComparePage({ params }: { params: Promise<{ pair: string }> }) {
+function entryState(data: PublicData, statement: CorpusStatement): string {
+  if (statement.publicationEligible && statement.video) {
+    const maturity = statementRatingMaturity(statement);
+    if (maturity === "ranked") {
+      return `Public rank #${data.publicRankOf(statement.slug)}`;
+    }
+    return ratingMaturityLabel(maturity);
+  }
+  if (statement.video) return "Evidence under review";
+  return "Research file";
+}
+
+export default async function ComparePage({
+  params,
+}: {
+  params: Promise<{ pair: string }>;
+}) {
   const data = await getData();
   const parts = split((await params).pair);
   if (!parts) notFound();
-  const A = profile(data, parts[0]);
-  const B = profile(data, parts[1]);
-  if (!A || !B) notFound();
+  const first = profile(data, parts[0]);
+  const second = profile(data, parts[1]);
+  if (!first || !second) notFound();
 
-  /** Bigger wins, except for rank where lower is better. */
-  const cmp = (a: number | null, b: number | null, lowerWins = false) => {
-    if (a == null || b == null || a === b) return ["", ""];
-    const aWins = lowerWins ? a < b : a > b;
-    return aWins ? ["lead", ""] : ["", "lead"];
-  };
-
-  const rows: [string, string, string, string, string][] = [
-    ["Entries indexed", String(A.entries.length), String(B.entries.length), ...cmp(A.entries.length, B.entries.length)] as never,
-    ["Best rank", A.best ? `#${A.best}` : "—", B.best ? `#${B.best}` : "—", ...cmp(A.best, B.best, true)] as never,
-    ["Peak rating", A.peak.toLocaleString("en-IN"), B.peak.toLocaleString("en-IN"), ...cmp(A.peak, B.peak)] as never,
-    ["Career GP", A.career.toLocaleString("en-IN"), B.career.toLocaleString("en-IN"), ...cmp(A.career, B.career)] as never,
-    ["Verbatim quotes established", `${A.quoted} of ${A.entries.length}`, `${B.quoted} of ${B.entries.length}`, "", ""],
+  const rows: [string, string, string][] = [
+    [
+      "Research records",
+      String(first.entries.length),
+      String(second.entries.length),
+    ],
+    [
+      "Ready video screenings",
+      String(first.liveVideos.length),
+      String(second.liveVideos.length),
+    ],
+    [
+      "Publicly ranked",
+      String(first.rankedVideos.length),
+      String(second.rankedVideos.length),
+    ],
+    [
+      "Best public rank",
+      first.bestPublicRank ? `#${first.bestPublicRank}` : "Not yet ranked",
+      second.bestPublicRank ? `#${second.bestPublicRank}` : "Not yet ranked",
+    ],
+    [
+      "Verbatim wording established",
+      `${first.quoted} of ${first.entries.length}`,
+      `${second.quoted} of ${second.entries.length}`,
+    ],
+    [
+      "Categories indexed",
+      String(first.categories),
+      String(second.categories),
+    ],
   ];
 
-  const side = (P: NonNullable<ReturnType<typeof profile>>) => (
+  const side = (profileData: NonNullable<ReturnType<typeof profile>>) => (
     <div>
       <h2 className="compare-name">
-        <Link href={`/neta/${P.neta.slug}`} style={{ textDecoration: "none" }}>{P.neta.name}</Link>
+        <Link
+          href={`/neta/${profileData.neta.slug}`}
+          style={{ textDecoration: "none" }}
+        >
+          {profileData.neta.name}
+        </Link>
       </h2>
       <p className="lbl">
-        <i className="swatch" style={{ background: P.party?.ink }} />
-        <Link href={`/party/${P.neta.party}`} style={{ textDecoration: "none" }}>{P.neta.party}</Link> &middot; {P.neta.state}
+        <i
+          className="swatch"
+          style={{ background: profileData.party?.ink }}
+        />
+        <Link
+          href={`/party/${profileData.neta.party}`}
+          style={{ textDecoration: "none" }}
+        >
+          {profileData.neta.party}
+        </Link>{" "}
+        &middot; {profileData.neta.state}
       </p>
-      <div className="cabinet" style={{ marginTop: 10 }}>
-        {P.cabinet.map((c) => (
-          <div key={c.tier.key}><Medal tier={c.tier.key} size={18} />&times;{c.n}</div>
-        ))}
-      </div>
     </div>
   );
 
   return (
     <SiteFrame>
       <div className="sec-head" style={{ marginTop: 26 }}>
-        <h1>Head to head</h1>
+        <h1>Archive comparison</h1>
         <span className="lbl">Aamne-Saamne</span>
       </div>
 
       <div className="compare-heads">
-        {side(A)}
-        {side(B)}
+        {side(first)}
+        {side(second)}
       </div>
 
       <table className="compare-table">
         <tbody>
-          {rows.map(([label, av, bv, aCls, bCls]) => (
+          {rows.map(([label, firstValue, secondValue]) => (
             <tr key={label}>
-              <td className={`compare-val ${aCls}`}>{av}</td>
+              <td className="compare-val">{firstValue}</td>
               <th className="compare-label">{label}</th>
-              <td className={`compare-val right ${bCls}`}>{bv}</td>
+              <td className="compare-val right">{secondValue}</td>
             </tr>
           ))}
         </tbody>
       </table>
 
       <div className="compare-heads" style={{ marginTop: 30 }}>
-        {[A, B].map((P) => (
-          <div key={P.neta.slug}>
-            <span className="lbl">Entries &mdash; {P.neta.name}</span>
-            <ul className="also-list" style={{ marginTop: 8 }}>
-              {P.entries.map((e) => (
-                <li key={e.slug}>
-                  <Medal gp={e.gp} size={17} title={false} />
-                  <Link href={`/statement/${e.slug}`}><EntryTitle statement={e} /></Link>
-                  <span className="num">#{data.rankOf(e.slug)}</span>
-                </li>
-              ))}
-            </ul>
+        {[first, second].map((profileData) => (
+          <div key={profileData.neta.slug}>
+            <span className="lbl">
+              Research file &mdash; {profileData.neta.name}
+            </span>
+            {profileData.entries.length > 0 ? (
+              <ul className="also-list" style={{ marginTop: 8 }}>
+                {profileData.entries.map((entry) => (
+                  <li key={entry.slug}>
+                    <span className="mv flat" aria-hidden="true">
+                      &middot;
+                    </span>
+                    <Link href={`/statement/${entry.slug}`}>
+                      <EntryTitle statement={entry} />
+                    </Link>
+                    <span className="lbl">{entryState(data, entry)}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="empty">No research records have been indexed.</p>
+            )}
           </div>
         ))}
       </div>
 
       <p className="legend-foot" style={{ marginTop: 24 }}>
-        A larger count reflects how much has been indexed, which depends on where the research has
-        looked. It is not a measure of a person. <Link href="/rules">The rubric is published.</Link>
+        This compares archive coverage, not people. Counts depend on where the
+        research has looked. Rank appears only when a publication-ready video
+        has ten valid public rulings; unfinished files receive no borrowed GP or
+        medal. <Link href="/rules">The rubric is published.</Link>
       </p>
     </SiteFrame>
   );

@@ -11,7 +11,7 @@ export default function NotFound() {
         </p>
         <p style={{ marginTop: 22 }}>
           <Link className="btn" href="/">
-            Return to the standings
+            Return to the front page
           </Link>
         </p>
       </div>

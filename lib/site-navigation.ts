@@ -2,18 +2,48 @@ export type SiteNavigationLink = {
   href: string;
   label: string;
   emphasis?: boolean;
+  /** Additional route prefixes represented by this navigation destination. */
+  activePrefixes?: string[];
 };
 
 export const PRIMARY_SITE_LINKS: SiteNavigationLink[] = [
-  { href: "/", label: "The Standings" },
-  { href: "/duel", label: "Aamne-Saamne" },
-  { href: "/netas", label: "Netas" },
+  {
+    href: "/watch",
+    label: "Watch",
+    activePrefixes: ["/statement"],
+  },
+  { href: "/standings", label: "Standings" },
+  {
+    href: "/record",
+    label: "Record",
+    activePrefixes: ["/category", "/party"],
+  },
+  {
+    href: "/netas",
+    label: "Netas",
+    activePrefixes: ["/neta"],
+  },
+  { href: "/submit", label: "Submit" },
+];
+
+export const ARCHIVE_SITE_LINKS: SiteNavigationLink[] = [
   { href: "/hall", label: "Hall of Fame" },
   { href: "/ledger", label: "Ledger" },
   { href: "/rejected", label: "Refused" },
   { href: "/rules", label: "Rules" },
-  { href: "/submit", label: "Submit" },
 ];
+
+export function isSiteNavigationLinkActive(
+  pathname: string,
+  link: SiteNavigationLink,
+): boolean {
+  const prefixes = [link.href, ...(link.activePrefixes ?? [])];
+  return prefixes.some((prefix) =>
+    prefix === "/"
+      ? pathname === "/"
+      : pathname === prefix || pathname.startsWith(`${prefix}/`),
+  );
+}
 
 export function resolveAccountNavigation({
   authenticated,

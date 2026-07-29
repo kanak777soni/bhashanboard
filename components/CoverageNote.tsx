@@ -13,7 +13,7 @@ export default async function CoverageNote() {
   const data = await getData();
   const bands = data.parity();
   const top = bands[0];
-  const headOfLadder = data.STATEMENTS.slice(0, 10);
+  const headOfLadder = data.publicRankedStatements().slice(0, 10);
   const topShare = headOfLadder.filter((s) => s.partyAtTime === top?.code).length;
 
   if (!top) {
@@ -31,8 +31,12 @@ export default async function CoverageNote() {
       <p className="rail-note">
         <strong>
           {top?.code} accounts for {top?.pct}% of indexed entries
-        </strong>{" "}
-        and {topShare} of the top ten places.
+        </strong>
+        {headOfLadder.length > 0 ? (
+          <> and {topShare} of the current top ten public places.</>
+        ) : (
+          <>. No video entry has reached the ten-ruling rank threshold yet.</>
+        )}
       </p>
       <p className="rail-note" style={{ marginTop: 8 }}>
         This measures <em>where we have looked</em>, not what anyone said. The corpus leans on claims

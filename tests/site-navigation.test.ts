@@ -1,6 +1,45 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { resolveAccountNavigation } from "../lib/site-navigation";
+import {
+  ARCHIVE_SITE_LINKS,
+  PRIMARY_SITE_LINKS,
+  isSiteNavigationLinkActive,
+  resolveAccountNavigation,
+} from "../lib/site-navigation";
+
+test("primary navigation leads with the public watch journey", () => {
+  assert.deepEqual(
+    PRIMARY_SITE_LINKS.map(({ href, label }) => ({ href, label })),
+    [
+      { href: "/watch", label: "Watch" },
+      { href: "/standings", label: "Standings" },
+      { href: "/record", label: "Record" },
+      { href: "/netas", label: "Netas" },
+      { href: "/submit", label: "Submit" },
+    ],
+  );
+});
+
+test("secondary institutional pages stay available under archive and more", () => {
+  assert.deepEqual(ARCHIVE_SITE_LINKS, [
+    { href: "/hall", label: "Hall of Fame" },
+    { href: "/ledger", label: "Ledger" },
+    { href: "/rejected", label: "Refused" },
+    { href: "/rules", label: "Rules" },
+  ]);
+});
+
+test("navigation destinations own their related detail routes without partial matches", () => {
+  const watch = PRIMARY_SITE_LINKS[0];
+  const record = PRIMARY_SITE_LINKS[2];
+  const netas = PRIMARY_SITE_LINKS[3];
+
+  assert.equal(isSiteNavigationLinkActive("/statement/example", watch), true);
+  assert.equal(isSiteNavigationLinkActive("/party/BJP", record), true);
+  assert.equal(isSiteNavigationLinkActive("/neta/example", netas), true);
+  assert.equal(isSiteNavigationLinkActive("/netas", netas), true);
+  assert.equal(isSiteNavigationLinkActive("/netas-copy", netas), false);
+});
 
 test("guest navigation exposes both authentication entry points", () => {
   assert.deepEqual(

@@ -111,7 +111,10 @@ export function runQuery(query: Query, dataset: QueryDataset): Row[] {
 
   const rows: Row[] = matched.map((s) => {
     const rank = rankMap.get(s.slug) ?? 0;
-    return { statement: s, rank, delta: s.previousRank ? s.previousRank - rank : 0 };
+    // Public historical rank is not persisted yet. The corpus's old
+    // previousRank field belongs to the editorial seed ladder and must not be
+    // presented as community movement.
+    return { statement: s, rank, delta: 0 };
   });
 
   switch (query.sort) {
@@ -121,9 +124,6 @@ export function runQuery(query: Query, dataset: QueryDataset): Row[] {
     case "duels": // Backwards-compatible URL from the pre-voting prototype.
     case "rulings":
       rows.sort((a, b) => b.statement.rating.validVoteCount - a.statement.rating.validVoteCount);
-      break;
-    case "climb":
-      rows.sort((a, b) => b.delta - a.delta);
       break;
     default:
       rows.sort((a, b) => b.statement.gp - a.statement.gp);

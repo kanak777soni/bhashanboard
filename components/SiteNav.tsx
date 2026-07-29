@@ -5,7 +5,9 @@ import { usePathname } from "next/navigation";
 import { useRef } from "react";
 import { useSession } from "@/lib/auth-client";
 import {
+  ARCHIVE_SITE_LINKS,
   PRIMARY_SITE_LINKS,
+  isSiteNavigationLinkActive,
   resolveAccountNavigation,
   type SiteNavigationLink,
 } from "@/lib/site-navigation";
@@ -14,6 +16,7 @@ export default function SiteNav() {
   const path = usePathname();
   const { data: session, isPending } = useSession();
   const mobileSectionsRef = useRef<HTMLDetailsElement>(null);
+  const desktopArchiveRef = useRef<HTMLDetailsElement>(null);
   const accountLinks = resolveAccountNavigation({
     authenticated: Boolean(session),
     role: session?.user.role,
@@ -24,8 +27,7 @@ export default function SiteNav() {
     onNavigate?: () => void,
     compactLabel = false,
   ) {
-    const active =
-      link.href === "/" ? path === "/" : path.startsWith(link.href);
+    const active = isSiteNavigationLinkActive(path, link);
 
     return (
       <Link
@@ -44,10 +46,31 @@ export default function SiteNav() {
     mobileSectionsRef.current?.removeAttribute("open");
   }
 
+  function closeDesktopArchive() {
+    desktopArchiveRef.current?.removeAttribute("open");
+  }
+
+  const archiveActive = ARCHIVE_SITE_LINKS.some((link) =>
+    isSiteNavigationLinkActive(path, link),
+  );
+
   return (
     <nav className="site-nav" aria-label="Site navigation">
       <div className="nav nav-desktop">
         {PRIMARY_SITE_LINKS.map((link) => renderLink(link))}
+        <details className="nav-more" ref={desktopArchiveRef}>
+          <summary
+            className="nav-more-summary"
+            aria-current={archiveActive ? "page" : undefined}
+          >
+            Archive / More
+          </summary>
+          <div className="nav-more-menu">
+            {ARCHIVE_SITE_LINKS.map((link) =>
+              renderLink(link, closeDesktopArchive),
+            )}
+          </div>
+        </details>
         <div className="nav-auth" role="group" aria-label="Account access">
           {isPending ? (
             <span className="nav-auth-pending" aria-hidden="true" />
@@ -65,7 +88,14 @@ export default function SiteNav() {
             role="group"
             aria-label="Site sections"
           >
+            <span className="nav-mobile-group-label lbl">Main</span>
             {PRIMARY_SITE_LINKS.map((link) =>
+              renderLink(link, closeMobileSections),
+            )}
+            <span className="nav-mobile-group-label lbl">
+              Archive / More
+            </span>
+            {ARCHIVE_SITE_LINKS.map((link) =>
               renderLink(link, closeMobileSections),
             )}
           </div>

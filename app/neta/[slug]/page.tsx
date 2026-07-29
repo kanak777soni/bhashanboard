@@ -1,96 +1,68 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import RecordList from "@/components/public/RecordList";
 import SiteFrame from "@/components/SiteFrame";
-import Medal from "@/components/Medal";
 import StandingsTable from "@/components/StandingsTable";
 import { getData } from "@/lib/data";
-import { TIERS, tierOf } from "@/lib/tiers";
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
   const data = await getData();
-  const n = data.netaBySlug((await params).slug);
-  if (!n) return { title: "Representative not found" };
-  return { title: n.name, description: `${n.office} · ${n.party} · ${n.state}. Career record on the Bhashan Board.` };
-}
-
-/** Honorifics are conferred by the algorithm from axis dominance, never
- *  hand-written — funnier, and considerably safer (docs/02 §2.7). */
-function honorifics(slugs: { category: string }[]): string[] {
-  const counts = new Map<string, number>();
-  slugs.forEach((s) => counts.set(s.category, (counts.get(s.category) ?? 0) + 1));
-  const titles: Record<string, string> = {
-    "Science & Reason": "Professor of Applied Physics",
-    History: "The Time Traveller",
-    Economics: "Chief Economist",
-    Whataboutery: "Whataboutery — Regional Champion",
-    "Standing Ovation": "Fellow of the Standing Ovation",
+  const neta = data.netaBySlug((await params).slug);
+  if (!neta) return { title: "Representative not found" };
+  return {
+    title: neta.name,
+    description: `${neta.office} · ${neta.party} · ${neta.state}. Research record on the Bhashan Board.`,
   };
-  return [...counts.entries()]
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 2)
-    .map(([cat]) => titles[cat] ?? cat);
 }
 
-function Arc({ points }: { points: number[] }) {
-  if (points.length < 2) return null;
-  const w = 100;
-  const h = 30;
-  const min = Math.min(...points) - 40;
-  const max = Math.max(...points) + 40;
-  const d = points
-    .map((p, i) => {
-      const x = (i / (points.length - 1)) * w;
-      const y = h - ((p - min) / (max - min)) * h;
-      return `${i ? "L" : "M"}${x.toFixed(2)} ${y.toFixed(2)}`;
-    })
-    .join(" ");
-  const lastX = w;
-  const lastY = h - ((points[points.length - 1] - min) / (max - min)) * h;
-  return (
-    <svg className="arc" viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" role="img" aria-label="Career rating arc">
-      <path d={d} fill="none" stroke="var(--ink)" strokeWidth="0.7" vectorEffect="non-scaling-stroke" />
-      <circle cx={lastX} cy={lastY} r="1.4" fill="var(--seal)" vectorEffect="non-scaling-stroke" />
-    </svg>
-  );
-}
-
-export default async function NetaPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function NetaPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const data = await getData();
   const neta = data.netaBySlug((await params).slug);
   if (!neta) notFound();
 
   const party = data.partyByCode(neta.party);
-  const entries = data.statementsByNeta(neta.slug);
-  const rows = entries.map((s) => ({
-    statement: s,
-    rank: data.rankOf(s.slug),
-    delta: s.previousRank - data.rankOf(s.slug),
+  const records = data.CORPUS.filter(
+    (statement) => statement.neta === neta.slug
+  ).sort(
+    (a, b) =>
+      a.daysAgo - b.daysAgo || a.corpusId.localeCompare(b.corpusId)
+  );
+  const liveVideos = data
+    .liveVideoStatements()
+    .filter((statement) => statement.neta === neta.slug);
+  const rankedVideos = data
+    .publicRankedStatements()
+    .filter((statement) => statement.neta === neta.slug);
+  const rankedRows = rankedVideos.map((statement) => ({
+    statement,
+    rank: data.publicRankOf(statement.slug),
+    delta: 0,
   }));
+  const categories = [...new Set(records.map((entry) => entry.category))].sort();
 
-  const careerGp = entries.reduce((sum, s) => sum + s.gp, 0);
-  const peak = entries.length ? Math.max(...entries.map((s) => s.gp)) : 0;
-  const mean = entries.length ? careerGp / entries.length : 0;
-  const sd = entries.length
-    ? Math.sqrt(entries.reduce((a, s) => a + (s.gp - mean) ** 2, 0) / entries.length)
-    : 0;
-  const consistency = sd < 120 ? "Remarkably reliable" : sd < 220 ? "Broadly dependable" : "Streaky";
-
-  const rivals = data.netasWithEntries()
-    .filter((n) => n.slug !== neta.slug)
-    .sort((a, b) => data.statementsByNeta(b.slug).length - data.statementsByNeta(a.slug).length)
+  const rivals = data.NETAS.filter(
+    (candidate) =>
+      candidate.slug !== neta.slug &&
+      data.CORPUS.some((statement) => statement.neta === candidate.slug)
+  )
+    .sort((a, b) => a.name.localeCompare(b.name))
     .slice(0, 5);
-
-  const cabinet = TIERS.map((t) => ({
-    tier: t,
-    count: entries.filter((s) => tierOf(s.gp).key === t.key).length,
-  })).filter((c) => c.count > 0);
 
   return (
     <SiteFrame>
       <h1 className="page-title">{neta.name}</h1>
       <p className="lbl">
-        {neta.office} &middot; <i className="swatch" style={{ background: party?.ink }} />
+        {neta.office} &middot;{" "}
+        <i className="swatch" style={{ background: party?.ink }} />
         {party?.name} &middot; {neta.state}
       </p>
 
@@ -102,61 +74,52 @@ export default async function NetaPage({ params }: { params: Promise<{ slug: str
         <div>
           <div className="statgrid">
             <div>
-              <span className="lbl">Career GP</span>
-              <b>{careerGp.toLocaleString("en-IN")}</b>
+              <span className="lbl">Research records</span>
+              <b>{records.length}</b>
             </div>
             <div>
-              <span className="lbl">Peak rating</span>
-              <b>{peak.toLocaleString("en-IN")}</b>
+              <span className="lbl">Ready videos</span>
+              <b>{liveVideos.length}</b>
             </div>
             <div>
-              <span className="lbl">Entries</span>
-              <b>{entries.length}</b>
+              <span className="lbl">Publicly ranked</span>
+              <b>{rankedVideos.length}</b>
             </div>
             <div>
-              <span className="lbl">Best rank</span>
-              <b>{entries.length ? `#${Math.min(...entries.map((s) => data.rankOf(s.slug)))}` : "—"}</b>
-            </div>
-          </div>
-
-          <div className="statblocks">
-            <div>
-              <span className="lbl">Form &middot; last five</span>
-              <div className="formguide">
-                {entries.slice(0, 5).map((s) => (
-                  <Medal key={s.slug} gp={s.gp} size={18} />
-                ))}
-              </div>
-            </div>
-            <div>
-              <span className="lbl">Trophy cabinet</span>
-              <div className="cabinet">
-                {cabinet.map((c) => (
-                  <div key={c.tier.key}>
-                    <Medal tier={c.tier.key} size={18} />
-                    &times;{c.count}
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div>
-              <span className="lbl">Consistency</span>
-              <div style={{ fontSize: 15 }}>{consistency}</div>
+              <span className="lbl">Categories indexed</span>
+              <b>{categories.length}</b>
             </div>
           </div>
 
           <div className="statblocks">
             <div>
-              <span className="lbl">Honorifics conferred</span>
-              {honorifics(entries).map((h) => (
-                <div key={h} className="honorific">
-                  {h}
-                </div>
-              ))}
+              <span className="lbl">Subjects in the file</span>
+              <div
+                style={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: 8,
+                  marginTop: 8,
+                }}
+              >
+                {categories.length > 0 ? (
+                  categories.map((category) => (
+                    <span className="token" key={category}>
+                      {category}
+                    </span>
+                  ))
+                ) : (
+                  <span className="rail-note">No records indexed yet.</span>
+                )}
+              </div>
             </div>
             <div>
-              <span className="lbl">Career arc &middot; {neta.arc.length} rulings</span>
-              <Arc points={neta.arc} />
+              <span className="lbl">How to read this page</span>
+              <p className="rail-note" style={{ marginTop: 8 }}>
+                A research record is not a score. Rank, GP, and medals appear
+                only for a publication-ready video after ten valid public
+                rulings.
+              </p>
             </div>
           </div>
         </div>
@@ -172,25 +135,52 @@ export default async function NetaPage({ params }: { params: Promise<{ slug: str
       </div>
 
       <div className="sec-head" style={{ marginTop: 34 }}>
-        <h2>Entries on record</h2>
-        <span className="lbl">{entries.length} indexed</span>
+        <h2>Public standings</h2>
+        <span className="lbl">
+          Verified video &middot; ten public rulings required
+        </span>
       </div>
-      <StandingsTable rows={rows} hideNeta />
+      {rankedRows.length > 0 ? (
+        <StandingsTable rows={rankedRows} hideNeta />
+      ) : (
+        <div className="erratum">
+          <span className="lbl">No public rank yet</span>
+          <p>
+            None of this representative&rsquo;s video filings has reached the
+            ten-ruling threshold. Research records remain available below
+            without borrowing the editorial seed score.
+          </p>
+        </div>
+      )}
+
+      <div className="sec-head" style={{ marginTop: 34 }}>
+        <h2>Complete research file</h2>
+        <span className="lbl">{records.length} indexed chronologically</span>
+      </div>
+      <RecordList statements={records} netas={data.NETAS} />
 
       <div className="compare-invite">
-        <span className="lbl">Compare with another representative</span>
+        <span className="lbl">Compare archive coverage</span>
         <div className="compare-links">
-          {rivals.map((r) => (
-            <Link key={r.slug} className="token" href={`/compare/${neta.slug}-vs-${r.slug}`}>
-              vs {r.name}
+          {rivals.map((rival) => (
+            <Link
+              key={rival.slug}
+              className="token"
+              href={`/compare/${neta.slug}-vs-${rival.slug}`}
+            >
+              with {rival.name}
             </Link>
           ))}
         </div>
       </div>
 
       <p style={{ marginTop: 18 }}>
-        <Link className="btn ghost" href="/netas">All representatives</Link>{" "}
-        <Link className="btn ghost" href={`/party/${neta.party}`}>{party?.name}</Link>
+        <Link className="btn ghost" href="/netas">
+          All representatives
+        </Link>{" "}
+        <Link className="btn ghost" href={`/party/${neta.party}`}>
+          {party?.name}
+        </Link>
       </p>
     </SiteFrame>
   );

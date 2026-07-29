@@ -21,11 +21,16 @@ const WIDTHS = process.env.WIDTHS
   : DEFAULT_WIDTHS;
 const DEFAULT_ROUTES = [
   "/",
-  "/?party=BJP&tier=gold",
+  "/watch",
+  "/standings",
+  "/standings?party=BJP&tier=gold",
+  "/record",
+  "/record?party=BJP",
   "/duel",
   "/netas",
   "/neta/narendra-modi",
   "/statement/on-ganesha-karna-and-the-antiquity-of-surgery-in-0002",
+  "/statement/on-coca-cola-s-founder-as-a-shikanji-seller-in-0042",
   "/ledger",
   "/rules",
   "/submit",
@@ -179,7 +184,8 @@ try {
             ])),
             ...(await measureNetasMobileState(page)),
           ]
-        : route === "/" && width <= 640
+        : (route.startsWith("/standings") || route.startsWith("/record")) &&
+            width <= 640
           ? await measureLocalOverflow(page, [
               { label: "query", selector: ".query" },
               { label: "query primary", selector: ".query-primary" },
@@ -215,13 +221,16 @@ try {
         await measureOverflow(page),
         [
           ...(menuOpen === "" ? [] : ["Sections did not open"]),
-          ...(menuLinks === 8 ? [] : [`expected 8 section links, found ${menuLinks}`]),
+          ...(menuLinks === 9 ? [] : [`expected 9 section links, found ${menuLinks}`]),
         ]
       );
       await menuSummary.evaluate((element) => element.click());
     }
 
-    if (route === "/" && width <= 640) {
+    if (
+      (route.startsWith("/standings") || route.startsWith("/record")) &&
+      width <= 640
+    ) {
       const filtersButton = page.locator(".disclose");
       await filtersButton.evaluate((element) => element.click());
       const filtersExpanded = await filtersButton.getAttribute("aria-expanded");
@@ -235,7 +244,7 @@ try {
       ]);
       report(
         width,
-        "/ [Filters open]",
+        `${route} [Filters open]`,
         await measureOverflow(page),
         [
           ...(filtersExpanded === "true" ? [] : ["Filters did not expand"]),

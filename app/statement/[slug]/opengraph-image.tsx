@@ -1,5 +1,10 @@
 import { ImageResponse } from "next/og";
 import { getData } from "@/lib/data";
+import {
+  buildPublicInventory,
+  ratingMaturityLabel,
+  statementRatingMaturity,
+} from "@/lib/public-inventory";
 import { tierOf } from "@/lib/tiers";
 
 export const runtime = "edge";
@@ -23,7 +28,8 @@ function cardExcerpt(text: string): string {
  * WhatsApp is the distribution layer in India and a WhatsApp forward is a
  * link preview, so this image *is* the growth loop
  * (docs/05-growth-and-money.md §5.1). It has to carry the whole entry at a
- * glance: rank, grade, what was said, who said it.
+ * glance: evidence state, what was said, and who said it. Public rank and
+ * grade appear only after the entry clears the video and ten-ruling bar.
  *
  * It also has to keep the corpus's honesty rules. An entry whose wording
  * was never established is rendered without quotation marks and labelled,
@@ -51,8 +57,21 @@ export default async function Image({ params }: { params: Promise<{ slug: string
   }
 
   const neta = data.netaBySlug(s.neta);
-  const tier = tierOf(s.gp);
-  const rank = s.held ? null : data.rankOf(s.slug);
+  const inventory = buildPublicInventory(data.CORPUS);
+  const rank = inventory.publicRankBySlug.get(s.slug);
+  const isRanked = rank !== undefined;
+  const tier = isRanked ? tierOf(s.gp) : null;
+  const maturity = statementRatingMaturity(s);
+  const evidenceLabel = s.video
+    ? s.publicationEligible
+      ? "Verified video"
+      : "Video in review"
+    : "Video needed";
+  const statusLabel = !s.video
+    ? "Research file"
+    : !s.publicationEligible
+      ? "Evidence review"
+      : ratingMaturityLabel(maturity);
   const translatedQuote = s.language !== "English" ? s.quoteTranslation : undefined;
   const shareText = s.quote || s.neutralTitle;
   const translationExcerpted =
@@ -95,22 +114,39 @@ export default async function Image({ params }: { params: Promise<{ slug: string
         </div>
 
         <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", borderTop: `2px solid ${INK}`, paddingTop: 18 }}>
-          <div style={{ display: "flex", gap: 46 }}>
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              <span style={{ fontSize: 15, letterSpacing: 3, color: "#5c6660", textTransform: "uppercase" }}>Rank</span>
-              <span style={{ fontSize: 42 }}>{rank ? `#${rank}` : "—"}</span>
+          {isRanked && tier ? (
+            <div style={{ display: "flex", gap: 46 }}>
+              <div style={{ display: "flex", flexDirection: "column" }}>
+                <span style={{ fontSize: 15, letterSpacing: 3, color: "#5c6660", textTransform: "uppercase" }}>Rank</span>
+                <span style={{ fontSize: 42 }}>{`#${rank}`}</span>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column" }}>
+                <span style={{ fontSize: 15, letterSpacing: 3, color: "#5c6660", textTransform: "uppercase" }}>Rating</span>
+                <span style={{ fontSize: 42 }}>{s.gp.toLocaleString("en-IN")}</span>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column" }}>
+                <span style={{ fontSize: 15, letterSpacing: 3, color: "#5c6660", textTransform: "uppercase" }}>Grade</span>
+                <span style={{ fontSize: 42, color: FOIL }}>{tier.name}</span>
+              </div>
             </div>
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              <span style={{ fontSize: 15, letterSpacing: 3, color: "#5c6660", textTransform: "uppercase" }}>Rating</span>
-              <span style={{ fontSize: 42 }}>{s.held ? "—" : s.gp.toLocaleString("en-IN")}</span>
+          ) : (
+            <div style={{ display: "flex", gap: 46 }}>
+              <div style={{ display: "flex", flexDirection: "column" }}>
+                <span style={{ fontSize: 15, letterSpacing: 3, color: "#5c6660", textTransform: "uppercase" }}>Evidence</span>
+                <span style={{ fontSize: 32 }}>{evidenceLabel}</span>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column" }}>
+                <span style={{ fontSize: 15, letterSpacing: 3, color: "#5c6660", textTransform: "uppercase" }}>Status</span>
+                <span style={{ fontSize: 32, color: FOIL }}>{statusLabel}</span>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column" }}>
+                <span style={{ fontSize: 15, letterSpacing: 3, color: "#5c6660", textTransform: "uppercase" }}>Rulings</span>
+                <span style={{ fontSize: 32 }}>{s.rating.validVoteCount.toLocaleString("en-IN")}</span>
+              </div>
             </div>
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              <span style={{ fontSize: 15, letterSpacing: 3, color: "#5c6660", textTransform: "uppercase" }}>Grade</span>
-              <span style={{ fontSize: 42, color: FOIL }}>{s.held ? "Not placed" : tier.name}</span>
-            </div>
-          </div>
+          )}
           <div style={{ fontSize: 17, letterSpacing: 2, color: "#5c6660", textTransform: "uppercase" }}>
-            Independently ranked
+            {isRanked ? "Publicly ranked" : "Source-led research archive"}
           </div>
         </div>
       </div>

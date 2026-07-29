@@ -84,11 +84,13 @@ export default function PrivacyPage() {
         <p>
           The application uses Neon for its database, its deployment provider for hosting, Brevo for
           transactional email, YouTube for embedded source footage, and Cloudinary for short
-          rights-cleared excerpts hosted by the Board. The normal clip facade does not load either
-          video source until you activate it. Once activated, the relevant provider receives ordinary
-          network and playback-request information, such as the IP address, browser headers, requested
-          media range, and time of access, under its own privacy terms. These providers may process
-          information in other countries subject to their contractual safeguards and applicable law.
+          rights-cleared excerpts hosted by the Board. A screening page loads its video immediately
+          and attempts muted playback so the evidence is the first thing you encounter. This means
+          YouTube or Cloudinary can receive ordinary network and playback-request information as soon
+          as you open a video page, without waiting for a player click. That information can include
+          the IP address, browser headers, requested media range, and time of access, and is handled
+          under the provider&apos;s own privacy terms. These providers may process information in
+          other countries subject to their contractual safeguards and applicable law.
         </p>
 
         <h2>Retention and the permanent ballot record</h2>

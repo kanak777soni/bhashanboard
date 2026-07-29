@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/require-admin";
+import { getData } from "@/lib/data";
 import {
   createPoliticianRecord,
   createStatementRecord,
@@ -306,11 +307,28 @@ async function statementDocument(
     axes: collectAxes(fd),
     verification: collectVerification(fd, fallback?.verification, video),
   };
+  const publicationIssues = committeePublicationIssues({
+    ...document,
+    status: "published",
+  });
+  if (document.status === "published" && publicationIssues.length > 0) {
+    throw new Error(
+      `This entry cannot go live: ${publicationIssues.join(" ")}`
+    );
+  }
   if (document.verification.stage === "committee_passed") {
-    const issues = committeePublicationIssues(document);
-    if (issues.length > 0) {
+    // Committee sign-off describes the evidence package, independently of
+    // whether an administrator has made the final "Go live" placement.
+    if (publicationIssues.length > 0) {
       throw new Error(
-        `Committee-passed publication requirements are not met: ${issues.join(" ")}`
+        `Committee-passed publication requirements are not met: ${publicationIssues.join(" ")}`
+      );
+    }
+  }
+  if (document.hall_of_fame) {
+    if (document.status !== "published" || publicationIssues.length > 0) {
+      throw new Error(
+        "Hall of Fame induction requires a fully reviewed live statement."
       );
     }
   }
@@ -409,13 +427,11 @@ export async function setStatus(fd: FormData) {
       quoteTranslation: before.quote_translation,
       quoteNote: before.quote_note,
     });
-    if (normalizeVerificationStage(before.verification.stage) === "committee_passed") {
-      const issues = committeePublicationIssues({ ...before, status });
-      if (issues.length > 0) {
-        throw new Error(
-          `Committee-passed publication requirements are not met: ${issues.join(" ")}`
-        );
-      }
+    const issues = committeePublicationIssues({ ...before, status });
+    if (issues.length > 0) {
+      throw new Error(
+        `This entry is not ready to go live: ${issues.join(" ")}`
+      );
     }
     const storedVideo = normalizeStatementVideo(before.video);
     if (storedVideo?.platform === "cloudinary") {
@@ -443,8 +459,33 @@ export async function toggleHallOfFame(fd: FormData) {
     throw new Error("Invalid Hall of Fame value.");
   }
   const desired = requested ? requested === "true" : !before.hall_of_fame;
-  if (desired && before.status !== "published") {
-    throw new Error("Only a published statement can be inducted into the Hall of Fame.");
+  const publicationIssues = desired
+    ? committeePublicationIssues({ ...before, status: "published" })
+    : [];
+  if (desired && (before.status !== "published" || publicationIssues.length > 0)) {
+    throw new Error(
+      `Only a fully reviewed live statement can enter the Hall of Fame.${
+        publicationIssues.length > 0 ? ` ${publicationIssues.join(" ")}` : ""
+      }`
+    );
+  }
+  if (desired) {
+    const publicData = await getData();
+    const publicStatement = publicData.CORPUS.find(
+      (statement) => statement.corpusId === before.id
+    );
+    if (
+      !publicStatement ||
+      publicData.publicRankOf(publicStatement.slug) <= 0
+    ) {
+      throw new Error(
+        "Hall of Fame induction requires a live video entry with at least ten valid public rulings."
+      );
+    }
+    const storedVideo = normalizeStatementVideo(before.video);
+    if (storedVideo?.platform === "cloudinary") {
+      await verifyExistingCloudinaryVideo(storedVideo);
+    }
   }
   if (desired === !!before.hall_of_fame) return;
 

@@ -38,7 +38,7 @@ export default async function AccountVotesPage({
           <span className="lbl">No rulings entered yet</span>
           <p>
             Once you finish a verified clip and submit a ruling, it will appear here. Each statement
-            accepts one final ruling from this account. <Link href="/">Browse the standings.</Link>
+            accepts one final ruling from this account. <Link href="/standings">Browse the standings.</Link>
           </p>
         </div>
       ) : (

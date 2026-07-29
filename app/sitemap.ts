@@ -1,14 +1,18 @@
 import type { MetadataRoute } from "next";
 import { resolvedPublicSiteUrl } from "@/lib/auth-config";
 import { getData } from "@/lib/data";
+import { buildPublicInventory } from "@/lib/public-inventory";
 
 const BASE = resolvedPublicSiteUrl();
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const data = await getData();
+  const inventory = buildPublicInventory(data.CORPUS);
   const statics = [
     "",
-    "/duel",
+    "/watch",
+    "/standings",
+    "/record",
     "/netas",
     "/hall",
     "/ledger",
@@ -17,6 +21,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/submit",
     "/privacy",
     "/terms",
+    ...(inventory.liveVideos.length >= 2 ? ["/duel"] : []),
   ].map((p) => ({
     url: `${BASE}${p}`,
     changeFrequency: "weekly" as const,

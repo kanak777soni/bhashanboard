@@ -1,11 +1,21 @@
 import Link from "next/link";
 import { requireAdmin } from "@/lib/require-admin";
+import { statementReadiness } from "@/lib/readiness";
 import { computeLadder, getPoliticians, getStatements, weightedScore } from "@/lib/store";
 import { setStatus, toggleHallOfFame } from "../actions";
 
 const FILTERS: Record<string, { label: string; test: (s: Awaited<ReturnType<typeof getStatements>>[number]) => boolean }> = {
   all: { label: "All", test: () => true },
-  published: { label: "On the ladder", test: (s) => s.status === "published" },
+  live: { label: "Live", test: (s) => statementReadiness(s).key === "live" },
+  ready: { label: "Ready to go live", test: (s) => statementReadiness(s).key === "ready" },
+  production: {
+    label: "Production review",
+    test: (s) => statementReadiness(s).key === "production_review",
+  },
+  source: {
+    label: "Needs video / sourcing",
+    test: (s) => ["needs_video", "source_review"].includes(statementReadiness(s).key),
+  },
   held: { label: "Held", test: (s) => s.status.startsWith("held") },
   withdrawn: { label: "Withdrawn", test: (s) => s.status === "withdrawn" },
   hof: { label: "Hall of Fame", test: (s) => !!s.hall_of_fame },
@@ -13,7 +23,12 @@ const FILTERS: Record<string, { label: string; test: (s: Awaited<ReturnType<type
   noquote: { label: "No verbatim quote", test: (s) => !s.quote },
   thin: { label: "Single-sourced", test: (s) => (s.verification.sources ?? []).length < 2 },
   tierc: { label: "No Tier A/B", test: (s) => !["A", "B"].includes(s.verification.best_source_tier) },
-  unverified: { label: "Unverified", test: (s) => s.verification.stage === "text_sourced" },
+  unverified: {
+    label: "Unverified",
+    test: (s) =>
+      s.status !== "withdrawn" &&
+      s.verification.stage === "text_sourced",
+  },
 };
 
 export default async function EntriesPage({
@@ -28,7 +43,8 @@ export default async function EntriesPage({
 
   const statements = await getStatements();
   const people = new Map((await getPoliticians()).map((p) => [p.id, p]));
-  const ladder = new Map(computeLadder(statements).map((l) => [l.id, l]));
+  const liveStatements = statements.filter((s) => statementReadiness(s).key === "live");
+  const ladder = new Map(computeLadder(liveStatements).map((l) => [l.id, l]));
 
   const rows = statements
     .filter(FILTERS[filterKey].test)
@@ -100,6 +116,7 @@ export default async function EntriesPage({
               {rows.map((s) => {
                 const l = ladder.get(s.id);
                 const p = people.get(s.speaker_id);
+                const readiness = statementReadiness(s);
                 return (
                   <tr key={s.id}>
                     <td className="num">{l?.rank ?? "—"}</td>
@@ -120,29 +137,46 @@ export default async function EntriesPage({
                       <div className="entry-sub">{s.party_at_time}</div>
                     </td>
                     <td>
-                      <span className={`kind ${s.status === "withdrawn" ? "withdrawal" : s.status === "published" ? "reply" : "correction"}`}>
-                        {s.status.replace("_", " ")}
+                      <span
+                        className={`kind ${
+                          readiness.key === "withdrawn"
+                            ? "withdrawal"
+                            : readiness.key === "live"
+                              ? "reply"
+                              : "correction"
+                        }`}
+                      >
+                        {readiness.label}
                       </span>
+                      <div className="entry-sub">{s.status.replace("_", " ")}</div>
                     </td>
                     <td>
                       <div className="admin-actions">
-                        <form action={setStatus}>
-                          <input type="hidden" name="id" value={s.id} />
-                          <input
-                            type="hidden"
-                            name="status"
-                            value={s.status === "published" ? "held_review" : "published"}
-                          />
-                          <button className="linkbtn" type="submit">
-                            {s.status === "published" ? "Hold" : "Place"}
-                          </button>
-                        </form>
-                        <form action={toggleHallOfFame}>
-                          <input type="hidden" name="id" value={s.id} />
-                          <button className="linkbtn" type="submit">
-                            {s.hall_of_fame ? "Remove HOF" : "Induct"}
-                          </button>
-                        </form>
+                        {s.status === "published" ? (
+                          <form action={setStatus}>
+                            <input type="hidden" name="id" value={s.id} />
+                            <input type="hidden" name="status" value="held_review" />
+                            <button className="linkbtn" type="submit">Hold</button>
+                          </form>
+                        ) : readiness.publicationReady ? (
+                          <form action={setStatus}>
+                            <input type="hidden" name="id" value={s.id} />
+                            <input type="hidden" name="status" value="published" />
+                            <button className="linkbtn" type="submit">Go live</button>
+                          </form>
+                        ) : (
+                          <Link className="linkbtn" href={`/admin/entries/${s.id}`}>
+                            Complete review
+                          </Link>
+                        )}
+                        {(readiness.key === "live" || s.hall_of_fame) && (
+                          <form action={toggleHallOfFame}>
+                            <input type="hidden" name="id" value={s.id} />
+                            <button className="linkbtn" type="submit">
+                              {s.hall_of_fame ? "Remove HOF" : "Induct"}
+                            </button>
+                          </form>
+                        )}
                         {s.status !== "withdrawn" && (
                           <form action={setStatus}>
                             <input type="hidden" name="id" value={s.id} />

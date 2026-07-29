@@ -12,7 +12,7 @@ import { tierOf } from "@/lib/tiers";
  */
 export default async function TierLegend({ compact = false }: { compact?: boolean }) {
   const data = await getData();
-  const all = data.rankedStatements();
+  const all = data.publicRankedStatements();
   const counts = new Map<string, number>();
   all.forEach((s) => {
     const k = tierOf(s.gp).key;

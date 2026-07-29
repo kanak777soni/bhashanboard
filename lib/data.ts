@@ -6,6 +6,10 @@ import {
   parseRatingAggregate,
   type RatingAggregateRecord,
 } from "./rating-aggregate";
+import {
+  buildPublicInventory,
+  type PublicInventory,
+} from "./public-inventory";
 import type { LedgerEntry, Neta, Party } from "./types";
 
 export const CATEGORIES = [
@@ -61,7 +65,15 @@ export interface PublicData {
   REJECTION_RULES: Record<string, string>;
   LEDGER: LedgerEntry[];
   allStatements(): CorpusStatement[];
+  /** Backward-compatible alias for the mature public video standings. */
   rankedStatements(): CorpusStatement[];
+  /** Inventory-aware public views used by Watch, Standings and the Front Page. */
+  publicInventory(): PublicInventory;
+  liveVideoStatements(): CorpusStatement[];
+  videoUnderReviewStatements(): CorpusStatement[];
+  researchOnlyStatements(): CorpusStatement[];
+  publicRankedStatements(): CorpusStatement[];
+  publicRankOf(slug: string): number;
   rankOf(slug: string): number;
   statementBySlug(slug: string): CorpusStatement | undefined;
   netaBySlug(slug: string): Neta | undefined;
@@ -136,10 +148,9 @@ const getDataCached = cache(async (): Promise<PublicData> => {
   const PARTIES = model.CORPUS_PARTIES;
   const NETAS = model.CORPUS_NETAS;
   const STATEMENTS = model.ON_LADDER;
-  const ranked = [...STATEMENTS].sort((a, b) => b.gp - a.gp);
+  const publicInventory = buildPublicInventory(model.CORPUS);
   const netaMap = new Map(NETAS.map((neta) => [neta.slug, neta]));
   const partyMap = new Map(PARTIES.map((party) => [party.code, party]));
-  const rankMap = new Map(ranked.map((statement, index) => [statement.slug, index + 1]));
 
   const REJECTED: Rejection[] = rejections.map((rejection) => ({
     descriptor: rejection.descriptor,
@@ -217,19 +228,31 @@ const getDataCached = cache(async (): Promise<PublicData> => {
     CORPUS: model.CORPUS,
     PARTIES,
     NETAS,
-    STATEMENTS,
+    STATEMENTS: model.CORPUS,
     IN_PLACEMENT: model.HELD,
     STATS: model.CORPUS_STATS,
     REJECTED,
     REJECTION_RULES,
     LEDGER: [...mutationLedger, ...canonicalLedger],
-    allStatements: () => STATEMENTS,
-    rankedStatements: () => [...ranked],
-    rankOf: (slug) => rankMap.get(slug) ?? 0,
+    allStatements: () => [...model.CORPUS],
+    rankedStatements: () => [...publicInventory.rankedVideos],
+    publicInventory: () => publicInventory,
+    liveVideoStatements: () => [...publicInventory.liveVideos],
+    videoUnderReviewStatements: () => [...publicInventory.videoUnderReview],
+    researchOnlyStatements: () => [...publicInventory.researchOnly],
+    publicRankedStatements: () => [...publicInventory.rankedVideos],
+    publicRankOf: (slug) => publicInventory.publicRankBySlug.get(slug) ?? 0,
+    rankOf: (slug) => publicInventory.publicRankBySlug.get(slug) ?? 0,
     statementBySlug: (slug) => model.CORPUS.find((statement) => statement.slug === slug),
     netaBySlug: (slug) => netaMap.get(slug),
     partyByCode: (code) => partyMap.get(code),
-    statementsByNeta: (slug) => ranked.filter((statement) => statement.neta === slug),
+    statementsByNeta: (slug) =>
+      model.CORPUS
+        .filter((statement) => statement.neta === slug)
+        .sort(
+          (a, b) =>
+            a.daysAgo - b.daysAgo || a.corpusId.localeCompare(b.corpusId)
+        ),
     netasWithEntries: () =>
       NETAS.filter((neta) => STATEMENTS.some((statement) => statement.neta === neta.slug)),
     states: () =>
@@ -243,13 +266,13 @@ const getDataCached = cache(async (): Promise<PublicData> => {
     languages: () => [...new Set(STATEMENTS.map((statement) => statement.language))].sort(),
     parity: () => {
       const counts = new Map<string, number>();
-      for (const statement of STATEMENTS) {
+      for (const statement of model.CORPUS) {
         counts.set(
           statement.partyAtTime,
           (counts.get(statement.partyAtTime) ?? 0) + 1
         );
       }
-      const total = STATEMENTS.length || 1;
+      const total = model.CORPUS.length || 1;
       return [...counts.entries()]
         .sort((a, b) => b[1] - a[1])
         .map(([code, count]) => ({

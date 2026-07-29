@@ -2,6 +2,7 @@ import Link from "next/link";
 import Medal from "./Medal";
 import EntryTitle from "./EntryTitle";
 import { getData } from "@/lib/data";
+import { buildPublicInventory } from "@/lib/public-inventory";
 
 /**
  * A statement page was a dead end: no way onward, no way to cite it. Both
@@ -10,7 +11,8 @@ import { getData } from "@/lib/data";
  */
 export default async function StatementFooterNav({ slug }: { slug: string }) {
   const data = await getData();
-  const ranked = data.rankedStatements();
+  const inventory = buildPublicInventory(data.CORPUS);
+  const ranked = inventory.rankedVideos;
   const i = ranked.findIndex((s) => s.slug === slug);
   const current = ranked[i];
   const above = i > 0 ? ranked[i - 1] : null;
@@ -22,7 +24,7 @@ export default async function StatementFooterNav({ slug }: { slug: string }) {
 
   const citation = current && neta
     ? `${neta.name}, ${neta.office}. ${current.hasVerbatimQuote ? `"${current.quote}"` : `[${current.neutralTitle}] — exact wording not established.`} ${current.venue}. ` +
-      `The Bhashan Board, Entry No. ${String(current.id).padStart(5, "0")}, ranked #${i + 1}.`
+      `The Bhashan Board, Entry No. ${current.corpusId}, publicly ranked #${i + 1}.`
     : "";
 
   return (
@@ -58,13 +60,22 @@ export default async function StatementFooterNav({ slug }: { slug: string }) {
             Also on record from <Link href={`/neta/${neta.slug}`}>{neta.name}</Link>
           </h2>
           <ul className="also-list">
-            {siblings.map((s) => (
-              <li key={s.slug}>
-                <Medal gp={s.gp} size={17} title={false} />
-                <Link href={`/statement/${s.slug}`}><EntryTitle statement={s} /></Link>
-                <span className="num">{s.gp.toLocaleString("en-IN")}</span>
-              </li>
-            ))}
+            {siblings.map((s) => {
+              const publicRank = inventory.publicRankBySlug.get(s.slug);
+              return (
+                <li key={s.slug}>
+                  {publicRank ? (
+                    <Medal gp={s.gp} size={17} title={false} />
+                  ) : (
+                    <span className="lbl" aria-hidden="true">File</span>
+                  )}
+                  <Link href={`/statement/${s.slug}`}><EntryTitle statement={s} /></Link>
+                  <span className="num">
+                    {publicRank ? `#${publicRank} · ${s.gp.toLocaleString("en-IN")} GP` : "Research file"}
+                  </span>
+                </li>
+              );
+            })}
           </ul>
         </section>
       )}

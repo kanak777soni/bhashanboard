@@ -197,9 +197,15 @@ export default function EntryForm({
           <label className="field">
             <span className="lbl">Verification stage</span>
             <select name="stage" defaultValue={verificationStage}>
-              <option value="text_sourced">text_sourced — reported, not yet verified</option>
-              <option value="av_verified">av_verified — video and timestamps in hand</option>
-              <option value="committee_passed">committee_passed — transcript, context and sign-off complete</option>
+              <option value="text_sourced">
+                Text sourced — quote and sources still under review
+              </option>
+              <option value="av_verified">
+                Production review — video and timestamps in hand
+              </option>
+              <option value="committee_passed">
+                Committee passed — transcript, context and sign-off complete
+              </option>
             </select>
           </label>
           <label className="field">
@@ -250,10 +256,18 @@ export default function EntryForm({
           <label className="field">
             <span className="lbl">Status</span>
             <select name="status" defaultValue={entry?.status ?? "held_review"}>
-              <option value="published">published — on the ladder</option>
-              <option value="held_review">held_review — indexed, awaiting review</option>
-              <option value="held_parity">held_parity — indexed, held back</option>
-              <option value="withdrawn">withdrawn — off the board</option>
+              <option value="published">
+                Live — only valid after every publication check passes
+              </option>
+              <option value="held_review">
+                Research file — indexed and awaiting review
+              </option>
+              <option value="held_parity">
+                Legacy parity hold — do not use for new work
+              </option>
+              <option value="withdrawn">
+                Withdrawn — retained in the audit record
+              </option>
             </select>
           </label>
           {entry && (

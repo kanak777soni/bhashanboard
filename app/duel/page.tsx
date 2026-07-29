@@ -3,6 +3,7 @@ import Link from "next/link";
 import DuelStage, { type DuelEntry } from "@/components/DuelStage";
 import SiteFrame from "@/components/SiteFrame";
 import { getData } from "@/lib/data";
+import { buildPublicInventory } from "@/lib/public-inventory";
 
 export const metadata: Metadata = {
   title: "Aamne-Saamne",
@@ -11,7 +12,8 @@ export const metadata: Metadata = {
 
 export default async function DuelPage() {
   const data = await getData();
-  const entries: DuelEntry[] = data.rankedStatements().map((s) => {
+  const inventory = buildPublicInventory(data.CORPUS);
+  const entries: DuelEntry[] = inventory.liveVideos.map((s) => {
     const neta = data.netaBySlug(s.neta);
     return {
       slug: s.slug,
@@ -19,7 +21,6 @@ export default async function DuelPage() {
       neta: neta?.name ?? "Unknown",
       party: s.partyAtTime,
       state: neta?.state ?? "—",
-      gp: s.gp,
       hasQuote: s.hasVerbatimQuote,
       language: s.language,
     };
@@ -33,8 +34,10 @@ export default async function DuelPage() {
           <span className="lbl">The Committee is waiting</span>
         </div>
         <p className="prose" style={{ marginTop: 16 }}>
-          At least two published entries are required before an exhibition can be convened.{" "}
-          <Link href="/">Return to the record.</Link>
+          At least two publication-ready video entries are required before an
+          exhibition can be convened. Editorial seed scores and text-only
+          research files are never used here.{" "}
+          <Link href="/watch">Return to the screening room.</Link>
         </p>
       </SiteFrame>
     );

@@ -36,6 +36,7 @@ export default async function StandingsTable({
   hideNeta?: boolean;
 }) {
   const data = await getData();
+  const showMovement = rows.some(({ delta }) => delta !== 0);
 
   return (
     <div className="tablewrap">
@@ -43,7 +44,7 @@ export default async function StandingsTable({
         <thead>
           <tr>
             <th className="c-rank">#</th>
-            <th className="c-move">&plusmn;</th>
+            {showMovement && <th className="c-move">&plusmn;</th>}
             <th className="c-medal"><span className="lbl" style={{ position: "absolute", left: -9999 }}>Tier</span></th>
             <th>Entry</th>
             {!hideNeta && <th className="c-meta">Representative</th>}
@@ -53,7 +54,10 @@ export default async function StandingsTable({
         <tbody>
           {rows.length === 0 && (
             <tr>
-              <td colSpan={hideNeta ? 5 : 6} className="empty">
+              <td
+                colSpan={4 + (hideNeta ? 0 : 1) + (showMovement ? 1 : 0)}
+                className="empty"
+              >
                 No entries match this query. Rare, but it happens.
               </td>
             </tr>
@@ -65,7 +69,9 @@ export default async function StandingsTable({
             return (
               <tr key={s.slug}>
                 <td className="c-rank">{rank}</td>
-                <td className="c-move"><Movement delta={delta} /></td>
+                {showMovement && (
+                  <td className="c-move"><Movement delta={delta} /></td>
+                )}
                 <td className="c-medal"><Medal gp={s.gp} /></td>
                 <td>
                   <Link className="entry-quote" href={`/statement/${s.slug}`}>

@@ -4,6 +4,7 @@ import SiteFrame from "@/components/SiteFrame";
 import Medal from "@/components/Medal";
 import EntryTitle from "@/components/EntryTitle";
 import { getData } from "@/lib/data";
+import { buildPublicInventory } from "@/lib/public-inventory";
 
 export const metadata: Metadata = {
   title: "Hall of Fame",
@@ -12,11 +13,11 @@ export const metadata: Metadata = {
 
 export default async function HallPage() {
   const data = await getData();
-  // Inducted entries are chosen by the Committee in the admin. Until the
-  // first induction the gallery previews the standing candidates.
-  const ranked = data.rankedStatements();
-  const inducted = ranked.filter((s) => s.hallOfFame);
-  const candidates = inducted.length ? inducted : ranked.filter((s) => s.gp >= 1875);
+  const inventory = buildPublicInventory(data.CORPUS);
+  // Induction is an editorial honour, but its public display still depends
+  // on the same evidence and ten-ruling bar as the standings. Seed scores
+  // must never create a preview gallery.
+  const inducted = inventory.rankedVideos.filter((s) => s.hallOfFame);
 
   return (
     <SiteFrame>
@@ -30,18 +31,28 @@ export default async function HallPage() {
         permanent gallery. The rating record remains intact; induction is an editorial honour, not a vote.
       </p>
       <p className="prose">
-{inducted.length ? "Inducted below." : "The first induction has not yet taken place. Standing candidates are shown below."}
+        {inducted.length
+          ? "Inducted below."
+          : "The first eligible induction has not yet taken place. The gallery stays empty until a video-backed entry is publicly ranked and formally inducted."}
       </p>
 
       <div style={{ marginTop: 24, borderTop: "2px solid var(--ink)" }}>
-        {candidates.map((s, i) => {
+        {inducted.length === 0 && (
+          <div className="empty">
+            No Hall of Fame entry is public yet.{" "}
+            <Link href="/watch">Watch the live screening docket</Link> or{" "}
+            <Link href="/record">browse the research record</Link>.
+          </div>
+        )}
+        {inducted.map((s) => {
           const neta = data.netaBySlug(s.neta);
+          const publicRank = inventory.publicRankBySlug.get(s.slug);
           return (
             <article className="hall-entry" key={s.slug}>
               <div className="hall-rank">
                 <Medal gp={s.gp} size={28} />
                 <div className="num" style={{ fontSize: 11, color: "var(--ink-45)", marginTop: 2 }}>
-                  {String(i + 1).padStart(2, "0")}
+                  {publicRank ? `#${publicRank}` : ""}
                 </div>
               </div>
               <div>
