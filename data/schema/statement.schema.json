@@ -108,10 +108,7 @@
         "axes": {
           "type": "object",
           "additionalProperties": false,
-          "anyOf": [
-            { "required": ["logic_damage", "reality_gap", "straight_face", "rewatch_value"] },
-            { "required": ["logic_damage", "straight_face", "rewatch_value", "crowd_complicity", "consequence"] }
-          ],
+          "required": ["logic_damage", "reality_gap", "straight_face", "rewatch_value"],
           "properties": {
             "logic_damage":     { "$ref": "#/$defs/axisScore" },
             "reality_gap":      { "$ref": "#/$defs/axisScore" },
@@ -120,7 +117,7 @@
             "crowd_complicity": { "$ref": "#/$defs/axisScore" },
             "consequence":      { "$ref": "#/$defs/axisScore" }
           },
-          "description": "The active public profile is Logic Break (logic_damage), Reality Gap (reality_gap), Full Confidence (straight_face), and Comic Impact (rewatch_value). Older seed records may omit reality_gap until an administrator reviews it. crowd_complicity and consequence remain hidden legacy audit fields. A complete four-mark profile supplies only a visibly provisional class before ten valid public votes; it never changes GP, public class, rank, Standings, or Hall eligibility."
+          "description": "The active public profile is Logic Break (logic_damage), Reality Gap (reality_gap), Full Confidence (straight_face), and Comic Impact (rewatch_value). Every seed record must contain all four marks. crowd_complicity and consequence remain hidden legacy audit fields. The four-mark profile supplies only a visibly provisional class before ten valid public votes; it never changes GP, public class, rank, Standings, or Hall eligibility."
         },
 
         "verification": {

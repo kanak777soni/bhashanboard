@@ -1,8 +1,8 @@
 {
   "$schema": "./schema/statement.schema.json",
   "corpus": "india",
-  "version": "0.2.0",
-  "compiled": "2026-07-29",
+  "version": "0.3.0",
+  "compiled": "2026-07-30",
   "$comment": "SEED CORPUS — India. Read data/README.md before adding an entry. Two rules govern this file and nothing overrides them: (1) every statement is a real, publicly-reported, on-record remark by a public figure acting in a public role, carrying at least one live source link; (2) nothing here is paraphrased into the `quote` field — if the exact wording could not be established from a source, `quote` is null and `claim` carries a neutral summary instead. `stage` is the content-pipeline stage each entry has actually cleared (docs/03-content-pipeline.md §3.3). No entry in this file has cleared Stage 3; none is publishable as-is.",
   "statements": [
     {
@@ -25,7 +25,8 @@
       "context": "Modi described overruling expert hesitation on the night of the strike, calling the reasoning his 'raw wisdom'. The full interview is the context that must be captured before publication; the surrounding minutes are about the decision to proceed in poor weather.",
       "counterpoint": "Radar operates at wavelengths that pass through cloud largely unattenuated; cloud affects visual and some electro-optical targeting, not radar detection.",
       "axes": {
-        "logic_damage": 5,
+        "logic_damage": 4,
+        "reality_gap": 5,
         "straight_face": 5,
         "rewatch_value": 5,
         "crowd_complicity": 2,
@@ -87,8 +88,9 @@
       "policy_note": "Borderline under Rule 1 (religion). Committee ruling: IN SCOPE. The claim under review is a claim about the history of medicine, made to doctors, in a hospital. The archive takes no position on the epics or on anyone's faith, and the entry must never be titled or captioned in a way that implies otherwise.",
       "axes": {
         "logic_damage": 5,
+        "reality_gap": 5,
         "straight_face": 5,
-        "rewatch_value": 4,
+        "rewatch_value": 5,
         "crowd_complicity": 4,
         "consequence": 5
       },
@@ -148,6 +150,7 @@
       "counterpoint": "Over 2,000 scientists from Indian research institutions signed a joint statement rejecting the remarks. Singh's senior colleague Prakash Javadekar publicly asked him not to dilute science.",
       "axes": {
         "logic_damage": 5,
+        "reality_gap": 5,
         "straight_face": 5,
         "rewatch_value": 4,
         "crowd_complicity": 3,
@@ -205,9 +208,10 @@
       "quote_note": "`quote` is null: reports render the remark in reported speech and the verbatim sentence could not be established from the sources below. Do not invent one. Resolve before publication.",
       "context": "Said while opening the Science Congress, to an audience of working scientists. Asked afterwards for his source, Vardhan told reporters to find it themselves. No such statement by Hawking has ever been produced; the claim traces to a Vedic-research website, not to Hawking.",
       "axes": {
-        "logic_damage": 5,
+        "logic_damage": 4,
+        "reality_gap": 4,
         "straight_face": 5,
-        "rewatch_value": 5,
+        "rewatch_value": 4,
         "crowd_complicity": 3,
         "consequence": 5
       },
@@ -260,6 +264,7 @@
       "context": "Said at a state government workshop on computerisation, days after Deb took office as Chief Minister. He declined to retract, and Uttar Pradesh Deputy Chief Minister Dinesh Sharma publicly agreed (see IN-0036).",
       "axes": {
         "logic_damage": 5,
+        "reality_gap": 5,
         "straight_face": 5,
         "rewatch_value": 5,
         "crowd_complicity": 3,
@@ -316,8 +321,9 @@
       "counterpoint": "Cows, like all mammals, exhale carbon dioxide.",
       "axes": {
         "logic_damage": 5,
+        "reality_gap": 5,
         "straight_face": 5,
-        "rewatch_value": 4,
+        "rewatch_value": 5,
         "crowd_complicity": 3,
         "consequence": 5
       },
@@ -376,6 +382,7 @@
       "counterpoint": "Newton described gravitation; Einstein's general relativity is among the most mathematically demanding theories in physics.",
       "axes": {
         "logic_damage": 4,
+        "reality_gap": 5,
         "straight_face": 4,
         "rewatch_value": 5,
         "crowd_complicity": 2,
@@ -429,9 +436,10 @@
       "context": "Passenger vehicle sales had fallen 31.6% year-on-year in August 2019, the sector's worst month on record, with large-scale job losses under way.",
       "counterpoint": "Contemporaneous analyses noted that ride-hailing had been growing for years without a comparable sales collapse, and that the fall coincided with a credit squeeze following the NBFC crisis.",
       "axes": {
-        "logic_damage": 3,
-        "straight_face": 4,
-        "rewatch_value": 5,
+        "logic_damage": 2,
+        "reality_gap": 2,
+        "straight_face": 3,
+        "rewatch_value": 3,
         "crowd_complicity": 2,
         "consequence": 5
       },
@@ -484,9 +492,10 @@
       "context": "The analogy was the substance of the speech, not an aside. It became a defining clip of Gandhi's early public speaking and is still cited more than a decade later.",
       "policy_note": "Rule 1 (caste) applies to statements ABOUT caste identity as a target. This entry is indexed for the physics analogy, not for its subject matter, and the neutral title and any Committee commentary must stay on the analogy. If that line cannot be held in the copy, drop the entry.",
       "axes": {
-        "logic_damage": 3,
-        "straight_face": 5,
-        "rewatch_value": 5,
+        "logic_damage": 1,
+        "reality_gap": 0,
+        "straight_face": 4,
+        "rewatch_value": 4,
         "crowd_complicity": 3,
         "consequence": 4
       },
@@ -544,9 +553,10 @@
       "context": "No media were invited. The first institute note supplied the widely repeated English wording and linked it to self-confidence through a self-help-group example. The same institute then said the remark had been misrepresented and that Gandhi had recognised both material deprivation and a poverty of thought. Without a recording, the archive cannot responsibly choose the harsher wording as his established statement.",
       "counterpoint": "Material deprivation remains central to standard poverty measurement. That does not settle what Gandhi said at this closed event: the only first-party descriptions conflict, so this entry is held from the ladder pending primary evidence.",
       "axes": {
-        "logic_damage": 2,
-        "straight_face": 2,
-        "rewatch_value": 4,
+        "logic_damage": 0,
+        "reality_gap": 0,
+        "straight_face": 0,
+        "rewatch_value": 0,
         "crowd_complicity": 0,
         "consequence": 4
       },
@@ -604,9 +614,10 @@
       "claim": "That the rise in commodity prices was a welcome development because it benefited farmers.",
       "context": "Said by the Union Steel Minister at the height of a national row over food inflation. The remark drew protests across the opposition and was disowned by his own party.",
       "axes": {
-        "logic_damage": 3,
-        "straight_face": 4,
-        "rewatch_value": 3,
+        "logic_damage": 1,
+        "reality_gap": 1,
+        "straight_face": 3,
+        "rewatch_value": 2,
         "crowd_complicity": 3,
         "consequence": 3
       },
@@ -652,8 +663,9 @@
       "context": "The ritual was performed by a serving minister of a government that was simultaneously pushing an anti-superstition bill — the contradiction, not the ritual, is what the entry indexes. Opposition BJP leader Jagadish Shettar attacked it on exactly that ground.",
       "policy_note": "Borderline under Rule 1. Committee ruling: IN SCOPE, narrowly — the indexed claim is the ISRO comparison offered as a public justification for a public act of government, not the ritual or the belief behind it.",
       "axes": {
-        "logic_damage": 4,
-        "straight_face": 5,
+        "logic_damage": 3,
+        "reality_gap": 2,
+        "straight_face": 4,
         "rewatch_value": 3,
         "crowd_complicity": 3,
         "consequence": 4
@@ -707,7 +719,8 @@
       "claim": "That farmers would prefer recurring droughts because drought brings loan waivers.",
       "context": "Said during a drought year in Karnataka. The state BJP called the remark irresponsible and demanded an apology.",
       "axes": {
-        "logic_damage": 3,
+        "logic_damage": 4,
+        "reality_gap": 4,
         "straight_face": 4,
         "rewatch_value": 3,
         "crowd_complicity": 3,
@@ -759,9 +772,10 @@
       "quote_note": "`quote` is null pending verbatim Kannada wording.",
       "context": "Made during campaigning for the 2024 general election by a former Assembly Speaker.",
       "axes": {
-        "logic_damage": 3,
+        "logic_damage": 1,
+        "reality_gap": 1,
         "straight_face": 4,
-        "rewatch_value": 3,
+        "rewatch_value": 2,
         "crowd_complicity": 3,
         "consequence": 4
       },
@@ -802,9 +816,10 @@
       "claim": "That the 2016 cross-border strikes were a claim without proof.",
       "context": "Said at his own party's flagship march. The Congress publicly distanced itself the same day, stating the views were his own.",
       "axes": {
-        "logic_damage": 2,
+        "logic_damage": 1,
+        "reality_gap": 2,
         "straight_face": 4,
-        "rewatch_value": 3,
+        "rewatch_value": 1,
         "crowd_complicity": 3,
         "consequence": 3
       },
@@ -862,7 +877,8 @@
       "context": "A response to the Prime Minister's pakoda remark (IN-0021, held). The two entries are a matched pair and should be cross-linked on the site; the Aamne-Saamne pairing writes itself.",
       "axes": {
         "logic_damage": 1,
-        "straight_face": 3,
+        "reality_gap": 1,
+        "straight_face": 2,
         "rewatch_value": 3,
         "crowd_complicity": 1,
         "consequence": 4
@@ -905,8 +921,9 @@
       "context": "Said days before India's national vaccination drive began. Later in 2021 Yadav said he would take the shot once the Prime Minister's photograph was removed from the vaccination certificate.",
       "axes": {
         "logic_damage": 4,
+        "reality_gap": 4,
         "straight_face": 4,
-        "rewatch_value": 4,
+        "rewatch_value": 3,
         "crowd_complicity": 2,
         "consequence": 4
       },
@@ -963,8 +980,9 @@
       "quote_note": "`quote` is null pending verbatim Hindi wording.",
       "context": "Said in January 2021, between India's two pandemic waves and three months before the Delta wave.",
       "axes": {
-        "logic_damage": 4,
-        "straight_face": 4,
+        "logic_damage": 5,
+        "reality_gap": 5,
+        "straight_face": 3,
         "rewatch_value": 3,
         "crowd_complicity": 3,
         "consequence": 4
@@ -1007,7 +1025,8 @@
       "claim": "Responding to a drought-affected farmer's hunger strike, that water cannot be released from a dam that has none.",
       "context": "Said during one of Maharashtra's worst droughts in decades, in reference to a farmer then on hunger strike at Azad Maidan, Mumbai. Pawar apologised in a statement and in the Legislative Council; party chief Sharad Pawar apologised separately. Pawar has since held the Deputy Chief Minister's office again.",
       "axes": {
-        "logic_damage": 2,
+        "logic_damage": 1,
+        "reality_gap": 0,
         "straight_face": 4,
         "rewatch_value": 4,
         "crowd_complicity": 4,
@@ -1066,9 +1085,10 @@
       "claim": "That Telangana could be free of COVID-19 by 7 April 2020.",
       "context": "Reported as being followed within twenty-four hours by a sharp rise in cases in the state. The conditional in the sentence is real and the entry must carry it — the archive does not improve a quote by trimming its qualifiers.",
       "axes": {
-        "logic_damage": 4,
-        "straight_face": 5,
-        "rewatch_value": 3,
+        "logic_damage": 1,
+        "reality_gap": 2,
+        "straight_face": 2,
+        "rewatch_value": 2,
         "crowd_complicity": 2,
         "consequence": 4
       },
@@ -1126,9 +1146,10 @@
       "context": "Part of a documented pattern: KCR appointed a Vastu adviser to the government and has held large-scale yagnas for the state's prosperity.",
       "policy_note": "Borderline under Rule 1. Committee ruling: IN SCOPE only if a verbatim quote is obtained in which the Chief Minister ties an act of government to the ritual. Absent that, this is reporting about a person's religious practice, which the archive does not index. Default is REJECT.",
       "axes": {
-        "logic_damage": 3,
-        "straight_face": 5,
-        "rewatch_value": 3,
+        "logic_damage": 0,
+        "reality_gap": 0,
+        "straight_face": 1,
+        "rewatch_value": 0,
         "crowd_complicity": 2,
         "consequence": 4
       },
@@ -1173,9 +1194,10 @@
       "quote_note": "`quote` is null pending the Assembly record. Assembly proceedings are reproducible under §52(1)(q) of the Copyright Act — this transcript is obtainable and should be.",
       "context": "Said during an Assembly debate in the opening weeks of the pandemic in India. The construction was widely copied across parties that month, which is what makes it a category rather than an incident.",
       "axes": {
-        "logic_damage": 1,
-        "straight_face": 3,
-        "rewatch_value": 2,
+        "logic_damage": 0,
+        "reality_gap": 0,
+        "straight_face": 2,
+        "rewatch_value": 1,
         "crowd_complicity": 4,
         "consequence": 4
       },
@@ -1214,9 +1236,10 @@
       "quote_note": "`quote` is null pending verbatim wording from the inauguration.",
       "context": "FactChecker.in established it was the country's third. Separately, the tower's own effectiveness was later disputed by the Delhi Pollution Control Committee.",
       "axes": {
-        "logic_damage": 2,
-        "straight_face": 4,
-        "rewatch_value": 2,
+        "logic_damage": 1,
+        "reality_gap": 4,
+        "straight_face": 3,
+        "rewatch_value": 1,
         "crowd_complicity": 3,
         "consequence": 4
       },
@@ -1267,9 +1290,10 @@
       "quote_note": "`quote` is null pending a verbatim Malayalam transcript. The English renderings in circulation differ materially, which for a statement of this seriousness is disqualifying.",
       "context": "Cheriyan resigned as minister within days amid criticism from across the political spectrum; an FIR was subsequently registered on a court's direction.",
       "axes": {
-        "logic_damage": 3,
-        "straight_face": 4,
-        "rewatch_value": 3,
+        "logic_damage": 1,
+        "reality_gap": 1,
+        "straight_face": 2,
+        "rewatch_value": 1,
         "crowd_complicity": 4,
         "consequence": 2
       },
@@ -1323,8 +1347,9 @@
       "policy_note": "Borderline under Rule 1. Committee ruling: IN SCOPE, narrowly — the indexed claim is the numerological reasoning offered in public about a serving head of government, not any religious figure or community. If the entry cannot be titled and captioned without commentary on the religious figure, drop it.",
       "axes": {
         "logic_damage": 3,
-        "straight_face": 5,
-        "rewatch_value": 3,
+        "reality_gap": 0,
+        "straight_face": 2,
+        "rewatch_value": 2,
         "crowd_complicity": 3,
         "consequence": 3
       },
@@ -1364,9 +1389,10 @@
       "quote_note": "`quote` is null pending a verbatim Bengali transcript.",
       "context": "Said by a serving cabinet minister about the head of his own government.",
       "axes": {
-        "logic_damage": 2,
-        "straight_face": 4,
-        "rewatch_value": 2,
+        "logic_damage": 1,
+        "reality_gap": 0,
+        "straight_face": 2,
+        "rewatch_value": 1,
         "crowd_complicity": 3,
         "consequence": 4
       },
@@ -1406,9 +1432,10 @@
       "quote_note": "`quote` is null pending retrieval of the original post.",
       "context": "One of a cluster of near-identical constructions used across parties in March 2020 (see IN-0022). The archive indexes the construction, not any one party's use of it — that symmetry is the point.",
       "axes": {
-        "logic_damage": 1,
-        "straight_face": 3,
-        "rewatch_value": 2,
+        "logic_damage": 0,
+        "reality_gap": 0,
+        "straight_face": 2,
+        "rewatch_value": 1,
         "crowd_complicity": 2,
         "consequence": 4
       },
@@ -1447,9 +1474,10 @@
       "quote_note": "`quote` is null pending verbatim Marathi wording.",
       "context": "Said during the debate over reopening entertainment venues after pandemic restrictions.",
       "axes": {
-        "logic_damage": 1,
-        "straight_face": 4,
-        "rewatch_value": 2,
+        "logic_damage": 0,
+        "reality_gap": 0,
+        "straight_face": 1,
+        "rewatch_value": 1,
         "crowd_complicity": 2,
         "consequence": 4
       },
@@ -1490,9 +1518,10 @@
       "claim": "That informal self-employment at around Rs 200 a day counts as employment for the purposes of the national debate on jobs.",
       "context": "Made during a sustained argument over jobs data. It generated its own economic shorthand — 'Pakodanomics' — and a direct reply from P. Chidambaram (IN-0016). Amit Shah defended the framing in the Rajya Sabha (IN-0041, held).",
       "axes": {
-        "logic_damage": 2,
+        "logic_damage": 0,
+        "reality_gap": 0,
         "straight_face": 4,
-        "rewatch_value": 5,
+        "rewatch_value": 3,
         "crowd_complicity": 2,
         "consequence": 5
       },
@@ -1542,9 +1571,10 @@
       "quote_note": "`quote` is null pending verbatim Hindi wording from the video.",
       "context": "A video of the remarks circulated widely. An official in the Chief Minister's office defended them as reflecting a common belief in the hills of Uttarakhand.",
       "axes": {
-        "logic_damage": 5,
-        "straight_face": 5,
-        "rewatch_value": 4,
+        "logic_damage": 4,
+        "reality_gap": 5,
+        "straight_face": 4,
+        "rewatch_value": 5,
         "crowd_complicity": 3,
         "consequence": 4
       },
@@ -1597,6 +1627,7 @@
       "context": "Ghosh repeated the claim after the initial controversy. A man in Dankuni subsequently approached a gold-loan company with two cows.",
       "axes": {
         "logic_damage": 5,
+        "reality_gap": 5,
         "straight_face": 5,
         "rewatch_value": 5,
         "crowd_complicity": 3,
@@ -1650,8 +1681,9 @@
       "quote_note": "`quote` is null pending the Assembly record.",
       "context": "Said on the floor of the Assembly on the first day of the budget session, while raising cattle smuggling. Assembly proceedings are reproducible under §52(1)(q) — this is one of the few entries in the corpus with a clean route to a Tier A transcript.",
       "axes": {
-        "logic_damage": 5,
-        "straight_face": 5,
+        "logic_damage": 4,
+        "reality_gap": 5,
+        "straight_face": 4,
         "rewatch_value": 4,
         "crowd_complicity": 4,
         "consequence": 4
@@ -1704,8 +1736,9 @@
       "context": "Said on the floor of the House. The NASA claim is a long-running distortion of a 1985 AI Magazine paper by Rick Briggs on knowledge representation.",
       "axes": {
         "logic_damage": 5,
+        "reality_gap": 5,
         "straight_face": 5,
-        "rewatch_value": 4,
+        "rewatch_value": 5,
         "crowd_complicity": 4,
         "consequence": 4
       },
@@ -1751,7 +1784,8 @@
       "context": "Said in the same Lok Sabha intervention as IN-0035. The official record is linked, but this card remains held until its exact Hindi wording is transcribed and the Committee decides whether the two claims should be consolidated. Pokhriyal later became Union Minister for Education (2019–2021).",
       "axes": {
         "logic_damage": 5,
-        "straight_face": 5,
+        "reality_gap": 4,
+        "straight_face": 4,
         "rewatch_value": 4,
         "crowd_complicity": 4,
         "consequence": 5
@@ -1799,8 +1833,9 @@
       "context": "Kanad, to whom an atomistic theory of matter is attributed, is generally placed in the last few centuries BCE — not lakhs of years ago.",
       "axes": {
         "logic_damage": 5,
-        "straight_face": 5,
-        "rewatch_value": 4,
+        "reality_gap": 5,
+        "straight_face": 4,
+        "rewatch_value": 5,
         "crowd_complicity": 4,
         "consequence": 5
       },
@@ -1844,9 +1879,10 @@
       "quote_note": "`quote` is null pending verbatim Hindi wording.",
       "context": "Said at a Hindi Journalism Day event in Mathura and reported as supporting the Tripura Chief Minister's earlier remarks about technology in the Mahabharata (IN-0005). The earlier April date in this corpus was incorrect.",
       "axes": {
-        "logic_damage": 4,
-        "straight_face": 5,
-        "rewatch_value": 4,
+        "logic_damage": 3,
+        "reality_gap": 4,
+        "straight_face": 4,
+        "rewatch_value": 3,
         "crowd_complicity": 3,
         "consequence": 4
       },
@@ -1892,9 +1928,10 @@
       "quote_note": "`quote` is null pending verbatim wording.",
       "context": "Naik qualified the statement at the time by saying endorsement would follow only after confirming the research was '100% scientific'. That qualifier must be carried in the entry.",
       "axes": {
-        "logic_damage": 5,
-        "straight_face": 4,
-        "rewatch_value": 3,
+        "logic_damage": 2,
+        "reality_gap": 4,
+        "straight_face": 2,
+        "rewatch_value": 2,
         "crowd_complicity": 2,
         "consequence": 5
       },
@@ -1940,9 +1977,10 @@
       "quote_note": "`quote` is null pending verbatim Bengali wording.",
       "context": "Sati was banned by regulation in 1829 under Lord William Bentinck, following a campaign led by Raja Ram Mohan Roy. Vidyasagar's landmark campaign was for widow remarriage, legalised in 1856. Reports also record that Supriyo later corrected himself; the original footage and correction must be placed together before this can return to the ladder.",
       "axes": {
-        "logic_damage": 3,
-        "straight_face": 4,
-        "rewatch_value": 3,
+        "logic_damage": 1,
+        "reality_gap": 3,
+        "straight_face": 2,
+        "rewatch_value": 2,
         "crowd_complicity": 3,
         "consequence": 4
       },
@@ -1990,8 +2028,9 @@
       "context": "The Shiv Sena called it a fit case for action under Maharashtra's anti-superstition law — which makes this entry a rare instance of a party demanding a statute be applied to a statement.",
       "axes": {
         "logic_damage": 5,
+        "reality_gap": 5,
         "straight_face": 4,
-        "rewatch_value": 3,
+        "rewatch_value": 4,
         "crowd_complicity": 2,
         "consequence": 4
       },
@@ -2036,9 +2075,10 @@
       "quote_note": "`quote` is null pending verbatim Kannada wording. This entry is weakly sourced — a headline, not a transcript.",
       "context": "Said during renewed deadly flooding on 23 October 2019. In context this reads as an idiomatic description of relentless rain, not a factual theory of meteorology. It therefore fails the archive's 'claims, not mouths' gate and has been withdrawn.",
       "axes": {
-        "logic_damage": 3,
-        "straight_face": 4,
-        "rewatch_value": 2,
+        "logic_damage": 0,
+        "reality_gap": 0,
+        "straight_face": 0,
+        "rewatch_value": 0,
         "crowd_complicity": 2,
         "consequence": 4
       },
@@ -2082,9 +2122,10 @@
       "quote_note": "`quote` is null pending the Rajya Sabha record.",
       "context": "Part of the pakoda-employment cluster. Shah was answering P. Chidambaram, expressly acknowledged unemployment as a problem, and argued that earning through self-employment was not shameful. That is a political position rather than an independently broken factual claim, and a separate card duplicates the existing cluster, so this entry has been withdrawn.",
       "axes": {
-        "logic_damage": 1,
+        "logic_damage": 0,
+        "reality_gap": 0,
         "straight_face": 4,
-        "rewatch_value": 2,
+        "rewatch_value": 1,
         "crowd_complicity": 4,
         "consequence": 5
       },
@@ -2130,7 +2171,8 @@
       "context": "Said while arguing that India fails to recognise skills and talent among backward classes. That policy argument and rhetorical purpose are recorded rather than treated as a rescue for the historical assertion.",
       "counterpoint": "Coca-Cola's own history identifies Atlanta pharmacist John S. Pemberton as the creator of the syrup in 1886 and says he took it to Jacobs' Pharmacy, where it was first served as a soda-fountain drink. No evidence places him as a shikanji seller.",
       "axes": {
-        "logic_damage": 5,
+        "logic_damage": 4,
+        "reality_gap": 5,
         "straight_face": 5,
         "rewatch_value": 5,
         "crowd_complicity": 3,
@@ -2197,7 +2239,8 @@
       "context": "Made during the 2012 Punjab assembly campaign and repeated when challenged. The state government disputed it; Gandhi did not withdraw it.",
       "counterpoint": "The figure inverts the statistic it came from. The 2009 state affidavit rested on a 2006 Guru Nanak Dev University study finding that roughly 70-73.5% of identified drug addicts were young — not that 70% of young people were addicts. Reading 'most addicts are youth' as 'most youth are addicts' reverses the base rate. No empirical study has established true prevalence in Punjab.",
       "axes": {
-        "logic_damage": 4,
+        "logic_damage": 5,
+        "reality_gap": 5,
         "straight_face": 5,
         "rewatch_value": 3,
         "crowd_complicity": 3,
@@ -2247,8 +2290,9 @@
       "counterpoint": "BOOM's review found the direction defensible but both ends overstated: China's addition is closer to 37,000 a day on available data, and the Indian figure of 450 rests on reading EPFO enrolment as total job creation, which it is not. The gap is real; the numbers are not the ones cited.",
       "axes": {
         "logic_damage": 2,
+        "reality_gap": 2,
         "straight_face": 4,
-        "rewatch_value": 2,
+        "rewatch_value": 1,
         "crowd_complicity": 3,
         "consequence": 5
       },
@@ -2295,7 +2339,8 @@
       "context": "Gandhi used the attribution to set up his own comparison of the government to a train driven toward disaster. The archive indexes only whether the earlier quotation he placed in Modi's mouth has a supporting record; it does not score the surrounding criticism.",
       "counterpoint": "India Today's search of the available campaign record found Modi discussing bullet trains but no matching 'passenger train', 'Magical Train', or promised-journey quotation. A universal negative cannot be proved from an incomplete political archive, so the finding is 'no supporting record found', not 'fabricated'.",
       "axes": {
-        "logic_damage": 3,
+        "logic_damage": 2,
+        "reality_gap": 3,
         "straight_face": 4,
         "rewatch_value": 4,
         "crowd_complicity": 2,
