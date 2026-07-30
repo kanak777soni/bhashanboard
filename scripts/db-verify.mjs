@@ -25,6 +25,12 @@ function verifyDocuments(label, expectedRows, actualRows, errors, options = {}) 
       errors.push(`${label} is missing ${expected.id}`);
       continue;
     }
+    if (
+      String(found.managed_by) !== "json_seed" &&
+      options.allowAdminManagedOverride === true
+    ) {
+      continue;
+    }
     const remoteHash = hashDocument(found.document);
     if (remoteHash !== expected.source_hash) {
       errors.push(`${label} ${expected.id} document hash differs`);
@@ -305,7 +311,8 @@ async function main() {
             'statement_rating_aggregate_v2_check',
             'statement_watch_sessions_video_platform_check',
             'cloudinary_video_upload_intents_attachment_unique',
-            'cloudinary_video_attachment_lifecycle_check'
+            'cloudinary_video_attachment_lifecycle_check',
+            'statements_sarcasm_axes_check'
           )
       `),
       tx.query(`
@@ -596,32 +603,36 @@ async function main() {
       "parties",
       snapshot.entityRows.parties,
       rowsOf(partyRows),
-      errors
+      errors,
+      { allowAdminManagedOverride: true }
     ),
     politicians: verifyDocuments(
       "politicians",
       snapshot.entityRows.politicians,
       rowsOf(politicianRows),
-      errors
+      errors,
+      { allowAdminManagedOverride: true }
     ),
     statements: verifyDocuments(
       "statements",
       snapshot.entityRows.statements,
       rowsOf(statementRows),
-      errors
+      errors,
+      { allowAdminManagedOverride: true }
     ),
     rejections: verifyDocuments(
       "rejections",
       snapshot.entityRows.rejections,
       rowsOf(rejectionRows),
       errors,
-      { position: true }
+      { position: true, allowAdminManagedOverride: true }
     ),
     settings: verifyDocuments(
       "settings",
       snapshot.entityRows.settings,
       rowsOf(settingRows),
-      errors
+      errors,
+      { allowAdminManagedOverride: true }
     ),
   };
 
@@ -748,6 +759,7 @@ async function main() {
     "statement_watch_sessions_video_platform_check",
     "cloudinary_video_upload_intents_attachment_unique",
     "cloudinary_video_attachment_lifecycle_check",
+    "statements_sarcasm_axes_check",
   ]);
   for (const row of rowsOf(integrityConstraintRows)) {
     if (row.convalidated === true || row.convalidated === "true") {

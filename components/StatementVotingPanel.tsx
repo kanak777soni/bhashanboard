@@ -1029,9 +1029,9 @@ export default function StatementVotingPanel({
         <p>
           Every vote has equal weight. The score is the sum of vote values
           divided by the number of valid votes; GP is 1000 plus ten times that
-          score. A clip receives its class and joins the standings after ten
-          votes. The five lenses are prompts for your judgement, not five
-          separate votes, and none receives a secret multiplier.
+          score. A clip receives its public class and joins the standings after
+          ten votes. The four lenses are prompts for your judgement, not four
+          separate votes, and none receives a secret multiplier in public GP.
           {!revealPublicResults &&
             " The current result stays covered until you enter your own ruling."}
         </p>
@@ -1160,6 +1160,7 @@ export default function StatementVotingPanel({
           <ClassAward
             gp={rating.gp}
             validVoteCount={rating.validVoteCount}
+            axes={resultAward.axes}
             performance={rating.performance}
             rank={resultAward.publicRank}
             hallOfFame={resultAward.hallOfFame}

@@ -1,7 +1,9 @@
 import type { CSSProperties } from "react";
 import Medal from "@/components/Medal";
+import { resolveStatementClass } from "@/lib/classes";
+import { PUBLIC_CLASS_MIN_VALID_VOTES } from "@/lib/rating";
 import type { SarcasmHighlight } from "@/lib/sarcasm";
-import { tierOf } from "@/lib/tiers";
+import type { Axes } from "@/lib/types";
 import styles from "./AwardSystem.module.css";
 
 export type ClassAwardVariant = "compact" | "hero";
@@ -9,6 +11,7 @@ export type ClassAwardVariant = "compact" | "hero";
 export default function ClassAward({
   gp,
   validVoteCount,
+  axes,
   performance,
   rank = 0,
   hallOfFame = false,
@@ -18,6 +21,7 @@ export default function ClassAward({
 }: {
   gp: number;
   validVoteCount: number;
+  axes: Axes;
   performance?: number;
   rank?: number;
   hallOfFame?: boolean;
@@ -25,9 +29,14 @@ export default function ClassAward({
   signatures?: ReadonlyArray<SarcasmHighlight>;
   className?: string;
 }) {
-  const ranked = validVoteCount >= 10;
-  const tier = ranked ? tierOf(gp) : null;
-  const progress = Math.max(0, Math.min(10, validVoteCount));
+  const resolution = resolveStatementClass({ gp, validVoteCount, axes });
+  const ranked = resolution.source === "public";
+  const provisional = resolution.source === "provisional";
+  const tier = resolution.tier;
+  const progress = Math.max(
+    0,
+    Math.min(PUBLIC_CLASS_MIN_VALID_VOTES, validVoteCount),
+  );
   const awardColour = tier?.colour ?? "var(--ink-45)";
   const rootClassName = [
     styles.award,
@@ -46,12 +55,18 @@ export default function ClassAward({
           ? `${tier?.name}, ${gp.toLocaleString("en-IN")} GP${
               rank > 0 ? `, public rank ${rank}` : ""
             }`
-          : `Class pending, ${progress} of 10 votes`
+          : provisional
+            ? `${tier?.name}, Board provisional class from the four-factor profile; ${progress} of ${PUBLIC_CLASS_MIN_VALID_VOTES} valid public votes`
+            : `Provisional class unavailable until all four profile marks are set; ${progress} of ${PUBLIC_CLASS_MIN_VALID_VOTES} valid public votes`
       }
     >
       <div
         className={`${styles.medallion} ${
-          ranked ? "" : styles.pendingMedallion
+          resolution.source === "pending"
+            ? styles.pendingMedallion
+            : provisional
+              ? styles.provisionalMedallion
+              : ""
         }`}
         aria-hidden="true"
       >
@@ -62,7 +77,7 @@ export default function ClassAward({
             title={false}
           />
         ) : (
-          <span>{progress}/10</span>
+          <span>{progress}/{PUBLIC_CLASS_MIN_VALID_VOTES}</span>
         )}
       </div>
 
@@ -71,10 +86,14 @@ export default function ClassAward({
           <div className={styles.hallRibbon}>Hall of Fame</div>
         )}
         <span className={styles.kicker}>
-          {ranked ? "Class conferred" : "Public placement"}
+          {ranked
+            ? "Public class"
+            : provisional
+              ? "Board provisional"
+              : "Profile awaiting review"}
         </span>
         <strong className={styles.className}>
-          {tier?.name ?? "Class pending"}
+          {tier?.name ?? "Provisional class pending"}
         </strong>
         <div className={styles.meta}>
           {ranked ? (
@@ -94,13 +113,30 @@ export default function ClassAward({
               )}
               <span>
                 <strong>{validVoteCount.toLocaleString("en-IN")}</strong>{" "}
-                votes
+                valid votes
               </span>
+            </>
+          ) : provisional ? (
+            <>
+              <span>
+                Four-factor profile{" "}
+                <strong>
+                  {resolution.profileTotal.toLocaleString("en-IN", {
+                    maximumFractionDigits: 1,
+                  })}
+                  /20
+                </strong>
+              </span>
+              <span>
+                <strong>{progress}</strong>/
+                {PUBLIC_CLASS_MIN_VALID_VOTES} valid public votes
+              </span>
+              <span>Public class replaces this preview at vote 10</span>
             </>
           ) : (
             <span>
-              <strong>{progress}</strong> of 10 votes needed to receive a
-              class
+              The four profile marks are not complete. Public class begins at{" "}
+              {PUBLIC_CLASS_MIN_VALID_VOTES} valid votes.
             </span>
           )}
         </div>

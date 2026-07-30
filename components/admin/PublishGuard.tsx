@@ -6,6 +6,7 @@ import {
   parseVideoTimestamp,
   parseYouTubeVideo,
 } from "@/lib/video";
+import { SARCASM_LENSES } from "@/lib/sarcasm";
 
 interface ChecklistItem {
   key: string;
@@ -42,7 +43,10 @@ function hasBoundedYouTubeExcerpt(form: HTMLFormElement): boolean {
   }
 }
 
-function readChecklist(form: HTMLFormElement): ChecklistItem[] {
+function readChecklist(
+  form: HTMLFormElement,
+  savedProfileComplete: boolean,
+): ChecklistItem[] {
   const language = value(form, "language");
   const quote = value(form, "quote");
   const translation = value(form, "quote_translation");
@@ -94,6 +98,17 @@ function readChecklist(form: HTMLFormElement): ChecklistItem[] {
       complete: Boolean(value(form, "category")),
     },
     {
+      key: "sarcasm-profile",
+      label: "Four profile marks",
+      detail:
+        "Choose Logic Break, Reality Gap, Full Confidence, and Comic Impact so the provisional class is transparent.",
+      complete:
+        savedProfileComplete ||
+        SARCASM_LENSES.every((lens) =>
+          /^[0-5]$/.test(value(form, lens.storageKey)),
+        ),
+    },
+    {
       key: "video",
       label: "Clip ready",
       detail:
@@ -125,10 +140,12 @@ export default function PublishGuard({
   workflowAction,
   submitLabel,
   submitAction,
+  profileComplete = false,
 }: {
   workflowAction?: "publish" | "restore_live";
   submitLabel?: string;
   submitAction?: (formData: FormData) => void | Promise<void>;
+  profileComplete?: boolean;
 }) {
   const guardRef = useRef<HTMLDivElement | null>(null);
   const [items, setItems] = useState<ChecklistItem[]>([]);
@@ -136,9 +153,9 @@ export default function PublishGuard({
   const recompute = useCallback(() => {
     const form = guardRef.current?.closest("form");
     if (!form) return;
-    const nextItems = readChecklist(form);
+    const nextItems = readChecklist(form, profileComplete);
     setItems(nextItems);
-  }, []);
+  }, [profileComplete]);
 
   useEffect(() => {
     const form = guardRef.current?.closest("form");

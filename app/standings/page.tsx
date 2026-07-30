@@ -76,6 +76,7 @@ export default async function StandingsPage({
                   <ClassAward
                     gp={statement.gp}
                     validVoteCount={statement.rating.validVoteCount}
+                    axes={statement.axes}
                     performance={statement.rating.performance}
                     rank={index + 1}
                     hallOfFame={statement.hallOfFame}

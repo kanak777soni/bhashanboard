@@ -51,10 +51,10 @@ export interface Source {
 
 export interface Axes {
   logic: number;
+  /** Null on legacy records until an administrator reviews the new lens. */
+  realityGap: number | null;
   straightFace: number;
-  rewatch: number;
-  crowd: number;
-  consequence: number;
+  comicImpact: number;
 }
 
 export type VerificationStage = "text_sourced" | "av_verified" | "committee_passed";
@@ -158,9 +158,6 @@ export interface Statement {
   citation?: string;
   /** The Committee's Note — one sentence of straight-faced assessment. */
   note?: string;
-  /** Provisional entries are still in placement and are not ranked yet. */
-  placement?: number;
-  projected?: TierKey;
 }
 
 export interface LedgerEntry {

@@ -1,4 +1,5 @@
 import type { CorpusStatement } from "./corpus";
+import { PUBLIC_CLASS_MIN_VALID_VOTES } from "./rating";
 
 export type RatingMaturity = "new" | "placement" | "ranked";
 export type RatingMaturityLabel =
@@ -22,7 +23,7 @@ export interface PublicInventory {
 
 export function ratingMaturityForVoteCount(voteCount: number): RatingMaturity {
   if (!Number.isFinite(voteCount) || voteCount <= 0) return "new";
-  if (voteCount < 10) return "placement";
+  if (voteCount < PUBLIC_CLASS_MIN_VALID_VOTES) return "placement";
   return "ranked";
 }
 

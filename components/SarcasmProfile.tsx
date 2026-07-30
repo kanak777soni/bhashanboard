@@ -29,31 +29,41 @@ export default function SarcasmProfile({
           <Heading id="sarcasm-profile-title">Sarcasm Profile</Heading>
         </div>
         <p className={styles.profileNote}>
-          The Board&rsquo;s five-part reading of the moment. These marks never
-          alter public GP or rank.
+          Four equal editorial marks describe the moment and set only its
+          early provisional class. They never alter public GP or rank.
         </p>
       </header>
 
       <div className={styles.profileGrid}>
         {SARCASM_LENSES.map((axis) => {
           const value = scoreSarcasmAxis(axes[axis.key]);
+          const rated = value !== null;
           return (
-            <div className={styles.profileAxis} key={axis.key}>
+            <div
+              className={`${styles.profileAxis} ${
+                rated ? "" : styles.profileAxisUnrated
+              }`}
+              key={axis.key}
+            >
               <div className={styles.profileAxisHead}>
                 <span>{axis.label}</span>
-                <strong>{value}</strong>
+                <strong>{rated ? value : "Unrated"}</strong>
               </div>
               <div
                 className={styles.profileTrack}
-                role="meter"
-                aria-label={`${axis.label}: ${value} out of 100`}
+                role={rated ? "meter" : undefined}
+                aria-label={
+                  rated
+                    ? `${axis.label}: ${value} out of 100`
+                    : `${axis.label}: not rated`
+                }
                 aria-valuemin={0}
                 aria-valuemax={100}
-                aria-valuenow={value}
+                aria-valuenow={rated ? value : undefined}
               >
                 <i
                   className={styles.profileFill}
-                  style={{ width: `${value}%` }}
+                  style={{ width: `${value ?? 0}%` }}
                 />
               </div>
               <p className={styles.profileAxisPrompt}>

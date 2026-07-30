@@ -65,6 +65,17 @@
   font-size: 13px;
 }
 
+.provisionalMedallion {
+  border-style: dashed;
+  background:
+    radial-gradient(circle, var(--ground-3) 0 47%, transparent 48%),
+    repeating-conic-gradient(
+      from 0deg,
+      color-mix(in srgb, var(--award-colour) 17%, transparent) 0 4deg,
+      transparent 4deg 12deg
+    );
+}
+
 .awardHero .pendingMedallion {
   font-size: 18px;
 }
@@ -205,7 +216,7 @@
 
 .profileGrid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0;
   margin-top: 12px;
   border: 1px solid var(--rule-hard);
@@ -240,6 +251,18 @@
   font-family: var(--font-data);
   font-size: 12px;
   font-weight: 400;
+}
+
+.profileAxisUnrated .profileAxisHead strong {
+  color: var(--ink-45);
+  font-family: var(--font-util);
+  font-size: 9px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.profileAxisUnrated .profileTrack {
+  border-style: dashed;
 }
 
 .profileTrack {
@@ -384,10 +407,10 @@
 
 @media (max-width: 900px) {
   .profileGrid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .profileAxis:nth-child(n + 4) {
+  .profileAxis:nth-child(n + 3) {
     border-top: 1px solid var(--rule-hard);
   }
 
@@ -432,7 +455,7 @@
   }
 
   .profileAxis,
-  .profileAxis:nth-child(n + 4) {
+  .profileAxis:nth-child(n + 3) {
     display: grid;
     grid-template-columns: minmax(116px, .58fr) minmax(0, 1fr);
     gap: 10px;

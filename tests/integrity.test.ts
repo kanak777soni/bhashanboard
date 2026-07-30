@@ -94,6 +94,81 @@ test("database guards serialize direct statement edits with the first vote", asy
   );
 });
 
+test("audited Sarcasm Profile edits stay possible without unlocking voted content", async () => {
+  const [migrationSource, storeSource, actionSource] = await Promise.all([
+    readFile(
+      new URL(
+        "../db/migrations/0013_sarcasm_profile_preview.sql",
+        import.meta.url,
+      ),
+      "utf8",
+    ),
+    readFile(new URL("../lib/store.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/admin/actions.ts", import.meta.url), "utf8"),
+  ]);
+
+  assert.match(
+    migrationSource,
+    /NEW\.document - 'status' - 'hall_of_fame' - 'axes'/,
+  );
+  assert.match(
+    migrationSource,
+    /OLD\.document - 'status' - 'hall_of_fame' - 'axes'/,
+  );
+  assert.match(
+    migrationSource,
+    /AND \(NEW\.document - 'hall_of_fame' - 'axes'\)[\s\S]*?OLD\.rating_seed_gp/,
+  );
+  assert.match(
+    migrationSource,
+    /ADD CONSTRAINT statements_sarcasm_axes_check/,
+  );
+  assert.match(migrationSource, /axis_value::text !~ '\^\[0-5\]\$'/);
+  assert.match(
+    storeSource,
+    /export async function updateStatementAxes[\s\S]*?statementRatingLockKey\(id\)[\s\S]*?jsonb_set\([\s\S]*?'\{axes\}'/,
+  );
+  assert.match(
+    actionSource,
+    /export async function updateSarcasmProfile[\s\S]*?const actor = await requireAdmin\(\)/,
+  );
+  assert.match(
+    actionSource,
+    /updateStatementAxes\(id, axes, expectedVersion/,
+  );
+  assert.doesNotMatch(
+    actionSource.slice(
+      actionSource.indexOf("export async function updateSarcasmProfile"),
+      actionSource.indexOf("export async function setStatus"),
+    ),
+    /rating recomputed|calculateRating|statement_rating_aggregates/,
+  );
+});
+
+test("corpus refreshes preserve audited admin-managed document overrides", async () => {
+  const [importSource, verifierSource] = await Promise.all([
+    readFile(new URL("../scripts/db-import.mjs", import.meta.url), "utf8"),
+    readFile(new URL("../scripts/db-verify.mjs", import.meta.url), "utf8"),
+  ]);
+
+  assert.match(
+    importSource,
+    /Preserving admin-managed rows while importing the remaining corpus/,
+  );
+  assert.doesNotMatch(
+    importSource,
+    /Import would overwrite admin-managed rows/,
+  );
+  assert.match(
+    verifierSource,
+    /options\.allowAdminManagedOverride === true/,
+  );
+  assert.match(
+    verifierSource,
+    /statements[\s\S]*?allowAdminManagedOverride: true/,
+  );
+});
+
 test("rating v2 migration demotes incomplete publications and enforces the same bar in Postgres", async () => {
   const migrationSource = await readFile(
     new URL(

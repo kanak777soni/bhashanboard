@@ -108,15 +108,19 @@
         "axes": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["logic_damage", "straight_face", "rewatch_value", "crowd_complicity", "consequence"],
+          "anyOf": [
+            { "required": ["logic_damage", "reality_gap", "straight_face", "rewatch_value"] },
+            { "required": ["logic_damage", "straight_face", "rewatch_value", "crowd_complicity", "consequence"] }
+          ],
           "properties": {
             "logic_damage":     { "$ref": "#/$defs/axisScore" },
+            "reality_gap":      { "$ref": "#/$defs/axisScore" },
             "straight_face":    { "$ref": "#/$defs/axisScore" },
             "rewatch_value":    { "$ref": "#/$defs/axisScore" },
             "crowd_complicity": { "$ref": "#/$defs/axisScore" },
             "consequence":      { "$ref": "#/$defs/axisScore" }
           },
-          "description": "Internal research notes retained for audit and historical rubric continuity. They never establish public GP, tier, rank, or a starting advantage. Public performance is the arithmetic mean of equal-strength valid rulings. Aamne-Saamne exhibition picks never affect it."
+          "description": "The active public profile is Logic Break (logic_damage), Reality Gap (reality_gap), Full Confidence (straight_face), and Comic Impact (rewatch_value). Older seed records may omit reality_gap until an administrator reviews it. crowd_complicity and consequence remain hidden legacy audit fields. A complete four-mark profile supplies only a visibly provisional class before ten valid public votes; it never changes GP, public class, rank, Standings, or Hall eligibility."
         },
 
         "verification": {

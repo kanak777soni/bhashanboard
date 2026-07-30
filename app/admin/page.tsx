@@ -182,10 +182,11 @@ export default async function AdminOverview() {
         <div className="guard clear">
           <span className="lbl">One person, one equal vote</span>
           <p>
-            Sarcasm Profile marks describe the comic anatomy but do not create
-            a rank, GP or starting advantage. Each verified account can vote
-            once per statement, every vote has equal strength, and a live entry
-            reaches Standings after ten votes.
+            Four equal Sarcasm Profile marks create a clearly labeled Board
+            provisional class while a clip is new. They never create GP, rank,
+            a public-vote advantage, or Hall eligibility. Each verified account
+            can vote once per statement; at ten valid votes the public class
+            replaces the provisional one and the clip reaches Standings.
           </p>
         </div>
         <p className="rail-note">

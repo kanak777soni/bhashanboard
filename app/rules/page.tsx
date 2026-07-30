@@ -68,19 +68,29 @@ export default function RulesPage() {
           <code>round(1000 + 10 × performance)</code>.
         </p>
         <p>
-          A statement stays in placement and receives no public rank until ten valid votes have been
-          recorded. Raw ballots, watch receipts, and exclusions are immutable. An administrator may exclude
-          a ballot for documented abuse, but cannot rewrite it, and the action remains in the audit record.
-          The performance bar, vote count, distribution, GP and rank come only from valid public ballots.
+          A statement receives no public rank until ten valid votes have been
+          recorded. Raw ballots, watch receipts, and exclusions are immutable.
+          An administrator may exclude a ballot for documented abuse, but
+          cannot rewrite it, and the action remains in the audit record. The
+          performance bar, vote count, distribution, GP, public class, and rank
+          come only from valid public ballots.
         </p>
         <p>
-          The five judging lenses&mdash;Logic Break, Full Confidence, Replay
-          Value, Crowd Effect, and No Fallout&mdash;describe why the moment
-          lands. They appear publicly as the Sarcasm Profile. A member still
-          enters one overall ruling, so no lens is secretly counted twice.
-          The profile describes the comic anatomy of the moment but never
-          alters GP, class or rank. Aamne-Saamne remains a playful,
-          non-scoring exhibition; picks made there never alter the standings.
+          The four judging lenses&mdash;Logic Break, Reality Gap, Full
+          Confidence, and Comic Impact&mdash;describe the statement or moment,
+          never the person. Each receives an equal editorial mark from 0 to 5.
+          Together they form the public Sarcasm Profile. A member still enters
+          one overall ruling, so no lens is counted again inside public GP.
+        </p>
+        <p>
+          Before ten valid votes, the four marks also supply a visibly labeled
+          <strong> Board provisional class</strong>. Their total is out of 20:
+          0&ndash;5 Participation, 6&ndash;8 Bronze, 9&ndash;11 Silver,
+          12&ndash;14 Gold, 15&ndash;17 Diamond, and 18&ndash;20 Kohinoor.
+          This preview never enters GP, rank, Standings, or Hall eligibility.
+          At the tenth valid vote, the public class replaces it automatically.
+          Aamne-Saamne remains a playful, non-scoring exhibition; picks made
+          there never alter the standings.
         </p>
 
         <h2>What a class means</h2>

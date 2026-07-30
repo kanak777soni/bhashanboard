@@ -155,7 +155,9 @@ export default async function NetaPage({
           <div className="neta-cabinet-grid">
             <article className="neta-cabinet-feature">
               <span className="lbl">
-                {bestClip ? "Best-performing public clip" : "Closest to a class"}
+                {bestClip
+                  ? "Best-performing public clip"
+                  : "Closest to a public class"}
               </span>
               <Link
                 className="neta-cabinet-title"
@@ -166,6 +168,7 @@ export default async function NetaPage({
               <ClassAward
                 gp={cabinetClip.gp}
                 validVoteCount={cabinetClip.rating.validVoteCount}
+                axes={cabinetClip.axes}
                 performance={cabinetClip.rating.performance}
                 rank={data.publicRankOf(cabinetClip.slug)}
                 hallOfFame={cabinetClip.hallOfFame}
@@ -194,7 +197,9 @@ export default async function NetaPage({
             <span className="lbl">No live clip yet</span>
             <p>
               The archive below remains available, but no moment can receive a
-              class until its video goes live and collects ten public votes.
+              public class until its video goes live and collects ten public
+              votes. A complete four-mark profile may still show a provisional
+              Board class before then.
             </p>
           </div>
         )}

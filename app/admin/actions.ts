@@ -12,6 +12,7 @@ import {
   getStatementVoteCount,
   setStatementHallOfFame,
   setStatementStatus,
+  updateStatementAxes,
   updateStatementRecord,
   type PoliticianDocument,
   type StatementDocument,
@@ -33,6 +34,10 @@ import {
   parseYouTubeVideo,
   requireVerificationStage,
 } from "@/lib/video";
+import {
+  SARCASM_LENSES,
+  provisionalClassFromStoredAxes,
+} from "@/lib/sarcasm";
 
 const STATUSES: readonly StatementStatus[] = [
   "published",
@@ -167,18 +172,35 @@ async function collectVideo(
   return { video };
 }
 
-function collectAxes(fd: FormData): Record<string, number> {
-  const axes = {
-    logic_damage: num(fd, "logic_damage"),
-    straight_face: num(fd, "straight_face"),
-    rewatch_value: num(fd, "rewatch_value"),
-    crowd_complicity: num(fd, "crowd_complicity"),
-    consequence: num(fd, "consequence"),
-  };
-  for (const [axis, value] of Object.entries(axes)) {
-    if (!Number.isInteger(value) || value < 0 || value > 5) {
-      throw new Error(`Axis ${axis} must be an integer from 0 to 5.`);
+function collectAxes(
+  fd: FormData,
+  fallback?: Record<string, number>,
+  requireComplete = false,
+): Record<string, number> {
+  const axes = { ...(fallback ?? {}) };
+  for (const lens of SARCASM_LENSES) {
+    const raw = str(fd, lens.storageKey);
+    if (!fd.has(lens.storageKey) || raw === "") {
+      const saved = axes[lens.storageKey];
+      if (
+        requireComplete &&
+        (!Number.isInteger(saved) || saved < 0 || saved > 5)
+      ) {
+        throw new Error(
+          `${lens.label} needs a 0–5 mark before this clip can go live.`,
+        );
+      }
+      continue;
     }
+    if (!/^[0-5]$/.test(raw)) {
+      throw new Error(`${lens.label} must be an integer from 0 to 5.`);
+    }
+    axes[lens.storageKey] = Number(raw);
+  }
+  if (requireComplete && !provisionalClassFromStoredAxes(axes)) {
+    throw new Error(
+      "Complete all four Sarcasm Profile marks before this clip can go live.",
+    );
   }
   return axes;
 }
@@ -370,7 +392,7 @@ async function statementDocument(
     policy_note: fallback?.policy_note,
     hall_of_fame: status === "published" ? !!fallback?.hall_of_fame : false,
     video,
-    axes: collectAxes(fd),
+    axes: collectAxes(fd, fallback?.axes, status === "published"),
     verification: collectVerification(fd, fallback?.verification, video),
   };
   const publicationIssues = committeePublicationIssues({
@@ -470,6 +492,11 @@ export async function updateStatement(fd: FormData) {
         `This clip cannot be put back live: ${publicationIssues.join(" ")}`
       );
     }
+    if (!provisionalClassFromStoredAxes(before.axes)) {
+      throw new Error(
+        "Complete all four Sarcasm Profile marks before putting this clip back live.",
+      );
+    }
     const existingVideo = normalizeStatementVideo(before.video);
     if (
       existingVideo?.platform === "youtube" &&
@@ -502,14 +529,22 @@ export async function updateStatement(fd: FormData) {
   const entry = collected.document;
   const axes = entry.axes;
 
-  const axesChanged = Object.keys(axes).filter((key) => axes[key] !== before.axes[key]);
+  const axesChanged = SARCASM_LENSES.filter(
+    (lens) => axes[lens.storageKey] !== before.axes[lens.storageKey],
+  );
   const notes: string[] = [];
   if (status !== before.status) notes.push(`status ${before.status} → ${status}`);
   if (axesChanged.length) {
     notes.push(
-      "axes " +
-        axesChanged.map((key) => `${key} ${before.axes[key]}→${axes[key]}`).join(", ") +
-        " — rating recomputed"
+      "profile " +
+        axesChanged
+          .map(
+            (lens) =>
+              `${lens.label} ${
+                before.axes[lens.storageKey] ?? "unrated"
+              }→${axes[lens.storageKey]}`,
+          )
+          .join(", ")
     );
   }
   if (!!before.hall_of_fame !== !!entry.hall_of_fame) {
@@ -556,6 +591,42 @@ export async function publishStatement(fd: FormData) {
 export async function restoreStatement(fd: FormData) {
   fd.set("workflow_action", "restore_live");
   return updateStatement(fd);
+}
+
+export async function updateSarcasmProfile(fd: FormData) {
+  const actor = await requireAdmin();
+  const id = str(fd, "id");
+  const expectedVersion = formVersion(fd);
+  const before = await getStatement(id);
+  if (!before) throw new Error(`Statement ${id} no longer exists.`);
+  if (before.version !== expectedVersion) {
+    throw new Error(
+      `Statement ${id} was changed by another admin. Reload and try again.`,
+    );
+  }
+
+  const axes = collectAxes(fd, before.axes, true);
+  const changed = SARCASM_LENSES.filter(
+    (lens) => axes[lens.storageKey] !== before.axes[lens.storageKey],
+  );
+  if (changed.length === 0) {
+    redirect(`/admin/entries/${id}?result=profile`);
+  }
+
+  await updateStatementAxes(id, axes, expectedVersion, {
+    actor: actor.label,
+    action: "sarcasm-profile",
+    detail: `"${before.neutral_title}" — ${changed
+      .map(
+        (lens) =>
+          `${lens.label} ${
+            before.axes[lens.storageKey] ?? "unrated"
+          }→${axes[lens.storageKey]}`,
+      )
+      .join(", ")}. Public GP and ballots unchanged.`,
+  });
+  refresh();
+  redirect(`/admin/entries/${id}?result=profile`);
 }
 
 export async function setStatus(fd: FormData) {

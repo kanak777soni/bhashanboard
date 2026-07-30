@@ -8,6 +8,7 @@
  */
 
 export const VOTE_VALUES = [0, 25, 50, 75, 100] as const;
+export const PUBLIC_CLASS_MIN_VALID_VOTES = 10;
 export type VoteValue = (typeof VOTE_VALUES)[number];
 
 export const RATING_MODEL_VERSION = 2;

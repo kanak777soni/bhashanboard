@@ -76,10 +76,10 @@ async function main() {
     )
   );
   if (protectedRows.length > 0) {
-    throw new Error(
-      `Import would overwrite admin-managed rows: ${conciseIds(
+    console.warn(
+      `Preserving admin-managed rows while importing the remaining corpus: ${conciseIds(
         protectedRows.map((row) => `${row.table_name}:${row.id}`)
-      )}. Reconcile them manually; no rows were changed.`
+      )}. Their audited database documents remain authoritative.`
     );
   }
 

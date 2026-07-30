@@ -268,6 +268,7 @@ export default async function StatementPage({
               <ClassAward
                 gp={statement.gp}
                 validVoteCount={statement.rating.validVoteCount}
+                axes={statement.axes}
                 performance={statement.rating.performance}
                 rank={rank ?? 0}
                 hallOfFame={statement.hallOfFame}

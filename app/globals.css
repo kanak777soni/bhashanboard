@@ -1160,6 +1160,16 @@ footer.site p { margin: 0 0 8px; font-size: 13.5px; color: var(--ink-70); max-wi
 .admin-grid > * { min-width: 0; }
 .axis-editor { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0 18px; margin-top: 12px; }
 .axis-editor > * { min-width: 0; }
+.axis-editor-four { grid-template-columns: repeat(4, minmax(145px, 1fr)); }
+.sarcasm-axis-field .field-help { min-height: 3.5em; }
+.sarcasm-class-preview { background: var(--ground-2); border: 1px solid var(--rule-hard); border-left: 3px solid var(--seal); display: grid; gap: 4px; margin: 4px 0 16px; padding: 13px 15px; }
+.sarcasm-class-preview.complete { border-left-color: var(--foil); }
+.sarcasm-class-preview > .lbl { color: var(--seal); }
+.sarcasm-class-preview.complete > .lbl { color: var(--foil); }
+.sarcasm-class-preview > strong { font-family: var(--font-display); font-size: 24px; font-weight: 400; line-height: 1.1; }
+.sarcasm-class-preview > p { color: var(--ink-70); font-size: 13px; line-height: 1.5; margin: 2px 0 0; max-width: 78ch; }
+@media (max-width: 900px) { .axis-editor-four { grid-template-columns: repeat(2, minmax(145px, 1fr)); } }
+@media (max-width: 560px) { .axis-editor-four { grid-template-columns: 1fr; } .sarcasm-axis-field .field-help { min-height: 0; } }
 .source-row { border-top: 1px solid var(--rule); padding-top: 12px; margin-top: 4px; }
 .field.checkbox { flex-direction: row; align-items: center; gap: 9px; margin-top: 22px; }
 .field.checkbox input { width: auto; }

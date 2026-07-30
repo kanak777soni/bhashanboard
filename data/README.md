@@ -66,10 +66,14 @@ record exists in Neon.
    checks, so do not aspirationally upgrade it.
 5. **Fill `needs`** with the specific outstanding work. That array is the research
    queue; an empty one on an unverified entry is a lie to the next contributor.
-6. **Record the internal research axes** against the historical rubric in §9.3.
-   They help the desk describe and audit its research, but never set public GP,
-   tier, or rank. Note that **Consequence is inverted**: 5 means nothing happened
-   or the speaker was promoted since, 0 means they resigned or were sacked.
+6. **Record the four public Sarcasm Profile marks**: Logic Break
+   (`logic_damage`), Reality Gap (`reality_gap`), Full Confidence
+   (`straight_face`), and Comic Impact (`rewatch_value`). Each is an equal 0–5
+   mark on the statement or moment, never the person. Together they set only
+   the visibly provisional class shown before ten valid public votes. They
+   never alter GP, public class, rank, Standings, or Hall eligibility.
+   `crowd_complicity` and inverted `consequence` remain hidden on historical
+   records for audit continuity; do not use them on new reviews.
 7. **Set `status`.** `published` is a content/evidence decision, never a way to
    manufacture a party percentage. Use `held_review` when sourcing, context,
    duplication or a Rule remains unresolved, with a `policy_note` where a Rule is

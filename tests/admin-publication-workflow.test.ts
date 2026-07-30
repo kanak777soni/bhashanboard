@@ -41,6 +41,8 @@ test("the entry editor separates draft saves from explicit publication", async (
   assert.match(guardSource, /formAction=\{submitAction\}/);
   assert.match(guardSource, /data-publish-submit/);
   assert.match(guardSource, /disabled=\{!ready\}/);
+  assert.match(guardSource, /Four profile marks/);
+  assert.match(guardSource, /profileComplete/);
   assert.doesNotMatch(guardSource, /publishButton\.disabled|querySelector/);
   assert.match(formSource, /name="date"/);
   assert.match(formSource, /name="venue"/);
@@ -66,6 +68,10 @@ test("the entry editor separates draft saves from explicit publication", async (
   assert.match(detailSource, /saveAction=\{saveStatementDraft\}/);
   assert.match(detailSource, /publishAction=\{publishStatement\}/);
   assert.match(detailSource, /restoreAction=\{restoreStatement\}/);
+  assert.match(detailSource, /action=\{updateSarcasmProfile\}/);
+  assert.match(detailSource, /SarcasmProfileFields/);
+  assert.match(actionSource, /Complete all four Sarcasm Profile marks/);
+  assert.match(actionSource, /Public GP and ballots unchanged/);
   assert.match(newEntrySource, /saveAction=\{createStatementDraft\}/);
   assert.match(newEntrySource, /publishAction=\{publishNewStatement\}/);
   assert.match(

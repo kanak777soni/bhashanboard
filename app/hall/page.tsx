@@ -104,6 +104,7 @@ export default async function HallPage() {
                   <ClassAward
                     gp={statement.gp}
                     validVoteCount={statement.rating.validVoteCount}
+                    axes={statement.axes}
                     performance={statement.rating.performance}
                     rank={publicRank}
                     hallOfFame
@@ -137,7 +138,7 @@ export default async function HallPage() {
                       10 - statement.rating.validVoteCount === 1
                         ? "vote"
                         : "votes"
-                    } to receive a class`
+                    } until the public class`
                   : eligibility.eligible
                     ? "Eligible for formal induction"
                     : [
@@ -177,6 +178,7 @@ export default async function HallPage() {
                   <ClassAward
                     gp={statement.gp}
                     validVoteCount={statement.rating.validVoteCount}
+                    axes={statement.axes}
                     performance={statement.rating.performance}
                     rank={publicRank}
                     signatures={sarcasmHighlights(statement.axes)}

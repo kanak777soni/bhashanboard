@@ -134,13 +134,9 @@ export async function acceptSubmissionToDraft(
     context,
     hall_of_fame: false,
     video,
-    axes: {
-      logic_damage: 0,
-      straight_face: 0,
-      rewatch_value: 0,
-      crowd_complicity: 0,
-      consequence: 0,
-    },
+    // The reviewer chooses all four marks. Never make an untouched reader
+    // submission silently begin with a class.
+    axes: {},
     verification: {
       stage: "text_sourced",
       best_source_tier: "C",

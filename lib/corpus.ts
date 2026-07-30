@@ -172,13 +172,15 @@ function toSources(verification: RawVerification): Source[] {
 }
 
 function toAxes(axes: Record<string, number>): Axes {
-  const pct = (score: number) => Math.round(((score ?? 0) / 5) * 100);
+  const pct = (score: number | undefined) =>
+    Math.round(((score ?? 0) / 5) * 100);
+  const optionalPct = (score: number | undefined) =>
+    Number.isFinite(score) ? pct(score) : null;
   return {
     logic: pct(axes.logic_damage),
+    realityGap: optionalPct(axes.reality_gap),
     straightFace: pct(axes.straight_face),
-    rewatch: pct(axes.rewatch_value),
-    crowd: pct(axes.crowd_complicity),
-    consequence: pct(axes.consequence),
+    comicImpact: pct(axes.rewatch_value),
   };
 }
 

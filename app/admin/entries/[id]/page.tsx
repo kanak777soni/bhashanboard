@@ -1,21 +1,25 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import EntryForm from "@/components/admin/EntryForm";
+import SarcasmProfileFields from "@/components/admin/SarcasmProfileFields";
 import { cloudinaryConfigurationIssues } from "@/lib/cloudinary-config";
 import { slugify } from "@/lib/corpus";
 import { statementReadiness } from "@/lib/readiness";
 import { requireAdmin } from "@/lib/require-admin";
+import { provisionalClassFromStoredAxes } from "@/lib/sarcasm";
 import {
   getParties,
   getPoliticians,
   getStatement,
   getStatementVoteCount,
 } from "@/lib/store";
+import { getStatementRating } from "@/lib/vote-store";
 import {
   publishStatement,
   restoreStatement,
   saveStatementDraft,
   setStatus,
+  updateSarcasmProfile,
 } from "../../actions";
 
 export default async function EditEntry({
@@ -30,11 +34,14 @@ export default async function EditEntry({
   const entry = await getStatement(id);
   if (!entry) notFound();
 
-  const [people, parties, voteCount] = await Promise.all([
+  const [people, parties, voteCount, rating] = await Promise.all([
     getPoliticians(),
     getParties(),
     getStatementVoteCount(id),
+    getStatementRating(id),
   ]);
+  const validVoteCount = rating?.validVoteCount ?? 0;
+  const publicGp = rating?.gp ?? 1500;
   const readiness = statementReadiness(entry);
   const resultNotice =
     query.result === "live"
@@ -52,6 +59,14 @@ export default async function EditEntry({
               label: "Draft saved",
               message: "Your changes are saved. The clip remains offline.",
             }
+          : query.result === "profile"
+            ? {
+                label: "Profile saved",
+                message:
+                  validVoteCount >= 10
+                    ? "The four marks are updated. Public GP and class remain vote-only."
+                    : "The four marks and Board provisional class are updated. Public GP remains vote-only.",
+              }
           : undefined;
 
   return (
@@ -92,8 +107,8 @@ export default async function EditEntry({
             <b>{entry.category || "missing"}</b>
           </div>
           <div className="admin-card">
-            <span className="lbl">Votes</span>
-            <b className="num">{voteCount}</b>
+            <span className="lbl">Valid votes</span>
+            <b className="num">{validVoteCount}</b>
           </div>
           <div className="admin-card">
             <span className="lbl">Quote</span>
@@ -122,6 +137,36 @@ export default async function EditEntry({
       </section>
 
       <section className="admin-section">
+        <div className="admin-section-head">
+          <div>
+            <span className="lbl">Four equal marks</span>
+            <h2>Sarcasm Profile and provisional class</h2>
+          </div>
+        </div>
+        <form action={updateSarcasmProfile} className="admin-form">
+          <input type="hidden" name="id" value={entry.id} />
+          <input type="hidden" name="version" value={entry.version} />
+          <fieldset>
+            <legend>Judge the moment, not the person</legend>
+            <p className="rail-note">
+              Logic Break, Reality Gap, Full Confidence, and Comic Impact are
+              all weighted equally. Before ten valid votes they calculate a
+              clearly provisional class. They never change public GP, ballots,
+              rank, Standings, or Hall eligibility.
+            </p>
+            <SarcasmProfileFields
+              initialAxes={entry.axes}
+              validVoteCount={validVoteCount}
+              publicGp={publicGp}
+            />
+            <button className="btn seal" type="submit">
+              Save profile and preview
+            </button>
+          </fieldset>
+        </form>
+      </section>
+
+      <section className="admin-section">
         <EntryForm
           entry={entry}
           people={people}
@@ -130,6 +175,9 @@ export default async function EditEntry({
           publishAction={publishStatement}
           restoreAction={restoreStatement}
           hasVotes={voteCount > 0}
+          profileComplete={Boolean(
+            provisionalClassFromStoredAxes(entry.axes),
+          )}
           cloudinaryConfigurationIssues={cloudinaryConfigurationIssues()}
         />
       </section>

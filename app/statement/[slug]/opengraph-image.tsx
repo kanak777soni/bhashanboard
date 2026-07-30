@@ -4,7 +4,7 @@ import {
   buildPublicInventory,
   statementRatingMaturity,
 } from "@/lib/public-inventory";
-import { tierOf } from "@/lib/tiers";
+import { resolveStatementClass } from "@/lib/classes";
 
 export const runtime = "edge";
 export const alt = "The Bhashan Board";
@@ -59,7 +59,13 @@ export default async function Image({ params }: { params: Promise<{ slug: string
   const inventory = buildPublicInventory(data.CORPUS);
   const rank = inventory.publicRankBySlug.get(s.slug);
   const isRanked = rank !== undefined;
-  const tier = isRanked ? tierOf(s.gp) : null;
+  const classResolution = resolveStatementClass({
+    gp: s.gp,
+    validVoteCount: s.rating.validVoteCount,
+    axes: s.axes,
+  });
+  const tier = classResolution.tier;
+  const hasProvisionalClass = classResolution.source === "provisional";
   const maturity = statementRatingMaturity(s);
   const evidenceLabel = s.video
     ? s.publicationEligible
@@ -139,6 +145,21 @@ export default async function Image({ params }: { params: Promise<{ slug: string
                 <span style={{ fontSize: 42, color: FOIL }}>{tier.name}</span>
               </div>
             </div>
+          ) : hasProvisionalClass && tier ? (
+            <div style={{ display: "flex", gap: 46 }}>
+              <div style={{ display: "flex", flexDirection: "column" }}>
+                <span style={{ fontSize: 15, letterSpacing: 3, color: "#5c6660", textTransform: "uppercase" }}>Board provisional</span>
+                <span style={{ fontSize: 38, color: FOIL }}>{tier.name}</span>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column" }}>
+                <span style={{ fontSize: 15, letterSpacing: 3, color: "#5c6660", textTransform: "uppercase" }}>Four-factor profile</span>
+                <span style={{ fontSize: 38 }}>{`${classResolution.profileTotal}/20`}</span>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column" }}>
+                <span style={{ fontSize: 15, letterSpacing: 3, color: "#5c6660", textTransform: "uppercase" }}>Public votes</span>
+                <span style={{ fontSize: 38 }}>{`${s.rating.validVoteCount}/10`}</span>
+              </div>
+            </div>
           ) : (
             <div style={{ display: "flex", gap: 46 }}>
               <div style={{ display: "flex", flexDirection: "column" }}>
@@ -156,7 +177,11 @@ export default async function Image({ params }: { params: Promise<{ slug: string
             </div>
           )}
           <div style={{ fontSize: 17, letterSpacing: 2, color: "#5c6660", textTransform: "uppercase" }}>
-            {isRanked ? "Publicly ranked" : "The Bhashan Board archive"}
+            {isRanked
+              ? "Publicly ranked"
+              : hasProvisionalClass
+                ? "Provisional · public class at 10 votes"
+                : "The Bhashan Board archive"}
           </div>
         </div>
       </div>

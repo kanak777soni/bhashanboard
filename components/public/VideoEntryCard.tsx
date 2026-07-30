@@ -2,7 +2,10 @@ import Link from "next/link";
 import type { CorpusStatement } from "@/lib/corpus";
 import type { Neta } from "@/lib/types";
 import { statementRatingMaturity } from "@/lib/public-inventory";
-import { sarcasmHighlights } from "@/lib/sarcasm";
+import {
+  provisionalClassFromAxes,
+  sarcasmHighlights,
+} from "@/lib/sarcasm";
 import ClassAward from "@/components/ClassAward";
 import EntryTitle from "@/components/EntryTitle";
 import styles from "./PublicInventory.module.css";
@@ -34,6 +37,8 @@ export default function VideoEntryCard({
         : "Ranked";
   const href = `/statement/${statement.slug}`;
   const showResult = maturity === "ranked";
+  const hasProvisionalClass =
+    provisionalClassFromAxes(statement.axes) !== null;
 
   return (
     <article
@@ -72,6 +77,7 @@ export default function VideoEntryCard({
           <ClassAward
             gp={statement.gp}
             validVoteCount={statement.rating.validVoteCount}
+            axes={statement.axes}
             performance={statement.rating.performance}
             rank={rank}
             hallOfFame={statement.hallOfFame}
@@ -83,7 +89,9 @@ export default function VideoEntryCard({
           <span className={styles.score}>
             {showResult
               ? `Public score ${Math.round(statement.rating.performance)}/100`
-              : "The class is still forming"}
+              : hasProvisionalClass
+                ? "Board preview · public class at 10 votes"
+                : "Four-mark profile awaiting review"}
           </span>
           <Link className={styles.watchLink} href={href}>
             Watch the moment &rarr;

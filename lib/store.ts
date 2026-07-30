@@ -514,6 +514,44 @@ export async function updateStatementRecord(
   );
 }
 
+/**
+ * Editorial profile marks are deliberately separate from public rating
+ * inputs. This narrow mutation remains available after voting starts, while
+ * the clip, wording, attribution, and every ballot stay immutable.
+ */
+export async function updateStatementAxes(
+  id: string,
+  axes: Record<string, number>,
+  expectedVersion: number,
+  audit: AuditContext
+): Promise<StoredStatement> {
+  const [actor, action, detail] = auditValues(audit);
+  const payload = JSON.stringify(axes);
+  const result = await db().transaction((tx) => [
+    tx`SELECT set_config('bhashan.actor', ${actor}, true)`,
+    tx`SELECT set_config('bhashan.action', ${action}, true)`,
+    tx`SELECT set_config('bhashan.detail', ${detail}, true)`,
+    tx`SELECT pg_advisory_xact_lock(
+      hashtextextended(${statementRatingLockKey(id)}, 0)
+    )`,
+    tx`
+      UPDATE bhashan.statements
+      SET
+        document = jsonb_set(
+          document,
+          '{axes}',
+          ${payload}::jsonb,
+          true
+        ),
+        version = version + 1,
+        updated_at = now()
+      WHERE id = ${id} AND version = ${expectedVersion}
+      RETURNING id, document, version
+    `,
+  ]);
+  return mapStatement(mutationRow(result[4], "Statement", id));
+}
+
 export async function setStatementStatus(
   id: string,
   status: StatementStatus,
@@ -601,22 +639,6 @@ export async function createPoliticianRecord(
 }
 
 // ── derived ranking ─────────────────────────────────────────────────
-
-export const AXIS_WEIGHTS: Record<string, number> = {
-  logic_damage: 0.3,
-  straight_face: 0.2,
-  rewatch_value: 0.2,
-  crowd_complicity: 0.15,
-  consequence: 0.15,
-};
-
-export const AXIS_LABELS: Record<string, string> = {
-  logic_damage: "Logic Break",
-  straight_face: "Full Confidence",
-  rewatch_value: "Replay Value",
-  crowd_complicity: "Crowd Effect",
-  consequence: "No Fallout",
-};
 
 export function coverage(statements: StoredStatement[]): { party: string; count: number; pct: number }[] {
   const live = statements.filter((statement) => statement.status === "published");

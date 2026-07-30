@@ -1,9 +1,4 @@
-import {
-  AXIS_LABELS,
-  AXIS_WEIGHTS,
-  type StoredPolitician,
-  type StoredStatement,
-} from "@/lib/store";
+import type { StoredPolitician, StoredStatement } from "@/lib/store";
 import { SOURCE_ROLES, type SourceRole } from "@/lib/types";
 import {
   MAX_VIDEO_EXCERPT_SECONDS,
@@ -12,6 +7,7 @@ import {
 } from "@/lib/video";
 import CloudinaryVideoUploadField from "./CloudinaryVideoUploadField";
 import PublishGuard from "./PublishGuard";
+import SarcasmProfileFields from "./SarcasmProfileFields";
 
 const CATEGORIES = [
   "Science & Reason",
@@ -57,6 +53,7 @@ export default function EntryForm({
   publishAction,
   restoreAction,
   hasVotes = false,
+  profileComplete = false,
   cloudinaryConfigurationIssues,
 }: {
   entry?: StoredStatement;
@@ -66,6 +63,7 @@ export default function EntryForm({
   publishAction: (fd: FormData) => void | Promise<void>;
   restoreAction?: (fd: FormData) => void | Promise<void>;
   hasVotes?: boolean;
+  profileComplete?: boolean;
   cloudinaryConfigurationIssues: string[];
 }) {
   const verification = entry?.verification;
@@ -307,33 +305,21 @@ export default function EntryForm({
         </fieldset>
       </details>
 
-      <details className="admin-optional">
-        <summary>Sarcasm Profile</summary>
-        <fieldset>
-          <legend>Comic anatomy</legend>
-          <p className="rail-note">
-            These 0&ndash;5 editorial marks appear publicly as the clip&rsquo;s
-            Sarcasm Profile. They describe the moment but never decide GP,
-            class or rank; those come only from equal public votes.
-          </p>
-          <div className="axis-editor">
-            {Object.keys(AXIS_WEIGHTS).map((key) => (
-              <label className="field" key={key}>
-                <span className="lbl">
-                  {AXIS_LABELS[key]}
-                </span>
-                <select name={key} defaultValue={entry?.axes?.[key] ?? 3}>
-                  {[0, 1, 2, 3, 4, 5].map((score) => (
-                    <option key={score} value={score}>
-                      {score}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            ))}
-          </div>
-        </fieldset>
-      </details>
+      {!entry && (
+        <details className="admin-optional" open>
+          <summary>Sarcasm Profile and provisional class</summary>
+          <fieldset>
+            <legend>Comic anatomy</legend>
+            <p className="rail-note">
+              Score the statement or moment, never the person. These four
+              0&ndash;5 marks appear publicly and set the Board&rsquo;s
+              provisional class. Public GP, rank, and the public class still
+              come only from equal member votes.
+            </p>
+            <SarcasmProfileFields />
+          </fieldset>
+        </details>
+      )}
 
       <details className="admin-optional" id="source-evidence">
         <summary>Optional links and internal follow-ups</summary>
@@ -420,6 +406,7 @@ export default function EntryForm({
           workflowAction={publicationAction}
           submitLabel={publicationLabel}
           submitAction={publicationSubmitAction}
+          profileComplete={profileComplete}
         />
       </fieldset>
 
