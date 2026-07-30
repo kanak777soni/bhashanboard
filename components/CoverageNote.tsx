@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { getData } from "@/lib/data";
 
 /**
@@ -44,7 +43,7 @@ export default async function CoverageNote() {
       </p>
       <p className="rail-note" style={{ marginTop: 8 }}>
         The only fix is adding more clips from under-covered parties &mdash;
-        never adjusting a score. <Link href="/ledger">The ledger records it.</Link>
+        never adjusting a score. The same public scoring rules apply to every clip.
       </p>
     </section>
   );

@@ -28,7 +28,6 @@ test("secondary institutional pages stay available under archive and more", () =
       label: "The Record",
       activePrefixes: ["/category", "/party"],
     },
-    { href: "/ledger", label: "Ledger" },
     { href: "/rejected", label: "Refused" },
     { href: "/rules", label: "Rules" },
   ]);

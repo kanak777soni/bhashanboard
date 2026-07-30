@@ -19,6 +19,7 @@ const LINKS = [
   { href: "/admin/hall", label: "Hall of Fame" },
   { href: "/admin/people", label: "Representatives" },
   { href: "/admin/users", label: "Users" },
+  { href: "/admin/ledger", label: "Ledger" },
   { href: "/admin/audit", label: "Audit log" },
   { href: "/", label: "↗ View site" },
 ];

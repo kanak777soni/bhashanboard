@@ -119,7 +119,7 @@ export default function PrivacyPage() {
         </p>
         <p>
           Qualified watch receipts, submitted votes, ballot exclusions, and moderation audit
-          entries are append-only records. They are retained for the life of the public ledger
+          entries are append-only records. They are retained for the life of the Board's protected audit record
           because deleting or rewriting them would make the tally unauditable. After account
           anonymization, any previously counted ballots are excluded from the public aggregate.
           Their original values and the exclusion events remain connected only to an opaque,

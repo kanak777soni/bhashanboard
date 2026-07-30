@@ -1,33 +1,11 @@
 import type { Axes } from "@/lib/types";
+import {
+  SARCASM_LENSES,
+  scoreSarcasmAxis,
+} from "@/lib/sarcasm";
 import styles from "./AwardSystem.module.css";
 
-const PROFILE_AXES: ReadonlyArray<{
-  key: keyof Axes;
-  label: string;
-}> = [
-  { key: "logic", label: "Logic Break" },
-  { key: "straightFace", label: "Straight-Face Delivery" },
-  { key: "rewatch", label: "Replay Value" },
-  { key: "crowd", label: "Crowd Complicity" },
-  { key: "consequence", label: "No Consequence" },
-];
-
-function score(value: number): number {
-  if (!Number.isFinite(value)) return 0;
-  return Math.max(0, Math.min(100, Math.round(value)));
-}
-
-export function sarcasmSignature(
-  axes: Axes,
-): { label: string; value: number } {
-  return PROFILE_AXES.reduce(
-    (best, axis) => {
-      const value = score(axes[axis.key]);
-      return value > best.value ? { label: axis.label, value } : best;
-    },
-    { label: PROFILE_AXES[0].label, value: score(axes.logic) },
-  );
-}
+export { sarcasmHighlights, sarcasmSignature } from "@/lib/sarcasm";
 
 export default function SarcasmProfile({
   axes,
@@ -57,8 +35,8 @@ export default function SarcasmProfile({
       </header>
 
       <div className={styles.profileGrid}>
-        {PROFILE_AXES.map((axis) => {
-          const value = score(axes[axis.key]);
+        {SARCASM_LENSES.map((axis) => {
+          const value = scoreSarcasmAxis(axes[axis.key]);
           return (
             <div className={styles.profileAxis} key={axis.key}>
               <div className={styles.profileAxisHead}>
@@ -78,6 +56,9 @@ export default function SarcasmProfile({
                   style={{ width: `${value}%` }}
                 />
               </div>
+              <p className={styles.profileAxisPrompt}>
+                {axis.prompt}
+              </p>
             </div>
           );
         })}

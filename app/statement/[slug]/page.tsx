@@ -4,15 +4,14 @@ import { notFound } from "next/navigation";
 import ClassAward from "@/components/ClassAward";
 import EntryTitle from "@/components/EntryTitle";
 import Guilloche from "@/components/Guilloche";
-import SarcasmProfile, {
-  sarcasmSignature,
-} from "@/components/SarcasmProfile";
+import SarcasmProfile from "@/components/SarcasmProfile";
 import ScreeningFrame from "@/components/ScreeningFrame";
 import StatementFooterNav from "@/components/StatementFooterNav";
 import StatementVotingPanel from "@/components/StatementVotingPanel";
 import { cloudinaryVideoUrl } from "@/lib/cloudinary";
 import { getData } from "@/lib/data";
 import { statementRatingMaturity } from "@/lib/public-inventory";
+import { sarcasmHighlights } from "@/lib/sarcasm";
 
 export async function generateMetadata({
   params,
@@ -273,7 +272,7 @@ export default async function StatementPage({
                 rank={rank ?? 0}
                 hallOfFame={statement.hallOfFame}
                 variant="hero"
-                signature={sarcasmSignature(statement.axes)}
+                signatures={sarcasmHighlights(statement.axes)}
               />
               <SarcasmProfile axes={statement.axes} />
             </section>

@@ -11,9 +11,7 @@ import {
   type KeyboardEvent as ReactKeyboardEvent,
 } from "react";
 import ClassAward from "@/components/ClassAward";
-import SarcasmProfile, {
-  sarcasmSignature,
-} from "@/components/SarcasmProfile";
+import SarcasmProfile from "@/components/SarcasmProfile";
 import VerifiedVideoPlayer, {
   type VerifiedVideoHeartbeat,
   type VerifiedVideoHeartbeatReason,
@@ -29,14 +27,15 @@ import {
   resolvePlaybackPolicy,
   watchSessionErrorDisposition,
 } from "@/lib/playback-policy";
+import { SARCASM_LENSES, sarcasmHighlights } from "@/lib/sarcasm";
 import type { Axes, StatementVideo } from "@/lib/types";
 
 const BALLOT_OPTIONS = [
-  { value: 0, label: "Flat", detail: "Did not land" },
-  { value: 25, label: "Wry", detail: "A faint spark" },
-  { value: 50, label: "Sharp", detail: "Cleanly delivered" },
-  { value: 75, label: "Savage", detail: "Hard to recover from" },
-  { value: 100, label: "Historic", detail: "Archive material" },
+  { value: 0, label: "Flat", detail: "Nothing lands" },
+  { value: 25, label: "Wry", detail: "A small spark" },
+  { value: 50, label: "Sharp", detail: "Several parts land" },
+  { value: 75, label: "Savage", detail: "The whole moment hits" },
+  { value: 100, label: "Historic", detail: "Instant archive material" },
 ] as const;
 
 type VoteValue = (typeof BALLOT_OPTIONS)[number]["value"];
@@ -945,7 +944,7 @@ export default function StatementVotingPanel({
               margin: "5px 0 0",
             }}
           >
-            Watch the moment. Enter your ruling.
+            Watch the moment. Judge the whole thing.
           </strong>
         </div>
         <div
@@ -991,6 +990,21 @@ export default function StatementVotingPanel({
         </p>
       )}
 
+      <aside className="judging-guide" aria-label="Five ways to judge the moment">
+        <div className="judging-guide-head">
+          <span className="lbl">Five judging lenses</span>
+          <p>Logic is only one part. Your final vote is how the whole moment lands.</p>
+        </div>
+        <ul className="judging-lenses">
+          {SARCASM_LENSES.map((lens) => (
+            <li key={lens.key}>
+              <strong>{lens.label}</strong>
+              <span>{lens.prompt}</span>
+            </li>
+          ))}
+        </ul>
+      </aside>
+
       <div className="performance-track" aria-hidden="true">
         <i style={{ width: `${displayedPerformance}%` }} />
         {revealPublicResults && hasPublicRulings && (
@@ -1016,7 +1030,8 @@ export default function StatementVotingPanel({
           Every vote has equal weight. The score is the sum of vote values
           divided by the number of valid votes; GP is 1000 plus ten times that
           score. A clip receives its class and joins the standings after ten
-          votes.
+          votes. The five lenses are prompts for your judgement, not five
+          separate votes, and none receives a secret multiplier.
           {!revealPublicResults &&
             " The current result stays covered until you enter your own ruling."}
         </p>
@@ -1087,7 +1102,7 @@ export default function StatementVotingPanel({
           </div>
         ) : (
           <div className="ballot-ready">
-            <p className="ruling-status"><strong>You have seen it.</strong> Pick how the statement lands. This is your one vote on this clip.</p>
+            <p className="ruling-status"><strong>You have seen it.</strong> Pick how the whole moment lands. This is your one vote on this clip.</p>
             <div className="ballot-options" role="radiogroup" aria-label="Statement performance">
               {BALLOT_OPTIONS.map((option, index) => (
                 <button
@@ -1149,7 +1164,7 @@ export default function StatementVotingPanel({
             rank={resultAward.publicRank}
             hallOfFame={resultAward.hallOfFame}
             variant="hero"
-            signature={sarcasmSignature(resultAward.axes)}
+            signatures={sarcasmHighlights(resultAward.axes)}
           />
           <SarcasmProfile
             axes={resultAward.axes}

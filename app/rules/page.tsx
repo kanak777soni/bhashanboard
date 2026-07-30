@@ -74,10 +74,12 @@ export default function RulesPage() {
           The performance bar, vote count, distribution, GP and rank come only from valid public ballots.
         </p>
         <p>
-          The five editorial axes—Logic Break, Straight-Face Delivery, Replay
-          Value, Crowd Complicity, and No Consequence—appear publicly as the
-          Sarcasm Profile. They describe the comic anatomy of the moment but
-          never alter GP, class or rank. Aamne-Saamne remains a playful,
+          The five judging lenses&mdash;Logic Break, Full Confidence, Replay
+          Value, Crowd Effect, and No Fallout&mdash;describe why the moment
+          lands. They appear publicly as the Sarcasm Profile. A member still
+          enters one overall ruling, so no lens is secretly counted twice.
+          The profile describes the comic anatomy of the moment but never
+          alters GP, class or rank. Aamne-Saamne remains a playful,
           non-scoring exhibition; picks made there never alter the standings.
         </p>
 

@@ -3,6 +3,7 @@ import Medal from "./Medal";
 import { getData } from "@/lib/data";
 import { slugify } from "@/lib/corpus";
 import { languageTag } from "@/lib/language";
+import { sarcasmHighlights } from "@/lib/sarcasm";
 import { tierOf } from "@/lib/tiers";
 import type { Row } from "@/lib/query";
 
@@ -57,6 +58,7 @@ export default async function StandingsTable({
             const neta = data.netaBySlug(s.neta);
             const party = data.partyByCode(s.partyAtTime);
             const tier = tierOf(s.gp);
+            const signatures = sarcasmHighlights(s.axes);
             return (
               <tr key={s.slug}>
                 <td className="c-rank">{rank}</td>
@@ -90,8 +92,16 @@ export default async function StandingsTable({
                       {neta?.name} &middot; {s.partyAtTime} &middot;{" "}
                     </span>
                     <Link href={`/category/${slugify(s.category)}`}>{s.category}</Link>{" "}
-                    &middot; {s.language} &middot; Logic Break{" "}
-                    <span className="num">{Math.round(s.axes.logic)}</span>{" "}
+                    &middot; {s.language} &middot;{" "}
+                    <span>
+                      {signatures.map((signature, index) => (
+                        <span key={signature.label}>
+                          {index > 0 ? " / " : ""}
+                          {signature.label}{" "}
+                          <span className="num">{signature.value}</span>
+                        </span>
+                      ))}
+                    </span>{" "}
                     &middot;{" "}
                     <span className="num">
                       {s.rating.validVoteCount.toLocaleString("en-IN")}

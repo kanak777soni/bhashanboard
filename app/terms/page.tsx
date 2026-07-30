@@ -84,8 +84,8 @@ export default function TermsPage() {
         <p>
           We aim to publish primary or recognized broadcast sources, bounded context, accurate
           transcripts and translations, and visible corrections. Sources can disappear, captions can
-          be imperfect, and a record can change after review. Use the linked source and correction
-          ledger when accuracy matters. A verified office or affected person may request a correction,
+          be imperfect, and a record can change after review. Use the linked sources and visible
+          correction notes when accuracy matters. A verified office or affected person may request a correction,
           context review, or right of reply through the correspondence process shown on the site.
         </p>
 

@@ -8,6 +8,7 @@ import StandingsTable from "@/components/StandingsTable";
 import CoverageNote from "@/components/CoverageNote";
 import { CATEGORIES, getData } from "@/lib/data";
 import { parseQuery, runQuery } from "@/lib/query";
+import { sarcasmHighlights } from "@/lib/sarcasm";
 
 export const metadata = {
   title: "The Standings",
@@ -78,10 +79,7 @@ export default async function StandingsPage({
                     performance={statement.rating.performance}
                     rank={index + 1}
                     hallOfFame={statement.hallOfFame}
-                    signature={{
-                      label: "Logic Break",
-                      value: statement.axes.logic,
-                    }}
+                    signatures={sarcasmHighlights(statement.axes)}
                   />
                 </article>
               );

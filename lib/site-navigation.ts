@@ -29,7 +29,6 @@ export const ARCHIVE_SITE_LINKS: SiteNavigationLink[] = [
     label: "The Record",
     activePrefixes: ["/category", "/party"],
   },
-  { href: "/ledger", label: "Ledger" },
   { href: "/rejected", label: "Refused" },
   { href: "/rules", label: "Rules" },
 ];

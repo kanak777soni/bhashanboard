@@ -134,13 +134,19 @@
   letter-spacing: .16em;
 }
 
+.signatures {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 9px;
+}
+
 .signature {
   width: max-content;
   max-width: 100%;
   display: inline-flex;
   gap: 7px;
   align-items: baseline;
-  margin-top: 9px;
   padding: 4px 7px;
   color: var(--ink-70);
   border: 1px solid color-mix(in srgb, var(--seal) 54%, var(--rule-hard));
@@ -250,6 +256,13 @@
   background: linear-gradient(90deg, var(--foil), var(--seal));
 }
 
+.profileAxisPrompt {
+  margin: 7px 0 0;
+  color: var(--ink-70);
+  font-size: 11.5px;
+  line-height: 1.32;
+}
+
 .profileCompact {
   padding: 12px;
 }
@@ -264,6 +277,10 @@
 }
 
 .profileCompact .profileNote {
+  display: none;
+}
+
+.profileCompact .profileAxisPrompt {
   display: none;
 }
 
@@ -431,6 +448,11 @@
 
   .profileTrack {
     margin-top: 0;
+  }
+
+  .profileAxisPrompt {
+    grid-column: 1 / -1;
+    margin-top: -2px;
   }
 
   .ladderRail {

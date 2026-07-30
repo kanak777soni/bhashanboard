@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import SiteFrame from "@/components/SiteFrame";
 import { getData } from "@/lib/data";
+import { requireAdmin } from "@/lib/require-admin";
 
 export const metadata: Metadata = {
   title: "The Ledger",
@@ -17,21 +17,26 @@ const KIND_LABEL: Record<string, string> = {
 };
 
 export default async function LedgerPage() {
+  await requireAdmin();
   const { LEDGER } = await getData();
   return (
-    <SiteFrame>
-      <div className="sec-head" style={{ marginTop: 26 }}>
-        <h1>The Ledger</h1>
+    <section className="admin-section">
+      <div className="admin-section-head">
+        <div>
+          <span className="lbl">Board Desk only</span>
+          <h2>The Ledger</h2>
+        </div>
         <span className="lbl">We keep score of ourselves</span>
       </div>
 
-      <p className="prose" style={{ marginTop: 16 }}>
+      <p className="rail-note" style={{ marginBottom: 16 }}>
         Every removal, correction, re-contextualisation, right of reply, neutrality audit and
         vote-integrity report is recorded here, permanently, in the order it happened. Nothing is
-        removed from this page. It is deliberately the least designed page on the site.
+        removed from this page. During the early build, this record remains visible only to
+        administrators and can be opened publicly later.
       </p>
 
-      <div className="tablewrap" style={{ marginTop: 20 }}>
+      <div className="tablewrap">
         <table className="ledger">
           <thead>
             <tr>
@@ -53,6 +58,6 @@ export default async function LedgerPage() {
           </tbody>
         </table>
       </div>
-    </SiteFrame>
+    </section>
   );
 }

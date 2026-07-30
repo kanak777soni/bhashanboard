@@ -4,9 +4,9 @@ import ClassAward from "@/components/ClassAward";
 import ClassLadder from "@/components/ClassLadder";
 import SiteFrame from "@/components/SiteFrame";
 import EntryTitle from "@/components/EntryTitle";
-import { sarcasmSignature } from "@/components/SarcasmProfile";
 import { getData } from "@/lib/data";
 import { hallEligibility } from "@/lib/hall";
+import { sarcasmHighlights } from "@/lib/sarcasm";
 
 export const metadata: Metadata = {
   title: "Hall of Fame",
@@ -107,7 +107,7 @@ export default async function HallPage() {
                     performance={statement.rating.performance}
                     rank={publicRank}
                     hallOfFame
-                    signature={sarcasmSignature(statement.axes)}
+                    signatures={sarcasmHighlights(statement.axes)}
                   />
                 </article>
               );
@@ -179,10 +179,7 @@ export default async function HallPage() {
                     validVoteCount={statement.rating.validVoteCount}
                     performance={statement.rating.performance}
                     rank={publicRank}
-                    signature={{
-                      label: "Logic Break",
-                      value: statement.axes.logic,
-                    }}
+                    signatures={sarcasmHighlights(statement.axes)}
                   />
                   <p className="hall-road-progress">{progress}</p>
                 </article>

@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import Medal from "@/components/Medal";
+import type { SarcasmHighlight } from "@/lib/sarcasm";
 import { tierOf } from "@/lib/tiers";
 import styles from "./AwardSystem.module.css";
 
@@ -12,7 +13,7 @@ export default function ClassAward({
   rank = 0,
   hallOfFame = false,
   variant = "compact",
-  signature,
+  signatures,
   className = "",
 }: {
   gp: number;
@@ -21,7 +22,7 @@ export default function ClassAward({
   rank?: number;
   hallOfFame?: boolean;
   variant?: ClassAwardVariant;
-  signature?: { label: string; value: number };
+  signatures?: ReadonlyArray<SarcasmHighlight>;
   className?: string;
 }) {
   const ranked = validVoteCount >= 10;
@@ -103,10 +104,14 @@ export default function ClassAward({
             </span>
           )}
         </div>
-        {signature && (
-          <div className={styles.signature}>
-            {signature.label}
-            <strong>{Math.round(signature.value)}/100</strong>
+        {signatures && signatures.length > 0 && (
+          <div className={styles.signatures} aria-label="Strongest sarcasm traits">
+            {signatures.slice(0, 2).map((signature) => (
+              <span className={styles.signature} key={signature.label}>
+                {signature.label}
+                <strong>{Math.round(signature.value)}/100</strong>
+              </span>
+            ))}
           </div>
         )}
       </div>

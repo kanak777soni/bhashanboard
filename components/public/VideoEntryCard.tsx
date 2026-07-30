@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { CorpusStatement } from "@/lib/corpus";
 import type { Neta } from "@/lib/types";
 import { statementRatingMaturity } from "@/lib/public-inventory";
+import { sarcasmHighlights } from "@/lib/sarcasm";
 import ClassAward from "@/components/ClassAward";
 import EntryTitle from "@/components/EntryTitle";
 import styles from "./PublicInventory.module.css";
@@ -74,10 +75,7 @@ export default function VideoEntryCard({
             performance={statement.rating.performance}
             rank={rank}
             hallOfFame={statement.hallOfFame}
-            signature={{
-              label: "Logic Break",
-              value: statement.axes.logic,
-            }}
+            signatures={sarcasmHighlights(statement.axes)}
           />
         </div>
 

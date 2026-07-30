@@ -7,6 +7,7 @@ import RecordList from "@/components/public/RecordList";
 import SiteFrame from "@/components/SiteFrame";
 import StandingsTable from "@/components/StandingsTable";
 import { getData } from "@/lib/data";
+import { sarcasmHighlights } from "@/lib/sarcasm";
 
 export async function generateMetadata({
   params,
@@ -168,10 +169,7 @@ export default async function NetaPage({
                 performance={cabinetClip.rating.performance}
                 rank={data.publicRankOf(cabinetClip.slug)}
                 hallOfFame={cabinetClip.hallOfFame}
-                signature={{
-                  label: "Logic Break",
-                  value: cabinetClip.axes.logic,
-                }}
+                signatures={sarcasmHighlights(cabinetClip.axes)}
               />
             </article>
             <dl className="neta-cabinet-stats">

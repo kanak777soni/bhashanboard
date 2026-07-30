@@ -10,7 +10,7 @@ export default async function AdminAudit() {
       <p className="rail-note" style={{ marginBottom: 14 }}>
         Every write from this dashboard, in order. Rating changes record the old and new value of each axis
         that moved. This is what makes an editable ladder defensible rather than steerable — the site
-        publishes a ledger claiming it keeps score of itself, and this is that score.
+        keeps its protected Ledger beside this raw mutation log, and this is that score.
       </p>
       <div className="tablewrap">
         <table className="ledger">

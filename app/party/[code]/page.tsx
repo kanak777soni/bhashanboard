@@ -116,8 +116,7 @@ export default async function PartyPage({
 
       <p className="legend-foot" style={{ marginTop: 18 }}>
         Archive share changes when more clips and statements are added. It is
-        never corrected through scores.{" "}
-        <Link href="/ledger">The coverage note explains the gap.</Link>
+        never corrected through scores. The coverage note above explains the gap.
       </p>
 
       <div className="sec-head" style={{ marginTop: 32 }}>
